@@ -1,0 +1,7 @@
+{
+  "name": "devkit",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
