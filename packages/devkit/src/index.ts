@@ -6,6 +6,7 @@ import {
   saveGlobalConfig,
   loadUserConfig,
   getLocaleFromConfig,
+  updateTemplateCacheStrategy,
 } from "./utils/config.js";
 import {
   CliConfig,
@@ -59,6 +60,7 @@ function setupNewCommand(options: SetupCommandOptions) {
   const { program, config } = options;
   const newCommand = program
     .command("new")
+    .alias("nw")
     .description(t("new.command.description"));
 
   for (const [language, langConfig] of Object.entries(config.templates)) {
@@ -118,6 +120,7 @@ function setupConfigCommand(options: SetupCommandOptions) {
   const { program, config } = options;
   const configCommand = program
     .command("config")
+    .alias("cf")
     .description(t("config.command.description"));
 
   const configAliases: Record<string, keyof CliConfig["settings"]> = {
@@ -179,6 +182,7 @@ function setupConfigCommand(options: SetupCommandOptions) {
 
   configCommand
     .command("init")
+    .alias("i")
     .description(t("config.init.command.description"))
     .action(async () => {
       const globalPath = path.join(
@@ -199,6 +203,20 @@ function setupConfigCommand(options: SetupCommandOptions) {
         console.error(chalk.red(error.message));
       }
     });
+
+  configCommand
+    .command("cache")
+    .alias("-c")
+    .description(t("config.cache.command.description"))
+    .argument("<templateName>", t("config.cache.template.argument"))
+    .addArgument(
+      new Argument("<strategy>", t("config.cache.strategy.argument")).choices(
+        VALID_CACHE_STRATEGIES,
+      ),
+    )
+    .action(async (templateName, strategy) => {
+      await updateTemplateCacheStrategy(templateName, strategy, config);
+    });
 }
 
 async function setupAndParse() {
@@ -210,6 +228,7 @@ async function setupAndParse() {
 
   program
     .name("devkit")
+    .alias("dk")
     .description(t("program.description"))
     .version(VERSION, "-V, --version", t("version.description"))
     .helpOption("-h, --help", t("help.description"));

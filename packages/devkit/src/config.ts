@@ -67,6 +67,8 @@ export interface CliConfig {
     [key in LowercaseValues<
       ValuesOf<typeof ProgrammingLanguage>
     >]?: LanguageConfig;
+  } & {
+    [key: string]: LanguageConfig;
   };
   settings: {
     defaultPackageManager: ValuesOf<typeof PackageManagers>;

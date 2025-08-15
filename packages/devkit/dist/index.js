@@ -5,6 +5,7 @@ import {
   saveGlobalConfig,
   loadUserConfig,
   getLocaleFromConfig,
+  updateTemplateCacheStrategy,
 } from "./utils/config.js";
 import {
   PackageManagers,
@@ -47,6 +48,7 @@ function setupNewCommand(options) {
   const { program, config } = options;
   const newCommand = program
     .command("new")
+    .alias("nw")
     .description(t("new.command.description"));
   for (const [language, langConfig] of Object.entries(config.templates)) {
     const langCommand = newCommand
@@ -102,6 +104,7 @@ function setupConfigCommand(options) {
   const { program, config } = options;
   const configCommand = program
     .command("config")
+    .alias("cf")
     .description(t("config.command.description"));
   const configAliases = {
     pm: "defaultPackageManager",
@@ -154,6 +157,7 @@ function setupConfigCommand(options) {
     });
   configCommand
     .command("init")
+    .alias("i")
     .description(t("config.init.command.description"))
     .action(async () => {
       const globalPath = path.join(
@@ -174,6 +178,19 @@ function setupConfigCommand(options) {
         console.error(chalk.red(error.message));
       }
     });
+  configCommand
+    .command("cache")
+    .alias("-c")
+    .description(t("config.cache.command.description"))
+    .argument("<templateName>", t("config.cache.template.argument"))
+    .addArgument(
+      new Argument("<strategy>", t("config.cache.strategy.argument")).choices(
+        VALID_CACHE_STRATEGIES,
+      ),
+    )
+    .action(async (templateName, strategy) => {
+      await updateTemplateCacheStrategy(templateName, strategy, config);
+    });
 }
 async function setupAndParse() {
   const program = new Command();
@@ -182,6 +199,7 @@ async function setupAndParse() {
   const config = await loadUserConfig();
   program
     .name("devkit")
+    .alias("dk")
     .description(t("program.description"))
     .version(VERSION, "-V, --version", t("version.description"))
     .helpOption("-h, --help", t("help.description"));
