@@ -1,36 +1,44 @@
 {
   "name": "devkit",
-  "private": true,
-  "license": "MIT",
-  "description": "A universal, personal CLI tool to streamline your entire development workflow.",
   "version": "0.0.1",
+  "description": "A universal command-line tool for developers to automate project setup and streamline their workflows.",
   "keywords": [
-    "CLI tool",
-    "Dev tools",
-    "Project scaffolding",
-    "Developer workflow",
-    "Automation tool",
-    "Command-line interface",
-    "Node.js project setup",
-    "Monorepo CLI tool",
-    "Template management tool",
-    "DevKit CLI",
-    "Configurable CLI",
-    "Universal developer CLI",
-    "Automate project creation",
-    "CLI builder",
-    "Scaffolder",
-    "Tooling",
-    "Developer utility",
-    "Project initializer",
-    "Starter kit"
+    "devkit",
+    "cli",
+    "command-line-interface",
+    "project-scaffolding",
+    "developer-workflow",
+    "automation-tool",
+    "node-js-setup",
+    "monorepo",
+    "template-management",
+    "configurable-cli",
+    "universal-cli",
+    "project-initializer",
+    "starter-kit",
+    "developer-utility",
+    "tooling",
+    "scaffolder"
   ],
   "author": "Ivany Botrel Rayn WAFFEU <wibrc.se.jc@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/IT-WIBRC/devkit#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IT-WIBRC/devkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/IT-WIBRC/devkit/issues"
+  },
   "scripts": {
+    "test": "vitest",
     "prepare": "husky install",
     "format": "prettier --write .",
     "lint:commit": "commitlint",
-    "lint": "oxlint --fix ."
+    "lint": "oxlint --fix .",
+    "release": "changeset publish",
+    "changeset": "changeset"
   },
   "workspaces": [
     "packages/*"
@@ -39,6 +47,7 @@
     "@changesets/cli": "^2.29.5",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "cpx": "^1.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "oxlint": "^1.11.2",
@@ -51,9 +60,5 @@
       "oxlint"
     ],
     "*.{json,css,md,yaml,yml}": "prettier --write"
-  },
-  "dependencies": {
-    "commander": "^14.0.0",
-    "deepmerge": "^4.3.1"
   }
 }
