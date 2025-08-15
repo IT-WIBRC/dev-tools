@@ -26,7 +26,7 @@ async function cloneRepo(url: string, repoPath: string, spinner: Ora) {
     await fs.ensureDir(repoPath);
     await execa("git", ["clone", url, "."], {
       cwd: repoPath,
-      stdio: "inherit",
+      stdio: "ignore",
     });
     spinner.succeed(chalk.green(t("cache.clone.success")));
   } catch (error) {
@@ -39,7 +39,7 @@ async function pullRepo(repoPath: string, spinner: Ora) {
   spinner.text = chalk.cyan(t("cache.refresh.start"));
   spinner.start();
   try {
-    await execa("git", ["pull"], { cwd: repoPath, stdio: "inherit" });
+    await execa("git", ["pull"], { cwd: repoPath, stdio: "ignore" });
     spinner.succeed(chalk.green(t("cache.refresh.success")));
   } catch (error) {
     spinner.fail(chalk.red(t("cache.refresh.fail")));
@@ -47,14 +47,16 @@ async function pullRepo(repoPath: string, spinner: Ora) {
   }
 }
 
-async function getCachedTemplatePath(
-  url: string,
-  spinner: Ora,
-  strategy: CacheStrategy,
-): Promise<string> {
+async function getCachedTemplatePath(options: {
+  url: string;
+  spinner: Ora;
+  strategy: CacheStrategy;
+}): Promise<string> {
+  const { url, spinner, strategy } = options;
   const repoName = getRepoNameFromUrl(url);
   const repoPath = path.join(CACHE_DIR, repoName);
   const repoExists = fs.existsSync(repoPath);
+
   if (!repoExists) {
     await cloneRepo(url, repoPath, spinner);
   } else {
@@ -89,9 +91,8 @@ async function isRepoFresh(
   }
   try {
     const stat = await fs.stat(path.join(repoPath, ".git/FETCH_HEAD"));
-    const lastPullTime = stat.mtime.getTime();
-    const oneDay = 24 * 60 * 60 * 1000;
-    return Date.now() - lastPullTime < oneDay;
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+    return Date.now() - stat.mtime.getTime() < oneDayInMs;
   } catch {
     return false;
   }
@@ -102,7 +103,7 @@ export async function getTemplateFromCache(
 ): Promise<void> {
   const { url, projectName, spinner, strategy } = options;
   const destination = path.join(process.cwd(), projectName);
-  const cachedPath = await getCachedTemplatePath(url, spinner, strategy);
+  const cachedPath = await getCachedTemplatePath({ url, spinner, strategy });
   spinner.text = chalk.cyan(t("cache.copy.start"));
   spinner.start();
   try {

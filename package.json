@@ -5,22 +5,27 @@
   "description": "A universal, personal CLI tool to streamline your entire development workflow.",
   "version": "0.0.1",
   "keywords": [
-    "cli",
-    "CLI builder",
-    "monorepo",
-    "devkit",
-    "nodejs",
-    "scaffolding",
-    "typescript",
-    "Starter kit",
-    "Developer utility",
-    "Tooling",
-    "Scaffolder",
+    "CLI tool",
+    "Dev tools",
+    "Project scaffolding",
+    "Developer workflow",
+    "Automation tool",
+    "Command-line interface",
+    "Node.js project setup",
+    "Monorepo CLI tool",
     "Template management tool",
+    "DevKit CLI",
     "Configurable CLI",
     "Universal developer CLI",
-    "Dev tools"
+    "Automate project creation",
+    "CLI builder",
+    "Scaffolder",
+    "Tooling",
+    "Developer utility",
+    "Project initializer",
+    "Starter kit"
   ],
+  "author": "Ivany Botrel Rayn WAFFEU <wibrc.se.jc@gmail.com>",
   "scripts": {
     "prepare": "husky install",
     "format": "prettier --write .",
@@ -48,6 +53,7 @@
     "*.{json,css,md,yaml,yml}": "prettier --write"
   },
   "dependencies": {
-    "commander": "^14.0.0"
+    "commander": "^14.0.0",
+    "deepmerge": "^4.3.1"
   }
 }

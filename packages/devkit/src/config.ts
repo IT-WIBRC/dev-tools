@@ -27,6 +27,8 @@ export const PackageManagers = {
   Deno: "deno",
   Pnpm: "pnpm",
 } as const;
+export type PackageManager =
+  (typeof PackageManagers)[keyof typeof PackageManagers];
 
 export type ValuesOf<T> = T[keyof T];
 export type LowercaseValues<T extends string> =
@@ -53,7 +55,13 @@ export interface LanguageConfig {
   templates: { [key: string]: TemplateConfig };
 }
 
-export type CacheStrategy = "always-refresh" | "never-refresh" | "daily";
+export const VALID_CACHE_STRATEGIES = [
+  "always-refresh",
+  "never-refresh",
+  "daily",
+] as const;
+export type CacheStrategy = (typeof VALID_CACHE_STRATEGIES)[number];
+
 export interface CliConfig {
   templates: {
     [key in LowercaseValues<

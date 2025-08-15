@@ -1,61 +1,116 @@
 import fs from "fs-extra";
-import path, { dirname } from "path";
+import path from "path";
 import os from "os";
+import deepmerge from "deepmerge";
 import { CONFIG_FILE_NAMES, defaultCliConfig } from "../config.js";
+import { findProjectRoot } from "./file-finder.js";
 import { t } from "./i18n.js";
-import { fileURLToPath } from "url";
-export function findConfigFile() {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
-  let currentDir = path.resolve(__dirname, "../../");
-  const homeDir = os.homedir();
-  while (currentDir !== homeDir && currentDir !== path.dirname(currentDir)) {
+import chalk from "chalk";
+export function findGlobalConfig() {
+  const globalPath = path.join(
+    os.homedir(),
+    CONFIG_FILE_NAMES[1] || ".devkitrc.json",
+  );
+  return fs.existsSync(globalPath) ? globalPath : null;
+}
+export function findLocalConfig() {
+  try {
+    const projectRoot = findProjectRoot();
     for (const name of CONFIG_FILE_NAMES) {
-      const filePath = path.join(currentDir, name);
+      const filePath = path.join(projectRoot, name);
       if (fs.existsSync(filePath)) {
         return filePath;
       }
     }
-    currentDir = path.dirname(currentDir);
+    return null;
+  } catch (e) {
+    return null;
   }
-  return null;
 }
-export async function loadUserConfig() {
-  const configFilePath = findConfigFile();
-  if (configFilePath) {
+export async function getLocaleFromConfig() {
+  const globalConfigPath = findGlobalConfig();
+  if (globalConfigPath) {
     try {
-      const userConfig = await fs.readJson(configFilePath);
-      return {
-        ...defaultCliConfig,
-        settings: {
-          ...defaultCliConfig.settings,
-          ...userConfig.settings,
-        },
-        templates: {
-          ...defaultCliConfig.templates,
-          ...userConfig.templates,
-        },
-      };
+      const globalConfig = await fs.readJson(globalConfigPath);
+      if (globalConfig?.settings?.language) {
+        return globalConfig.settings.language;
+      }
     } catch (error) {
-      console.error(
-        t("error.config.parse", {
-          file: path.basename(configFilePath),
-        }),
-        error,
+      console.warn(
+        chalk.yellow(
+          `Warning: Failed to read global config at ${globalConfigPath}. Using default language.`,
+        ),
       );
-      return defaultCliConfig;
     }
   }
-  return defaultCliConfig;
+  const localConfigPath = findLocalConfig();
+  if (localConfigPath) {
+    try {
+      const localConfig = await fs.readJson(localConfigPath);
+      if (localConfig?.settings?.language) {
+        return localConfig.settings.language;
+      }
+    } catch (error) {
+      console.warn(
+        chalk.yellow(
+          `Warning: Failed to read local config at ${localConfigPath}. Using default language.`,
+        ),
+      );
+    }
+  }
+  return "en";
 }
-export async function saveUserConfig(config) {
-  const existingConfigPath = findConfigFile();
-  const targetPath =
-    existingConfigPath || path.join(os.homedir(), CONFIG_FILE_NAMES[1] || "");
+export async function loadUserConfig() {
+  let finalConfig = defaultCliConfig;
+  const globalConfigPath = findGlobalConfig();
+  if (globalConfigPath) {
+    try {
+      const globalConfig = await fs.readJson(globalConfigPath);
+      finalConfig = deepmerge(finalConfig, globalConfig);
+    } catch (error) {
+      console.error(
+        t("error.config.parse", { file: path.basename(globalConfigPath) }),
+        error,
+      );
+    }
+  } else {
+    console.warn(chalk.yellow(t("warning.global.config.not.initialized")));
+  }
+  const localConfigPath = findLocalConfig();
+  if (localConfigPath) {
+    try {
+      const localConfig = await fs.readJson(localConfigPath);
+      finalConfig = deepmerge(finalConfig, localConfig);
+    } catch (error) {
+      console.error(
+        t("error.config.parse", { file: path.basename(localConfigPath) }),
+        error,
+      );
+    }
+  }
+  return finalConfig;
+}
+export async function saveGlobalConfig(config) {
+  const targetPath = path.join(
+    os.homedir(),
+    CONFIG_FILE_NAMES[0] || ".devkitrc.json",
+  );
   try {
     await fs.writeJson(targetPath, config, { spaces: 2 });
   } catch (error) {
     console.error(t("error.config.save", { file: targetPath }));
+    throw error;
+  }
+}
+export async function saveLocalConfig(config) {
+  const existingConfigPath = findLocalConfig();
+  if (!existingConfigPath) {
+    throw new Error(t("error.save.local.config.not_found"));
+  }
+  try {
+    await fs.writeJson(existingConfigPath, config, { spaces: 2 });
+  } catch (error) {
+    console.error(t("error.config.save", { file: existingConfigPath }));
     throw error;
   }
 }

@@ -1,18 +1,14 @@
 import fs from "fs-extra";
 import path from "path";
-import { loadUserConfig } from "./config.js";
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, "../../");
+import { findLocalesDir } from "./file-finder.js";
 let translations = {};
 export async function loadTranslations(lang) {
-  const filePath = path.join(projectRoot, "locales", `${lang}.json`);
+  const localesDir = findLocalesDir();
+  const filePath = path.join(localesDir, `${lang}.json`);
   if (fs.existsSync(filePath)) {
-    const fileContent = fs.readJsonSync(filePath, { encoding: "utf-8" });
-    translations = fileContent;
+    translations = await fs.readJson(filePath, { encoding: "utf-8" });
   } else {
-    const fallbackPath = path.join(projectRoot, "locales", "en.json");
+    const fallbackPath = path.join(localesDir, "en.json");
     if (fs.existsSync(fallbackPath)) {
       translations = await fs.readJson(fallbackPath, { encoding: "utf-8" });
     }
@@ -25,7 +21,3 @@ export function t(key, variables = {}) {
   }
   return translatedString;
 }
-(async () => {
-  const config = await loadUserConfig();
-  await loadTranslations(config.settings.language);
-})();
