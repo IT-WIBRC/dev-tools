@@ -15,8 +15,8 @@
   "scripts": {
     "prepare": "husky install",
     "format": "prettier --write .",
-    "lint": "oxlint --fix .",
-    "lint:commit": "commitlint"
+    "lint:commit": "commitlint",
+    "lint": "oxlint --fix ."
   },
   "workspaces": [
     "packages/*"
