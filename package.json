@@ -6,11 +6,20 @@
   "version": "0.0.1",
   "keywords": [
     "cli",
+    "CLI builder",
     "monorepo",
     "devkit",
     "nodejs",
     "scaffolding",
-    "typescript"
+    "typescript",
+    "Starter kit",
+    "Developer utility",
+    "Tooling",
+    "Scaffolder",
+    "Template management tool",
+    "Configurable CLI",
+    "Universal developer CLI",
+    "Dev tools"
   ],
   "scripts": {
     "prepare": "husky install",
