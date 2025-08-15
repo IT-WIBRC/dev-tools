@@ -1,7 +1,42 @@
 {
   "name": "devkit",
   "private": true,
+  "license": "MIT",
+  "description": "A universal, personal CLI tool to streamline your entire development workflow.",
+  "version": "0.0.1",
+  "keywords": [
+    "cli",
+    "monorepo",
+    "devkit",
+    "nodejs",
+    "scaffolding",
+    "typescript"
+  ],
+  "scripts": {
+    "prepare": "husky install",
+    "format": "prettier --write .",
+    "lint": "oxlint --fix .",
+    "test": "vitest"
+  },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "@changesets/cli": "^2.29.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "oxlint": "^1.11.2",
+    "prettier": "^3.6.2",
+    "vitest": "^3.2.4"
+  },
+  "lint-staged": {
+    "*.{ts,js,jsx,tsx}": [
+      "prettier --write",
+      "oxlint"
+    ],
+    "*.{json,css,md}": "prettier --write"
+  },
+  "dependencies": {
+    "commander": "^14.0.0"
+  }
 }

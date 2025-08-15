@@ -1,73 +1,33 @@
 export const ProgrammingLanguage = {
   Nodejs: "Node.js",
-} as const;
-
+};
 export const NodejsFramework = {
   Vue: "Vue.js",
   Nuxt: "Nuxt.js",
   Nest: "Nest.js",
-} as const;
-
+};
 export const UnitTestingLibrary = {
   Jest: "Jest",
   Vitest: "Vitest",
   None: "None",
-} as const;
-
+};
 export const E2ELibrary = {
   Cypress: "Cypress",
   Playwright: "Playwright",
   None: "None",
-} as const;
-
+};
 export const PackageManagers = {
   Bun: "bun",
   Npm: "npm",
   Yarn: "yarn",
   Deno: "deno",
   Pnpm: "pnpm",
-} as const;
-
-export type ValuesOf<T> = T[keyof T];
-export type LowercaseValues<T extends string> =
-  T extends `${infer U}.${infer E}`
-    ? `${Lowercase<U>}${E}`
-    : T extends `${infer U}`
-      ? Lowercase<U>
-      : T;
-
+};
 export const TextLanguages = {
   English: "en",
   French: "fr",
-} as const;
-export type TextLanguageValues = ValuesOf<typeof TextLanguages>;
-
-export interface TemplateConfig {
-  description: string;
-  location: string;
-  cacheStrategy?: CacheStrategy;
-  packageManager?: ValuesOf<typeof PackageManagers>;
-}
-
-export interface LanguageConfig {
-  templates: { [key: string]: TemplateConfig };
-}
-
-export type CacheStrategy = "always-refresh" | "never-refresh" | "daily";
-export interface CliConfig {
-  templates: {
-    [key in LowercaseValues<
-      ValuesOf<typeof ProgrammingLanguage>
-    >]?: LanguageConfig;
-  };
-  settings: {
-    defaultPackageManager: ValuesOf<typeof PackageManagers>;
-    cacheStrategy?: CacheStrategy;
-    language: TextLanguageValues;
-  };
-}
-
-export const defaultCliConfig: CliConfig = {
+};
+export const defaultCliConfig = {
   templates: {
     nodejs: {
       templates: {
@@ -97,5 +57,4 @@ export const defaultCliConfig: CliConfig = {
     language: TextLanguages.English,
   },
 };
-
 export const CONFIG_FILE_NAMES = [".devkitrc", ".devkitrc.json"];

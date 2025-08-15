@@ -1,40 +1,13 @@
-import {
-  PackageManagers,
-  ValuesOf,
-  TemplateConfig,
-  CacheStrategy,
-} from "../config.js";
 import fs from "fs-extra";
 import path from "path";
 import chalk from "chalk";
 import ora from "ora";
-import type { Ora } from "ora";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { execa } from "execa";
 import { getTemplateFromCache } from "../utils/cache.js";
 import { t } from "../utils/i18n.js";
-
-interface TemplateOptions {
-  projectName: string;
-  spinner: Ora;
-}
-
-interface RunOfficialCliOptions extends TemplateOptions {
-  command: string;
-  packageManager: ValuesOf<typeof PackageManagers>;
-}
-
-interface ScaffoldNodejsProjectOptions {
-  projectName: string;
-  templateConfig: TemplateConfig;
-  packageManager: ValuesOf<typeof PackageManagers>;
-  cacheStrategy: CacheStrategy;
-}
-
-async function copyLocalTemplate(
-  options: TemplateOptions & { sourcePath: string },
-) {
+async function copyLocalTemplate(options) {
   const { sourcePath, projectName, spinner } = options;
   const projectPath = path.join(process.cwd(), projectName);
   spinner.text = chalk.cyan(t("scaffolding.copy.start"));
@@ -47,8 +20,7 @@ async function copyLocalTemplate(
     throw error;
   }
 }
-
-async function runOfficialCli(options: RunOfficialCliOptions) {
+async function runOfficialCli(options) {
   const { command, projectName, packageManager, spinner } = options;
   const finalCommand = command.replace("{pm}", packageManager);
   spinner.text = chalk.cyan(
@@ -66,12 +38,7 @@ async function runOfficialCli(options: RunOfficialCliOptions) {
     throw error;
   }
 }
-
-async function installDependencies(
-  options: TemplateOptions & {
-    packageManager: ValuesOf<typeof PackageManagers>;
-  },
-) {
+async function installDependencies(options) {
   const { projectName, packageManager, spinner } = options;
   const projectPath = path.join(process.cwd(), projectName);
   spinner.text = chalk.cyan(
@@ -90,10 +57,7 @@ async function installDependencies(
     throw error;
   }
 }
-
-export async function scaffoldNodejsProject(
-  options: ScaffoldNodejsProjectOptions,
-) {
+export async function scaffoldNodejsProject(options) {
   const { projectName, templateConfig, packageManager, cacheStrategy } =
     options;
   const spinner = ora();

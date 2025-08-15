@@ -1,37 +1,47 @@
-# Dev Kit (`dk`)
+# 🚀 Dev Kit (`dk`)
 
-### A universal, personal CLI tool to streamline your entire development workflow.
+### A universal CLI for professional developers to automate project scaffolding and streamline workflows.
 
-**Dev Kit** (`dk`) is a command-line interface tool designed by and for developers. Its mission is to eliminate the repetitive tasks of setting up a new dev machine and scaffolding new projects, allowing you to get straight to coding.
+**Dev Kit** (`dk`) is a powerful command-line interface tool engineered to save you time by eliminating repetitive development tasks. Whether you're setting up a new machine or starting a new project, `dk` is your go-to solution for project automation.
 
-This tool is built is about:
+Built with modern tooling in mind, `dk` seamlessly integrates into monorepos and supports a wide range of features to get you coding faster.
 
-**Project Scaffolding**: Create new projects for your favorite frameworks with your own custom structure.
+---
 
------
+### ✨ **Key Features**
 
-### ✨ **Features (Phase 1: Project Scaffolding)**
+- **Unified Command**: Use both `devkit` and the short command `dk` for all commands.
+- **Intelligent Scaffolding**: Create new projects from your favorite frameworks with a single, intuitive command. You can use your own custom templates for a consistent workflow.
+- **Robust Configuration**: The tool reliably finds your configuration file (`.devkitrc` or `.devkitrc.json`) in any project or monorepo structure by searching upwards from the current directory.
+- **Powerful Cache Management**: Optimize project setup speed with flexible caching strategies for your templates:
+  - `always-refresh`: Always pull the latest template from the remote repository.
+  - `never-refresh`: Use the local cached template without checking for updates.
+  - `daily` (default): Refresh the cache only once every 24 hours.
+- **Seamless Internationalization (i18n)**: The CLI supports multiple languages, with all commands and descriptions dynamically translated based on your configuration.
+- **Centralized Settings**: Use `dk config` to manage global settings like your preferred package manager (`npm`, `yarn`, `pnpm`, `bun`) and cache strategy.
 
-  * **Unified Command**: Use both `devkit` and the short command `dk` for all commands.
-  * **Intuitive Scaffolding**: Create new projects with a single command.
-      * `dk new`: Launches an interactive menu to guide you through project creation.
-      * `dk new [framework]`: Quickly scaffold projects for supported frameworks (e.g., `dk new vue`).
-  * **Hybrid Templating**: Choose between your own templates or the official framework CLIs.
-      * `dk new vue` uses your custom template by default.
-      * `dk new vue --official` (`-o`) runs the official Vue CLI.
-  * **Configurable**: Use a `devkit.json` file to define and manage your own custom templates, making them available in the main menu.
-  * **Node.js Version Management**: Seamlessly integrates with `nvm` to allow you to select a specific Node.js version when creating a new project.
+---
 
 ### 🚀 **Getting Started**
 
-This tool is a Node.js CLI. Before you can install it, you need to have Node.js and a package manager (like `npm`) on your system. We are creating a separate Bash script for that, but for now, you can follow these steps:
+This tool is a Node.js CLI. Before you can install it, you need to have Node.js and a package manager installed on your system.
 
-1.  **Prerequisites**: Ensure you have Node.js (v18 or higher recommended) and npm installed.
+1.  **Prerequisites**: Ensure you have **Node.js (v18 or higher)** and a package manager (`npm`, `yarn`, `pnpm`, or `bun`) installed.
 
-2.  **Installation**: Install Dev Kit globally from npm.
+2.  **Installation**: Install Dev Kit globally using your preferred package manager.
 
     ```bash
+    # using bun
+    bun install -g devkit
+
+    # using npm
     npm install -g devkit
+
+    # using pnpm
+    pnpm install -g devkit
+
+    # using yarn
+    yarn global add devkit
     ```
 
 3.  **Verify Installation**: To confirm everything is working, run the help command.
@@ -40,39 +50,60 @@ This tool is a Node.js CLI. Before you can install it, you need to have Node.js 
     dk --help
     ```
 
+---
+
 ### ⚙️ **Usage**
 
-Here are some examples of how to use the Dev Kit tool.
+Here are some examples to get started with the Dev Kit CLI.
 
-#### **Create a new project (interactive mode)**
-
-```bash
-dk new
-```
-
-This will walk you through a series of prompts to create your new project.
-
-#### **Create a new Vue project with your custom template**
+#### **Create a new project from a template**
 
 ```bash
-dk new vue --name my-awesome-app
+# Create a new Vue project from your custom template
+dk new vue my-awesome-app
 ```
 
-#### **Create a new Nuxt project using the official Nuxt CLI**
+#### **Update your CLI configuration**
+
+You can use the `config set` command to update your `.devkitrc` or `.devkitrc.json` file.
 
 ```bash
-dk new nuxt --official
+# Set your default package manager to pnpm
+dk config set pm pnpm
+
+# Set the language to French
+dk config set language fr
 ```
 
------
+---
+
+### **Configuration**
+
+You can manage your configuration in two ways:
+
+1.  **Using the CLI**: Use the `dk config set` command as shown above. This is the recommended method for making quick and safe changes.
+
+2.  **Manual Editing**: You can directly edit the configuration file with a text editor.
+    - **Local Project**: The configuration file is located at the **root of your project**. The file name will be `.devkitrc` or `.devkitrc.json`.
+    - **Global Installation**: The global configuration file is typically stored in your user's home directory. You can find it by looking for `.devkitrc` in your home folder.
+
+    <!-- end list -->
+
+    ```bash
+    # To view the global config file
+    cat ~/.devkitrc
+    ```
+
+---
 
 ### 🗺️ **Roadmap & Future Features**
 
-This project is in its early stages. Here are some of the planned features for future versions:
+This project is in its early stages, and we are committed to building a comprehensive developer toolkit.
 
-  * **System Setup (Phase 2)**: Create a separate Bash script to automate the installation of essential dev tools like Zsh, `nvm`, Node.js, IDEs, browsers, and more.
-  * **Multi-Language Support**: Extend the scaffolding tool to support other languages and ecosystems (e.g., Python, Ruby).
-  * **Documentation**: Detailed guides on creating and managing custom templates.
+- **Multi-Language Support**: Extend the scaffolding tool to support other languages and ecosystems (e.g., Python, Ruby, Go).
+- **Advanced Documentation**: Detailed guides on creating and managing custom templates, with examples for various frameworks.
+
+---
 
 ### 🤝 **Contributing**
 
@@ -84,13 +115,15 @@ We welcome contributions\! If you have a feature idea, find a bug, or want to co
 4.  Push to the branch (`git push origin feature/amazing-feature`).
 5.  Open a pull request.
 
------
+---
 
 ### 📄 **License**
 
-Distributed under the MIT License. See `LICENSE` for more information.
+[MIT](./LICENCE)
 
------
+Copyright (c) 2019-present, WAFFEU (Ivany Botrel) Rayn
+
+---
 
 ### **Contact**
 

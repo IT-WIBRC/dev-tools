@@ -1,0 +1,117 @@
+import fs from "fs-extra";
+import path from "path";
+import { execa } from "execa";
+import { Ora } from "ora";
+import os from "os";
+import chalk from "chalk";
+import { CacheStrategy } from "../config.js";
+import { t } from "./i18n.js";
+
+const CACHE_DIR = path.join(os.homedir(), ".devkit", "cache");
+
+interface CacheOptions {
+  spinner: Ora;
+  strategy: CacheStrategy;
+}
+
+export interface GetTemplateFromCacheOptions extends CacheOptions {
+  url: string;
+  projectName: string;
+}
+
+async function cloneRepo(url: string, repoPath: string, spinner: Ora) {
+  spinner.text = chalk.cyan(t("cache.clone.start", { url }));
+  spinner.start();
+  try {
+    await fs.ensureDir(repoPath);
+    await execa("git", ["clone", url, "."], {
+      cwd: repoPath,
+      stdio: "inherit",
+    });
+    spinner.succeed(chalk.green(t("cache.clone.success")));
+  } catch (error) {
+    spinner.fail(chalk.red(t("cache.clone.fail")));
+    throw error;
+  }
+}
+
+async function pullRepo(repoPath: string, spinner: Ora) {
+  spinner.text = chalk.cyan(t("cache.refresh.start"));
+  spinner.start();
+  try {
+    await execa("git", ["pull"], { cwd: repoPath, stdio: "inherit" });
+    spinner.succeed(chalk.green(t("cache.refresh.success")));
+  } catch (error) {
+    spinner.fail(chalk.red(t("cache.refresh.fail")));
+    throw error;
+  }
+}
+
+async function getCachedTemplatePath(
+  url: string,
+  spinner: Ora,
+  strategy: CacheStrategy,
+): Promise<string> {
+  const repoName = getRepoNameFromUrl(url);
+  const repoPath = path.join(CACHE_DIR, repoName);
+  const repoExists = fs.existsSync(repoPath);
+  if (!repoExists) {
+    await cloneRepo(url, repoPath, spinner);
+  } else {
+    const fresh = await isRepoFresh(repoPath, strategy);
+    if (!fresh) {
+      await pullRepo(repoPath, spinner);
+    } else {
+      spinner.info(chalk.yellow(t("cache.use.info", { repoName })));
+    }
+  }
+  return repoPath;
+}
+
+function getRepoNameFromUrl(url: string): string {
+  const parts = url.split("/");
+  let repoName = parts.pop() || "";
+  if (repoName.endsWith(".git")) {
+    repoName = repoName.slice(0, -4);
+  }
+  return repoName;
+}
+
+async function isRepoFresh(
+  repoPath: string,
+  strategy: CacheStrategy,
+): Promise<boolean> {
+  if (strategy === "never-refresh") {
+    return true;
+  }
+  if (strategy === "always-refresh") {
+    return false;
+  }
+  try {
+    const stat = await fs.stat(path.join(repoPath, ".git/FETCH_HEAD"));
+    const lastPullTime = stat.mtime.getTime();
+    const oneDay = 24 * 60 * 60 * 1000;
+    return Date.now() - lastPullTime < oneDay;
+  } catch {
+    return false;
+  }
+}
+
+export async function getTemplateFromCache(
+  options: GetTemplateFromCacheOptions,
+): Promise<void> {
+  const { url, projectName, spinner, strategy } = options;
+  const destination = path.join(process.cwd(), projectName);
+  const cachedPath = await getCachedTemplatePath(url, spinner, strategy);
+  spinner.text = chalk.cyan(t("cache.copy.start"));
+  spinner.start();
+  try {
+    await fs.copy(cachedPath, destination, {
+      filter: (src) => !src.includes(".git"),
+    });
+    spinner.succeed(chalk.green(t("cache.copy.success")));
+  } catch (error) {
+    spinner.fail(chalk.red(t("cache.copy.fail")));
+    throw error;
+  }
+}
