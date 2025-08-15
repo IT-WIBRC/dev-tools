@@ -47,6 +47,7 @@ export type TextLanguageValues = ValuesOf<typeof TextLanguages>;
 export interface TemplateConfig {
   description: string;
   location: string;
+  alias?: string;
   cacheStrategy?: CacheStrategy;
   packageManager?: ValuesOf<typeof PackageManagers>;
 }
@@ -93,6 +94,7 @@ export const defaultCliConfig: CliConfig = {
         nuxt: {
           description: "An official Nuxt.js project.",
           location: "{pm} create nuxt@latest",
+          alias: "nx",
         },
         nest: {
           description: "An official Nest.js project.",
