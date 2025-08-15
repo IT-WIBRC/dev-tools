@@ -48,6 +48,7 @@ export const defaultCliConfig = {
         nuxt: {
           description: "An official Nuxt.js project.",
           location: "{pm} create nuxt@latest",
+          alias: "nx",
         },
         nest: {
           description: "An official Nest.js project.",

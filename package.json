@@ -52,7 +52,8 @@
     "lint-staged": "^16.1.5",
     "oxlint": "^1.11.2",
     "prettier": "^3.6.2",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@types/bun": "latest"
   },
   "lint-staged": {
     "*.{ts,js}": [
@@ -60,5 +61,8 @@
       "oxlint"
     ],
     "*.{json,css,md,yaml,yml}": "prettier --write"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
   }
 }

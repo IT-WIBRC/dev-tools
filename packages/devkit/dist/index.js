@@ -51,16 +51,12 @@ function setupNewCommand(options) {
     .alias("nw")
     .description(t("new.command.description"));
   for (const [language, langConfig] of Object.entries(config.templates)) {
-    const langCommand = newCommand
-      .command(language)
-      .description(
-        t("new.language.command.description", { language: language }),
-      );
     for (const [templateName, templateConfig] of Object.entries(
       langConfig.templates,
     )) {
-      langCommand
+      newCommand
         .command(templateName)
+        .alias(templateConfig.alias || "")
         .description(
           t("new.project.description", {
             language: language,
@@ -180,7 +176,7 @@ function setupConfigCommand(options) {
     });
   configCommand
     .command("cache")
-    .alias("-c")
+    .alias("c")
     .description(t("config.cache.command.description"))
     .argument("<templateName>", t("config.cache.template.argument"))
     .addArgument(
