@@ -1,28 +1,68 @@
 {
-  "name": "devkit",
-  "main": "dist/index.js",
+  "name": "@wibrc/devkit",
   "version": "0.0.1",
-  "type": "module",
-  "scripts": {
-    "build": "tsc",
-    "test": "vitest",
-    "test:ci": "vitest run"
+  "description": "A universal command-line tool for developers to automate project scaffolding and streamline their workflows.",
+  "keywords": [
+    "devkit",
+    "cli",
+    "command-line-interface",
+    "project-scaffolding",
+    "developer-workflow",
+    "automation-tool",
+    "node-js-setup",
+    "monorepo",
+    "template-management",
+    "configurable-cli",
+    "universal-cli",
+    "project-initializer",
+    "starter-kit",
+    "developer-utility",
+    "tooling",
+    "scaffolder"
+  ],
+  "author": "Ivany Botrel Rayn WAFFEU <wibrc.se.jc@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/IT-WIBRC/devkit#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IT-WIBRC/devkit.git"
   },
+  "bugs": {
+    "url": "https://github.com/IT-WIBRC/devkit/issues"
+  },
+  "private": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "type": "module",
+  "main": "dist/index.js",
   "bin": {
     "devkit": "./dist/index.js",
     "dk": "./dist/index.js"
   },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/fs-extra": "^11.0.4"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
+  "files": [
+    "dist",
+    "devkit-schema.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "test:ci": "vitest run",
+    "prepublishOnly": "cpx ../../README.md . && cpx ../../LICENSE . && cpx ../../.devkit-schema.json . "
   },
   "dependencies": {
     "chalk": "^5.5.0",
+    "commander": "^14.0.0",
+    "deepmerge": "^4.3.1",
     "execa": "^9.6.0",
     "fs-extra": "^11.3.1",
     "ora": "^8.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
   }
 }
