@@ -35,7 +35,7 @@
   "cache.copy.start": "📂 Copying cached template to project directory...",
   "cache.copy.success": "✅ Files copied successfully!",
   "cache.copy.fail": "❌ Failed to copy files from cache.",
-  "scaffolding.copy.start": "📂 Copying local template files...",
+  "scaffolding.copy.start": "📂 Coping local template files...",
   "scaffolding.copy.success": "✅ Local template copied successfully!",
   "scaffolding.copy.fail": "❌ Failed to copy local template.",
   "scaffolding.run.start": "📦 Running official CLI command: {command}...",
@@ -53,5 +53,14 @@
   "warning.global.config.not.initialized": "Global configuration not initialized. Run 'devkit config init' to create one.",
   "error.file.not_found": "Could not find file '{fileName}'.",
   "error.package.root.not_found": "Could not find project root containing package.json.",
-  "error.version.read_fail": "Failed to read package.json version."
+  "error.version.read_fail": "Failed to read package.json version.",
+  "config.cache.command.description": "Update the cache strategy for a specific template.",
+  "config.cache.template.argument": "The name of the template to update",
+  "config.cache.strategy.argument": "The new cache strategy",
+  "config.cache.start": "Updating cache strategy for template '{template}'...",
+  "config.cache.success": "Cache strategy for template '{template}' updated to '{strategy}'",
+  "config.cache.fail": "Failed to update cache strategy for template '{template}'",
+  "error.config.not.found": "Configuration file not found.",
+  "error.template.not.found": "Template '{template}' not found in configuration.",
+  "command.config.cache.fail": "Failed to update cache strategy for template '{template}'"
 }

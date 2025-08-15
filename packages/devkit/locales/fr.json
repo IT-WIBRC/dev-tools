@@ -53,5 +53,14 @@
   "warning.global.config.not.initialized": "Configuration globale non initialisée. Exécutez 'devkit config init' pour en créer une.",
   "error.file.not_found": "Impossible de trouver le fichier '{fileName}'.",
   "error.package.root.not_found": "Impossible de trouver la racine du projet contenant package.json.",
-  "error.version.read_fail": "Échec de la lecture de la version de package.json."
+  "error.version.read_fail": "Échec de la lecture de la version de package.json.",
+  "config.cache.command.description": "Mettre à jour la stratégie de cache pour un modèle spécifique.",
+  "config.cache.template.argument": "Le nom du modèle à mettre à jour",
+  "config.cache.strategy.argument": "La nouvelle stratégie de cache",
+  "config.cache.start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
+  "config.cache.success": "La stratégie de cache pour le modèle '{template}' a été mise à jour à '{strategy}'",
+  "config.cache.fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'",
+  "error.config.not.found": "Fichier de configuration non trouvé.",
+  "error.template.not.found": "Modèle '{template}' introuvable dans la configuration.",
+  "command.config.cache.fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'"
 }
