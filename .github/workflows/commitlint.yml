@@ -1,0 +1,31 @@
+name: Lint Commit Messages
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches:
+      - master
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: 📥 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint Commit Messages
+        run: |
+          if ${{ github.event_name == 'pull_request' }}; then
+            bun run lint:commit --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
+          else
+            bun run lint:commit --from ${{ github.event.before }} --to ${{ github.event.after }}
+          fi

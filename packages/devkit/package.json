@@ -4,7 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest",
+    "test:ci": "vitest run"
   },
   "bin": {
     "devkit": "./dist/index.js",

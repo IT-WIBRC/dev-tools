@@ -16,13 +16,15 @@
     "prepare": "husky install",
     "format": "prettier --write .",
     "lint": "oxlint --fix .",
-    "test": "vitest"
+    "lint:commit": "commitlint"
   },
   "workspaces": [
     "packages/*"
   ],
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "oxlint": "^1.11.2",
@@ -30,11 +32,11 @@
     "vitest": "^3.2.4"
   },
   "lint-staged": {
-    "*.{ts,js,jsx,tsx}": [
+    "*.{ts,js}": [
       "prettier --write",
       "oxlint"
     ],
-    "*.{json,css,md}": "prettier --write"
+    "*.{json,css,md,yaml,yml}": "prettier --write"
   },
   "dependencies": {
     "commander": "^14.0.0"
