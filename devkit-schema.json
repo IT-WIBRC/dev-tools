@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/IT-WIBRC/devkit/devkit-schema.json",
+  "title": "Dev Kit Configuration",
+  "description": "Configuration file for the Dev Kit CLI tool.",
+  "type": "object",
+  "properties": {
+    "settings": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "The language for the CLI output (e.g., 'en', 'fr').",
+          "enum": ["en", "fr"]
+        },
+        "pm": {
+          "type": "string",
+          "description": "Your preferred package manager.",
+          "enum": ["npm", "yarn", "pnpm", "bun", "deno"]
+        }
+      }
+    }
+  }
+}

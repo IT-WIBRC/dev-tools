@@ -27,6 +27,11 @@ export const TextLanguages = {
   English: "en",
   French: "fr",
 };
+export const VALID_CACHE_STRATEGIES = [
+  "always-refresh",
+  "never-refresh",
+  "daily",
+];
 export const defaultCliConfig = {
   templates: {
     nodejs: {

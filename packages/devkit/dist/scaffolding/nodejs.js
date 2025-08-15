@@ -2,11 +2,10 @@ import fs from "fs-extra";
 import path from "path";
 import chalk from "chalk";
 import ora from "ora";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 import { execa } from "execa";
 import { getTemplateFromCache } from "../utils/cache.js";
 import { t } from "../utils/i18n.js";
+import { findPackageRoot } from "../utils/file-finder.js";
 async function copyLocalTemplate(options) {
   const { sourcePath, projectName, spinner } = options;
   const projectPath = path.join(process.cwd(), projectName);
@@ -61,28 +60,26 @@ export async function scaffoldNodejsProject(options) {
   const { projectName, templateConfig, packageManager, cacheStrategy } =
     options;
   const spinner = ora();
+  let isOfficialCli = false;
   try {
-    const isOfficialCli = templateConfig.location.includes("{pm}");
-    if (templateConfig.location.startsWith("http")) {
-      await getTemplateFromCache({
-        url: templateConfig.location,
-        projectName,
-        spinner,
-        strategy: cacheStrategy,
-      });
-    } else if (isOfficialCli) {
+    if (templateConfig.location.includes("{pm}")) {
+      isOfficialCli = true;
       await runOfficialCli({
         command: templateConfig.location,
         projectName,
         packageManager,
         spinner,
       });
+    } else if (templateConfig.location.startsWith("http")) {
+      await getTemplateFromCache({
+        url: templateConfig.location,
+        projectName,
+        spinner,
+        strategy: cacheStrategy,
+      });
     } else {
-      const currentFileUrl = import.meta.url;
-      const currentDirPath = dirname(fileURLToPath(currentFileUrl));
-      const sourceTemplateDir = path.resolve(
-        currentDirPath,
-        "..",
+      const sourceTemplateDir = path.join(
+        findPackageRoot(),
         templateConfig.location,
       );
       await copyLocalTemplate({

@@ -1,62 +1,121 @@
 #!/usr/bin/env node
 
 import { Command, Argument } from "commander";
-import { loadUserConfig, saveUserConfig } from "./utils/config.js";
-import { PackageManagers, CliConfig } from "./config.js";
-import { scaffoldNodejsProject } from "./scaffolding/nodejs.js";
-import { t } from "./utils/i18n.js";
+import {
+  saveLocalConfig,
+  saveGlobalConfig,
+  loadUserConfig,
+  getLocaleFromConfig,
+} from "./utils/config.js";
+import {
+  CliConfig,
+  PackageManagers,
+  defaultCliConfig,
+  CONFIG_FILE_NAMES,
+  VALID_CACHE_STRATEGIES,
+  PackageManager,
+  CacheStrategy,
+} from "./config.js";
+import { loadTranslations, t } from "./utils/i18n.js";
 import ora from "ora";
 import chalk from "chalk";
 import { getProjectVersion } from "./utils/project.js";
+import fs from "fs-extra";
+import path from "path";
+import os from "os";
 
 const VERSION = getProjectVersion();
 
-async function setupAndParse() {
-  const program = new Command();
-  const config = await loadUserConfig();
+type SetupCommandOptions = {
+  program: Command;
+  config: CliConfig;
+};
 
-  program
-    .name("devkit")
-    .description(t("program.description"))
-    .version(VERSION, "-V, --version", t("version.description"))
-    .helpOption("-h, --help", t("help.description"));
+function validateConfigValue(key: string, value: unknown) {
+  if (key === "defaultPackageManager") {
+    const validPackageManagers = Object.values(PackageManagers);
+    if (!validPackageManagers.includes(value as PackageManager)) {
+      throw new Error(
+        t("error.invalid.value", {
+          key,
+          options: validPackageManagers.join(", "),
+        }),
+      );
+    }
+  } else if (key === "cacheStrategy") {
+    const validStrategies = VALID_CACHE_STRATEGIES;
+    if (!validStrategies.includes(value as CacheStrategy)) {
+      throw new Error(
+        t("error.invalid.value", {
+          key,
+          options: validStrategies.join(", "),
+        }),
+      );
+    }
+  }
+}
 
+function setupNewCommand(options: SetupCommandOptions) {
+  const { program, config } = options;
   const newCommand = program
     .command("new")
     .description(t("new.command.description"));
 
-  const nodejsConfig = config.templates.nodejs;
+  for (const [language, langConfig] of Object.entries(config.templates)) {
+    const langCommand = newCommand
+      .command(language)
+      .description(
+        t("new.language.command.description", { language: language }),
+      );
 
-  if (nodejsConfig) {
     for (const [templateName, templateConfig] of Object.entries(
-      nodejsConfig.templates,
+      langConfig.templates,
     )) {
-      newCommand
-        .command(`${templateName}`)
+      langCommand
+        .command(templateName)
         .description(
           t("new.project.description", {
-            language: "Node.js",
+            language: language,
             template: templateName,
             description: templateConfig.description,
           }),
         )
         .argument("<projectName>", t("new.project.name.argument"))
-        .action((projectName) => {
-          scaffoldNodejsProject({
-            projectName,
-            templateConfig,
-            packageManager:
-              templateConfig.packageManager ||
-              config.settings.defaultPackageManager,
-            cacheStrategy:
-              templateConfig.cacheStrategy ||
-              config.settings.cacheStrategy ||
-              "daily",
-          });
+        .action(async (projectName) => {
+          try {
+            const { scaffoldProject } = await import(
+              `./scaffolding/${language}.js`
+            );
+
+            await scaffoldProject({
+              projectName,
+              templateConfig,
+              packageManager:
+                templateConfig.packageManager ||
+                config.settings.defaultPackageManager,
+              cacheStrategy:
+                templateConfig.cacheStrategy ||
+                config.settings.cacheStrategy ||
+                "daily",
+            });
+          } catch (error) {
+            console.error(
+              chalk.red(
+                t("error.scaffolding.language.not_found", {
+                  language: language,
+                }),
+              ),
+            );
+            console.error(error);
+            process.exit(1);
+          }
         });
     }
   }
+}
 
+function setupConfigCommand(options: SetupCommandOptions) {
+  const { program, config } = options;
   const configCommand = program
     .command("config")
     .description(t("config.command.description"));
@@ -81,7 +140,8 @@ async function setupAndParse() {
       ),
     )
     .argument("<value>", t("config.set.value.argument"))
-    .action(async (key, value) => {
+    .option("-g, --global", t("config.set.option.global"), false)
+    .action(async (key, value, cmdOptions) => {
       const spinner = ora(
         chalk.cyan(t("config.update.start", { key })),
       ).start();
@@ -97,30 +157,17 @@ async function setupAndParse() {
           );
         }
 
-        if (canonicalKey === "defaultPackageManager") {
-          const validPackageManagers = Object.values(PackageManagers);
-          if (!validPackageManagers.includes(value)) {
-            throw new Error(
-              t("error.invalid.value", {
-                key: canonicalKey,
-                options: validPackageManagers.join(", "),
-              }),
-            );
-          }
-        } else if (canonicalKey === "cacheStrategy") {
-          const validStrategies = ["always-refresh", "never-refresh", "daily"];
-          if (!validStrategies.includes(value)) {
-            throw new Error(
-              t("error.invalid.value", {
-                key: canonicalKey,
-                options: validStrategies.join(", "),
-              }),
-            );
-          }
+        validateConfigValue(canonicalKey, value);
+
+        const settings = config.settings;
+        (settings[canonicalKey] as any) = value;
+
+        if (cmdOptions.global) {
+          await saveGlobalConfig(config);
+        } else {
+          await saveLocalConfig(config);
         }
 
-        (config.settings as any)[canonicalKey] = value;
-        await saveUserConfig(config);
         spinner.succeed(
           chalk.green(t("config.update.success", { key: canonicalKey, value })),
         );
@@ -129,6 +176,46 @@ async function setupAndParse() {
         console.error(chalk.red(error.message));
       }
     });
+
+  configCommand
+    .command("init")
+    .description(t("config.init.command.description"))
+    .action(async () => {
+      const globalPath = path.join(
+        os.homedir(),
+        CONFIG_FILE_NAMES[0] || ".devkitrc",
+      );
+      const spinner = ora(
+        chalk.cyan(t("config.init.start", { path: globalPath })),
+      ).start();
+      try {
+        if (fs.existsSync(globalPath)) {
+          throw new Error(t("error.config.exists", { path: globalPath }));
+        }
+        await saveGlobalConfig(defaultCliConfig as any);
+        spinner.succeed(chalk.green(t("config.init.success")));
+      } catch (error: any) {
+        spinner.fail(chalk.red(t("config.init.fail")));
+        console.error(chalk.red(error.message));
+      }
+    });
+}
+
+async function setupAndParse() {
+  const program = new Command();
+
+  const locale = await getLocaleFromConfig();
+  await loadTranslations(locale);
+  const config = await loadUserConfig();
+
+  program
+    .name("devkit")
+    .description(t("program.description"))
+    .version(VERSION, "-V, --version", t("version.description"))
+    .helpOption("-h, --help", t("help.description"));
+
+  setupNewCommand({ program, config });
+  setupConfigCommand({ program, config });
 
   program.parse();
 }

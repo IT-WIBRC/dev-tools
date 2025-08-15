@@ -12,6 +12,11 @@
   "config.set.command.description": "Set a configuration value. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n",
   "config.set.key.argument": "The configuration key to set",
   "config.set.value.argument": "The new value for the key",
+  "config.set.option.global": "Update the global configuration instead of the local one.",
+  "config.init.command.description": "Initializes a global configuration file with default settings.",
+  "config.init.start": "Initializing global config at {path}...",
+  "config.init.success": "Global configuration file created successfully!",
+  "config.init.fail": "Failed to initialize global config.",
   "config.update.start": "Updating setting: {key}...",
   "config.update.success": "✅ Successfully updated {key} to {value}!",
   "config.update.fail": "❌ Failed to update setting.",
@@ -19,6 +24,7 @@
   "error.invalid.value": "Invalid value for {key}. Valid options are: {options}",
   "error.config.parse": "Failed to parse {file}. Using default configuration.",
   "error.config.save": "❌ Failed to save configuration file: {file}",
+  "error.config.exists": "File already exists at {path}. Use 'config set' to update it.",
   "cache.clone.start": "✨ Cloning new template from {url}...",
   "cache.clone.success": "✅ Template cloned successfully!",
   "cache.clone.fail": "❌ Failed to clone repository.",
@@ -42,5 +48,10 @@
   "scaffolding.complete.next_steps": "\nNext steps:",
   "error.invalid.command": "Invalid command in configuration: '{command}'",
   "error.install.message": "Installation error:",
-  "error.scaffolding.unexpected": "An unexpected error occurred during scaffolding."
+  "error.scaffolding.unexpected": "An unexpected error occurred during scaffolding.",
+  "warning.no.local.config": "No local project configuration found. Using global or default settings.",
+  "warning.global.config.not.initialized": "Global configuration not initialized. Run 'devkit config init' to create one.",
+  "error.file.not_found": "Could not find file '{fileName}'.",
+  "error.package.root.not_found": "Could not find project root containing package.json.",
+  "error.version.read_fail": "Failed to read package.json version."
 }
