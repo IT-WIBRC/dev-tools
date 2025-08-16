@@ -1,4 +1,4 @@
-# (@itwibrc/devkit) Dev Kit (`dk`)
+# 🚀 (@itwibrc/devkit) Dev Kit (`dk`)
 
 A universal CLI for professional developers to automate project scaffolding and streamline workflows.
 

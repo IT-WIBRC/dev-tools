@@ -1,0 +1,22 @@
+# 🚀 Dev Kit Monorepo - TODO List
+
+This document tracks all planned tasks, bugs, and future ideas for the Dev Kit project.
+
+## Core Development
+
+- [ ] Add template for all known Node.js templates
+- [ ] Add pull request template and issue templates
+- [ ] Change package name when installing to `@itwibrc/devkit`
+- [ ] Don't forget to test all of these changes
+- [ ] Use changesets for changelog and versioning, and automate the process
+- [ ] (Maybe) Support environment variables
+- [ ] Add argument support like `--template` or `-t`
+- [ ] Check what can be changed into an argument instead of a command
+- [ ] Support template creation using a command
+- [ ] Enable copilot reviews for the project on GitHub
+
+## Internationalization & Documentation
+
+- [ ] Change language JSON to a real JSON structure and find a way to infer types when using `t`. Adjust the code to read it.
+- [ ] **Multi-Programming Language Support**: Progressively add templates for various frameworks and ecosystems (e.g., Python, Ruby, Go, Rust).
+- [ ] **Advanced Documentation**: Detailed guides on creating and managing custom templates, with examples for various frameworks.
