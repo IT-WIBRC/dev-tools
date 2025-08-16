@@ -5,6 +5,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 ## Core Development
 
 - [ ] Add template for all known Node.js templates
+- [ ] Use a better login method for errors
 - [ ] Add pull request template and issue templates
 - [ ] Change package name when installing to `@itwibrc/devkit`
 - [ ] Don't forget to test all of these changes
@@ -13,6 +14,8 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [ ] Add argument support like `--template` or `-t`
 - [ ] Check what can be changed into an argument instead of a command
 - [ ] Support template creation using a command
+- [x] Detect system language dynamically
+- [ ] Support Monorepo configuration
 - [x] Enable copilot reviews for the project on GitHub (Impossible as it's not free as expected)
 
 ## Internationalization & Documentation

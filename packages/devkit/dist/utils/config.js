@@ -25,6 +25,7 @@ export function findLocalConfig() {
     }
     return null;
   } catch (e) {
+    console.error(e);
     return null;
   }
 }
@@ -41,6 +42,7 @@ export async function getLocaleFromConfig() {
         chalk.yellow(
           `Warning: Failed to read global config at ${globalConfigPath}. Using default language.`,
         ),
+        error,
       );
     }
   }
@@ -56,10 +58,11 @@ export async function getLocaleFromConfig() {
         chalk.yellow(
           `Warning: Failed to read local config at ${localConfigPath}. Using default language.`,
         ),
+        error,
       );
     }
   }
-  return "en";
+  return defaultCliConfig.settings.language;
 }
 export async function loadUserConfig() {
   let finalConfig = defaultCliConfig;

@@ -17,7 +17,7 @@ Built to fit the modern developer workflow, `dk` seamlessly integrates into mono
   - `always-refresh`: Always pull the latest template from the remote repository.
   - `never-refresh`: Use the local cached template without checking for updates.
   - `daily` (default): Refresh the cache only once every 24 hours.
-- **Seamless Internationalization (i18n):** The CLI supports multiple languages, with all commands dynamically translated based on your configuration.
+- **Seamless Internationalization (i18n):** The CLI supports multiple languages, with all commands dynamically translated. It now **automatically detects your system's language** for a seamless out-of-the-box experience.
 - **Centralized Settings:** Manage your preferred package manager (npm, yarn, pnpm, bun, deno) and cache strategy with a single command.
 
 ---
@@ -123,6 +123,53 @@ For a faster workflow, the following commands have shortcuts:
 ## ⚙️ Configuration
 
 Manage your configuration either through the CLI or by manual editing.
+
+### Default Configuration
+
+The Dev Kit CLI ships with the following built-in templates and settings, which are used as a fallback if no local or global configuration is found.
+
+```typescript
+ {
+  templates: {
+    nodejs: {
+      templates: {
+        simple: {
+          description: "A basic Node.js starter project.",
+          location: "./templates/nodejs/simple",
+        },
+        vue: {
+          description: "An official Vue.js project.",
+          location: "{pm} create vue@latest",
+          cacheStrategy: "always-refresh",
+        },
+        nuxt: {
+          description: "An official Nuxt.js project.",
+          location: "{pm} create nuxt@latest",
+          alias: "nx",
+        },
+        nest: {
+          description: "An official Nest.js project.",
+          location: "{pm} install -g @nestjs/cli && nest new",
+        },
+      },
+    },
+  },
+  settings: {
+    defaultPackageManager: "bun",
+    cacheStrategy: "daily",
+    language: "en",
+  },
+};
+```
+
+### Configuration Hierarchy
+
+Dev Kit now loads settings with a clear priority to give you maximum control and flexibility.
+
+1.  **Local Project Configuration (`.devkitrc`)**: This file, at the root of your project, takes the highest priority. It is used to define specific settings and templates for that project.
+2.  **Global Configuration (`~/.devkitrc`)**: This file, stored in your user's home directory, can override the local configuration for all projects on your machine.
+3.  **System Language Detection**: If a setting isn't found in either the local or global configuration, `dk` will **automatically detect your system's language** and load the corresponding translations.
+4.  **Default**: If none of the above are found, the language will default to English (`en`).
 
 ### Create and configure a project file
 
