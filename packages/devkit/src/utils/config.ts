@@ -33,27 +33,12 @@ export function findLocalConfig(): string | null {
     }
     return null;
   } catch (e) {
+    console.error(e);
     return null;
   }
 }
 
-export async function getLocaleFromConfig(): Promise<TextLanguageValues> {
-  const globalConfigPath = findGlobalConfig();
-  if (globalConfigPath) {
-    try {
-      const globalConfig = await fs.readJson(globalConfigPath);
-      if (globalConfig?.settings?.language) {
-        return globalConfig.settings.language;
-      }
-    } catch (error) {
-      console.warn(
-        chalk.yellow(
-          `Warning: Failed to read global config at ${globalConfigPath}. Using default language.`,
-        ),
-      );
-    }
-  }
-
+export async function getLocaleFromConfig(): Promise<TextLanguageValues | null> {
   const localConfigPath = findLocalConfig();
   if (localConfigPath) {
     try {
@@ -66,15 +51,46 @@ export async function getLocaleFromConfig(): Promise<TextLanguageValues> {
         chalk.yellow(
           `Warning: Failed to read local config at ${localConfigPath}. Using default language.`,
         ),
+        error,
       );
     }
   }
 
-  return "en";
+  const globalConfigPath = findGlobalConfig();
+  if (globalConfigPath) {
+    try {
+      const globalConfig = await fs.readJson(globalConfigPath);
+      if (globalConfig?.settings?.language) {
+        return globalConfig.settings.language;
+      }
+    } catch (error) {
+      console.warn(
+        chalk.yellow(
+          `Warning: Failed to read global config at ${globalConfigPath}. Using default language.`,
+        ),
+        error,
+      );
+    }
+  }
+
+  return defaultCliConfig.settings.language;
 }
 
 export async function loadUserConfig(): Promise<CliConfig> {
   let finalConfig = defaultCliConfig;
+
+  const localConfigPath = findLocalConfig();
+  if (localConfigPath) {
+    try {
+      const localConfig = await fs.readJson(localConfigPath);
+      finalConfig = deepmerge(finalConfig, localConfig);
+    } catch (error) {
+      console.error(
+        t("error.config.parse", { file: path.basename(localConfigPath) }),
+        error,
+      );
+    }
+  }
 
   const globalConfigPath = findGlobalConfig();
   if (globalConfigPath) {
@@ -89,19 +105,6 @@ export async function loadUserConfig(): Promise<CliConfig> {
     }
   } else {
     console.warn(chalk.yellow(t("warning.global.config.not.initialized")));
-  }
-
-  const localConfigPath = findLocalConfig();
-  if (localConfigPath) {
-    try {
-      const localConfig = await fs.readJson(localConfigPath);
-      finalConfig = deepmerge(finalConfig, localConfig);
-    } catch (error) {
-      console.error(
-        t("error.config.parse", { file: path.basename(localConfigPath) }),
-        error,
-      );
-    }
   }
 
   return finalConfig;

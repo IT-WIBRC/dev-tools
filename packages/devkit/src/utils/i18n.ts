@@ -1,23 +1,50 @@
 import fs from "fs-extra";
 import path from "path";
-import { TextLanguageValues } from "../config.js";
+import { osLocale } from "os-locale";
+import { TextLanguageValues, TextLanguages } from "../config.js";
 import { findLocalesDir } from "./file-finder.js";
+import chalk from "chalk";
 
 let translations: Record<string, string> = {};
 
-export async function loadTranslations(
-  lang: TextLanguageValues,
-): Promise<void> {
-  const localesDir = findLocalesDir();
-  const filePath = path.join(localesDir, `${lang}.json`);
+function getSupportedLanguage(
+  lang?: string | null,
+): TextLanguageValues | undefined {
+  if (!lang) return undefined;
 
-  if (fs.existsSync(filePath)) {
-    translations = await fs.readJson(filePath, { encoding: "utf-8" });
-  } else {
-    const fallbackPath = path.join(localesDir, "en.json");
-    if (fs.existsSync(fallbackPath)) {
-      translations = await fs.readJson(fallbackPath, { encoding: "utf-8" });
+  const supportedLanguages = Object.values(TextLanguages);
+  const validatedLang = lang?.split(/[_.-]/)[0]?.toLowerCase();
+
+  return supportedLanguages.includes(validatedLang as TextLanguageValues)
+    ? (validatedLang as TextLanguageValues)
+    : undefined;
+}
+
+export async function loadTranslations(
+  configLang: TextLanguageValues | null,
+): Promise<void> {
+  const userLang = getSupportedLanguage(configLang);
+
+  const rawSystemLocale = await osLocale();
+  const systemLang = getSupportedLanguage(rawSystemLocale);
+
+  const languageToLoad = userLang || systemLang || "en";
+
+  try {
+    const localesDir = findLocalesDir();
+    const filePath = path.join(localesDir, `${languageToLoad}.json`);
+
+    if (fs.existsSync(filePath)) {
+      translations = await fs.readJson(filePath, { encoding: "utf-8" });
+    } else {
+      const fallbackPath = path.join(localesDir, "en.json");
+      if (fs.existsSync(fallbackPath)) {
+        translations = await fs.readJson(fallbackPath, { encoding: "utf-8" });
+      }
     }
+  } catch (error) {
+    console.error(chalk.bgRedBright("Error loading translations:"), error);
+    translations = {};
   }
 }
 

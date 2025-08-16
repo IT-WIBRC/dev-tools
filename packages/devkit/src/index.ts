@@ -217,7 +217,7 @@ function setupConfigCommand(options: SetupCommandOptions) {
 async function setupAndParse() {
   const program = new Command();
 
-  const locale = await getLocaleFromConfig();
+  let locale = await getLocaleFromConfig();
   await loadTranslations(locale);
   const config = await loadUserConfig();
 
