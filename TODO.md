@@ -13,7 +13,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [ ] Add argument support like `--template` or `-t`
 - [ ] Check what can be changed into an argument instead of a command
 - [ ] Support template creation using a command
-- [ ] Enable copilot reviews for the project on GitHub
+- [x] Enable copilot reviews for the project on GitHub (Impossible as it's not free as expected)
 
 ## Internationalization & Documentation
 
