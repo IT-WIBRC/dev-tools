@@ -12,7 +12,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [ ] Use changesets for changelog and versioning, and automate the process
 - [ ] (Maybe) Support environment variables
 - [ ] Add argument support like `--template` or `-t`
-- [ ] Check what can be changed into an argument instead of a command
+- [x] Check what can be changed into an argument instead of a command
 - [ ] Support template creation using a command
 - [x] Detect system language dynamically
 - [x] Support Monorepo configuration
