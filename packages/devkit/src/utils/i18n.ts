@@ -1,9 +1,11 @@
 import fs from "fs-extra";
 import path from "path";
 import { osLocale } from "os-locale";
-import { TextLanguageValues, TextLanguages } from "../config.js";
+import { TextLanguageValues, TextLanguages, type DeepKeys } from "../config.js";
 import { findLocalesDir } from "./file-finder.js";
 import chalk from "chalk";
+
+export type I18nKeys = DeepKeys<typeof import("../../locales/en.json")>;
 
 let translations: Record<string, string> = {};
 
@@ -48,12 +50,32 @@ export async function loadTranslations(
   }
 }
 
-export function t(key: string, variables: Record<string, string> = {}): string {
-  let translatedString = translations[key] || key;
+function resolveNestedKey(
+  obj: Record<string, any>,
+  key: string,
+): string | undefined {
+  const parts = key.split(".");
+  let current = obj;
+  for (const part of parts) {
+    if (current && typeof current === "object" && part in current) {
+      current = current[part];
+    } else {
+      return undefined;
+    }
+  }
+  return typeof current === "string" ? current : undefined;
+}
 
+export function t(
+  key: I18nKeys,
+  variables: Record<string, string> = {},
+): string {
+  const translatedString = resolveNestedKey(translations, key as string) || key;
+
+  let result = translatedString;
   for (const [varName, varValue] of Object.entries(variables)) {
-    translatedString = translatedString.replace(`{${varName}}`, varValue);
+    result = result.replace(`{${varName}}`, varValue);
   }
 
-  return translatedString;
+  return result;
 }

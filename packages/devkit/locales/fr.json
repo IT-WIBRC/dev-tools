@@ -1,66 +1,170 @@
 {
-  "program.description": "Un puissant devkit pour l'échafaudage de nouveaux projets.",
-  "new.command.description": "Créer un nouveau projet à partir d'un modèle",
-  "new.project.description": "Créer un nouveau projet {language} avec le modèle '{template}': {description}",
-  "version.description": "Affiche la version actuelle de la CLI.",
-  "help.description": "Affiche l'aide pour une commande.",
-  "new.project.name.argument": "Le nom de votre nouveau projet",
-  "scaffolding.project.start": "Échafaudage du projet {language} : {project}",
-  "scaffolding.project.success": "✅ Projet {language} '{project}' créé avec succès !",
-  "scaffolding.project.fail": "❌ Échec de l'échafaudage du projet {language} : {error}",
-  "config.command.description": "Gérer les paramètres de DevKit",
-  "config.set.command.description": "Définir une valeur de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement global de mise en cache pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n",
-  "config.set.key.argument": "La clé de configuration à définir",
-  "config.set.value.argument": "La nouvelle valeur pour la clé",
-  "config.set.option.global": "Mettre à jour la configuration globale au lieu de la configuration locale.",
-  "config.init.command.description": "Initialise un fichier de configuration global avec les paramètres par défaut.",
-  "config.init.start": "Initialisation de la configuration globale à {path}...",
-  "config.init.success": "Fichier de configuration globale créé avec succès !",
-  "config.init.fail": "Échec de l'initialisation de la configuration globale.",
-  "config.update.start": "Mise à jour du paramètre : {key}...",
-  "config.update.success": "✅ {key} a été mis à jour avec succès à {value} !",
-  "config.update.fail": "❌ Échec de la mise à jour du paramètre.",
-  "error.invalid.key": "Clé invalide : '{key}'. Les clés valides sont : {keys}",
-  "error.invalid.value": "Valeur invalide pour {key}. Les options valides sont : {options}",
-  "error.config.parse": "Échec de l'analyse du fichier de configuration {file}. Utilisation de la configuration par défaut.",
-  "error.config.save": "❌ Échec de l'enregistrement du fichier de configuration : {file}",
-  "error.config.exists": "Le fichier existe déjà à {path}. Utilisez 'config set' pour le mettre à jour.",
-  "cache.clone.start": "✨ Clonage du nouveau modèle depuis {url}...",
-  "cache.clone.success": "✅ Modèle cloné avec succès !",
-  "cache.clone.fail": "❌ Échec du clonage du dépôt.",
-  "cache.refresh.start": "🔄 Actualisation du modèle en cache...",
-  "cache.refresh.success": "✅ Modèle actualisé avec succès !",
-  "cache.refresh.fail": "❌ Échec de l'actualisation du modèle.",
-  "cache.use.info": "🚀 Utilisation du modèle en cache pour {repoName}.",
-  "cache.copy.start": "📂 Copie du modèle en cache vers le répertoire du projet...",
-  "cache.copy.success": "✅ Fichiers copiés avec succès !",
-  "cache.copy.fail": "❌ Échec de la copie des fichiers depuis le cache.",
-  "scaffolding.copy.start": "📂 Copie des fichiers du modèle local...",
-  "scaffolding.copy.success": "✅ Modèle local copié avec succès !",
-  "scaffolding.copy.fail": "❌ Échec de la copie du modèle local.",
-  "scaffolding.run.start": "📦 Exécution de la commande CLI officielle : {command}...",
-  "scaffolding.run.success": "✅ Commande CLI officielle exécutée avec succès !",
-  "scaffolding.run.fail": "❌ Échec de l'exécution de la commande CLI officielle.",
-  "scaffolding.install.start": "📦 Installation des dépendances avec {pm}...",
-  "scaffolding.install.success": "✅ Dépendances installées avec succès !",
-  "scaffolding.install.fail": "❌ Échec de l'installation des dépendances.",
-  "scaffolding.complete.success": "\n🚀 Projet créé avec succès ! 🎉",
-  "scaffolding.complete.next_steps": "\nProchaines étapes :",
-  "error.invalid.command": "Commande invalide dans la configuration : '{command}'",
-  "error.install.message": "Erreur d'installation :",
-  "error.scaffolding.unexpected": "Une erreur inattendue est survenue pendant l'échafaudage.",
-  "warning.no.local.config": "Aucune configuration de projet locale trouvée. Utilisation des paramètres globaux ou par défaut.",
-  "warning.global.config.not.initialized": "Configuration globale non initialisée. Exécutez 'devkit config init' pour en créer une.",
-  "error.file.not_found": "Impossible de trouver le fichier '{fileName}'.",
-  "error.package.root.not_found": "Impossible de trouver la racine du projet contenant package.json.",
-  "error.version.read_fail": "Échec de la lecture de la version de package.json.",
-  "config.cache.command.description": "Mettre à jour la stratégie de cache pour un modèle spécifique.",
-  "config.cache.template.argument": "Le nom du modèle à mettre à jour",
-  "config.cache.strategy.argument": "La nouvelle stratégie de cache",
-  "config.cache.start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
-  "config.cache.success": "La stratégie de cache pour le modèle '{template}' a été mise à jour à '{strategy}'",
-  "config.cache.fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'",
-  "error.config.not.found": "Fichier de configuration non trouvé.",
-  "error.template.not.found": "Modèle '{template}' introuvable dans la configuration.",
-  "command.config.cache.fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'"
+  "program": {
+    "description": "Un puissant devkit pour l'échafaudage de nouveaux projets."
+  },
+  "new": {
+    "command": {
+      "description": "Créer un nouveau projet à partir d'un modèle"
+    },
+    "project": {
+      "description": "Créer un nouveau projet {language} avec le modèle '{template}': {description}",
+      "name": {
+        "argument": "Le nom de votre nouveau projet"
+      }
+    }
+  },
+  "version": {
+    "description": "Affiche la version actuelle de la CLI."
+  },
+  "help": {
+    "description": "Affiche l'aide pour une commande."
+  },
+  "scaffolding": {
+    "project": {
+      "start": "Échafaudage du projet {language} : {project}",
+      "success": "✅ Projet {language} '{project}' créé avec succès !",
+      "fail": "❌ Échec de l'échafaudage du projet {language} : {error}"
+    },
+    "copy": {
+      "start": "📂 Copie des fichiers du modèle local...",
+      "success": "✅ Modèle local copié avec succès !",
+      "fail": "❌ Échec de la copie du modèle local."
+    },
+    "run": {
+      "start": "📦 Exécution de la commande CLI officielle : {command}...",
+      "success": "✅ Commande CLI officielle exécutée avec succès !",
+      "fail": "❌ Échec de l'exécution de la commande CLI officielle."
+    },
+    "install": {
+      "start": "📦 Installation des dépendances avec {pm}...",
+      "success": "✅ Dépendances installées avec succès !",
+      "fail": "❌ Échec de l'installation des dépendances."
+    },
+    "complete": {
+      "success": "\n🚀 Projet créé avec succès ! 🎉",
+      "next_steps": "\nProchaines étapes :"
+    }
+  },
+  "config": {
+    "command": {
+      "description": "Gérer les paramètres de DevKit"
+    },
+    "set": {
+      "command": {
+        "description": "Définir une valeur de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement global de mise en cache pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n"
+      },
+      "key": {
+        "argument": "La clé de configuration à définir"
+      },
+      "value": {
+        "argument": "La nouvelle valeur pour la clé"
+      },
+      "option": {
+        "global": "Mettre à jour la configuration globale au lieu de la configuration locale."
+      }
+    },
+    "init": {
+      "command": {
+        "description": "Initialise un fichier de configuration global avec les paramètres par défaut."
+      },
+      "start": "Initialisation de la configuration globale à {path}...",
+      "success": "Fichier de configuration globale créé avec succès !",
+      "fail": "Échec de l'initialisation de la configuration globale."
+    },
+    "update": {
+      "start": "Mise à jour du paramètre : {key}...",
+      "success": "✅ {key} a été mis à jour avec succès à {value} !",
+      "fail": "❌ Échec de la mise à jour du paramètre."
+    },
+    "cache": {
+      "command": {
+        "description": "Mettre à jour la stratégie de cache pour un modèle spécifique."
+      },
+      "template": {
+        "argument": "Le nom du modèle à mettre à jour"
+      },
+      "strategy": {
+        "argument": "La nouvelle stratégie de cache"
+      },
+      "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
+      "success": "La stratégie de cache pour le modèle '{template}' a été mise à jour à '{strategy}'",
+      "fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'"
+    }
+  },
+  "error": {
+    "invalid": {
+      "key": "Clé invalide : '{key}'. Les clés valides sont : {keys}",
+      "value": "Valeur invalide pour {key}. Les options valides sont : {options}",
+      "command": "Commande invalide dans la configuration : '{command}'"
+    },
+    "config": {
+      "parse": "Échec de l'analyse du fichier de configuration {file}. Utilisation de la configuration par défaut.",
+      "save": "❌ Échec de l'enregistrement du fichier de configuration : {file}",
+      "exists": "Le fichier existe déjà à {path}. Utilisez 'config set' pour le mettre à jour.",
+      "not": {
+        "found": "Fichier de configuration non trouvé."
+      }
+    },
+    "file": {
+      "not_found": "Impossible de trouver le fichier '{fileName}'."
+    },
+    "package": {
+      "root": {
+        "not_found": "Impossible de trouver la racine du projet contenant package.json."
+      }
+    },
+    "version": {
+      "read_fail": "Échec de la lecture de la version de package.json."
+    },
+    "template": {
+      "not_found": "Modèle '{template}' introuvable dans la configuration."
+    },
+    "install": {
+      "message": "Erreur d'installation :"
+    },
+    "scaffolding": {
+      "unexpected": "Une erreur inattendue est survenue pendant l'échafaudage."
+    },
+    "command": {
+      "config": {
+        "cache": {
+          "fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'"
+        }
+      }
+    }
+  },
+  "cache": {
+    "clone": {
+      "start": "✨ Clonage du nouveau modèle depuis {url}...",
+      "success": "✅ Modèle cloné avec succès !",
+      "fail": "❌ Échec du clonage du dépôt."
+    },
+    "refresh": {
+      "start": "🔄 Actualisation du modèle en cache...",
+      "success": "✅ Modèle actualisé avec succès !",
+      "fail": "❌ Échec de l'actualisation du modèle."
+    },
+    "use": {
+      "info": "🚀 Utilisation du modèle en cache pour {repoName}."
+    },
+    "copy": {
+      "start": "📂 Copie du modèle en cache vers le répertoire du projet...",
+      "success": "✅ Fichiers copiés avec succès !",
+      "fail": "❌ Échec de la copie des fichiers depuis le cache."
+    }
+  },
+  "warning": {
+    "no": {
+      "local": {
+        "config": "Aucune configuration de projet locale trouvée. Utilisation des paramètres globaux ou par défaut."
+      }
+    },
+    "global": {
+      "config": {
+        "not": {
+          "initialized": "Configuration globale non initialisée. Exécutez 'devkit config init' pour en créer une."
+        }
+      }
+    }
+  }
 }

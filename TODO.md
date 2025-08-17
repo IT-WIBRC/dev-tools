@@ -16,10 +16,11 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [ ] Support template creation using a command
 - [x] Detect system language dynamically
 - [ ] Support Monorepo configuration
+- [ ] Configure aliases
 - [x] Enable copilot reviews for the project on GitHub (Impossible as it's not free as expected)
 
 ## Internationalization & Documentation
 
-- [ ] Change language JSON to a real JSON structure and find a way to infer types when using `t`. Adjust the code to read it.
+- [x] Change language JSON to a real JSON structure and find a way to infer types when using `t`. Adjust the code to read it.
 - [ ] **Multi-Programming Language Support**: Progressively add templates for various frameworks and ecosystems (e.g., Python, Ruby, Go, Rust).
 - [ ] **Advanced Documentation**: Detailed guides on creating and managing custom templates, with examples for various frameworks.

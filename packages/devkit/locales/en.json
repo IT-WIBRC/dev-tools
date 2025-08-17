@@ -1,66 +1,183 @@
 {
-  "program.description": "A powerful devkit for scaffolding new projects.",
-  "new.command.description": "Create a new project from a template",
-  "new.project.description": "Create a new {language} project with the '{template}' template: {description}",
-  "version.description": "Output the current version of the CLI.",
-  "help.description": "Display help for a command.",
-  "new.project.name.argument": "The name of your new project",
-  "scaffolding.project.start": "Scaffolding {language} project: {project}",
-  "scaffolding.project.success": "✅ {language} project '{project}' created successfully!",
-  "scaffolding.project.fail": "❌ Failed to scaffold {language} project: {error}",
-  "config.command.description": "Manage DevKit settings",
-  "config.set.command.description": "Set a configuration value. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n",
-  "config.set.key.argument": "The configuration key to set",
-  "config.set.value.argument": "The new value for the key",
-  "config.set.option.global": "Update the global configuration instead of the local one.",
-  "config.init.command.description": "Initializes a global configuration file with default settings.",
-  "config.init.start": "Initializing global config at {path}...",
-  "config.init.success": "Global configuration file created successfully!",
-  "config.init.fail": "Failed to initialize global config.",
-  "config.update.start": "Updating setting: {key}...",
-  "config.update.success": "✅ Successfully updated {key} to {value}!",
-  "config.update.fail": "❌ Failed to update setting.",
-  "error.invalid.key": "Invalid key: '{key}'. Valid keys are: {keys}",
-  "error.invalid.value": "Invalid value for {key}. Valid options are: {options}",
-  "error.config.parse": "Failed to parse {file}. Using default configuration.",
-  "error.config.save": "❌ Failed to save configuration file: {file}",
-  "error.config.exists": "File already exists at {path}. Use 'config set' to update it.",
-  "cache.clone.start": "✨ Cloning new template from {url}...",
-  "cache.clone.success": "✅ Template cloned successfully!",
-  "cache.clone.fail": "❌ Failed to clone repository.",
-  "cache.refresh.start": "🔄 Refreshing cached template...",
-  "cache.refresh.success": "✅ Template refreshed successfully!",
-  "cache.refresh.fail": "❌ Failed to refresh template.",
-  "cache.use.info": "🚀 Using cached template for {repoName}.",
-  "cache.copy.start": "📂 Copying cached template to project directory...",
-  "cache.copy.success": "✅ Files copied successfully!",
-  "cache.copy.fail": "❌ Failed to copy files from cache.",
-  "scaffolding.copy.start": "📂 Coping local template files...",
-  "scaffolding.copy.success": "✅ Local template copied successfully!",
-  "scaffolding.copy.fail": "❌ Failed to copy local template.",
-  "scaffolding.run.start": "📦 Running official CLI command: {command}...",
-  "scaffolding.run.success": "✅ Official CLI command ran successfully!",
-  "scaffolding.run.fail": "❌ Failed to run official CLI command.",
-  "scaffolding.install.start": "📦 Installing dependencies with {pm}...",
-  "scaffolding.install.success": "✅ Dependencies installed successfully!",
-  "scaffolding.install.fail": "❌ Failed to install dependencies.",
-  "scaffolding.complete.success": "\n🚀 Project created successfully! 🎉",
-  "scaffolding.complete.next_steps": "\nNext steps:",
-  "error.invalid.command": "Invalid command in configuration: '{command}'",
-  "error.install.message": "Installation error:",
-  "error.scaffolding.unexpected": "An unexpected error occurred during scaffolding.",
-  "warning.no.local.config": "No local project configuration found. Using global or default settings.",
-  "warning.global.config.not.initialized": "Global configuration not initialized. Run 'devkit config init' to create one.",
-  "error.file.not_found": "Could not find file '{fileName}'.",
-  "error.package.root.not_found": "Could not find project root containing package.json.",
-  "error.version.read_fail": "Failed to read package.json version.",
-  "config.cache.command.description": "Update the cache strategy for a specific template.",
-  "config.cache.template.argument": "The name of the template to update",
-  "config.cache.strategy.argument": "The new cache strategy",
-  "config.cache.start": "Updating cache strategy for template '{template}'...",
-  "config.cache.success": "Cache strategy for template '{template}' updated to '{strategy}'",
-  "config.cache.fail": "Failed to update cache strategy for template '{template}'",
-  "error.config.not.found": "Configuration file not found.",
-  "error.template.not.found": "Template '{template}' not found in configuration.",
-  "command.config.cache.fail": "Failed to update cache strategy for template '{template}'"
+  "program": {
+    "description": "A powerful devkit for scaffolding new projects."
+  },
+  "new": {
+    "command": {
+      "description": "Create a new project from a template"
+    },
+    "project": {
+      "description": "Create a new {language} project with the '{template}' template: {description}",
+      "name": {
+        "argument": "The name of your new project"
+      }
+    }
+  },
+  "version": {
+    "description": "Output the current version of the CLI."
+  },
+  "help": {
+    "description": "Display help for a command."
+  },
+  "scaffolding": {
+    "project": {
+      "start": "Scaffolding {language} project: {project}",
+      "success": "✅ {language} project '{project}' created successfully!",
+      "fail": "❌ Failed to scaffold {language} project: {error}"
+    },
+    "copy": {
+      "start": "📂 Coping local template files...",
+      "success": "✅ Local template copied successfully!",
+      "fail": "❌ Failed to copy local template."
+    },
+    "run": {
+      "start": "📦 Running official CLI command: {command}...",
+      "success": "✅ Official CLI command ran successfully!",
+      "fail": "❌ Failed to run official CLI command."
+    },
+    "install": {
+      "start": "📦 Installing dependencies with {pm}...",
+      "success": "✅ Dependencies installed successfully!",
+      "fail": "❌ Failed to install dependencies."
+    },
+    "complete": {
+      "success": "\n🚀 Project created successfully! 🎉",
+      "next_steps": "\nNext steps:"
+    }
+  },
+  "config": {
+    "command": {
+      "description": "Manage DevKit settings"
+    },
+    "set": {
+      "command": {
+        "description": "Set a configuration value. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n"
+      },
+      "key": {
+        "argument": "The configuration key to set"
+      },
+      "value": {
+        "argument": "The new value for the key"
+      },
+      "option": {
+        "global": "Update the global configuration instead of the local one."
+      }
+    },
+    "init": {
+      "command": {
+        "description": "Initializes a global configuration file with default settings."
+      },
+      "start": "Initializing global config at {path}...",
+      "success": "Global configuration file created successfully!",
+      "fail": "Failed to initialize global config."
+    },
+    "update": {
+      "start": "Updating setting: {key}...",
+      "success": "✅ Successfully updated {key} to {value}!",
+      "fail": "❌ Failed to update setting."
+    },
+    "cache": {
+      "command": {
+        "description": "Update the cache strategy for a specific template.",
+        "start": "Updating cache strategy for template '{template}'...",
+        "fail": "❌ Failed to update cache strategy for template '{template}'.",
+        "success": "✨ Cache strategy for template '{template}' updated to '{strategy}'."
+      },
+      "template": {
+        "argument": "The name of the template to update"
+      },
+      "strategy": {
+        "argument": "The new cache strategy"
+      },
+      "start": "Updating cache strategy for template '{template}'...",
+      "success": "Cache strategy for template '{template}' updated to '{strategy}'",
+      "fail": "Failed to update cache strategy for template '{template}'"
+    }
+  },
+  "error": {
+    "invalid": {
+      "key": "Invalid key: '{key}'. Valid keys are: {keys}",
+      "value": "Invalid value for {key}. Valid options are: {options}",
+      "command": "Invalid command in configuration: '{command}'"
+    },
+    "config": {
+      "parse": "Failed to parse {file}. Using default configuration.",
+      "save": "❌ Failed to save configuration file: {file}",
+      "exists": "File already exists at {path}. Use 'config set' to update it.",
+      "not": {
+        "found": "Configuration file not found."
+      }
+    },
+    "file": {
+      "not_found": "Could not find file '{fileName}'."
+    },
+    "package": {
+      "root": {
+        "not_found": "Could not find project root containing package.json."
+      }
+    },
+    "version": {
+      "read_fail": "Failed to read package.json version."
+    },
+    "template": {
+      "not_found": "Template '{template}' not found in configuration."
+    },
+    "install": {
+      "message": "Installation error:"
+    },
+    "scaffolding": {
+      "unexpected": "An unexpected error occurred during scaffolding.",
+      "language": {
+        "not_found": "Scaffolding language not found in configuration: '{language}'"
+      }
+    },
+    "command": {
+      "config": {
+        "cache": {
+          "fail": "Failed to update cache strategy for template '{template}'"
+        }
+      }
+    },
+    "save": {
+      "local": {
+        "config": {
+          "not_found": "Failed to save local configuration. File not found at '{path}'."
+        }
+      }
+    }
+  },
+  "cache": {
+    "clone": {
+      "start": "✨ Cloning new template from {url}...",
+      "success": "✅ Template cloned successfully!",
+      "fail": "❌ Failed to clone repository."
+    },
+    "refresh": {
+      "start": "🔄 Refreshing cached template...",
+      "success": "✅ Template refreshed successfully!",
+      "fail": "❌ Failed to refresh template."
+    },
+    "use": {
+      "info": "🚀 Using cached template for {repoName}."
+    },
+    "copy": {
+      "start": "📂 Copying cached template to project directory...",
+      "success": "✅ Files copied successfully!",
+      "fail": "❌ Failed to copy files from cache."
+    }
+  },
+  "warning": {
+    "no": {
+      "local": {
+        "config": "No local project configuration found. Using global or default settings."
+      }
+    },
+    "global": {
+      "config": {
+        "not": {
+          "initialized": "Global configuration not initialized. Run 'devkit config init' to create one."
+        }
+      }
+    }
+  }
 }

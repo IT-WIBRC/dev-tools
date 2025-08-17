@@ -38,7 +38,8 @@
     "lint:commit": "commitlint",
     "lint": "oxlint --fix .",
     "release": "changeset publish",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "build": "cd packages/devkit && bun run build"
   },
   "workspaces": [
     "packages/*"

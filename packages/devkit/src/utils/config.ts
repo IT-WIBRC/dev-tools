@@ -142,7 +142,7 @@ export async function updateTemplateCacheStrategy(
   config: CliConfig,
 ): Promise<void> {
   const spinner = ora(
-    chalk.cyan(t("command.config.cache.start", { template: templateName })),
+    chalk.cyan(t("config.cache.command.start", { template: templateName })),
   ).start();
 
   try {
@@ -156,7 +156,7 @@ export async function updateTemplateCacheStrategy(
       targetPath = globalConfigPath;
     } else {
       spinner.fail(
-        chalk.red(t("command.config.cache.fail", { template: templateName })),
+        chalk.red(t("config.cache.command.fail", { template: templateName })),
       );
       throw new Error(t("error.config.not.found"));
     }
@@ -173,22 +173,22 @@ export async function updateTemplateCacheStrategy(
 
     if (!foundTemplate) {
       spinner.fail(
-        chalk.red(t("command.config.cache.fail", { template: templateName })),
+        chalk.red(t("config.cache.command.fail", { template: templateName })),
       );
       throw new Error(
-        t("error.template.not.found", { template: templateName }),
+        t("error.template.not_found", { template: templateName }),
       );
     }
 
     await fs.writeJson(targetPath, config, { spaces: 2 });
     spinner.succeed(
       chalk.green(
-        t("command.config.cache.success", { template: templateName, strategy }),
+        t("config.cache.command.success", { template: templateName, strategy }),
       ),
     );
   } catch (error: any) {
     spinner.fail(
-      chalk.red(t("command.config.cache.fail", { template: templateName })),
+      chalk.red(t("config.cache.command.fail", { template: templateName })),
     );
     console.error(chalk.red(error.message));
   }
