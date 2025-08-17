@@ -1,6 +1,7 @@
 {
   "program": {
-    "description": "A powerful devkit for scaffolding new projects."
+    "description": "A powerful devkit for scaffolding new projects.",
+    "initialized": "CLI initialized successfully."
   },
   "new": {
     "command": {
@@ -92,6 +93,19 @@
       "start": "Updating cache strategy for template '{template}'...",
       "success": "Cache strategy for template '{template}' updated to '{strategy}'",
       "fail": "Failed to update cache strategy for template '{template}'"
+    },
+    "check": {
+      "local": "Checking for local or monorepo configuration...",
+      "global": "Local config not found. Checking for global configuration..."
+    },
+    "found": {
+      "local": "Found and using local configuration at {path}.",
+      "global": "No local config found. Using global configuration at {path}."
+    },
+    "not": {
+      "found": {
+        "default": "No configuration file found. Using default settings."
+      }
     }
   },
   "error": {
@@ -106,7 +120,12 @@
       "exists": "File already exists at {path}. Use 'config set' to update it.",
       "not": {
         "found": "Configuration file not found."
-      }
+      },
+      "generic": "Configuration error",
+      "init": {
+        "fail": "Failed to initialize configuration."
+      },
+      "read": "Failed to read configuration at {path}."
     },
     "file": {
       "not_found": "Could not find file '{fileName}'."
@@ -144,7 +163,12 @@
           "not_found": "Failed to save local configuration. File not found at '{path}'."
         }
       }
-    }
+    },
+    "git": {
+      "generic": "Git error"
+    },
+    "unexpected": "An unexpected error occurred",
+    "unknown": "An unknown error occurred"
   },
   "cache": {
     "clone": {

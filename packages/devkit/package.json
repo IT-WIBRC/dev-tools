@@ -48,6 +48,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:ci": "vitest run",
     "prepublishOnly": "cpx ../../README.md . && cpx ../../LICENSE . && cpx ../../.devkit-schema.json . "

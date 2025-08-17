@@ -1,8 +1,8 @@
 import {
   PackageManagers,
-  ValuesOf,
-  TemplateConfig,
-  CacheStrategy,
+  type ValuesOf,
+  type TemplateConfig,
+  type CacheStrategy,
 } from "../config.js";
 import fs from "fs-extra";
 import path from "path";
@@ -13,6 +13,7 @@ import { execa } from "execa";
 import { getTemplateFromCache } from "../utils/cache.js";
 import { t } from "../utils/i18n.js";
 import { findPackageRoot } from "../utils/file-finder.js";
+import { DevkitError } from "../utils/errors/errors.js";
 
 interface TemplateOptions {
   projectName: string;
@@ -34,35 +35,28 @@ interface ScaffoldNodejsProjectOptions {
 async function copyLocalTemplate(
   options: TemplateOptions & { sourcePath: string },
 ) {
-  const { sourcePath, projectName, spinner } = options;
+  const { sourcePath, projectName } = options;
   const projectPath = path.join(process.cwd(), projectName);
-  spinner.text = chalk.cyan(t("scaffolding.copy.start"));
-  spinner.start();
   try {
     await fs.copy(sourcePath, projectPath);
-    spinner.succeed(chalk.green(t("scaffolding.copy.success")));
   } catch (error) {
-    spinner.fail(chalk.red(t("scaffolding.copy.fail")));
-    throw error;
+    throw new DevkitError(t("scaffolding.copy.fail"), { cause: error });
   }
 }
 
 async function runOfficialCli(options: RunOfficialCliOptions) {
-  const { command, projectName, packageManager, spinner } = options;
+  const { command, projectName, packageManager } = options;
   const finalCommand = command.replace("{pm}", packageManager);
-  spinner.text = chalk.cyan(
-    t("scaffolding.run.start", { command: finalCommand }),
-  );
   try {
     const [exec, ...args] = finalCommand.split(" ");
     if (!exec) {
-      throw new Error(t("error.invalid.command", { command: finalCommand }));
+      throw new DevkitError(
+        t("error.invalid.command", { command: finalCommand }),
+      );
     }
     await execa(exec, [...args, projectName], { stdio: "inherit" });
-    spinner.succeed(chalk.green(t("scaffolding.run.success")));
   } catch (error) {
-    spinner.fail(chalk.red(t("scaffolding.run.fail")));
-    throw error;
+    throw new DevkitError(t("scaffolding.run.fail"), { cause: error });
   }
 }
 
@@ -71,22 +65,15 @@ async function installDependencies(
     packageManager: ValuesOf<typeof PackageManagers>;
   },
 ) {
-  const { projectName, packageManager, spinner } = options;
+  const { projectName, packageManager } = options;
   const projectPath = path.join(process.cwd(), projectName);
-  spinner.text = chalk.cyan(
-    t("scaffolding.install.start", { pm: packageManager }),
-  );
-  spinner.start();
   try {
     await execa(packageManager, ["install"], {
       cwd: projectPath,
       stdio: "inherit",
     });
-    spinner.succeed(chalk.green(t("scaffolding.install.success")));
   } catch (error) {
-    spinner.fail(chalk.red(t("scaffolding.install.fail")));
-    console.error(chalk.red(t("error.install.message")), error);
-    throw error;
+    throw new DevkitError(t("scaffolding.install.fail"), { cause: error });
   }
 }
 
@@ -101,12 +88,17 @@ export async function scaffoldNodejsProject(
   try {
     if (templateConfig.location.includes("{pm}")) {
       isOfficialCli = true;
+      spinner.text = chalk.cyan(
+        t("scaffolding.run.start", { command: templateConfig.location }),
+      );
+      spinner.start();
       await runOfficialCli({
         command: templateConfig.location,
         projectName,
         packageManager,
         spinner,
       });
+      spinner.succeed(chalk.green(t("scaffolding.run.success")));
     } else if (templateConfig.location.startsWith("http")) {
       await getTemplateFromCache({
         url: templateConfig.location,
@@ -115,8 +107,10 @@ export async function scaffoldNodejsProject(
         strategy: cacheStrategy,
       });
     } else {
+      spinner.text = chalk.cyan(t("scaffolding.copy.start"));
+      spinner.start();
       const sourceTemplateDir = path.join(
-        findPackageRoot(),
+        await findPackageRoot(),
         templateConfig.location,
       );
       await copyLocalTemplate({
@@ -124,10 +118,16 @@ export async function scaffoldNodejsProject(
         projectName,
         spinner,
       });
+      spinner.succeed(chalk.green(t("scaffolding.copy.success")));
     }
 
     if (!isOfficialCli) {
+      spinner.text = chalk.cyan(
+        t("scaffolding.install.start", { pm: packageManager }),
+      );
+      spinner.start();
       await installDependencies({ projectName, packageManager, spinner });
+      spinner.succeed(chalk.green(t("scaffolding.install.success")));
     }
     console.log(chalk.green(t("scaffolding.complete.success")));
     console.log(chalk.cyan(t("scaffolding.complete.next_steps")));
