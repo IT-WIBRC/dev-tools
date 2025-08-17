@@ -13,11 +13,11 @@ Built to fit the modern developer workflow, `dk` seamlessly integrates into mono
 - **Unified Command:** Access all features with the short, intuitive command `dk`.
 - **Intelligent Scaffolding:** Create new projects from popular frameworks with a single, intuitive command. You can also use custom templates for a consistent workflow.
 - **Robust Configuration:** The tool reliably finds your configuration file (`.devkitrc`) in any project or monorepo structure.
-- **Powerful Cache Management:** Optimize project setup speed with flexible caching strategies for your templates. You can manage these strategies directly from the command line. These strategies are mainly applied when using a GitHub URL:
+- **Powerful Cache Management:** Optimize project setup speed with flexible caching strategies for your templates. These strategies are mainly applied when using a GitHub URL:
   - `always-refresh`: Always pull the latest template from the remote repository.
   - `never-refresh`: Use the local cached template without checking for updates.
   - `daily` (default): Refresh the cache only once every 24 hours.
-- **Seamless Internationalization (i18n):** The CLI supports multiple languages, with all commands dynamically translated. It now **automatically detects your system's language** for a seamless out-of-the-box experience.
+- **Seamless Internationalization (i18n):** The CLI supports multiple languages, with all commands and descriptions dynamically translated. It **automatically detects your system's language** as a fallback, ensuring a seamless out-of-the-box experience.
 - **Centralized Settings:** Manage your preferred package manager (npm, yarn, pnpm, bun, deno) and cache strategy with a single command.
 
 ---
@@ -42,8 +42,6 @@ The CLI's internationalization (`i18n`) feature dynamically translates commands 
 ---
 
 ## 🚀 Getting Started
-
-This Node.js CLI requires Node.js and a package manager.
 
 ### Prerequisites
 
@@ -124,56 +122,18 @@ For a faster workflow, the following commands have shortcuts:
 
 Manage your configuration either through the CLI or by manual editing.
 
-### Default Configuration
-
-The Dev Kit CLI ships with the following built-in templates and settings, which are used as a fallback if no local or global configuration is found.
-
-```typescript
- {
-  templates: {
-    nodejs: {
-      templates: {
-        simple: {
-          description: "A basic Node.js starter project.",
-          location: "./templates/nodejs/simple",
-        },
-        vue: {
-          description: "An official Vue.js project.",
-          location: "{pm} create vue@latest",
-          cacheStrategy: "always-refresh",
-        },
-        nuxt: {
-          description: "An official Nuxt.js project.",
-          location: "{pm} create nuxt@latest",
-          alias: "nx",
-        },
-        nest: {
-          description: "An official Nest.js project.",
-          location: "{pm} install -g @nestjs/cli && nest new",
-        },
-      },
-    },
-  },
-  settings: {
-    defaultPackageManager: "bun",
-    cacheStrategy: "daily",
-    language: "en",
-  },
-};
-```
-
 ### Configuration Hierarchy
 
 Dev Kit now loads settings with a clear priority to give you maximum control and flexibility.
 
-1.  **Local Project Configuration (`.devkitrc`)**: This file, at the root of your project, takes the highest priority. It is used to define specific settings and templates for that project.
-2.  **Global Configuration (`~/.devkitrc`)**: This file, stored in your user's home directory, can override the local configuration for all projects on your machine.
-3.  **System Language Detection**: If a setting isn't found in either the local or global configuration, `dk` will **automatically detect your system's language** and load the corresponding translations.
+1.  **Local Project Configuration (`./.devkitrc`)**: This file, at the root of your project, takes the **highest priority**.
+2.  **Global Configuration (`~/.devkitrc`)**: This file, stored in your user's home directory, is used for all projects on your machine and is overridden by any local configuration.
+3.  **System Language Detection**: If a language setting is not found in either the local or global configuration, `dk` will **automatically detect your system's language** and load the corresponding translations.
 4.  **Default**: If none of the above are found, the language will default to English (`en`).
 
 ### Create and configure a project file
 
-To initialize a local configuration file in your project, use `config init`. This creates a `.devkitrc` file.
+To initialize a local configuration file in your project, use `config init`. This creates a `.devkitrc` file in the current directory.
 
 ```bash
 dk config init
@@ -185,7 +145,7 @@ For a better developer experience, add a `$schema` property for auto-completion 
 
 ```json
 {
-  "$schema": "https://shorturl.at/QDcxK",
+  "$schema": "https://raw.githubusercontent.com/IT-WIBRC/devkit/main/schema.json",
   "settings": {
     "language": "fr",
     "defaultPackageManager": "npm",

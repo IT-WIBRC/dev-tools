@@ -7,15 +7,15 @@ import {
   loadUserConfig,
   getLocaleFromConfig,
   updateTemplateCacheStrategy,
-} from "./utils/config.js";
+} from "./utils/config-loader.js";
 import {
-  CliConfig,
+  type CliConfig,
   PackageManagers,
   defaultCliConfig,
   CONFIG_FILE_NAMES,
   VALID_CACHE_STRATEGIES,
-  PackageManager,
-  CacheStrategy,
+  type PackageManager,
+  type CacheStrategy,
 } from "./config.js";
 import { loadTranslations, t } from "./utils/i18n.js";
 import ora from "ora";
@@ -24,8 +24,10 @@ import { getProjectVersion } from "./utils/project.js";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
+import { DevkitError, ConfigError } from "./utils/errors/errors.js";
+import { handleErrorAndExit } from "./utils/errors/error-handler.js";
 
-const VERSION = getProjectVersion();
+const VERSION = await getProjectVersion();
 
 type SetupCommandOptions = {
   program: Command;
@@ -36,7 +38,7 @@ function validateConfigValue(key: string, value: unknown) {
   if (key === "defaultPackageManager") {
     const validPackageManagers = Object.values(PackageManagers);
     if (!validPackageManagers.includes(value as PackageManager)) {
-      throw new Error(
+      throw new DevkitError(
         t("error.invalid.value", {
           key,
           options: validPackageManagers.join(", "),
@@ -46,7 +48,7 @@ function validateConfigValue(key: string, value: unknown) {
   } else if (key === "cacheStrategy") {
     const validStrategies = VALID_CACHE_STRATEGIES;
     if (!validStrategies.includes(value as CacheStrategy)) {
-      throw new Error(
+      throw new DevkitError(
         t("error.invalid.value", {
           key,
           options: validStrategies.join(", "),
@@ -79,33 +81,20 @@ function setupNewCommand(options: SetupCommandOptions) {
         )
         .argument("<projectName>", t("new.project.name.argument"))
         .action(async (projectName) => {
-          try {
-            const { scaffoldProject } = await import(
-              `./scaffolding/${language}.js`
-            );
-
-            await scaffoldProject({
-              projectName,
-              templateConfig,
-              packageManager:
-                templateConfig.packageManager ||
-                config.settings.defaultPackageManager,
-              cacheStrategy:
-                templateConfig.cacheStrategy ||
-                config.settings.cacheStrategy ||
-                "daily",
-            });
-          } catch (error) {
-            console.error(
-              chalk.red(
-                t("error.scaffolding.language.not_found", {
-                  language: language,
-                }),
-              ),
-            );
-            console.error(error);
-            process.exit(1);
-          }
+          const { scaffoldProject } = await import(
+            `./scaffolding/${language}.js`
+          );
+          await scaffoldProject({
+            projectName,
+            templateConfig,
+            packageManager:
+              templateConfig.packageManager ||
+              config.settings.defaultPackageManager,
+            cacheStrategy:
+              templateConfig.cacheStrategy ||
+              config.settings.cacheStrategy ||
+              "daily",
+          });
         });
     }
   }
@@ -140,38 +129,26 @@ function setupConfigCommand(options: SetupCommandOptions) {
     .argument("<value>", t("config.set.value.argument"))
     .option("-g, --global", t("config.set.option.global"), false)
     .action(async (key, value, cmdOptions) => {
-      const spinner = ora(
-        chalk.cyan(t("config.update.start", { key })),
-      ).start();
-      try {
-        const canonicalKey = configAliases[key];
+      const canonicalKey = configAliases[key];
 
-        if (!canonicalKey) {
-          throw new Error(
-            t("error.invalid.key", {
-              key,
-              keys: Object.keys(configAliases).join(", "),
-            }),
-          );
-        }
-
-        validateConfigValue(canonicalKey, value);
-
-        const settings = config.settings;
-        (settings[canonicalKey] as any) = value;
-
-        if (cmdOptions.global) {
-          await saveGlobalConfig(config);
-        } else {
-          await saveLocalConfig(config);
-        }
-
-        spinner.succeed(
-          chalk.green(t("config.update.success", { key: canonicalKey, value })),
+      if (!canonicalKey) {
+        throw new DevkitError(
+          t("error.invalid.key", {
+            key,
+            keys: Object.keys(configAliases).join(", "),
+          }),
         );
-      } catch (error: any) {
-        spinner.fail(chalk.red(t("config.update.fail")));
-        console.error(chalk.red(error.message));
+      }
+
+      validateConfigValue(canonicalKey, value);
+
+      const settings = config.settings;
+      (settings[canonicalKey] as any) = value;
+
+      if (cmdOptions.global) {
+        await saveGlobalConfig(config);
+      } else {
+        await saveLocalConfig(config);
       }
     });
 
@@ -184,19 +161,20 @@ function setupConfigCommand(options: SetupCommandOptions) {
         os.homedir(),
         CONFIG_FILE_NAMES[0] || ".devkitrc",
       );
-      const spinner = ora(
-        chalk.cyan(t("config.init.start", { path: globalPath })),
-      ).start();
       try {
-        if (fs.existsSync(globalPath)) {
-          throw new Error(t("error.config.exists", { path: globalPath }));
-        }
-        await saveGlobalConfig(defaultCliConfig as any);
-        spinner.succeed(chalk.green(t("config.init.success")));
+        await fs.promises.stat(globalPath);
+        throw new ConfigError(
+          t("error.config.exists", { path: globalPath }),
+          globalPath,
+        );
       } catch (error: any) {
-        spinner.fail(chalk.red(t("config.init.fail")));
-        console.error(chalk.red(error.message));
+        if (error.code !== "ENOENT") {
+          throw new ConfigError(t("error.config.init.fail"), globalPath, {
+            cause: error,
+          });
+        }
       }
+      await saveGlobalConfig(defaultCliConfig as any);
     });
 
   configCommand
@@ -216,22 +194,30 @@ function setupConfigCommand(options: SetupCommandOptions) {
 
 async function setupAndParse() {
   const program = new Command();
+  const spinner = ora(chalk.cyan("Initializing CLI...")).start();
 
-  let locale = await getLocaleFromConfig();
-  await loadTranslations(locale);
-  const config = await loadUserConfig();
+  try {
+    const locale = await getLocaleFromConfig(spinner);
 
-  program
-    .name("devkit")
-    .alias("dk")
-    .description(t("program.description"))
-    .version(VERSION, "-V, --version", t("version.description"))
-    .helpOption("-h, --help", t("help.description"));
+    await loadTranslations(locale);
+    const config = await loadUserConfig(spinner);
 
-  setupNewCommand({ program, config });
-  setupConfigCommand({ program, config });
+    spinner.succeed(chalk.green(t("program.initialized")));
 
-  program.parse();
+    program
+      .name("devkit")
+      .alias("dk")
+      .description(t("program.description"))
+      .version(VERSION, "-V, --version", t("version.description"))
+      .helpOption("-h, --help", t("help.description"));
+
+    setupNewCommand({ program, config });
+    setupConfigCommand({ program, config });
+
+    program.parse();
+  } catch (error) {
+    handleErrorAndExit(error, spinner);
+  }
 }
 
 setupAndParse();

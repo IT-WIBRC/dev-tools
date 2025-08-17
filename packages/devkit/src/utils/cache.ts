@@ -1,11 +1,12 @@
 import fs from "fs-extra";
 import path from "path";
 import { execa } from "execa";
-import { Ora } from "ora";
+import type { Ora } from "ora";
 import os from "os";
 import chalk from "chalk";
-import { CacheStrategy } from "../config.js";
+import type { CacheStrategy } from "../config.js";
 import { t } from "./i18n.js";
+import { GitError } from "./errors/errors.js";
 
 const CACHE_DIR = path.join(os.homedir(), ".devkit", "cache");
 
@@ -19,57 +20,6 @@ export interface GetTemplateFromCacheOptions extends CacheOptions {
   projectName: string;
 }
 
-async function cloneRepo(url: string, repoPath: string, spinner: Ora) {
-  spinner.text = chalk.cyan(t("cache.clone.start", { url }));
-  spinner.start();
-  try {
-    await fs.ensureDir(repoPath);
-    await execa("git", ["clone", url, "."], {
-      cwd: repoPath,
-      stdio: "ignore",
-    });
-    spinner.succeed(chalk.green(t("cache.clone.success")));
-  } catch (error) {
-    spinner.fail(chalk.red(t("cache.clone.fail")));
-    throw error;
-  }
-}
-
-async function pullRepo(repoPath: string, spinner: Ora) {
-  spinner.text = chalk.cyan(t("cache.refresh.start"));
-  spinner.start();
-  try {
-    await execa("git", ["pull"], { cwd: repoPath, stdio: "ignore" });
-    spinner.succeed(chalk.green(t("cache.refresh.success")));
-  } catch (error) {
-    spinner.fail(chalk.red(t("cache.refresh.fail")));
-    throw error;
-  }
-}
-
-async function getCachedTemplatePath(options: {
-  url: string;
-  spinner: Ora;
-  strategy: CacheStrategy;
-}): Promise<string> {
-  const { url, spinner, strategy } = options;
-  const repoName = getRepoNameFromUrl(url);
-  const repoPath = path.join(CACHE_DIR, repoName);
-  const repoExists = fs.existsSync(repoPath);
-
-  if (!repoExists) {
-    await cloneRepo(url, repoPath, spinner);
-  } else {
-    const fresh = await isRepoFresh(repoPath, strategy);
-    if (!fresh) {
-      await pullRepo(repoPath, spinner);
-    } else {
-      spinner.info(chalk.yellow(t("cache.use.info", { repoName })));
-    }
-  }
-  return repoPath;
-}
-
 function getRepoNameFromUrl(url: string): string {
   const parts = url.split("/");
   let repoName = parts.pop() || "";
@@ -77,6 +27,26 @@ function getRepoNameFromUrl(url: string): string {
     repoName = repoName.slice(0, -4);
   }
   return repoName;
+}
+
+async function cloneRepo(url: string, repoPath: string) {
+  try {
+    await fs.ensureDir(repoPath);
+    await execa("git", ["clone", url, "."], {
+      cwd: repoPath,
+      stdio: "ignore",
+    });
+  } catch (error) {
+    throw new GitError(t("cache.clone.fail"), url, { cause: error });
+  }
+}
+
+async function pullRepo(repoPath: string) {
+  try {
+    await execa("git", ["pull"], { cwd: repoPath, stdio: "ignore" });
+  } catch (error) {
+    throw new GitError(t("cache.refresh.fail"), undefined, { cause: error });
+  }
 }
 
 async function isRepoFresh(
@@ -90,7 +60,7 @@ async function isRepoFresh(
     return false;
   }
   try {
-    const stat = await fs.stat(path.join(repoPath, ".git/FETCH_HEAD"));
+    const stat = await fs.promises.stat(path.join(repoPath, ".git/FETCH_HEAD"));
     const oneDayInMs = 24 * 60 * 60 * 1000;
     return Date.now() - stat.mtime.getTime() < oneDayInMs;
   } catch {
@@ -103,15 +73,40 @@ export async function getTemplateFromCache(
 ): Promise<void> {
   const { url, projectName, spinner, strategy } = options;
   const destination = path.join(process.cwd(), projectName);
-  const cachedPath = await getCachedTemplatePath({ url, spinner, strategy });
-  spinner.text = chalk.cyan(t("cache.copy.start"));
-  spinner.start();
+
   try {
-    await fs.copy(cachedPath, destination, {
+    const repoName = getRepoNameFromUrl(url);
+    const repoPath = path.join(CACHE_DIR, repoName);
+
+    spinner.text = chalk.cyan(`Checking cache for: ${repoName}...`);
+    spinner.start();
+
+    const repoExists = await fs.promises
+      .stat(repoPath)
+      .then(() => true)
+      .catch(() => false);
+
+    if (!repoExists) {
+      spinner.text = chalk.cyan(t("cache.clone.start", { url }));
+      await cloneRepo(url, repoPath);
+      spinner.succeed(chalk.green(t("cache.clone.success")));
+    } else {
+      const fresh = await isRepoFresh(repoPath, strategy);
+      if (!fresh) {
+        spinner.text = chalk.cyan(t("cache.refresh.start"));
+        await pullRepo(repoPath);
+        spinner.succeed(chalk.green(t("cache.refresh.success")));
+      } else {
+        spinner.info(chalk.yellow(t("cache.use.info", { repoName })));
+      }
+    }
+
+    spinner.text = chalk.cyan(t("cache.copy.start"));
+    await fs.copy(repoPath, destination, {
       filter: (src) => !src.includes(".git"),
     });
     spinner.succeed(chalk.green(t("cache.copy.success")));
-  } catch (error) {
+  } catch (error: any) {
     spinner.fail(chalk.red(t("cache.copy.fail")));
     throw error;
   }

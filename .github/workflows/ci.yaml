@@ -29,6 +29,10 @@ jobs:
       - name: 🧹 Lint with Oxlint
         run: bun run lint
 
+      - name: 📝 Type checking process
+        run: bun run type-check
+        working-directory: packages/devkit
+
       - name: 🛠️ Build project
         run: bun run build
         working-directory: packages/devkit

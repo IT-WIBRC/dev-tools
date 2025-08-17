@@ -1,9 +1,13 @@
 import fs from "fs-extra";
 import path from "path";
 import { osLocale } from "os-locale";
-import { TextLanguageValues, TextLanguages, type DeepKeys } from "../config.js";
+import {
+  type TextLanguageValues,
+  TextLanguages,
+  type DeepKeys,
+} from "../config.js";
 import { findLocalesDir } from "./file-finder.js";
-import chalk from "chalk";
+import { DevkitError } from "./errors/errors.js";
 
 export type I18nKeys = DeepKeys<typeof import("../../locales/en.json")>;
 
@@ -26,27 +30,26 @@ export async function loadTranslations(
   configLang: TextLanguageValues | null,
 ): Promise<void> {
   const userLang = getSupportedLanguage(configLang);
-
   const rawSystemLocale = await osLocale();
   const systemLang = getSupportedLanguage(rawSystemLocale);
-
   const languageToLoad = userLang || systemLang || "en";
 
   try {
-    const localesDir = findLocalesDir();
+    const localesDir = await findLocalesDir();
     const filePath = path.join(localesDir, `${languageToLoad}.json`);
 
-    if (fs.existsSync(filePath)) {
-      translations = await fs.readJson(filePath, { encoding: "utf-8" });
-    } else {
-      const fallbackPath = path.join(localesDir, "en.json");
-      if (fs.existsSync(fallbackPath)) {
-        translations = await fs.readJson(fallbackPath, { encoding: "utf-8" });
-      }
-    }
+    translations = await fs.readJson(filePath, { encoding: "utf-8" });
   } catch (error) {
-    console.error(chalk.bgRedBright("Error loading translations:"), error);
-    translations = {};
+    const localesDir = await findLocalesDir();
+    const fallbackPath = path.join(localesDir, "en.json");
+    try {
+      translations = await fs.readJson(fallbackPath, { encoding: "utf-8" });
+    } catch (e) {
+      throw new DevkitError(
+        `Failed to load translations from both ${languageToLoad}.json and the fallback en.json`,
+        { cause: e },
+      );
+    }
   }
 }
 
