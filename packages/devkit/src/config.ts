@@ -111,3 +111,13 @@ export const defaultCliConfig: CliConfig = {
 };
 
 export const CONFIG_FILE_NAMES = [".devkitrc", ".devkitrc.json"];
+
+export type DeepKeys<T> = T extends object
+  ? {
+      [K in keyof T]-?: K extends string
+        ? T[K] extends object
+          ? `${K}.${DeepKeys<T[K]>}` | K
+          : K
+        : never;
+    }[keyof T]
+  : "";
