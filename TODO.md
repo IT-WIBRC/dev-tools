@@ -6,7 +6,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 
 - [ ] Add template for all known Node.js templates
 - [ ] Use a better login method for errors
-- [ ] Add pull request template and issue templates
+- [x] Add pull request template and issue templates
 - [ ] change the project name inside the package.json file after importing template content
 - [ ] Don't forget to test all of these changes
 - [ ] Use changesets for changelog and versioning, and automate the process
@@ -17,6 +17,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [x] Detect system language dynamically
 - [x] Support Monorepo configuration
 - [ ] Configure aliases
+- [ ] Find a way to test the templates
 - [x] Enable copilot reviews for the project on GitHub (Impossible as it's not free as expected)
 
 ## Internationalization & Documentation
