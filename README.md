@@ -17,7 +17,7 @@ Built to fit the modern developer workflow, `dk` seamlessly integrates into mono
   - `always-refresh`: Always pull the latest template from the remote repository.
   - `never-refresh`: Use the local cached template without checking for updates.
   - `daily` (default): Refresh the cache only once every 24 hours.
-- **Seamless Internationalization (i18n):** The CLI supports multiple languages, with all commands and descriptions dynamically translated. It **automatically detects your system's language** as a fallback, ensuring a seamless out-of-the-box experience.
+- **Seamless Internationalization (i18n):** The CLI supports multiple languages, with all commands and descriptions dynamically translated. It will automatically use the language defined in your configuration files or **detect your system's language as a fallback** for a seamless out-of-the-box experience.
 - **Centralized Settings:** Manage your preferred package manager (npm, yarn, pnpm, bun, deno) and cache strategy with a single command.
 
 ---
@@ -127,7 +127,7 @@ Manage your configuration either through the CLI or by manual editing.
 Dev Kit now loads settings with a clear priority to give you maximum control and flexibility.
 
 1.  **Local Project Configuration (`./.devkitrc`)**: This file, at the root of your project, takes the **highest priority**.
-2.  **Global Configuration (`~/.devkitrc`)**: This file, stored in your user's home directory, is used for all projects on your machine and is overridden by any local configuration.
+2.  **Global Configuration (`~/.devkitrc`)**: This file, stored in your user's home directory, is used for all projects on your machine and is overridden by a local configuration.
 3.  **System Language Detection**: If a language setting is not found in either the local or global configuration, `dk` will **automatically detect your system's language** and load the corresponding translations.
 4.  **Default**: If none of the above are found, the language will default to English (`en`).
 
@@ -215,13 +215,7 @@ This project is in its early stages. We're committed to building a comprehensive
 
 ## 🤝 Contributing
 
-We welcome contributions\! If you have a feature idea, find a bug, or want to contribute code, please open an issue or a pull request.
-
-1.  Fork the repository.
-2.  Create your feature branch (`git checkout -b feature/amazing-feature`).
-3.  Commit your changes (`git commit -m 'feat: Add amazing feature'`).
-4.  Push to the branch (`git push origin feature/amazing-feature`).
-5.  Open a pull request.
+We welcome contributions\! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on how to get started.
 
 ---
 
