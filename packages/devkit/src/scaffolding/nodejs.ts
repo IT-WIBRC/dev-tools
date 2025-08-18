@@ -1,10 +1,8 @@
 import {
-  PackageManagers,
-  type ValuesOf,
   type TemplateConfig,
   type CacheStrategy,
+  type SupportedJavascriptPackageManager,
 } from "#utils/configs/schema.js";
-import fs from "fs-extra";
 import path from "path";
 import chalk from "chalk";
 import ora from "ora";
@@ -14,6 +12,8 @@ import { getTemplateFromCache } from "#utils/cache/index.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { findPackageRoot } from "#utils/file-finder.js";
 import { DevkitError } from "#utils/errors/base.js";
+import { updateJavascriptProjectName } from "#/utils/update-project-name.js";
+import { copyJavascriptTemplate } from "#/utils/template-utils.ts";
 
 interface TemplateOptions {
   projectName: string;
@@ -22,13 +22,13 @@ interface TemplateOptions {
 
 interface RunOfficialCliOptions extends TemplateOptions {
   command: string;
-  packageManager: ValuesOf<typeof PackageManagers>;
+  packageManager: SupportedJavascriptPackageManager;
 }
 
-interface ScaffoldNodejsProjectOptions {
+interface ScaffoldJavascriptProjectOptions {
   projectName: string;
   templateConfig: TemplateConfig;
-  packageManager: ValuesOf<typeof PackageManagers>;
+  packageManager: SupportedJavascriptPackageManager;
   cacheStrategy: CacheStrategy;
 }
 
@@ -38,7 +38,8 @@ async function copyLocalTemplate(
   const { sourcePath, projectName } = options;
   const projectPath = path.join(process.cwd(), projectName);
   try {
-    await fs.copy(sourcePath, projectPath);
+    await copyJavascriptTemplate(sourcePath, projectPath);
+    await updateJavascriptProjectName(projectPath, projectName);
   } catch (error) {
     throw new DevkitError(t("scaffolding.copy.fail"), { cause: error });
   }
@@ -62,7 +63,7 @@ async function runOfficialCli(options: RunOfficialCliOptions) {
 
 async function installDependencies(
   options: TemplateOptions & {
-    packageManager: ValuesOf<typeof PackageManagers>;
+    packageManager: SupportedJavascriptPackageManager;
   },
 ) {
   const { projectName, packageManager } = options;
@@ -78,7 +79,7 @@ async function installDependencies(
 }
 
 export async function scaffoldNodejsProject(
-  options: ScaffoldNodejsProjectOptions,
+  options: ScaffoldJavascriptProjectOptions,
 ) {
   const { projectName, templateConfig, packageManager, cacheStrategy } =
     options;

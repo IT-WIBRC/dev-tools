@@ -4,7 +4,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 
 ## Core Development
 
-- [] Update this TODO with all what has been done so far
+- [ ] Update this TODO with all what has been done so far
 - [ ] Add template for all known Node.js templates
 - [ ] Use a better login method for errors
 - [x] Add pull request template and issue templates

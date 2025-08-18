@@ -133,7 +133,9 @@
     "package": {
       "root": {
         "not_found": "Could not find project root containing package.json."
-      }
+      },
+      "file_not_found": "{file} not found at {path}",
+      "failed_to_update_project_name": "Failed to update project name:"
     },
     "version": {
       "read_fail": "Failed to read package.json version."
