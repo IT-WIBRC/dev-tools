@@ -3,8 +3,8 @@ import fs from "fs-extra";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { homedir } from "os";
-import { CONFIG_FILE_NAMES } from "../config.js";
-import { DevkitError, ConfigError } from "./errors/errors.js";
+import { CONFIG_FILE_NAMES } from "#utils/configs/schema.js";
+import { DevkitError, ConfigError } from "#utils/errors/base.js";
 
 export async function findUp(
   fileName: string | string[],

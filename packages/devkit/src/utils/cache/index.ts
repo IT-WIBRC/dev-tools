@@ -4,9 +4,9 @@ import { execa } from "execa";
 import type { Ora } from "ora";
 import os from "os";
 import chalk from "chalk";
-import type { CacheStrategy } from "../config.js";
-import { t } from "./i18n.js";
-import { GitError } from "./errors/errors.js";
+import type { CacheStrategy } from "#utils/configs/schema.js";
+import { t } from "#utils/internationalization/i18n.js";
+import { GitError } from "#utils/errors/base.js";
 
 const CACHE_DIR = path.join(os.homedir(), ".devkit", "cache");
 

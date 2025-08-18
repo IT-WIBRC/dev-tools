@@ -1,7 +1,7 @@
 import type { Ora } from "ora";
 import chalk from "chalk";
-import { ConfigError, GitError } from "./errors.js";
-import { t } from "../i18n.js";
+import { ConfigError, GitError } from "./base.js";
+import { t } from "#utils/internationalization/i18n.js";
 
 export function handleErrorAndExit(error: unknown, spinner: Ora): void {
   spinner.stop();
