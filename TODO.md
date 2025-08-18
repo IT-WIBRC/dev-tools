@@ -8,7 +8,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [ ] Add template for all known Node.js templates
 - [ ] Use a better login method for errors
 - [x] Add pull request template and issue templates
-- [ ] change the project name inside the package.json file after importing template content
+- [x] change the project name inside the package.json file after importing template content
 - [ ] Don't forget to test all of these changes
 - [ ] Use changesets for changelog and versioning, and automate the process
 - [ ] (Maybe) Support environment variables
