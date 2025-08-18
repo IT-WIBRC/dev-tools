@@ -3,6 +3,7 @@ import path from "path";
 import { findPackageRoot } from "#utils/file-finder.js";
 import { t } from "#utils/internationalization/i18n.js";
 import chalk from "chalk";
+import { FILE_NAMES } from "./configs/schema.js";
 
 export async function getProjectVersion(): Promise<string> {
   try {
@@ -11,7 +12,10 @@ export async function getProjectVersion(): Promise<string> {
       throw new Error(t("error.package.root.not_found"));
     }
 
-    const packageJsonPath = path.join(packageRoot, "package.json");
+    const packageJsonPath = path.join(
+      packageRoot,
+      FILE_NAMES.common.packageJson,
+    );
     const packageJson = await fs.readJson(packageJsonPath);
 
     return packageJson.version;

@@ -133,7 +133,9 @@
     "package": {
       "root": {
         "not_found": "Impossible de trouver la racine du projet contenant package.json."
-      }
+      },
+      "file_not_found": "Fichier {file} non trouvé à l'emplacement {path}",
+      "failed_to_update_project_name": "Échec de la mise à jour du nom du projet :"
     },
     "version": {
       "read_fail": "Échec de la lecture de la version de package.json."

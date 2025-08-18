@@ -1,12 +1,3 @@
----
-
-### `CONTRIBUTING.md`
-
-Create a file named **`CONTRIBUTING.md`** in your repository's root directory.
-
-````markdown
-# 🤝 Contributing to DevKit
-
 First off, thank you for considering contributing to DevKit! It's people like you that make open source such a great community. We appreciate your time and effort.
 
 The following is a set of guidelines for contributing to DevKit. These are mostly guidelines, not strict rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
@@ -77,4 +68,3 @@ We use Conventional Commits for our commit messages. This allows for automated c
 - Run the tests (`npm test`) to ensure everything works as expected.
 
 Thank you for your contribution!
-````

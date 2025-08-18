@@ -3,7 +3,7 @@ import fs from "fs-extra";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { homedir } from "os";
-import { CONFIG_FILE_NAMES } from "#utils/configs/schema.js";
+import { CONFIG_FILE_NAMES, FILE_NAMES } from "#utils/configs/schema.js";
 import { DevkitError, ConfigError } from "#utils/errors/base.js";
 
 export async function findUp(
@@ -24,7 +24,10 @@ export async function findUp(
       }
     }
 
-    const packageJsonPath = path.join(currentDir, "package.json");
+    const packageJsonPath = path.join(
+      currentDir,
+      FILE_NAMES.common.packageJson,
+    );
     try {
       const packageJson = await fs.readJson(packageJsonPath);
       if (packageJson.workspaces) {
@@ -44,10 +47,10 @@ export async function findUp(
 }
 
 export async function findProjectRoot(): Promise<string> {
-  const filePath = await findUp("package.json", process.cwd());
+  const filePath = await findUp(FILE_NAMES.common.packageJson, process.cwd());
   if (!filePath) {
     throw new DevkitError(
-      "Project root not found. Please ensure a package.json file exists.",
+      `Project root not found. Please ensure a ${FILE_NAMES.common.packageJson} file exists.`,
     );
   }
   return path.dirname(filePath);
@@ -56,7 +59,7 @@ export async function findProjectRoot(): Promise<string> {
 export async function findPackageRoot(): Promise<string> {
   const __filename = fileURLToPath(import.meta.url);
   const startDir = dirname(__filename);
-  const filePath = await findUp("package.json", startDir);
+  const filePath = await findUp(FILE_NAMES.common.packageJson, startDir);
   if (!filePath) {
     throw new DevkitError(
       "Package root not found. Cannot determine the root of the devkit.",

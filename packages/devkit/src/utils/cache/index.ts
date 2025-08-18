@@ -7,6 +7,8 @@ import chalk from "chalk";
 import type { CacheStrategy } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { GitError } from "#utils/errors/base.js";
+import { updateJavascriptProjectName } from "../update-project-name.js";
+import { copyJavascriptTemplate } from "../template-utils.ts.js";
 
 const CACHE_DIR = path.join(os.homedir(), ".devkit", "cache");
 
@@ -102,9 +104,10 @@ export async function getTemplateFromCache(
     }
 
     spinner.text = chalk.cyan(t("cache.copy.start"));
-    await fs.copy(repoPath, destination, {
-      filter: (src) => !src.includes(".git"),
-    });
+
+    await copyJavascriptTemplate(repoPath, destination);
+    await updateJavascriptProjectName(destination, projectName);
+
     spinner.succeed(chalk.green(t("cache.copy.success")));
   } catch (error: any) {
     spinner.fail(chalk.red(t("cache.copy.fail")));

@@ -16,7 +16,7 @@ import { t } from "../internationalization/i18n.js";
 import { ConfigError, DevkitError } from "../errors/base.js";
 
 async function findGlobalConfigPath(): Promise<string | null> {
-  const globalConfigName = CONFIG_FILE_NAMES[0] || ".devkitrc.json";
+  const globalConfigName = CONFIG_FILE_NAMES[0] || CONFIG_FILE_NAMES[1];
   const globalPath = path.join(os.homedir(), globalConfigName);
   try {
     await fs.promises.stat(globalPath);
@@ -132,7 +132,7 @@ export async function loadUserConfig(spinner?: Ora): Promise<CliConfig> {
 export async function saveGlobalConfig(config: CliConfig): Promise<void> {
   const targetPath = path.join(
     os.homedir(),
-    CONFIG_FILE_NAMES[0] || ".devkitrc.json",
+    CONFIG_FILE_NAMES[0] || CONFIG_FILE_NAMES[1],
   );
   try {
     await fs.writeJson(targetPath, config, { spaces: 2 });

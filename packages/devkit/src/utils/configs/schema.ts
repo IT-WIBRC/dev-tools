@@ -1,34 +1,26 @@
 export const ProgrammingLanguage = {
-  Nodejs: "Node.js",
+  Javascript: "Javascript",
 } as const;
 
-export const NodejsFramework = {
-  Vue: "Vue.js",
-  Nuxt: "Nuxt.js",
-  Nest: "Nest.js",
-} as const;
-
-export const UnitTestingLibrary = {
-  Jest: "Jest",
-  Vitest: "Vitest",
-  None: "None",
-} as const;
-
-export const E2ELibrary = {
-  Cypress: "Cypress",
-  Playwright: "Playwright",
-  None: "None",
-} as const;
-
-export const PackageManagers = {
+export const JavascriptPackageManagers = {
   Bun: "bun",
   Npm: "npm",
   Yarn: "yarn",
   Deno: "deno",
   Pnpm: "pnpm",
 } as const;
+
+export const PackageManagers = {
+  ...JavascriptPackageManagers,
+} as const;
+
 export type PackageManager =
   (typeof PackageManagers)[keyof typeof PackageManagers];
+
+export type SupportedJavascriptPackageManager = ValuesOf<
+  typeof JavascriptPackageManagers
+>;
+type SupportedPackageManager = ValuesOf<typeof PackageManagers>;
 
 export type ValuesOf<T> = T[keyof T];
 export type LowercaseValues<T extends string> =
@@ -49,7 +41,7 @@ export interface TemplateConfig {
   location: string;
   alias?: string;
   cacheStrategy?: CacheStrategy;
-  packageManager?: ValuesOf<typeof PackageManagers>;
+  packageManager?: SupportedPackageManager;
 }
 
 export interface LanguageConfig {
@@ -63,16 +55,18 @@ export const VALID_CACHE_STRATEGIES = [
 ] as const;
 export type CacheStrategy = (typeof VALID_CACHE_STRATEGIES)[number];
 
+export type SupportedProgrammingLanguageValues = LowercaseValues<
+  ValuesOf<typeof ProgrammingLanguage>
+>;
+
 export interface CliConfig {
   templates: {
-    [key in LowercaseValues<
-      ValuesOf<typeof ProgrammingLanguage>
-    >]?: LanguageConfig;
+    [key in SupportedProgrammingLanguageValues]?: LanguageConfig;
   } & {
     [key: string]: LanguageConfig;
   };
   settings: {
-    defaultPackageManager: ValuesOf<typeof PackageManagers>;
+    defaultPackageManager: SupportedPackageManager;
     cacheStrategy?: CacheStrategy;
     language: TextLanguageValues;
   };
@@ -80,7 +74,7 @@ export interface CliConfig {
 
 export const defaultCliConfig: CliConfig = {
   templates: {
-    nodejs: {
+    javascript: {
       templates: {
         simple: {
           description: "A basic Node.js starter project.",
@@ -110,7 +104,7 @@ export const defaultCliConfig: CliConfig = {
   },
 };
 
-export const CONFIG_FILE_NAMES = [".devkitrc", ".devkitrc.json"];
+export const CONFIG_FILE_NAMES = [".devkitrc", ".devkitrc.json"] as const;
 
 export type DeepKeys<T> = T extends object
   ? {
@@ -121,3 +115,18 @@ export type DeepKeys<T> = T extends object
         : never;
     }[keyof T]
   : "";
+
+export const FILE_NAMES = {
+  common: {
+    packageJson: "package.json",
+    git: ".git",
+  },
+  javascript: {
+    lockFiles: [
+      "package-lock.json",
+      "bun.lockb",
+      "yarn.lock",
+      "pnpm-lock.yaml",
+    ],
+  },
+} as const;

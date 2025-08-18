@@ -159,7 +159,7 @@ function setupConfigCommand(options: SetupCommandOptions) {
     .action(async () => {
       const globalPath = path.join(
         os.homedir(),
-        CONFIG_FILE_NAMES[0] || ".devkitrc",
+        CONFIG_FILE_NAMES[0] || CONFIG_FILE_NAMES[1],
       );
       try {
         await fs.promises.stat(globalPath);
