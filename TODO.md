@@ -4,6 +4,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 
 ## Core Development
 
+- [] Update this TODO with all what has been done so far
 - [ ] Add template for all known Node.js templates
 - [ ] Use a better login method for errors
 - [x] Add pull request template and issue templates
@@ -11,12 +12,11 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [ ] Don't forget to test all of these changes
 - [ ] Use changesets for changelog and versioning, and automate the process
 - [ ] (Maybe) Support environment variables
-- [ ] Add argument support like `--template` or `-t`
 - [x] Check what can be changed into an argument instead of a command
 - [ ] Support template creation using a command
 - [x] Detect system language dynamically
 - [x] Support Monorepo configuration
-- [ ] Configure aliases
+- [x] Configure aliases
 - [ ] Find a way to test the templates
 - [x] Enable copilot reviews for the project on GitHub (Impossible as it's not free as expected)
 

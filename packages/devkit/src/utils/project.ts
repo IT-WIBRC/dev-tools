@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
-import { findPackageRoot } from "./file-finder.js";
-import { t } from "./i18n.js";
+import { findPackageRoot } from "#utils/file-finder.js";
+import { t } from "#utils/internationalization/i18n.js";
 import chalk from "chalk";
 
 export async function getProjectVersion(): Promise<string> {

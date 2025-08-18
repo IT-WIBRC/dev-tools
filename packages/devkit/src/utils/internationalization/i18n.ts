@@ -5,11 +5,11 @@ import {
   type TextLanguageValues,
   TextLanguages,
   type DeepKeys,
-} from "../config.js";
-import { findLocalesDir } from "./file-finder.js";
-import { DevkitError } from "./errors/errors.js";
+} from "#utils/configs/schema.js";
+import { findLocalesDir } from "#utils/file-finder.js";
+import { DevkitError } from "#utils/errors/base.js";
 
-export type I18nKeys = DeepKeys<typeof import("../../locales/en.json")>;
+export type I18nKeys = DeepKeys<typeof import("#locales/en.json")>;
 
 let translations: Record<string, string> = {};
 

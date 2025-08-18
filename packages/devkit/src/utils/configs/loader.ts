@@ -10,10 +10,10 @@ import {
   defaultCliConfig,
   type TextLanguageValues,
   type CacheStrategy,
-} from "../config.js";
-import { findConfigPath } from "./file-finder.js";
-import { t } from "./i18n.js";
-import { ConfigError, DevkitError } from "./errors/errors.js";
+} from "./schema.js";
+import { findConfigPath } from "../file-finder.js";
+import { t } from "../internationalization/i18n.js";
+import { ConfigError, DevkitError } from "../errors/base.js";
 
 async function findGlobalConfigPath(): Promise<string | null> {
   const globalConfigName = CONFIG_FILE_NAMES[0] || ".devkitrc.json";

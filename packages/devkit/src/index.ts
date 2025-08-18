@@ -7,7 +7,7 @@ import {
   loadUserConfig,
   getLocaleFromConfig,
   updateTemplateCacheStrategy,
-} from "./utils/config-loader.js";
+} from "#utils/configs/loader.js";
 import {
   type CliConfig,
   PackageManagers,
@@ -16,16 +16,16 @@ import {
   VALID_CACHE_STRATEGIES,
   type PackageManager,
   type CacheStrategy,
-} from "./config.js";
-import { loadTranslations, t } from "./utils/i18n.js";
+} from "#utils/configs/schema.js";
+import { loadTranslations, t } from "#utils/internationalization/i18n.js";
 import ora from "ora";
 import chalk from "chalk";
-import { getProjectVersion } from "./utils/project.js";
+import { getProjectVersion } from "#utils/project.js";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
-import { DevkitError, ConfigError } from "./utils/errors/errors.js";
-import { handleErrorAndExit } from "./utils/errors/error-handler.js";
+import { DevkitError, ConfigError } from "#utils/errors/base.js";
+import { handleErrorAndExit } from "#utils/errors/handler.js";
 
 const VERSION = await getProjectVersion();
 
@@ -82,7 +82,7 @@ function setupNewCommand(options: SetupCommandOptions) {
         .argument("<projectName>", t("new.project.name.argument"))
         .action(async (projectName) => {
           const { scaffoldProject } = await import(
-            `./scaffolding/${language}.js`
+            `@scaffolding/${language}.js`
           );
           await scaffoldProject({
             projectName,

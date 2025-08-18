@@ -3,17 +3,17 @@ import {
   type ValuesOf,
   type TemplateConfig,
   type CacheStrategy,
-} from "../config.js";
+} from "#utils/configs/schema.js";
 import fs from "fs-extra";
 import path from "path";
 import chalk from "chalk";
 import ora from "ora";
 import type { Ora } from "ora";
 import { execa } from "execa";
-import { getTemplateFromCache } from "../utils/cache.js";
-import { t } from "../utils/i18n.js";
-import { findPackageRoot } from "../utils/file-finder.js";
-import { DevkitError } from "../utils/errors/errors.js";
+import { getTemplateFromCache } from "#utils/cache/index.js";
+import { t } from "#utils/internationalization/i18n.js";
+import { findPackageRoot } from "#utils/file-finder.js";
+import { DevkitError } from "#utils/errors/base.js";
 
 interface TemplateOptions {
   projectName: string;

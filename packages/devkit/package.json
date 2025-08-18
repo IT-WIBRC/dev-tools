@@ -53,6 +53,13 @@
     "test:ci": "vitest run",
     "prepublishOnly": "cpx ../../README.md . && cpx ../../LICENSE . && cpx ../../.devkit-schema.json . "
   },
+  "imports": {
+    "#locales/*": "./locales/*",
+    "#/*": "./dist/*",
+    "#scaffolding/*": "./dist/scaffolding/*",
+    "#utils/*": "./dist/utils/*",
+    "#tests/*": "./tests/*"
+  },
   "dependencies": {
     "chalk": "^5.5.0",
     "commander": "^14.0.0",
