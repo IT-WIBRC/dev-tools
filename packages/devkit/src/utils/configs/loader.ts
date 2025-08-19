@@ -161,6 +161,7 @@ export async function saveGlobalConfig(config: CliConfig): Promise<void> {
 
 export async function saveLocalConfig(config: CliConfig): Promise<void> {
   const targetPath = await getConfigFilepath();
+
   try {
     await fs.writeJson(targetPath, config, { spaces: 2 });
   } catch (error) {

@@ -52,7 +52,7 @@
     },
     "set": {
       "command": {
-        "description": "Set a configuration value. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n"
+        "description": "Set a configuration value. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Sets the language of the CLI. Possible values: 'en', 'fr'\n"
       },
       "key": {
         "argument": "The configuration key to set"

@@ -52,7 +52,7 @@
     },
     "set": {
       "command": {
-        "description": "Définir une valeur de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache global pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n"
+        "description": "Définit une valeur de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache global pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue de la CLI. Valeurs possibles : 'en', 'fr'\n"
       },
       "key": {
         "argument": "La clé de configuration à définir"
