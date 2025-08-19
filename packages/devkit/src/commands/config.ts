@@ -64,6 +64,8 @@ export function setupConfigCommand(options: SetupNewCommandOptions) {
     packageManager: "defaultPackageManager",
     cache: "cacheStrategy",
     cacheStrategy: "cacheStrategy",
+    language: "language",
+    lg: "language",
   };
 
   const setCommandDescription = t("config.set.command.description", {
@@ -99,7 +101,7 @@ export function setupConfigCommand(options: SetupNewCommandOptions) {
 
         validateConfigValue(canonicalKey, value);
 
-        const settings = { ...config.settings };
+        const settings = config.settings;
         (settings[canonicalKey] as any) = value;
 
         if (cmdOptions.global) {
