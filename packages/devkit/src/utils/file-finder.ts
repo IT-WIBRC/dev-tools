@@ -3,13 +3,13 @@ import fs from "fs-extra";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { homedir } from "os";
-import { CONFIG_FILE_NAMES, FILE_NAMES } from "#utils/configs/schema.js";
-import { DevkitError, ConfigError } from "#utils/errors/base.js";
+import { FILE_NAMES } from "#utils/configs/schema.js";
+import { DevkitError } from "#utils/errors/base.js";
 
 export async function findUp(
   fileName: string | string[],
   startDir: string,
-): Promise<string> {
+): Promise<string | null> {
   let currentDir = path.resolve(startDir);
   const filesToFind = Array.isArray(fileName) ? fileName : [fileName];
 
@@ -24,34 +24,25 @@ export async function findUp(
       }
     }
 
-    const packageJsonPath = path.join(
-      currentDir,
-      FILE_NAMES.common.packageJson,
-    );
-    try {
-      const packageJson = await fs.readJson(packageJsonPath);
-      if (packageJson.workspaces) {
-        return packageJsonPath;
-      }
-    } catch (e) {
-      // package.json doesn't exist or is invalid, continue search
-    }
-
     const parentDir = path.dirname(currentDir);
     if (parentDir === currentDir || currentDir === homedir()) {
       break;
     }
     currentDir = parentDir;
   }
-  return "";
+  return null;
 }
 
-export async function findProjectRoot(): Promise<string> {
+export async function findMonorepoRoot(): Promise<string | null> {
+  const monorepoIndicators = ["pnpm-workspace.yaml", "lerna.json"];
+  const rootFile = await findUp(monorepoIndicators, process.cwd());
+  return rootFile ? path.dirname(rootFile) : null;
+}
+
+export async function findProjectRoot(): Promise<string | null> {
   const filePath = await findUp(FILE_NAMES.common.packageJson, process.cwd());
   if (!filePath) {
-    throw new DevkitError(
-      `Project root not found. Please ensure a ${FILE_NAMES.common.packageJson} file exists.`,
-    );
+    return null;
   }
   return path.dirname(filePath);
 }
@@ -71,45 +62,4 @@ export async function findPackageRoot(): Promise<string> {
 export async function findLocalesDir(): Promise<string> {
   const packageRoot = await findPackageRoot();
   return path.join(packageRoot, "locales");
-}
-
-export async function findConfigPath(): Promise<string> {
-  const monorepoIndicators = ["pnpm-workspace.yaml", "lerna.json"];
-  const monorepoRootPath = await findUp(monorepoIndicators, process.cwd());
-
-  if (monorepoRootPath) {
-    for (const name of CONFIG_FILE_NAMES) {
-      const monorepoConfigPath = path.join(
-        path.dirname(monorepoRootPath),
-        name,
-      );
-      try {
-        await fs.promises.stat(monorepoConfigPath);
-        return monorepoConfigPath;
-      } catch (e) {
-        // File not found, try next name
-      }
-    }
-  }
-
-  let projectRoot = "";
-  try {
-    projectRoot = await findProjectRoot();
-  } catch (e) {}
-
-  if (projectRoot) {
-    for (const name of CONFIG_FILE_NAMES) {
-      const localConfigPath = path.join(projectRoot, name);
-      try {
-        await fs.promises.stat(localConfigPath);
-        return localConfigPath;
-      } catch (e) {
-        // File not found, try next name
-      }
-    }
-  }
-
-  throw new ConfigError(
-    "No configuration file found in project or monorepo root.",
-  );
 }

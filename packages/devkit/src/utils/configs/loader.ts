@@ -3,137 +3,151 @@ import path from "path";
 import os from "os";
 import deepmerge from "deepmerge";
 import type { Ora } from "ora";
-import chalk from "chalk";
 import {
   type CliConfig,
   CONFIG_FILE_NAMES,
   defaultCliConfig,
-  type TextLanguageValues,
   type CacheStrategy,
+  SUPPORTED_LANGUAGES,
+  type TextLanguageValues,
 } from "./schema.js";
-import { findConfigPath } from "../file-finder.js";
+import { findMonorepoRoot, findProjectRoot, findUp } from "../file-finder.js";
 import { t } from "../internationalization/i18n.js";
 import { ConfigError, DevkitError } from "../errors/base.js";
 
-async function findGlobalConfigPath(): Promise<string | null> {
-  const globalConfigName = CONFIG_FILE_NAMES[0] || CONFIG_FILE_NAMES[1];
-  const globalPath = path.join(os.homedir(), globalConfigName);
-  try {
-    await fs.promises.stat(globalPath);
-    return globalPath;
-  } catch (e) {
-    return null;
+export async function getConfigFilepath(isGlobal = false): Promise<string> {
+  if (isGlobal) {
+    return path.join(os.homedir(), CONFIG_FILE_NAMES[0]);
   }
+
+  const localConfigPath = await findUp([...CONFIG_FILE_NAMES], process.cwd());
+
+  if (localConfigPath) {
+    return localConfigPath;
+  }
+
+  const monorepoRoot = await findMonorepoRoot();
+  if (monorepoRoot) {
+    return path.join(monorepoRoot, CONFIG_FILE_NAMES[1]);
+  }
+
+  const projectRoot = await findProjectRoot();
+  if (projectRoot) {
+    return path.join(projectRoot, CONFIG_FILE_NAMES[1]);
+  }
+
+  return path.join(process.cwd(), CONFIG_FILE_NAMES[0]);
 }
 
-export async function getLocaleFromConfig(
-  spinner?: Ora,
-): Promise<TextLanguageValues | null> {
-  if (spinner) {
-    spinner.text = chalk.cyan(
-      "Checking for local or monorepo configuration...",
-    );
+export async function getLocaleFromConfigMinimal(): Promise<TextLanguageValues> {
+  const localConfigPath = await findUp([...CONFIG_FILE_NAMES], process.cwd());
+  if (localConfigPath) {
+    try {
+      const config = await fs.readJson(localConfigPath);
+      if (
+        config?.settings?.language &&
+        SUPPORTED_LANGUAGES.includes(config.settings.language)
+      ) {
+        return config.settings.language;
+      }
+    } catch (error: any) {
+      if (error.code !== "ENOENT") {
+        throw new ConfigError(
+          "Failed to read local config for locale.",
+          localConfigPath,
+          { cause: error },
+        );
+      }
+    }
   }
 
-  let localOrMonorepoConfigPath: string | null = null;
+  const globalConfigPath = path.join(os.homedir(), CONFIG_FILE_NAMES[0]);
   try {
-    localOrMonorepoConfigPath = await findConfigPath();
-  } catch (error) {
-    // Intentionally ignore this error to allow the function to check for a global config.
-  }
-
-  if (localOrMonorepoConfigPath) {
-    try {
-      const config = await fs.readJson(localOrMonorepoConfigPath);
-      if (config?.settings?.language) {
-        return config.settings.language;
-      }
-    } catch (error) {
-      throw new ConfigError(
-        `Failed to read local config at ${localOrMonorepoConfigPath}.`,
-        localOrMonorepoConfigPath,
-        { cause: error },
-      );
+    const config = await fs.readJson(globalConfigPath);
+    if (
+      config?.settings?.language &&
+      SUPPORTED_LANGUAGES.includes(config.settings.language)
+    ) {
+      return config.settings.language;
     }
-  }
-
-  const globalConfigPath = await findGlobalConfigPath();
-  if (globalConfigPath) {
-    if (spinner) {
-      spinner.text = chalk.cyan(
-        "Local config not found. Checking for global configuration...",
-      );
-    }
-    try {
-      const config = await fs.readJson(globalConfigPath);
-      if (config?.settings?.language) {
-        return config.settings.language;
-      }
-    } catch (error) {
+  } catch (error: any) {
+    if (error.code !== "ENOENT") {
       throw new ConfigError(
-        `Failed to read global config at ${globalConfigPath}.`,
+        "Failed to read global config for locale.",
         globalConfigPath,
         { cause: error },
       );
     }
   }
-
   return defaultCliConfig.settings.language;
 }
 
-export async function loadUserConfig(spinner?: Ora): Promise<CliConfig> {
-  if (spinner) {
-    spinner.text = chalk.cyan(t("config.check.local"));
-  }
-
-  let finalConfig = defaultCliConfig;
-  let configFilePath = "";
-  let configFound = false;
-
+async function readConfigAtPath(filePath: string): Promise<object | null> {
   try {
-    configFilePath = await findConfigPath();
+    const config = await fs.readJson(filePath);
+    return config;
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      return null;
+    }
+    throw new ConfigError(
+      t("error.config.parse", { file: path.basename(filePath) }),
+      filePath,
+      { cause: error },
+    );
+  }
+}
+
+export type ConfigurationSource = "local" | "global" | "default";
+export async function loadUserConfig(spinner?: Ora): Promise<{
+  config: CliConfig;
+  source: ConfigurationSource;
+}> {
+  let finalConfig = { ...defaultCliConfig };
+  let source: ConfigurationSource = "default";
+
+  if (spinner) {
+    spinner.text = t("config.check.global");
+  }
+
+  const globalConfigPath = await getConfigFilepath(true);
+  const globalConfig = await readConfigAtPath(globalConfigPath);
+
+  if (globalConfig) {
+    if (source === "default") {
+      source = "global";
+    }
+    finalConfig = deepmerge(finalConfig, globalConfig);
+  }
+
+  if (spinner) {
+    spinner.text = t("config.check.local");
+  }
+
+  const localConfigPath = await getConfigFilepath();
+  const localConfig = await readConfigAtPath(localConfigPath);
+
+  if (localConfig) {
+    finalConfig = deepmerge(finalConfig, localConfig);
+    source = "local";
+  }
+
+  return { config: finalConfig, source };
+}
+
+export async function saveCliConfig(config: CliConfig, isGlobal = false) {
+  const filePath = await getConfigFilepath(isGlobal);
+  try {
+    await fs.writeJson(filePath, config, { spaces: 2 });
   } catch (error) {
-    // Intentionally ignore this error to allow the function to check for a global config.
+    throw new DevkitError(t("error.config.save", { file: filePath }), {
+      cause: error,
+    });
   }
-
-  if (configFilePath) {
-    configFound = true;
-    try {
-      const localConfig = await fs.readJson(configFilePath);
-      finalConfig = deepmerge(finalConfig, localConfig);
-    } catch (error) {
-      throw new ConfigError(
-        t("error.config.parse", { file: path.basename(configFilePath) }),
-        configFilePath,
-        { cause: error },
-      );
-    }
-  }
-
-  const globalConfigPath = await findGlobalConfigPath();
-  if (globalConfigPath) {
-    if (spinner) {
-      spinner.text = chalk.cyan(t("config.check.global"));
-    }
-    try {
-      const globalConfig = await fs.readJson(globalConfigPath);
-      finalConfig = deepmerge(finalConfig, globalConfig);
-    } catch (error) {
-      throw new ConfigError(
-        t("error.config.parse", { file: path.basename(globalConfigPath) }),
-        globalConfigPath,
-        { cause: error },
-      );
-    }
-  }
-  return finalConfig;
 }
 
 export async function saveGlobalConfig(config: CliConfig): Promise<void> {
-  const targetPath = path.join(
-    os.homedir(),
-    CONFIG_FILE_NAMES[0] || CONFIG_FILE_NAMES[1],
-  );
+  const targetPath = await getConfigFilepath(true);
   try {
     await fs.writeJson(targetPath, config, { spaces: 2 });
   } catch (error) {
@@ -146,16 +160,13 @@ export async function saveGlobalConfig(config: CliConfig): Promise<void> {
 }
 
 export async function saveLocalConfig(config: CliConfig): Promise<void> {
-  const existingConfigPath = await findConfigPath();
-  if (!existingConfigPath) {
-    throw new DevkitError(t("error.save.local.config.not_found"));
-  }
+  const targetPath = await getConfigFilepath();
   try {
-    await fs.writeJson(existingConfigPath, config, { spaces: 2 });
+    await fs.writeJson(targetPath, config, { spaces: 2 });
   } catch (error) {
     throw new ConfigError(
-      t("error.config.save", { file: existingConfigPath }),
-      existingConfigPath,
+      t("error.config.save", { file: targetPath }),
+      targetPath,
       { cause: error },
     );
   }
@@ -166,7 +177,7 @@ export async function updateTemplateCacheStrategy(
   strategy: CacheStrategy,
   config: CliConfig,
 ): Promise<void> {
-  const targetPath = await findConfigPath();
+  const targetPath = await getConfigFilepath();
   if (!targetPath) {
     throw new ConfigError(t("error.config.not.found"), "");
   }

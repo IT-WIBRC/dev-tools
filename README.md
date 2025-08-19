@@ -86,6 +86,21 @@ Here's how to get started with the Dev Kit CLI.
 dk new vue my-awesome-app
 ```
 
+### Add a new template to your configuration
+
+The `add-template` command allows you to easily register a new template with your CLI. It intelligently updates the configuration file in your current context:
+
+- **Global:** If no project is found, it updates your global (`~/.devkitrc`) file.
+- **Local:** It updates the `.devkitrc` file in the root of your current project.
+- **Monorepo:** It updates the shared configuration at the monorepo's root.
+
+You must provide a `description` using the `--description` flag. Other options like `--alias` and `--cache-strategy` are available to customize the template.
+
+```bash
+# Example: Add a new template from a GitHub repository
+dk add-template react react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
+```
+
 ### Manage your CLI configuration
 
 Use the `config set` command to update your `.devkitrc` file.
@@ -115,6 +130,7 @@ For a faster workflow, the following commands have shortcuts:
 - `init` -\> `i`
 - `config` -\> `cf`
 - `cache` -\> `c`
+- `add-template` -\> `at`
 
 ---
 
@@ -131,12 +147,47 @@ Dev Kit now loads settings with a clear priority to give you maximum control and
 3.  **System Language Detection**: If a language setting is not found in either the local or global configuration, `dk` will **automatically detect your system's language** and load the corresponding translations.
 4.  **Default**: If none of the above are found, the language will default to English (`en`).
 
-### Create and configure a project file
+### Creating a New Template (The Full Workflow)
 
-To initialize a local configuration file in your project, use `config init`. This creates a `.devkitrc` file in the current directory.
+Dev Kit allows you to create and use your own templates in three simple steps.
+
+#### Step 1: Create the Template Project
+
+First, build your template. This is a standard project directory containing all the files you want to use. You can use any type of project, from a simple boilerplate to a complex custom setup.
+
+#### Step 2: Add the Template to Your Config
+
+Once your template project is ready, use the `add-template` command to register it with the CLI. This command adds the template's details to your `.devkitrc` file, making it available for use.
 
 ```bash
+# Add a template from a local folder to your global config
+dk add-template javascript custom-js-app /Users/myuser/projects/my-template --description "My personal JavaScript boilerplate" --global
+```
+
+#### Step 3: Use the Template
+
+After running the `add-template` command, you can scaffold a new project from your template using `dk new`.
+
+```bash
+# Create a new project from the template we just added
+dk new javascript custom-js-app my-new-project
+```
+
+### Create and configure a project file
+
+The `config init` command now allows you to initialize a configuration file at different scopes.
+
+- To initialize a **local** configuration file in your current project, simply run the command without any flags.
+- To initialize a **global** configuration file, use the `--global` flag.
+
+<!-- end list -->
+
+```bash
+# Initialize a local configuration file in the current directory
 dk config init
+
+# Initialize a global configuration file
+dk config init --global
 ```
 
 ### Add the JSON Schema for Autocompletion
@@ -145,7 +196,7 @@ For a better developer experience, add a `$schema` property for auto-completion 
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/IT-WIBRC/devkit/main/schema.json",
+  "$schema": "https://www.shorturl.at/QDcxK",
   "settings": {
     "language": "fr",
     "defaultPackageManager": "npm",
