@@ -1,3 +1,5 @@
+import type { Command } from "commander";
+
 export const ProgrammingLanguage = {
   Javascript: "Javascript",
 } as const;
@@ -35,6 +37,8 @@ export const TextLanguages = {
   French: "fr",
 } as const;
 export type TextLanguageValues = ValuesOf<typeof TextLanguages>;
+// oxlint-disable-next-line no-useless-spread
+export const SUPPORTED_LANGUAGES = [...Object.values(TextLanguages)] as const;
 
 export interface TemplateConfig {
   description: string;
@@ -70,6 +74,11 @@ export interface CliConfig {
     cacheStrategy?: CacheStrategy;
     language: TextLanguageValues;
   };
+}
+
+export interface SetupCommandOptions {
+  program: Command;
+  config: CliConfig;
 }
 
 export const defaultCliConfig: CliConfig = {

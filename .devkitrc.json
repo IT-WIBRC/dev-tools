@@ -1,11 +1,24 @@
 {
-  "$schema": "https://shorturl.at/QDcxK",
   "templates": {
-    "nodejs": {
+    "javascript": {
       "templates": {
         "simple": {
           "description": "A basic Node.js starter project.",
           "location": "./templates/nodejs/simple"
+        },
+        "vue": {
+          "description": "An official Vue.js project.",
+          "location": "{pm} create vue@latest",
+          "cacheStrategy": "always-refresh"
+        },
+        "nuxt": {
+          "description": "An official Nuxt.js project.",
+          "location": "{pm} create nuxt@latest",
+          "alias": "nx"
+        },
+        "nest": {
+          "description": "An official Nest.js project.",
+          "location": "{pm} install -g @nestjs/cli && nest new"
         },
         "medium": {
           "description": "A more complex project with a pre-configured database.",
@@ -14,11 +27,6 @@
         "vitrine": {
           "description": "A lightweight project for showcase websites.",
           "location": "./templates/nodejs/vitrine"
-        },
-        "vue": {
-          "description": "An official Vue.js project.",
-          "location": "{pm} create vue@latest",
-          "cacheStrategy": "always-refresh"
         },
         "my-custom-template": {
           "description": "A template for my team's projects.",
@@ -29,6 +37,8 @@
   },
   "settings": {
     "defaultPackageManager": "bun",
+    "cacheStrategy": "daily",
     "language": "en"
-  }
+  },
+  "$schema": "https://shorturl.at/QDcxK"
 }

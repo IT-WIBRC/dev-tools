@@ -62,7 +62,9 @@
       },
       "option": {
         "global": "Update the global configuration instead of the local one."
-      }
+      },
+      "updating": "Updating configuration...",
+      "success": "Configuration updated successfully."
     },
     "init": {
       "command": {
@@ -70,7 +72,11 @@
       },
       "start": "Initializing global config at {path}...",
       "success": "Global configuration file created successfully!",
-      "fail": "Failed to initialize global config."
+      "fail": "Failed to initialize global config.",
+      "initializing": "Initializing configuration...",
+      "option": {
+        "local": "Initialize a local configuration file instead of a global one."
+      }
     },
     "update": {
       "start": "Updating setting: {key}...",
@@ -92,7 +98,8 @@
       },
       "start": "Updating cache strategy for template '{template}'...",
       "success": "Cache strategy for template '{template}' updated to '{strategy}'",
-      "fail": "Failed to update cache strategy for template '{template}'"
+      "fail": "Failed to update cache strategy for template '{template}'",
+      "updating": "Updating cache..."
     },
     "check": {
       "local": "Checking for local or monorepo configuration...",
@@ -125,7 +132,8 @@
       "init": {
         "fail": "Failed to initialize configuration."
       },
-      "read": "Failed to read configuration at {path}."
+      "read": "Failed to read configuration at {path}.",
+      "no_file_found": "No configuration file found. Run 'devkit config init' to create a global one, or 'devkit config init --local' to create a local one."
     },
     "file": {
       "not_found": "Could not find file '{fileName}'."
@@ -170,7 +178,8 @@
       "generic": "Git error"
     },
     "unexpected": "An unexpected error occurred",
-    "unknown": "An unknown error occurred"
+    "unknown": "An unknown error occurred",
+    "language_config_not_found": "Scaffolding language not found in configuration: '{language}'"
   },
   "cache": {
     "clone": {
@@ -204,6 +213,20 @@
           "initialized": "Global configuration not initialized. Run 'devkit config init' to create one."
         }
       }
+    },
+    "no_config_found": "⚠️ No configuration file found. Using default settings."
+  },
+  "cli": {
+    "add_template": {
+      "description": "Add a new template to the configuration",
+      "options": {
+        "description": "A brief description of the template",
+        "alias": "A short alias for the template",
+        "cache": "The cache strategy for the template",
+        "package_manager": "The package manager to use for the template"
+      },
+      "adding": "Adding template '{templateName}' to configuration...",
+      "success": "Template '{templateName}' added successfully!"
     }
   }
 }
