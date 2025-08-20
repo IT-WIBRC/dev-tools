@@ -1,30 +1,40 @@
 {
   "program": {
-    "description": "Une boîte à outils puissante pour l'échafaudage de nouveaux projets.",
-    "initialized": "Interface de ligne de commande (CLI) initialisée avec succès."
+    "description": "Une puissante boîte à outils pour la création de nouveaux projets.",
+    "initialized": "CLI initialisée avec succès."
   },
   "new": {
     "command": {
       "description": "Créer un nouveau projet à partir d'un modèle"
     },
     "project": {
-      "description": "Créer un nouveau projet {language} avec le modèle '{template}': {description}",
+      "language": {
+        "argument": "Le langage de programmation du modèle (ex. : 'react', 'node')"
+      },
       "name": {
         "argument": "Le nom de votre nouveau projet"
-      }
+      },
+      "template": {
+        "option": {
+          "description": "Le nom du modèle à utiliser (ex. : 'ts', 'simple-api')"
+        }
+      },
+      "scaffolding": "Génération du projet '{projectName}' avec le modèle '{template}'...",
+      "success": "✅ Projet '{projectName}' créé avec succès !",
+      "fail": "❌ Échec de la création du projet : {error}"
     }
   },
   "version": {
-    "description": "Afficher la version actuelle de l'interface de ligne de commande (CLI)."
+    "description": "Affiche la version actuelle de la CLI."
   },
   "help": {
-    "description": "Afficher l'aide pour une commande."
+    "description": "Affiche l'aide pour une commande."
   },
   "scaffolding": {
     "project": {
-      "start": "Échafaudage du projet {language}: {project}",
+      "start": "Génération du projet {language} : {project}",
       "success": "✅ Projet {language} '{project}' créé avec succès !",
-      "fail": "❌ Échec de l'échafaudage du projet {language}: {error}"
+      "fail": "❌ Échec de la génération du projet {language} : {error}"
     },
     "copy": {
       "start": "📂 Copie des fichiers du modèle local...",
@@ -32,9 +42,9 @@
       "fail": "❌ Échec de la copie du modèle local."
     },
     "run": {
-      "start": "📦 Exécution de la commande officielle CLI: {command}...",
-      "success": "✅ Commande officielle CLI exécutée avec succès !",
-      "fail": "❌ Échec de l'exécution de la commande officielle CLI."
+      "start": "📦 Exécution de la commande CLI officielle : {command}...",
+      "success": "✅ Commande CLI officielle exécutée avec succès !",
+      "fail": "❌ Échec de l'exécution de la commande CLI officielle."
     },
     "install": {
       "start": "📦 Installation des dépendances avec {pm}...",
@@ -43,7 +53,7 @@
     },
     "complete": {
       "success": "\n🚀 Projet créé avec succès ! 🎉",
-      "next_steps": "\nProchaines étapes :"
+      "next_steps": "\n| Prochaines étapes :"
     }
   },
   "config": {
@@ -80,7 +90,7 @@
     },
     "update": {
       "start": "Mise à jour du paramètre : {key}...",
-      "success": "✅ Paramètre {key} mis à jour avec succès à {value} !",
+      "success": "✅ '{key}' a été mis à jour avec succès vers '{value}' !",
       "fail": "❌ Échec de la mise à jour du paramètre."
     },
     "cache": {
@@ -88,7 +98,7 @@
         "description": "Mettre à jour la stratégie de cache pour un modèle spécifique.",
         "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
         "fail": "❌ Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'.",
-        "success": "✨ Stratégie de cache pour le modèle '{template}' mise à jour en '{strategy}'."
+        "success": "✨ Stratégie de cache pour le modèle '{template}' mise à jour vers '{strategy}'."
       },
       "template": {
         "argument": "Le nom du modèle à mettre à jour"
@@ -97,13 +107,13 @@
         "argument": "La nouvelle stratégie de cache"
       },
       "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
-      "success": "Stratégie de cache pour le modèle '{template}' mise à jour en '{strategy}'",
+      "success": "Stratégie de cache pour le modèle '{template}' mise à jour vers '{strategy}'",
       "fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'",
       "updating": "Mise à jour du cache..."
     },
     "check": {
       "local": "Vérification de la configuration locale ou du monorepo...",
-      "global": "Configuration locale introuvable. Vérification de la configuration globale..."
+      "global": "Configuration locale non trouvée. Vérification de la configuration globale..."
     },
     "found": {
       "local": "Configuration locale trouvée et utilisée à {path}.",
@@ -142,8 +152,8 @@
       "root": {
         "not_found": "Impossible de trouver la racine du projet contenant package.json."
       },
-      "file_not_found": "{file} non trouvé à l'emplacement {path}",
-      "failed_to_update_project_name": "Échec de la mise à jour du nom du projet :"
+      "file_not_found": "{file} non trouvé à {path}",
+      "failed_to_update_project_name": "Échec de la mise à jour du nom de projet :"
     },
     "version": {
       "read_fail": "Échec de la lecture de la version de package.json."
@@ -155,9 +165,9 @@
       "message": "Erreur d'installation :"
     },
     "scaffolding": {
-      "unexpected": "Une erreur inattendue s'est produite lors de l'échafaudage.",
+      "unexpected": "Une erreur inattendue est survenue pendant la génération.",
       "language": {
-        "not_found": "Langage d'échafaudage non trouvé dans la configuration : '{language}'"
+        "not_found": "Langue de génération non trouvée dans la configuration : '{language}'"
       }
     },
     "command": {
@@ -177,9 +187,9 @@
     "git": {
       "generic": "Erreur Git"
     },
-    "unexpected": "Une erreur inattendue s'est produite",
-    "unknown": "Une erreur inconnue s'est produite",
-    "language_config_not_found": "Langage d'échafaudage non trouvé dans la configuration : '{language}'"
+    "unexpected": "Une erreur inattendue est survenue",
+    "unknown": "Une erreur inconnue est survenue",
+    "language_config_not_found": "Langue de configuration non trouvée : '{language}'"
   },
   "cache": {
     "clone": {
@@ -188,15 +198,15 @@
       "fail": "❌ Échec du clonage du dépôt."
     },
     "refresh": {
-      "start": "🔄 Actualisation du modèle en cache...",
-      "success": "✅ Modèle actualisé avec succès !",
-      "fail": "❌ Échec de l'actualisation du modèle."
+      "start": "🔄 Rafraîchissement du modèle en cache...",
+      "success": "✅ Modèle rafraîchi avec succès !",
+      "fail": "❌ Échec du rafraîchissement du modèle."
     },
     "use": {
       "info": "🚀 Utilisation du modèle en cache pour {repoName}."
     },
     "copy": {
-      "start": "📂 Copie du modèle en cache dans le répertoire du projet...",
+      "start": "📂 Copie du modèle en cache vers le répertoire du projet...",
       "success": "✅ Fichiers copiés avec succès !",
       "fail": "❌ Échec de la copie des fichiers depuis le cache."
     }
@@ -204,7 +214,7 @@
   "warning": {
     "no": {
       "local": {
-        "config": "Aucune configuration de projet local trouvée. Utilisation des paramètres globaux ou par défaut."
+        "config": "Aucune configuration de projet locale trouvée. Utilisation des paramètres globaux ou par défaut."
       }
     },
     "global": {

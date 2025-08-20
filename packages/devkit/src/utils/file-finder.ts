@@ -40,7 +40,7 @@ export async function findMonorepoRoot(): Promise<string | null> {
 }
 
 export async function findProjectRoot(): Promise<string | null> {
-  const filePath = await findUp(FILE_NAMES.common.packageJson, process.cwd());
+  const filePath = await findUp(FILE_NAMES.packageJson, process.cwd());
   if (!filePath) {
     return null;
   }
@@ -50,7 +50,7 @@ export async function findProjectRoot(): Promise<string | null> {
 export async function findPackageRoot(): Promise<string> {
   const __filename = fileURLToPath(import.meta.url);
   const startDir = dirname(__filename);
-  const filePath = await findUp(FILE_NAMES.common.packageJson, startDir);
+  const filePath = await findUp(FILE_NAMES.packageJson, startDir);
   if (!filePath) {
     throw new DevkitError(
       "Package root not found. Cannot determine the root of the devkit.",

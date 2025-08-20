@@ -81,14 +81,16 @@ Here's how to get started with the Dev Kit CLI.
 
 ### Create a new project from a template
 
+The `new` command now takes a language and a project name as arguments. You can then specify the template with the `-t` or `--template` flag.
+
 ```bash
-# Create a new Vue project from a custom template
-dk new vue my-awesome-app
+# Create a new Vue project in TypeScript from a custom template
+dk new javascript my-awesome-app -t vue-ts
 ```
 
 ### Add a new template to your configuration
 
-The `add-template` command allows you to easily register a new template with your CLI. It intelligently updates the configuration file in your current context:
+The `add-template` command allows you to easily register a new template with your CLI. It intelligently updates the configuration file in your current context. You must provide a `language` and `alias` (or template name) for the template, as well as a `--description`.
 
 - **Global:** If no project is found, it updates your global (`~/.devkitrc`) file.
 - **Local:** It updates the `.devkitrc` file in the root of your current project.
@@ -98,7 +100,7 @@ You must provide a `description` using the `--description` flag. Other options l
 
 ```bash
 # Example: Add a new template from a GitHub repository
-dk add-template react react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
+dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
 ```
 
 ### Manage your CLI configuration
@@ -170,7 +172,7 @@ After running the `add-template` command, you can scaffold a new project from yo
 
 ```bash
 # Create a new project from the template we just added
-dk new javascript custom-js-app my-new-project
+dk new javascript my-awesome-project -t custom-js-app
 ```
 
 ### Create and configure a project file
@@ -192,7 +194,7 @@ dk config init --global
 
 ### Add the JSON Schema for Autocompletion
 
-For a better developer experience, add a `$schema` property for auto-completion and validation in editors like VS Code.
+For a better developer experience, add a `$schema` property for auto-completion and validation in editors like VS Code. To enable this, simply use the URL below.
 
 ```json
 {
@@ -203,10 +205,19 @@ For a better developer experience, add a `$schema` property for auto-completion 
     "cacheStrategy": "daily"
   },
   "templates": {
-    "react": {
+    "javascript": {
       "templates": {
-        "ts": {
+        "react": {
+          "description": "A template from a GitHub repository",
           "location": "https://github.com/IT-WIBRC/react-ts-template"
+        }
+      }
+    },
+    "typescript": {
+      "templates": {
+        "vue": {
+          "description": "A template from a GitHub repository",
+          "location": "{pm} create vue@latest"
         }
       }
     }
@@ -216,14 +227,14 @@ For a better developer experience, add a `$schema` property for auto-completion 
 
 ### Template Configuration
 
-Dev Kit provides a set of default templates and we'll progressively add more. The `location` property for a custom template can be a local folder, a GitHub URL, or a command. Note that cache strategies are only applied when using a GitHub URL.
+Dev Kit provides a set of default templates and we'll progressively add more. The `location` property for a custom template can be an **absolute path**, a **relative path**, a GitHub URL, or a command. Note that cache strategies are only applied when using a GitHub URL.
 
 You can also define an **`alias`** to make it easier to reference a specific template. An alias is a simple shortcut for a template's name.
 
 ```json
 {
   "templates": {
-    "my-app": {
+    "javascript": {
       "templates": {
         "my-local-template": {
           "description": "A template from my local machine",
@@ -250,7 +261,7 @@ Once an alias is configured, you can use it in place of the full template name f
 
 ```bash
 # Create a new project using the alias 'gh-template'
-dk new my-app gh-template my-new-project-name
+dk new javascript my-new-project-name -t gh-template
 ```
 
 ---

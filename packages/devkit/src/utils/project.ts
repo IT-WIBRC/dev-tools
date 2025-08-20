@@ -12,10 +12,7 @@ export async function getProjectVersion(): Promise<string> {
       throw new Error(t("error.package.root.not_found"));
     }
 
-    const packageJsonPath = path.join(
-      packageRoot,
-      FILE_NAMES.common.packageJson,
-    );
+    const packageJsonPath = path.join(packageRoot, FILE_NAMES.packageJson);
     const packageJson = await fs.readJson(packageJsonPath);
 
     return packageJson.version;
