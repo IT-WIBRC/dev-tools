@@ -12,6 +12,7 @@ import { getProjectVersion } from "#utils/project.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { setupNewCommand } from "./commands/new.js";
 import { setupConfigCommand } from "./commands/config.js";
+import { setupListCommand } from "./commands/list.js";
 
 const VERSION = await getProjectVersion();
 
@@ -44,6 +45,7 @@ async function setupAndParse() {
 
     setupNewCommand({ program, config });
     setupConfigCommand({ program, config, source });
+    setupListCommand({ program, config });
 
     program.parse();
   } catch (error) {

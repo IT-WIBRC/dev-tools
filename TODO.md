@@ -21,7 +21,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [ ] Find a way to test the templates
 - [x] Refactor the `new` command to accept option to select a template
 - [x] Warn user to not use already used names for templates and tell we only support js templates containing nodejs related templates (No need anymore as user can create custom templates or edit existing ones)
-- [ ] Add a command to list all available templates
+- [x] Add a command to list all available templates
 - [ ] Add a command to remove a template
 - [ ] Add a command to update a template
 - [ ] Add a command to update the CLI itself
