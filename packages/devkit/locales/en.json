@@ -24,6 +24,19 @@
       "fail": "❌ Failed to scaffold project: {error}"
     }
   },
+  "list": {
+    "command": {
+      "description": "List all available templates in the configuration.",
+      "language": {
+        "argument": "The language to filter templates by"
+      }
+    },
+    "templates": {
+      "loading": "Loading templates...",
+      "not_found": "No templates found in the configuration file.",
+      "header": "Available Templates:"
+    }
+  },
   "version": {
     "description": "Output the current version of the CLI."
   },

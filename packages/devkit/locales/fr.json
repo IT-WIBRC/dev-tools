@@ -1,6 +1,6 @@
 {
   "program": {
-    "description": "Une puissante boîte à outils pour la création de nouveaux projets.",
+    "description": "Une puissante boîte à outils pour le développement pour l'initialisation de nouveaux projets.",
     "initialized": "CLI initialisée avec succès."
   },
   "new": {
@@ -9,32 +9,45 @@
     },
     "project": {
       "language": {
-        "argument": "Le langage de programmation du modèle (ex. : 'react', 'node')"
+        "argument": "Le langage de programmation du modèle (par exemple, 'react', 'node')"
       },
       "name": {
         "argument": "Le nom de votre nouveau projet"
       },
       "template": {
         "option": {
-          "description": "Le nom du modèle à utiliser (ex. : 'ts', 'simple-api')"
+          "description": "Le nom du modèle à utiliser (par exemple, 'ts', 'simple-api')"
         }
       },
-      "scaffolding": "Génération du projet '{projectName}' avec le modèle '{template}'...",
+      "scaffolding": "Initialisation du projet '{projectName}' avec le modèle '{template}'...",
       "success": "✅ Projet '{projectName}' créé avec succès !",
-      "fail": "❌ Échec de la création du projet : {error}"
+      "fail": "❌ Échec de l'initialisation du projet : {error}"
+    }
+  },
+  "list": {
+    "command": {
+      "description": "Lister tous les modèles disponibles dans la configuration.",
+      "language": {
+        "argument": "Le langage pour filtrer les modèles"
+      }
+    },
+    "templates": {
+      "loading": "Chargement des modèles...",
+      "not_found": "Aucun modèle trouvé dans le fichier de configuration.",
+      "header": "Modèles disponibles :"
     }
   },
   "version": {
-    "description": "Affiche la version actuelle de la CLI."
+    "description": "Afficher la version actuelle de la CLI."
   },
   "help": {
-    "description": "Affiche l'aide pour une commande."
+    "description": "Afficher l'aide pour une commande."
   },
   "scaffolding": {
     "project": {
-      "start": "Génération du projet {language} : {project}",
+      "start": "Initialisation du projet {language} : {project}",
       "success": "✅ Projet {language} '{project}' créé avec succès !",
-      "fail": "❌ Échec de la génération du projet {language} : {error}"
+      "fail": "❌ Échec de l'initialisation du projet {language} : {error}"
     },
     "copy": {
       "start": "📂 Copie des fichiers du modèle local...",
@@ -53,7 +66,7 @@
     },
     "complete": {
       "success": "\n🚀 Projet créé avec succès ! 🎉",
-      "next_steps": "\n| Prochaines étapes :"
+      "next_steps": "\n| Prochaines étapes :\n"
     }
   },
   "config": {
@@ -62,7 +75,7 @@
     },
     "set": {
       "command": {
-        "description": "Définit une valeur de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache global pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue de la CLI. Valeurs possibles : 'en', 'fr'\n"
+        "description": "Définir une valeur de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache global pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue de la CLI. Valeurs possibles : 'en', 'fr'\n"
       },
       "key": {
         "argument": "La clé de configuration à définir"
@@ -81,7 +94,7 @@
         "description": "Initialise un fichier de configuration global avec les paramètres par défaut."
       },
       "start": "Initialisation de la configuration globale à {path}...",
-      "success": "Fichier de configuration global créé avec succès !",
+      "success": "Fichier de configuration globale créé avec succès !",
       "fail": "Échec de l'initialisation de la configuration globale.",
       "initializing": "Initialisation de la configuration...",
       "option": {
@@ -90,7 +103,7 @@
     },
     "update": {
       "start": "Mise à jour du paramètre : {key}...",
-      "success": "✅ '{key}' a été mis à jour avec succès vers '{value}' !",
+      "success": "✅ {key} mis à jour avec succès à {value} !",
       "fail": "❌ Échec de la mise à jour du paramètre."
     },
     "cache": {
@@ -98,7 +111,7 @@
         "description": "Mettre à jour la stratégie de cache pour un modèle spécifique.",
         "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
         "fail": "❌ Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'.",
-        "success": "✨ Stratégie de cache pour le modèle '{template}' mise à jour vers '{strategy}'."
+        "success": "✨ Stratégie de cache pour le modèle '{template}' mise à jour en '{strategy}'."
       },
       "template": {
         "argument": "Le nom du modèle à mettre à jour"
@@ -107,7 +120,7 @@
         "argument": "La nouvelle stratégie de cache"
       },
       "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
-      "success": "Stratégie de cache pour le modèle '{template}' mise à jour vers '{strategy}'",
+      "success": "Stratégie de cache pour le modèle '{template}' mise à jour en '{strategy}'",
       "fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'",
       "updating": "Mise à jour du cache..."
     },
@@ -117,7 +130,7 @@
     },
     "found": {
       "local": "Configuration locale trouvée et utilisée à {path}.",
-      "global": "Aucune configuration locale trouvée. Utilisation de la configuration globale à {path}."
+      "global": "Pas de configuration locale trouvée. Utilisation de la configuration globale à {path}."
     },
     "not": {
       "found": {
@@ -153,7 +166,7 @@
         "not_found": "Impossible de trouver la racine du projet contenant package.json."
       },
       "file_not_found": "{file} non trouvé à {path}",
-      "failed_to_update_project_name": "Échec de la mise à jour du nom de projet :"
+      "failed_to_update_project_name": "Échec de la mise à jour du nom du projet :"
     },
     "version": {
       "read_fail": "Échec de la lecture de la version de package.json."
@@ -165,9 +178,9 @@
       "message": "Erreur d'installation :"
     },
     "scaffolding": {
-      "unexpected": "Une erreur inattendue est survenue pendant la génération.",
+      "unexpected": "Une erreur inattendue est survenue lors de l'initialisation.",
       "language": {
-        "not_found": "Langue de génération non trouvée dans la configuration : '{language}'"
+        "not_found": "Langage d'initialisation non trouvé dans la configuration : '{language}'"
       }
     },
     "command": {
@@ -189,7 +202,7 @@
     },
     "unexpected": "Une erreur inattendue est survenue",
     "unknown": "Une erreur inconnue est survenue",
-    "language_config_not_found": "Langue de configuration non trouvée : '{language}'"
+    "language_config_not_found": "Langage d'initialisation non trouvé dans la configuration : '{language}'"
   },
   "cache": {
     "clone": {
@@ -198,15 +211,15 @@
       "fail": "❌ Échec du clonage du dépôt."
     },
     "refresh": {
-      "start": "🔄 Rafraîchissement du modèle en cache...",
+      "start": "🔄 Rafraîchissement du modèle mis en cache...",
       "success": "✅ Modèle rafraîchi avec succès !",
       "fail": "❌ Échec du rafraîchissement du modèle."
     },
     "use": {
-      "info": "🚀 Utilisation du modèle en cache pour {repoName}."
+      "info": "🚀 Utilisation du modèle mis en cache pour {repoName}."
     },
     "copy": {
-      "start": "📂 Copie du modèle en cache vers le répertoire du projet...",
+      "start": "📂 Copie du modèle mis en cache vers le répertoire du projet...",
       "success": "✅ Fichiers copiés avec succès !",
       "fail": "❌ Échec de la copie des fichiers depuis le cache."
     }
@@ -214,7 +227,7 @@
   "warning": {
     "no": {
       "local": {
-        "config": "Aucune configuration de projet locale trouvée. Utilisation des paramètres globaux ou par défaut."
+        "config": "Aucune configuration de projet local trouvée. Utilisation des paramètres globaux ou par défaut."
       }
     },
     "global": {

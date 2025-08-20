@@ -26,7 +26,7 @@ Built to fit the modern developer workflow, `dk` seamlessly integrates into mono
 
 The Dev Kit CLI streamlines development workflows in various environments:
 
-- **Globally Installed CLI:** Install `dk` globally for a universal scaffolding tool on your machine.
+- **Globally Installed CLI:** Install `@itwibrc/devkit` globally for a universal scaffolding tool on your machine.
 - **Monorepo:** A single configuration file at the root can manage settings and templates for all projects, ensuring consistency across your entire codebase.
 - **Multiple Repositories:** Each project can have its own `.devkitrc` file for unique settings, allowing for flexible project management.
 
@@ -53,16 +53,16 @@ Install Dev Kit globally using your preferred package manager.
 
 ```bash
 # using bun
-bun install -g devkit
+bun install -g @itwibrc/devkit
 
 # using npm
-npm install -g devkit
+npm install -g @itwibrc/devkit
 
 # using pnpm
-pnpm install -g devkit
+pnpm install -g @itwibrc/devkit
 
 # using yarn
-yarn global add devkit
+yarn global add @itwibrc/devkit
 ```
 
 ### Verify Installation
@@ -103,6 +103,18 @@ You must provide a `description` using the `--description` flag. Other options l
 dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
 ```
 
+### List available templates
+
+The `list` command allows you to view all available templates defined in your configuration.
+
+```bash
+# List all templates categorized by language
+dk list
+
+# List templates for a specific language (e.g., 'javascript')
+dk list javascript
+```
+
 ### Manage your CLI configuration
 
 Use the `config set` command to update your `.devkitrc` file.
@@ -133,6 +145,7 @@ For a faster workflow, the following commands have shortcuts:
 - `config` -\> `cf`
 - `cache` -\> `c`
 - `add-template` -\> `at`
+- `list` -\> `ls`
 
 ---
 
@@ -208,7 +221,6 @@ For a better developer experience, add a `$schema` property for auto-completion 
     "javascript": {
       "templates": {
         "react": {
-          "description": "A template from a GitHub repository",
           "location": "https://github.com/IT-WIBRC/react-ts-template"
         }
       }
@@ -216,7 +228,6 @@ For a better developer experience, add a `$schema` property for auto-completion 
     "typescript": {
       "templates": {
         "vue": {
-          "description": "A template from a GitHub repository",
           "location": "{pm} create vue@latest"
         }
       }
