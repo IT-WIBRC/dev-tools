@@ -87,7 +87,8 @@ export const defaultCliConfig: CliConfig = {
       templates: {
         simple: {
           description: "A basic Node.js starter project.",
-          location: "./templates/nodejs/simple",
+          location: "/home/pc/.devkit/cache/template-vue",
+          alias: "sp",
         },
         vue: {
           description: "An official Vue.js project.",
@@ -102,6 +103,10 @@ export const defaultCliConfig: CliConfig = {
         nest: {
           description: "An official Nest.js project.",
           location: "{pm} install -g @nestjs/cli && nest new",
+        },
+        "vue-large": {
+          description: "A lightweight project for showcase websites.",
+          location: "https://github.com/CMGGEvolution/template-vue.git",
         },
       },
     },
@@ -126,8 +131,8 @@ export type DeepKeys<T> = T extends object
   : "";
 
 export const FILE_NAMES = {
+  packageJson: "package.json",
   common: {
-    packageJson: "package.json",
     git: ".git",
   },
   javascript: {

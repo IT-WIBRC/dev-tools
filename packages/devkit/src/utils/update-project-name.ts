@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import { FILE_NAMES } from "./configs/schema";
+import { FILE_NAMES } from "./configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import chalk from "chalk";
 
@@ -8,7 +8,7 @@ export async function updateJavascriptProjectName(
   projectPath: string,
   newProjectName: string,
 ): Promise<void> {
-  const packageJsonPath = path.join(projectPath, FILE_NAMES.common.packageJson);
+  const packageJsonPath = path.join(projectPath, FILE_NAMES.packageJson);
 
   if (!fs.existsSync(packageJsonPath)) {
     console.error(chalk.redBright(t("error.package.file_not_found")));

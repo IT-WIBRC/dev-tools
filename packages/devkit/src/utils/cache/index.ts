@@ -8,7 +8,7 @@ import type { CacheStrategy } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { GitError } from "#utils/errors/base.js";
 import { updateJavascriptProjectName } from "../update-project-name.js";
-import { copyJavascriptTemplate } from "../template-utils.ts.js";
+import { copyJavascriptTemplate } from "../template-utils.js";
 
 const CACHE_DIR = path.join(os.homedir(), ".devkit", "cache");
 
@@ -80,7 +80,7 @@ export async function getTemplateFromCache(
     const repoName = getRepoNameFromUrl(url);
     const repoPath = path.join(CACHE_DIR, repoName);
 
-    spinner.text = chalk.cyan(`Checking cache for: ${repoName}...`);
+    spinner.text = chalk.bold.cyan(`Checking cache for: ${repoName}...`);
     spinner.start();
 
     const repoExists = await fs.promises
@@ -89,9 +89,9 @@ export async function getTemplateFromCache(
       .catch(() => false);
 
     if (!repoExists) {
-      spinner.text = chalk.cyan(t("cache.clone.start", { url }));
+      spinner.text = chalk.italic.cyan(t("cache.clone.start", { url }));
       await cloneRepo(url, repoPath);
-      spinner.succeed(chalk.green(t("cache.clone.success")));
+      spinner.succeed(chalk.bold.green(t("cache.clone.success")));
     } else {
       const fresh = await isRepoFresh(repoPath, strategy);
       if (!fresh) {
@@ -108,7 +108,7 @@ export async function getTemplateFromCache(
     await copyJavascriptTemplate(repoPath, destination);
     await updateJavascriptProjectName(destination, projectName);
 
-    spinner.succeed(chalk.green(t("cache.copy.success")));
+    spinner.succeed(chalk.bold.green(t("cache.copy.success")));
   } catch (error: any) {
     spinner.fail(chalk.red(t("cache.copy.fail")));
     throw error;

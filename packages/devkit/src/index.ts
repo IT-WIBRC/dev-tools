@@ -17,7 +17,7 @@ const VERSION = await getProjectVersion();
 
 async function setupAndParse() {
   const program = new Command();
-  const spinner = ora(chalk.cyan("Initializing CLI...")).start();
+  const spinner = ora(chalk.bold.cyan("Initializing CLI...")).start();
 
   try {
     const locale = await getLocaleFromConfigMinimal();
@@ -26,10 +26,14 @@ async function setupAndParse() {
     const { config, source } = await loadUserConfig(spinner);
 
     if (source === "default") {
-      console.warn(t("warning.no_config_found"));
+      console.warn(
+        "\n\n",
+        chalk.italic.bold.yellow(t("warning.no_config_found")),
+        "\n",
+      );
     }
 
-    spinner.succeed(chalk.green(t("program.initialized")));
+    spinner.succeed(chalk.bold.green(t("program.initialized")));
 
     program
       .name("devkit")

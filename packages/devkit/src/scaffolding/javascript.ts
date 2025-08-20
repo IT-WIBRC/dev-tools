@@ -12,8 +12,8 @@ import { getTemplateFromCache } from "#utils/cache/index.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { findPackageRoot } from "#utils/file-finder.js";
 import { DevkitError } from "#utils/errors/base.js";
-import { updateJavascriptProjectName } from "#/utils/update-project-name.js";
-import { copyJavascriptTemplate } from "#/utils/template-utils.ts";
+import { updateJavascriptProjectName } from "#utils/update-project-name.js";
+import { copyJavascriptTemplate } from "#utils/template-utils.js";
 
 interface TemplateOptions {
   projectName: string;
@@ -48,6 +48,7 @@ async function copyLocalTemplate(
 async function runOfficialCli(options: RunOfficialCliOptions) {
   const { command, projectName, packageManager } = options;
   const finalCommand = command.replace("{pm}", packageManager);
+
   try {
     const [exec, ...args] = finalCommand.split(" ");
     if (!exec) {
@@ -55,6 +56,7 @@ async function runOfficialCli(options: RunOfficialCliOptions) {
         t("error.invalid.command", { command: finalCommand }),
       );
     }
+
     await execa(exec, [...args, projectName], { stdio: "inherit" });
   } catch (error) {
     throw new DevkitError(t("scaffolding.run.fail"), { cause: error });
@@ -78,7 +80,7 @@ async function installDependencies(
   }
 }
 
-export async function scaffoldNodejsProject(
+export async function scaffoldProject(
   options: ScaffoldJavascriptProjectOptions,
 ) {
   const { projectName, templateConfig, packageManager, cacheStrategy } =
@@ -89,18 +91,20 @@ export async function scaffoldNodejsProject(
   try {
     if (templateConfig.location.includes("{pm}")) {
       isOfficialCli = true;
-      spinner.text = chalk.cyan(
+      spinner.text = chalk.bold.cyan(
         t("scaffolding.run.start", { command: templateConfig.location }),
       );
-      spinner.start();
+      spinner.stop();
       await runOfficialCli({
         command: templateConfig.location,
         projectName,
         packageManager,
         spinner,
       });
-      spinner.succeed(chalk.green(t("scaffolding.run.success")));
-    } else if (templateConfig.location.startsWith("http")) {
+    } else if (
+      templateConfig.location.startsWith("http") ||
+      templateConfig.location.startsWith("git@")
+    ) {
       await getTemplateFromCache({
         url: templateConfig.location,
         projectName,
@@ -110,12 +114,11 @@ export async function scaffoldNodejsProject(
     } else {
       spinner.text = chalk.cyan(t("scaffolding.copy.start"));
       spinner.start();
-      const sourceTemplateDir = path.join(
-        await findPackageRoot(),
-        templateConfig.location,
-      );
+      const sourcePath = path.isAbsolute(templateConfig.location)
+        ? templateConfig.location
+        : path.join(await findPackageRoot(), templateConfig.location);
       await copyLocalTemplate({
-        sourcePath: sourceTemplateDir,
+        sourcePath: sourcePath,
         projectName,
         spinner,
       });
@@ -123,18 +126,23 @@ export async function scaffoldNodejsProject(
     }
 
     if (!isOfficialCli) {
-      spinner.text = chalk.cyan(
+      spinner.text = chalk.bold.cyan(
         t("scaffolding.install.start", { pm: packageManager }),
+        "\n",
       );
-      spinner.start();
+      spinner.stop();
       await installDependencies({ projectName, packageManager, spinner });
-      spinner.succeed(chalk.green(t("scaffolding.install.success")));
     }
-    console.log(chalk.green(t("scaffolding.complete.success")));
-    console.log(chalk.cyan(t("scaffolding.complete.next_steps")));
-    console.log(chalk.cyan(`  cd ${projectName}`));
     if (!isOfficialCli) {
-      console.log(chalk.cyan(`  ${packageManager} install`));
+      console.log(chalk.bold.green(t("scaffolding.complete.success")));
+      console.log(
+        chalk.italic.bold.white(t("scaffolding.complete.next_steps")),
+      );
+      console.log(
+        chalk.bold.green(
+          ` cd ${projectName}\n git init && git add -A && git commit -m "Initial commit"\n`,
+        ),
+      );
     }
   } catch (err) {
     spinner.fail(chalk.red(t("error.scaffolding.unexpected")));

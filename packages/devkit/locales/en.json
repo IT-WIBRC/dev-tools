@@ -8,10 +8,20 @@
       "description": "Create a new project from a template"
     },
     "project": {
-      "description": "Create a new {language} project with the '{template}' template: {description}",
+      "language": {
+        "argument": "The programming language of the template (e.g., 'react', 'node')"
+      },
       "name": {
         "argument": "The name of your new project"
-      }
+      },
+      "template": {
+        "option": {
+          "description": "The name of the template to use (e.g., 'ts', 'simple-api')"
+        }
+      },
+      "scaffolding": "Scaffolding project '{projectName}' with the '{template}' template...",
+      "success": "✅ Project '{projectName}' created successfully!",
+      "fail": "❌ Failed to scaffold project: {error}"
     }
   },
   "version": {
@@ -43,7 +53,7 @@
     },
     "complete": {
       "success": "\n🚀 Project created successfully! 🎉",
-      "next_steps": "\nNext steps:"
+      "next_steps": "\n| Next steps:\n"
     }
   },
   "config": {

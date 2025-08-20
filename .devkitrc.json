@@ -26,7 +26,7 @@
         },
         "vitrine": {
           "description": "A lightweight project for showcase websites.",
-          "location": "./templates/nodejs/vitrine"
+          "location": "https://github.com/CMGGEvolution/template-vue.git"
         },
         "my-custom-template": {
           "description": "A template for my team's projects.",

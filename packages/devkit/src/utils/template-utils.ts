@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import {
   FILE_NAMES,
   type SupportedProgrammingLanguageValues,
-} from "./configs/schema";
+} from "./configs/schema.js";
 
 function getFilesToFilter(
   language: SupportedProgrammingLanguageValues,
