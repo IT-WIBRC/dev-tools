@@ -10,13 +10,7 @@ import {
 } from "#utils/configs/loader.js";
 import ora from "ora";
 
-interface SetupRemoveTemplateCommandOptions extends SetupCommandOptions {
-  configPath: string;
-}
-
-export function setupRemoveTemplateCommand(
-  options: SetupRemoveTemplateCommandOptions,
-) {
+export function setupRemoveTemplateCommand(options: SetupCommandOptions) {
   const { program, config, source } = options;
   program
     .command("remove-template")
