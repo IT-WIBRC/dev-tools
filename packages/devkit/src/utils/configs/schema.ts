@@ -71,7 +71,7 @@ export interface CliConfig {
   templates: Record<string, LanguageConfig>;
   settings: {
     defaultPackageManager: SupportedPackageManager;
-    cacheStrategy?: CacheStrategy;
+    cacheStrategy: CacheStrategy;
     language: TextLanguageValues;
   };
 }

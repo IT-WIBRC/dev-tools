@@ -91,13 +91,10 @@
     },
     "set": {
       "command": {
-        "description": "Set a configuration value. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Sets the language of the CLI. Possible values: 'en', 'fr'\n"
+        "description": "Set one or more configuration values. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Sets the language of the CLI. Possible values: 'en', 'fr'\n"
       },
-      "key": {
-        "argument": "The configuration key to set"
-      },
-      "value": {
-        "argument": "The new value for the key"
+      "argument": {
+        "description": "A list of key-value pairs to set (e.g., 'pm npm language fr')"
       },
       "option": {
         "global": "Update the global configuration instead of the local one."
@@ -242,6 +239,9 @@
         "cache": {
           "fail": "Failed to update cache strategy for template '{template}'"
         }
+      },
+      "set": {
+        "invalid_arguments_count": "Invalid number of arguments. Please provide key-value pairs."
       }
     },
     "save": {

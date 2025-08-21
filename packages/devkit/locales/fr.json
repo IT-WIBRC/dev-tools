@@ -91,13 +91,10 @@
     },
     "set": {
       "command": {
-        "description": "Définir une valeur de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache globale pour les templates distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit le langage de la CLI. Valeurs possibles : 'en', 'fr'\n"
+        "description": "Définir une ou plusieurs valeurs de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache globale pour les templates distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit le langage de la CLI. Valeurs possibles : 'en', 'fr'\n"
       },
-      "key": {
-        "argument": "La clé de configuration à définir"
-      },
-      "value": {
-        "argument": "La nouvelle valeur pour la clé"
+      "argument": {
+        "description": "Une liste de paires clé-valeur à définir (par exemple, 'pm npm lg fr')"
       },
       "option": {
         "global": "Mettre à jour la configuration globale au lieu de la configuration locale."
@@ -242,6 +239,9 @@
         "cache": {
           "fail": "Échec de la mise à jour de la stratégie de cache pour le template '{template}'"
         }
+      },
+      "set": {
+        "invalid_arguments_count": "Nombre d'arguments invalide. Veuillez fournir des paires clé-valeur."
       }
     },
     "save": {

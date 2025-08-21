@@ -1,4 +1,3 @@
-import { Argument } from "commander";
 import { saveLocalConfig, saveGlobalConfig } from "#utils/configs/loader.js";
 import {
   type CliConfig,
@@ -7,6 +6,8 @@ import {
   type CacheStrategy,
   VALID_CACHE_STRATEGIES,
   type SetupCommandOptions,
+  TextLanguages,
+  type TextLanguageValues,
 } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { DevkitError } from "#utils/errors/base.js";
@@ -35,6 +36,16 @@ function validateConfigValue(key: string, value: unknown): void {
         }),
       );
     }
+  } else if (key === "language") {
+    const validLanguages = Object.values(TextLanguages);
+    if (!validLanguages.includes(value as TextLanguageValues)) {
+      throw new DevkitError(
+        t("error.invalid.value", {
+          key,
+          options: validLanguages.join(", "),
+        }),
+      );
+    }
   }
 }
 
@@ -57,34 +68,37 @@ export function setupConfigSetCommand(options: SetupCommandOptions) {
   program
     .command("set")
     .description(setCommandDescription)
-    .addArgument(
-      new Argument("<key>", t("config.set.key.argument")).choices(
-        Object.keys(configAliases),
-      ),
-    )
-    .argument("<value>", t("config.set.value.argument"))
+    .argument("<settings...>", t("config.set.argument.description"))
     .option("-g, --global", t("config.set.option.global"), false)
-    .action(async (key, value, cmdOptions) => {
+    .action(async (settings, cmdOptions) => {
       const spinner = ora(chalk.cyan(t("config.set.updating"))).start();
       try {
         if (source === "default") {
           throw new DevkitError(t("error.config.no_file_found"));
         }
 
-        const canonicalKey = configAliases[key];
-        if (!canonicalKey) {
-          throw new DevkitError(
-            t("error.invalid.key", {
-              key,
-              keys: Object.keys(configAliases).join(", "),
-            }),
-          );
+        if (settings.length % 2 !== 0) {
+          throw new DevkitError(t("error.command.set.invalid_arguments_count"));
         }
 
-        validateConfigValue(canonicalKey, value);
+        for (let i = 0; i < settings.length; i += 2) {
+          const key = settings[i];
+          const value = settings[i + 1];
 
-        const settings = config.settings;
-        (settings[canonicalKey] as any) = value;
+          const canonicalKey = configAliases[key];
+          if (!canonicalKey) {
+            throw new DevkitError(
+              t("error.invalid.key", {
+                key,
+                keys: Object.keys(configAliases).join(", "),
+              }),
+            );
+          }
+
+          validateConfigValue(canonicalKey, value);
+
+          (config.settings[canonicalKey] as any) = value;
+        }
 
         if (cmdOptions.global) {
           await saveGlobalConfig(config);
@@ -92,7 +106,7 @@ export function setupConfigSetCommand(options: SetupCommandOptions) {
           await saveLocalConfig(config);
         }
 
-        spinner.succeed(chalk.green(t("config.set.success")));
+        spinner.succeed(chalk.bold.green(t("config.set.success")));
       } catch (error) {
         handleErrorAndExit(error, spinner);
       }
