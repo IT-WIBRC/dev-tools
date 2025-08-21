@@ -102,7 +102,7 @@ You must provide a `description` using the `--description` flag. Other options l
 
 ```bash
 # Example: Add a new template from a GitHub repository
-dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
+dk add-template javascript react-ts-template [https://github.com/my-user/my-react-ts-template](https://github.com/my-user/my-react-ts-template) --description "My custom React TS template"
 ```
 
 ### Update a template's configuration
@@ -158,14 +158,14 @@ dk list javascript
 
 ### Manage your CLI configuration
 
-Use the `config set` command to update your `.devkitrc` file.
+The `config set` command allows you to update one or more CLI settings in a single command.
 
 ```bash
-# Set your default package manager to pnpm
-dk config set pm pnpm
+# Set your default package manager to pnpm and the language to French in a single command
+dk config set pm pnpm language fr
 
-# Set the language to French
-dk config set language fr
+# Alternatively, you can set a single value
+dk config set pm npm
 ```
 
 ### Manage cache strategy for a template
@@ -254,7 +254,7 @@ For a better developer experience, add a `$schema` property for auto-completion 
 
 ```json
 {
-  "$schema": "https://www.shorturl.at/QDcxK",
+  "$schema": "[https://www.shorturl.at/QDcxK](https://www.shorturl.at/QDcxK)",
   "settings": {
     "language": "fr",
     "defaultPackageManager": "npm",
@@ -265,7 +265,7 @@ For a better developer experience, add a `$schema` property for auto-completion 
       "templates": {
         "react": {
           "description": "A robust React project with TypeScript",
-          "location": "https://github.com/IT-WIBRC/react-ts-template",
+          "location": "[https://github.com/IT-WIBRC/react-ts-template](https://github.com/IT-WIBRC/react-ts-template)",
           "alias": "rt"
         },
         "nextjs": {
@@ -296,7 +296,7 @@ You can also define an **`alias`** to make it easier to reference a specific tem
         },
         "from-github": {
           "description": "A template from a GitHub repository",
-          "location": "https://github.com/my-user/my-template-repo",
+          "location": "[https://github.com/my-user/my-template-repo](https://github.com/my-user/my-template-repo)",
           "alias": "gh-template",
           "cacheStrategy": "daily"
         },
