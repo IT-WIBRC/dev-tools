@@ -2,7 +2,6 @@
 
 import { Command } from "commander";
 import {
-  getConfigFilepath,
   getLocaleFromConfigMinimal,
   loadUserConfig,
 } from "#utils/configs/loader.js";
@@ -28,7 +27,6 @@ async function setupAndParse() {
     const locale = await getLocaleFromConfigMinimal();
     await loadTranslations(locale);
 
-    const configPath = await getConfigFilepath();
     const { config, source } = await loadUserConfig(spinner);
 
     if (source === "default") {
@@ -48,12 +46,11 @@ async function setupAndParse() {
       .version(VERSION, "-V, --version", t("version.description"))
       .helpOption("-h, --help", t("help.description"));
 
-    const commandOptions = { program, config, configPath, source };
     setupInitCommand({ program, config });
     setupNewCommand({ program, config });
     setupConfigCommand({ program, config, source });
     setupListCommand({ program, config });
-    setupRemoveTemplateCommand(commandOptions);
+    setupRemoveTemplateCommand({ program, config, source });
     setupAddTemplateCommand({ program, config, source });
 
     program.parse();
