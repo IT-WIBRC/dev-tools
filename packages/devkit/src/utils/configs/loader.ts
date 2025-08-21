@@ -10,6 +10,7 @@ import {
   type CacheStrategy,
   SUPPORTED_LANGUAGES,
   type TextLanguageValues,
+  type ConfigurationSource,
 } from "./schema.js";
 import { findMonorepoRoot, findProjectRoot, findUp } from "../file-finder.js";
 import { t } from "../internationalization/i18n.js";
@@ -82,7 +83,9 @@ export async function getLocaleFromConfigMinimal(): Promise<TextLanguageValues> 
   return defaultCliConfig.settings.language;
 }
 
-async function readConfigAtPath(filePath: string): Promise<object | null> {
+export async function readConfigAtPath(
+  filePath: string,
+): Promise<CliConfig | null> {
   try {
     const config = await fs.readJson(filePath);
     return config;
@@ -98,7 +101,6 @@ async function readConfigAtPath(filePath: string): Promise<object | null> {
   }
 }
 
-export type ConfigurationSource = "local" | "global" | "default";
 export async function loadUserConfig(spinner?: Ora): Promise<{
   config: CliConfig;
   source: ConfigurationSource;
@@ -135,8 +137,7 @@ export async function loadUserConfig(spinner?: Ora): Promise<{
   return { config: finalConfig, source };
 }
 
-export async function saveCliConfig(config: CliConfig, isGlobal = false) {
-  const filePath = await getConfigFilepath(isGlobal);
+export async function saveConfig(config: CliConfig, filePath: string) {
   try {
     await fs.writeJson(filePath, config, { spaces: 2 });
   } catch (error) {
@@ -146,31 +147,19 @@ export async function saveCliConfig(config: CliConfig, isGlobal = false) {
   }
 }
 
+export async function saveCliConfig(config: CliConfig, isGlobal = false) {
+  const filePath = await getConfigFilepath(isGlobal);
+  await saveConfig(config, filePath);
+}
+
 export async function saveGlobalConfig(config: CliConfig): Promise<void> {
   const targetPath = await getConfigFilepath(true);
-  try {
-    await fs.writeJson(targetPath, config, { spaces: 2 });
-  } catch (error) {
-    throw new ConfigError(
-      t("error.config.save", { file: targetPath }),
-      targetPath,
-      { cause: error },
-    );
-  }
+  await saveConfig(config, targetPath);
 }
 
 export async function saveLocalConfig(config: CliConfig): Promise<void> {
   const targetPath = await getConfigFilepath();
-
-  try {
-    await fs.writeJson(targetPath, config, { spaces: 2 });
-  } catch (error) {
-    throw new ConfigError(
-      t("error.config.save", { file: targetPath }),
-      targetPath,
-      { cause: error },
-    );
-  }
+  await saveConfig(config, targetPath);
 }
 
 export async function updateTemplateCacheStrategy(
@@ -200,13 +189,5 @@ export async function updateTemplateCacheStrategy(
     );
   }
 
-  try {
-    await fs.writeJson(targetPath, config, { spaces: 2 });
-  } catch (error) {
-    throw new ConfigError(
-      t("error.config.save", { file: targetPath }),
-      targetPath,
-      { cause: error },
-    );
-  }
+  await saveConfig(config, targetPath);
 }

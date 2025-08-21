@@ -37,6 +37,22 @@
       "header": "Available Templates:"
     }
   },
+  "remove_template": {
+    "command": {
+      "description": "Remove a template from the configuration."
+    },
+    "start": "Removing template from configuration...",
+    "success": "✅ Template '{templateName}' for '{language}' removed successfully!",
+    "language": {
+      "argument": "The programming language of the template to remove."
+    },
+    "name": {
+      "argument": "The name or alias of the template to remove."
+    },
+    "option": {
+      "global": "Remove the template from the global configuration instead of the local one."
+    }
+  },
   "version": {
     "description": "Output the current version of the CLI."
   },
@@ -142,7 +158,9 @@
     "invalid": {
       "key": "Invalid key: '{key}'. Valid keys are: {keys}",
       "value": "Invalid value for {key}. Valid options are: {options}",
-      "command": "Invalid command in configuration: '{command}'"
+      "command": "Invalid command in configuration: '{command}'",
+      "cache_strategy": "Invalid cache strategy: '{value}'. Valid options are: {options}",
+      "package_manager": "Invalid package manager: '{value}'. Valid options are: {options}"
     },
     "config": {
       "parse": "Failed to parse {file}. Using default configuration.",
@@ -151,12 +169,23 @@
       "not": {
         "found": "Configuration file not found."
       },
+      "global": {
+        "not": {
+          "found": "Global configuration file not found. Run 'devkit config init' to create one."
+        }
+      },
+      "local": {
+        "not": {
+          "found": "No local configuration file found."
+        }
+      },
       "generic": "Configuration error",
       "init": {
         "fail": "Failed to initialize configuration."
       },
       "read": "Failed to read configuration at {path}.",
-      "no_file_found": "No configuration file found. Run 'devkit config init' to create a global one, or 'devkit config init --local' to create a local one."
+      "no_file_found": "No configuration file found. Run 'devkit config init' to create a global one, or 'devkit config init --local' to create a local one.",
+      "no_file_found_local": "No local configuration file found. Run 'devkit config init --local' to create one."
     },
     "file": {
       "not_found": "Could not find file '{fileName}'."
@@ -172,7 +201,11 @@
       "read_fail": "Failed to read package.json version."
     },
     "template": {
-      "not_found": "Template '{template}' not found in configuration."
+      "not_found": "Template '{template}' not found in configuration.",
+      "exists": "Template '{template}' already exists in the configuration. Use 'devkit config set' to update it."
+    },
+    "alias": {
+      "exists": "Alias '{alias}' already exists for another template in this language. Please choose a different alias."
     },
     "install": {
       "message": "Installation error:"
@@ -219,7 +252,7 @@
       "info": "🚀 Using cached template for {repoName}."
     },
     "copy": {
-      "start": "📂 Copying cached template to project directory...",
+      "start": "📂 Coping cached template to project directory...",
       "success": "✅ Files copied successfully!",
       "fail": "❌ Failed to copy files from cache."
     }

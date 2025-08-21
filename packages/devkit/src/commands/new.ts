@@ -1,8 +1,12 @@
-import { type SetupCommandOptions } from "#utils/configs/schema.js";
+import {
+  type SetupCommandOptions,
+  type TemplateConfig,
+} from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";
+import chalk from "chalk";
 
 export function setupNewCommand(options: SetupCommandOptions) {
   const { program, config } = options;
@@ -19,8 +23,13 @@ export function setupNewCommand(options: SetupCommandOptions) {
     .action(async (language, projectName, cmdOptions) => {
       const { template } = cmdOptions;
       const scaffoldSpinner = ora(
-        t("new.project.scaffolding", { projectName }),
-      );
+        chalk.cyan(
+          t("new.project.scaffolding", {
+            projectName,
+            template: template || "default",
+          }),
+        ),
+      ).start();
 
       try {
         const languageTemplates = config.templates[language];
@@ -30,19 +39,26 @@ export function setupNewCommand(options: SetupCommandOptions) {
           );
         }
 
-        let templateConfig = languageTemplates.templates[template];
+        let templateConfig: TemplateConfig | undefined;
 
-        if (!templateConfig) {
-          const foundTemplateName = Object.keys(
-            languageTemplates.templates,
-          ).find((key) => languageTemplates.templates[key]?.alias === template);
-          if (foundTemplateName) {
-            templateConfig = languageTemplates.templates[foundTemplateName];
+        if (template) {
+          templateConfig = languageTemplates.templates[template];
+
+          if (!templateConfig) {
+            templateConfig = Object.values(languageTemplates.templates).find(
+              (t) => t.alias === template,
+            );
           }
         }
 
         if (!templateConfig) {
-          throw new DevkitError(t("error.template.not_found", { template }));
+          if (languageTemplates.templates.default) {
+            templateConfig = languageTemplates.templates.default;
+          } else {
+            throw new DevkitError(
+              t("error.template.not_found", { template: template || "N/A" }),
+            );
+          }
         }
 
         const { scaffoldProject } = await import(`#scaffolding/${language}.js`);
@@ -57,6 +73,10 @@ export function setupNewCommand(options: SetupCommandOptions) {
             config.settings.cacheStrategy ||
             "daily",
         });
+
+        scaffoldSpinner.succeed(
+          chalk.green(t("new.project.success", { projectName })),
+        );
       } catch (error) {
         handleErrorAndExit(error, scaffoldSpinner);
       }
