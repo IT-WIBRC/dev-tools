@@ -105,6 +105,28 @@ You must provide a `description` using the `--description` flag. Other options l
 dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
 ```
 
+### Update a template's configuration
+
+The `update` command allows you to modify an existing template's properties. This is useful for changing a template's alias, location, or associated package manager. You can update one or more properties in a single command.
+
+You can also update the template's name using the `--new-name` flag, which is useful for correcting typos or renaming a template.
+
+- **Global:** Use the `--global` flag to update the template in your global (`~/.devkitrc`) file.
+- **Local:** It updates the `.devkitrc` file in the root of your current project.
+
+<!-- end list -->
+
+```bash
+# Update the description and alias for a template
+dk update javascript my-template --description "A new and improved description" --alias "my-alias"
+
+# Update a template's package manager and remove its alias
+dk update javascript my-template --package-manager bun --alias null
+
+# Change a template's name and its description in a single command
+dk update javascript my-template --new-name my-cool-template --description "A newly renamed template"
+```
+
 ### Remove an existing template from your configuration
 
 The `remove-template` command allows you to delete a template from your configuration file. You can identify the template by its name or a configured alias.
@@ -163,6 +185,7 @@ For a faster workflow, the following commands have shortcuts:
 - `init` -\> `i`
 - `config` -\> `cf`
 - `cache` -\> `c`
+- `update` -\> `up`
 - `add-template` -\> `at`
 - `remove-template` -\> `rt`
 - `list` -\> `ls`

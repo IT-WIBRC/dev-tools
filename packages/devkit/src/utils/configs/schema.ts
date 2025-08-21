@@ -68,11 +68,7 @@ export interface LanguageConfig {
 }
 
 export interface CliConfig {
-  templates: {
-    [key in SupportedProgrammingLanguageValues]?: LanguageConfig;
-  } & {
-    [key: string]: LanguageConfig;
-  };
+  templates: Record<string, LanguageConfig>;
   settings: {
     defaultPackageManager: SupportedPackageManager;
     cacheStrategy?: CacheStrategy;
@@ -81,6 +77,16 @@ export interface CliConfig {
 }
 
 export type ConfigurationSource = "local" | "global" | "default";
+
+export interface UpdateCommandOptions {
+  global: boolean;
+  description?: string;
+  alias?: string;
+  location?: string;
+  cacheStrategy?: CacheStrategy | "null";
+  packageManager?: SupportedPackageManager | "null";
+  newName?: string;
+}
 
 export interface SetupCommandOptions {
   program: Command;
