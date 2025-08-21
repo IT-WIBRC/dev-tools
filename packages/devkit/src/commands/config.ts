@@ -24,10 +24,6 @@ import ora from "ora";
 import chalk from "chalk";
 import { setupAddTemplateCommand } from "./add-template.js";
 
-interface SetupNewCommandOptions extends SetupCommandOptions {
-  source: string;
-}
-
 function validateConfigValue(key: string, value: unknown) {
   if (key === "defaultPackageManager") {
     const validPackageManagers = Object.values(PackageManagers);
@@ -52,7 +48,7 @@ function validateConfigValue(key: string, value: unknown) {
   }
 }
 
-export function setupConfigCommand(options: SetupNewCommandOptions) {
+export function setupConfigCommand(options: SetupCommandOptions) {
   const { program, config, source } = options;
   const configCommand = program
     .command("config")
@@ -179,5 +175,6 @@ export function setupConfigCommand(options: SetupNewCommandOptions) {
   setupAddTemplateCommand({
     program: configCommand,
     config,
+    source,
   });
 }

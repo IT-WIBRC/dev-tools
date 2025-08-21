@@ -1,6 +1,6 @@
 {
   "program": {
-    "description": "Une puissante boîte à outils pour le développement pour l'initialisation de nouveaux projets.",
+    "description": "Une boîte à outils puissante pour la création de nouveaux projets.",
     "initialized": "CLI initialisée avec succès."
   },
   "new": {
@@ -19,9 +19,9 @@
           "description": "Le nom du modèle à utiliser (par exemple, 'ts', 'simple-api')"
         }
       },
-      "scaffolding": "Initialisation du projet '{projectName}' avec le modèle '{template}'...",
+      "scaffolding": "Création du projet '{projectName}' avec le modèle '{template}'...",
       "success": "✅ Projet '{projectName}' créé avec succès !",
-      "fail": "❌ Échec de l'initialisation du projet : {error}"
+      "fail": "❌ Échec de la création du projet : {error}"
     }
   },
   "list": {
@@ -37,6 +37,22 @@
       "header": "Modèles disponibles :"
     }
   },
+  "remove_template": {
+    "command": {
+      "description": "Supprimer un modèle de la configuration."
+    },
+    "start": "Suppression du modèle de la configuration...",
+    "success": "✅ Modèle '{templateName}' pour '{language}' supprimé avec succès !",
+    "language": {
+      "argument": "Le langage de programmation du modèle à supprimer."
+    },
+    "name": {
+      "argument": "Le nom ou l'alias du modèle à supprimer."
+    },
+    "option": {
+      "global": "Supprimer le modèle de la configuration globale au lieu de la configuration locale."
+    }
+  },
   "version": {
     "description": "Afficher la version actuelle de la CLI."
   },
@@ -45,9 +61,9 @@
   },
   "scaffolding": {
     "project": {
-      "start": "Initialisation du projet {language} : {project}",
+      "start": "Création du projet {language} : {project}",
       "success": "✅ Projet {language} '{project}' créé avec succès !",
-      "fail": "❌ Échec de l'initialisation du projet {language} : {error}"
+      "fail": "❌ Échec de la création du projet {language} : {error}"
     },
     "copy": {
       "start": "📂 Copie des fichiers du modèle local...",
@@ -103,7 +119,7 @@
     },
     "update": {
       "start": "Mise à jour du paramètre : {key}...",
-      "success": "✅ {key} mis à jour avec succès à {value} !",
+      "success": "✅ '{key}' mis à jour avec succès à '{value}' !",
       "fail": "❌ Échec de la mise à jour du paramètre."
     },
     "cache": {
@@ -130,7 +146,7 @@
     },
     "found": {
       "local": "Configuration locale trouvée et utilisée à {path}.",
-      "global": "Pas de configuration locale trouvée. Utilisation de la configuration globale à {path}."
+      "global": "Aucune configuration locale trouvée. Utilisation de la configuration globale à {path}."
     },
     "not": {
       "found": {
@@ -142,7 +158,9 @@
     "invalid": {
       "key": "Clé invalide : '{key}'. Les clés valides sont : {keys}",
       "value": "Valeur invalide pour {key}. Les options valides sont : {options}",
-      "command": "Commande invalide dans la configuration : '{command}'"
+      "command": "Commande invalide dans la configuration : '{command}'",
+      "cache_strategy": "Stratégie de cache invalide : '{value}'. Les options valides sont : {options}",
+      "package_manager": "Gestionnaire de paquets invalide : '{value}'. Les options valides sont : {options}"
     },
     "config": {
       "parse": "Échec de l'analyse de {file}. Utilisation de la configuration par défaut.",
@@ -151,12 +169,23 @@
       "not": {
         "found": "Fichier de configuration non trouvé."
       },
+      "global": {
+        "not": {
+          "found": "Fichier de configuration globale non trouvé. Exécutez 'devkit config init' pour en créer un."
+        }
+      },
+      "local": {
+        "not": {
+          "found": "Aucun fichier de configuration locale trouvé."
+        }
+      },
       "generic": "Erreur de configuration",
       "init": {
         "fail": "Échec de l'initialisation de la configuration."
       },
       "read": "Échec de la lecture de la configuration à {path}.",
-      "no_file_found": "Aucun fichier de configuration trouvé. Exécutez 'devkit config init' pour en créer un global, ou 'devkit config init --local' pour en créer un local."
+      "no_file_found": "Aucun fichier de configuration trouvé. Exécutez 'devkit config init' pour en créer un global, ou 'devkit config init --local' pour en créer un local.",
+      "no_file_found_local": "Aucun fichier de configuration locale trouvé. Exécutez 'devkit config init --local' pour en créer un."
     },
     "file": {
       "not_found": "Impossible de trouver le fichier '{fileName}'."
@@ -172,15 +201,19 @@
       "read_fail": "Échec de la lecture de la version de package.json."
     },
     "template": {
-      "not_found": "Modèle '{template}' non trouvé dans la configuration."
+      "not_found": "Modèle '{template}' non trouvé dans la configuration.",
+      "exists": "Le modèle '{template}' existe déjà dans la configuration. Utilisez 'devkit config set' pour le mettre à jour."
+    },
+    "alias": {
+      "exists": "L'alias '{alias}' existe déjà pour un autre modèle dans ce langage. Veuillez choisir un alias différent."
     },
     "install": {
       "message": "Erreur d'installation :"
     },
     "scaffolding": {
-      "unexpected": "Une erreur inattendue est survenue lors de l'initialisation.",
+      "unexpected": "Une erreur inattendue est survenue lors de la création du projet.",
       "language": {
-        "not_found": "Langage d'initialisation non trouvé dans la configuration : '{language}'"
+        "not_found": "Langage de création non trouvé dans la configuration : '{language}'"
       }
     },
     "command": {
@@ -202,7 +235,7 @@
     },
     "unexpected": "Une erreur inattendue est survenue",
     "unknown": "Une erreur inconnue est survenue",
-    "language_config_not_found": "Langage d'initialisation non trouvé dans la configuration : '{language}'"
+    "language_config_not_found": "Langage de configuration non trouvé : '{language}'"
   },
   "cache": {
     "clone": {
@@ -211,15 +244,15 @@
       "fail": "❌ Échec du clonage du dépôt."
     },
     "refresh": {
-      "start": "🔄 Rafraîchissement du modèle mis en cache...",
+      "start": "🔄 Rafraîchissement du modèle en cache...",
       "success": "✅ Modèle rafraîchi avec succès !",
       "fail": "❌ Échec du rafraîchissement du modèle."
     },
     "use": {
-      "info": "🚀 Utilisation du modèle mis en cache pour {repoName}."
+      "info": "🚀 Utilisation du modèle en cache pour {repoName}."
     },
     "copy": {
-      "start": "📂 Copie du modèle mis en cache vers le répertoire du projet...",
+      "start": "📂 Copie du modèle en cache vers le répertoire du projet...",
       "success": "✅ Fichiers copiés avec succès !",
       "fail": "❌ Échec de la copie des fichiers depuis le cache."
     }
@@ -227,7 +260,7 @@
   "warning": {
     "no": {
       "local": {
-        "config": "Aucune configuration de projet local trouvée. Utilisation des paramètres globaux ou par défaut."
+        "config": "Aucun fichier de configuration de projet local trouvé. Utilisation des paramètres globaux ou par défaut."
       }
     },
     "global": {

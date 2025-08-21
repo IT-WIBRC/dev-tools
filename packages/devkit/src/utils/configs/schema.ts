@@ -18,13 +18,32 @@ export const PackageManagers = {
 
 export type PackageManager =
   (typeof PackageManagers)[keyof typeof PackageManagers];
-
 export type SupportedJavascriptPackageManager = ValuesOf<
   typeof JavascriptPackageManagers
 >;
-type SupportedPackageManager = ValuesOf<typeof PackageManagers>;
+export type SupportedPackageManager = ValuesOf<typeof PackageManagers>;
 
 export type ValuesOf<T> = T[keyof T];
+
+export const VALID_PACKAGE_MANAGERS = Object.seal(
+  Object.values(PackageManagers),
+);
+
+export const VALID_CACHE_STRATEGIES = [
+  "always-refresh",
+  "never-refresh",
+  "daily",
+] as const;
+export type CacheStrategy = (typeof VALID_CACHE_STRATEGIES)[number];
+
+export const TextLanguages = {
+  English: "en",
+  French: "fr",
+} as const;
+export type TextLanguageValues = ValuesOf<typeof TextLanguages>;
+
+export const SUPPORTED_LANGUAGES = Object.seal(Object.values(TextLanguages));
+
 export type LowercaseValues<T extends string> =
   T extends `${infer U}.${infer E}`
     ? `${Lowercase<U>}${E}`
@@ -32,13 +51,9 @@ export type LowercaseValues<T extends string> =
       ? Lowercase<U>
       : T;
 
-export const TextLanguages = {
-  English: "en",
-  French: "fr",
-} as const;
-export type TextLanguageValues = ValuesOf<typeof TextLanguages>;
-// oxlint-disable-next-line no-useless-spread
-export const SUPPORTED_LANGUAGES = [...Object.values(TextLanguages)] as const;
+export type SupportedProgrammingLanguageValues = LowercaseValues<
+  ValuesOf<typeof ProgrammingLanguage>
+>;
 
 export interface TemplateConfig {
   description: string;
@@ -51,17 +66,6 @@ export interface TemplateConfig {
 export interface LanguageConfig {
   templates: { [key: string]: TemplateConfig };
 }
-
-export const VALID_CACHE_STRATEGIES = [
-  "always-refresh",
-  "never-refresh",
-  "daily",
-] as const;
-export type CacheStrategy = (typeof VALID_CACHE_STRATEGIES)[number];
-
-export type SupportedProgrammingLanguageValues = LowercaseValues<
-  ValuesOf<typeof ProgrammingLanguage>
->;
 
 export interface CliConfig {
   templates: {
@@ -76,9 +80,13 @@ export interface CliConfig {
   };
 }
 
+export type ConfigurationSource = "local" | "global" | "default";
+
 export interface SetupCommandOptions {
   program: Command;
   config: CliConfig;
+  configPath?: string;
+  source?: ConfigurationSource;
 }
 
 export const defaultCliConfig: CliConfig = {

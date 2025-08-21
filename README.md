@@ -92,15 +92,34 @@ dk new javascript my-awesome-app -t vue-ts
 
 The `add-template` command allows you to easily register a new template with your CLI. It intelligently updates the configuration file in your current context. You must provide a `language` and `alias` (or template name) for the template, as well as a `--description`.
 
-- **Global:** If no project is found, it updates your global (`~/.devkitrc`) file.
+You must provide a `description` using the `--description` flag. Other options like `--alias`, `--cache-strategy`, and `--package-manager` are available to customize the template.
+
+- **Global:** You can explicitly add the template to your global (`~/.devkitrc`) file using the `--global` flag.
 - **Local:** It updates the `.devkitrc` file in the root of your current project.
 - **Monorepo:** It updates the shared configuration at the monorepo's root.
 
-You must provide a `description` using the `--description` flag. Other options like `--alias` and `--cache-strategy` are available to customize the template.
+<!-- end list -->
 
 ```bash
 # Example: Add a new template from a GitHub repository
 dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
+```
+
+### Remove an existing template from your configuration
+
+The `remove-template` command allows you to delete a template from your configuration file. You can identify the template by its name or a configured alias.
+
+- **Global:** You can explicitly remove the template from your global (`~/.devkitrc`) file using the `--global` flag.
+- **Local:** It removes the template from the `.devkitrc` file in the root of your current project.
+
+<!-- end list -->
+
+```bash
+# Remove the 'react-ts-template' for 'javascript' from the local config
+dk remove-template javascript react-ts-template
+
+# Remove the 'node-api' template from the global config
+dk remove-template node node-api --global
 ```
 
 ### List available templates
@@ -145,6 +164,7 @@ For a faster workflow, the following commands have shortcuts:
 - `config` -\> `cf`
 - `cache` -\> `c`
 - `add-template` -\> `at`
+- `remove-template` -\> `rt`
 - `list` -\> `ls`
 
 ---
@@ -192,14 +212,14 @@ dk new javascript my-awesome-project -t custom-js-app
 
 The `config init` command now allows you to initialize a configuration file at different scopes.
 
-- To initialize a **local** configuration file in your current project, simply run the command without any flags.
+- To initialize a **local** configuration file in your current project, use the `--local` flag.
 - To initialize a **global** configuration file, use the `--global` flag.
 
 <!-- end list -->
 
 ```bash
 # Initialize a local configuration file in the current directory
-dk config init
+dk config init --local
 
 # Initialize a global configuration file
 dk config init --global
@@ -221,14 +241,14 @@ For a better developer experience, add a `$schema` property for auto-completion 
     "javascript": {
       "templates": {
         "react": {
-          "location": "https://github.com/IT-WIBRC/react-ts-template"
-        }
-      }
-    },
-    "typescript": {
-      "templates": {
-        "vue": {
-          "location": "{pm} create vue@latest"
+          "description": "A robust React project with TypeScript",
+          "location": "https://github.com/IT-WIBRC/react-ts-template",
+          "alias": "rt"
+        },
+        "nextjs": {
+          "description": "A Next.js project with ESLint and TypeScript",
+          "location": "{pm} create next-app@latest",
+          "packageManager": "npm"
         }
       }
     }
@@ -254,11 +274,13 @@ You can also define an **`alias`** to make it easier to reference a specific tem
         "from-github": {
           "description": "A template from a GitHub repository",
           "location": "https://github.com/my-user/my-template-repo",
-          "alias": "gh-template"
+          "alias": "gh-template",
+          "cacheStrategy": "daily"
         },
         "from-create-command": {
           "description": "Uses the native `create` command",
-          "location": "{pm} create nuxt@latest"
+          "location": "{pm} create nuxt@latest",
+          "packageManager": "bun"
         }
       }
     }
