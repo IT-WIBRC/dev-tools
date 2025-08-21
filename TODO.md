@@ -22,12 +22,11 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [x] Refactor the `new` command to accept option to select a template
 - [x] Warn user to not use already used names for templates and tell we only support js templates containing nodejs related templates (No need anymore as user can create custom templates or edit existing ones)
 - [x] Add a command to list all available templates
-- [ ] Add a command to remove a template
-- [ ] Add a command to update a template
+- [x] Add a command to remove a template
+- [x] Add a command to update a template (name and options)
+- [ ] Refactor the `set` command so support the setting of many config at once and also with possibility of
+- [ ] Improve the config management (Share config get on mounted and get it later only when necessary)
 - [ ] Add a command to update the CLI itself
-- [ ] Add a command to update the templates
-- [ ] Add a command to update the configuration
-- [ ] Add a command to update the language configuration
 - [ ] Add integration tests in addition to unit tests (reproduce monorepo, multi repo and bare repository)
 - [x] Enable copilot reviews for the project on GitHub (Impossible as it's not free as expected)
 

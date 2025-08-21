@@ -1,30 +1,20 @@
 import { Argument } from "commander";
-import {
-  saveLocalConfig,
-  saveGlobalConfig,
-  updateTemplateCacheStrategy,
-} from "#utils/configs/loader.js";
+import { saveLocalConfig, saveGlobalConfig } from "#utils/configs/loader.js";
 import {
   type CliConfig,
   PackageManagers,
-  CONFIG_FILE_NAMES,
-  VALID_CACHE_STRATEGIES,
   type PackageManager,
   type CacheStrategy,
-  defaultCliConfig,
+  VALID_CACHE_STRATEGIES,
   type SetupCommandOptions,
 } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
-import { DevkitError, ConfigError } from "#utils/errors/base.js";
+import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import fs from "fs-extra";
-import path from "path";
-import os from "os";
 import ora from "ora";
 import chalk from "chalk";
-import { setupAddTemplateCommand } from "./add-template.js";
 
-function validateConfigValue(key: string, value: unknown) {
+function validateConfigValue(key: string, value: unknown): void {
   if (key === "defaultPackageManager") {
     const validPackageManagers = Object.values(PackageManagers);
     if (!validPackageManagers.includes(value as PackageManager)) {
@@ -48,12 +38,8 @@ function validateConfigValue(key: string, value: unknown) {
   }
 }
 
-export function setupConfigCommand(options: SetupCommandOptions) {
+export function setupConfigSetCommand(options: SetupCommandOptions) {
   const { program, config, source } = options;
-  const configCommand = program
-    .command("config")
-    .alias("cf")
-    .description(t("config.command.description"));
 
   const configAliases: Record<string, keyof CliConfig["settings"]> = {
     pm: "defaultPackageManager",
@@ -68,7 +54,7 @@ export function setupConfigCommand(options: SetupCommandOptions) {
     pmValues: Object.values(PackageManagers).join(", "),
   });
 
-  configCommand
+  program
     .command("set")
     .description(setCommandDescription)
     .addArgument(
@@ -111,70 +97,4 @@ export function setupConfigCommand(options: SetupCommandOptions) {
         handleErrorAndExit(error, spinner);
       }
     });
-
-  configCommand
-    .command("init")
-    .alias("i")
-    .description(t("config.init.command.description"))
-    .option("-l, --local", t("config.init.option.local"), false)
-    .action(async (cmdOptions) => {
-      const isLocal = cmdOptions.local;
-      const configPath = isLocal
-        ? path.join(process.cwd(), CONFIG_FILE_NAMES[1])
-        : path.join(os.homedir(), CONFIG_FILE_NAMES[0]);
-
-      const spinner = ora(
-        chalk.cyan(t("config.init.initializing", { path: configPath })),
-      ).start();
-
-      try {
-        await fs.promises.stat(configPath);
-        throw new ConfigError(
-          t("error.config.exists", { path: configPath }),
-          configPath,
-        );
-      } catch (error: any) {
-        if (error.code !== "ENOENT") {
-          throw new ConfigError(t("error.config.init.fail"), configPath, {
-            cause: error,
-          });
-        }
-      }
-
-      if (isLocal) {
-        await saveLocalConfig({ ...defaultCliConfig });
-      } else {
-        await saveGlobalConfig({ ...defaultCliConfig });
-      }
-      spinner.succeed(chalk.green(t("config.init.success")));
-    });
-
-  configCommand
-    .command("cache")
-    .alias("c")
-    .description(t("config.cache.command.description"))
-    .argument("<templateName>", t("config.cache.template.argument"))
-    .addArgument(
-      new Argument("<strategy>", t("config.cache.strategy.argument")).choices(
-        VALID_CACHE_STRATEGIES,
-      ),
-    )
-    .action(async (templateName, strategy) => {
-      const spinner = ora(chalk.cyan(t("config.cache.updating"))).start();
-      try {
-        if (source === "default") {
-          throw new DevkitError(t("error.config.no_file_found"));
-        }
-        await updateTemplateCacheStrategy(templateName, strategy, config);
-        spinner.succeed(chalk.green(t("config.cache.success")));
-      } catch (error) {
-        handleErrorAndExit(error, spinner);
-      }
-    });
-
-  setupAddTemplateCommand({
-    program: configCommand,
-    config,
-    source,
-  });
 }

@@ -4,7 +4,8 @@
       "templates": {
         "simple": {
           "description": "A basic Node.js starter project.",
-          "location": "./templates/nodejs/simple"
+          "location": "./templates/nodejs/simple",
+          "alias": "sp"
         },
         "vue": {
           "description": "An official Vue.js project.",
@@ -20,6 +21,10 @@
           "description": "An official Nest.js project.",
           "location": "{pm} install -g @nestjs/cli && nest new"
         },
+        "vue-large": {
+          "description": "A lightweight project for showcase websites.",
+          "location": "https://github.com/CMGGEvolution/template-vue.git"
+        },
         "medium": {
           "description": "A more complex project with a pre-configured database.",
           "location": "https://github.com/my-user/my-node-template.git"
@@ -28,9 +33,10 @@
           "description": "A lightweight project for showcase websites.",
           "location": "https://github.com/CMGGEvolution/template-vue.git"
         },
-        "my-custom-template": {
+        "custom-template": {
           "description": "A template for my team's projects.",
-          "location": "/path/to/my/local/template-folder"
+          "location": "/path/to/my/local/template-folder",
+          "alias": "mct"
         }
       }
     }

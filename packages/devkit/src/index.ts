@@ -12,9 +12,11 @@ import chalk from "chalk";
 import { getProjectVersion } from "#utils/project.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { setupNewCommand } from "./commands/new.js";
-import { setupConfigCommand } from "./commands/config.js";
+import { setupConfigCommand } from "./commands/config/index.js";
 import { setupListCommand } from "./commands/list.js";
 import { setupRemoveTemplateCommand } from "./commands/removeTemplate.js";
+import { setupAddTemplateCommand } from "./commands/add-template.js";
+import { setupInitCommand } from "./commands/init.js";
 
 const VERSION = await getProjectVersion();
 
@@ -47,10 +49,12 @@ async function setupAndParse() {
       .helpOption("-h, --help", t("help.description"));
 
     const commandOptions = { program, config, configPath, source };
+    setupInitCommand({ program, config });
     setupNewCommand({ program, config });
     setupConfigCommand({ program, config, source });
     setupListCommand({ program, config });
     setupRemoveTemplateCommand(commandOptions);
+    setupAddTemplateCommand({ program, config, source });
 
     program.parse();
   } catch (error) {
