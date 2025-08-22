@@ -14,7 +14,7 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [ ] (Maybe) Support environment variables
 - [x] Check what can be changed into an argument instead of a command
 - [x] Support template creation using a command
-- [ ] Update `$schema` to use to allow autocompletion in editors
+- [x] Update `$schema` to use to allow autocompletion in editors
 - [x] Detect system language dynamically
 - [x] Support Monorepo configuration
 - [x] Configure aliases
