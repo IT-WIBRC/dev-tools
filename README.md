@@ -102,7 +102,7 @@ You must provide a `description` using the `--description` flag. Other options l
 
 ```bash
 # Example: Add a new template from a GitHub repository
-dk add-template javascript react-ts-template [https://github.com/my-user/my-react-ts-template](https://github.com/my-user/my-react-ts-template) --description "My custom React TS template"
+dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
 ```
 
 ### Update a template's configuration
@@ -250,11 +250,15 @@ dk config init --global
 
 ### Add the JSON Schema for Autocompletion
 
-For a better developer experience, add a `$schema` property for auto-completion and validation in editors like VS Code. To enable this, simply use the URL below.
+To get autocompletion and validation for your `.devkitrc` or `.devkitrc.json` file, you have two options.
+
+#### Option 1: Direct Link in the JSON File
+
+This is the recommended approach for most developers. Simply add the `$schema` property as the very first key in your `.devkitrc` file. Modern editors like VS Code will automatically read this property and apply the schema without any additional configuration.
 
 ```json
 {
-  "$schema": "[https://www.shorturl.at/QDcxK](https://www.shorturl.at/QDcxK)",
+  "$schema": "https://gist.githubusercontent.com/IT-WIBRC/baab4cc74a28af5b23936f5cf576f8e6/raw/ed7445f123554cf5ed7fc6fb727d1faae22a9bed/devkit-schema.json",
   "settings": {
     "language": "fr",
     "defaultPackageManager": "npm",
@@ -265,7 +269,7 @@ For a better developer experience, add a `$schema` property for auto-completion 
       "templates": {
         "react": {
           "description": "A robust React project with TypeScript",
-          "location": "[https://github.com/IT-WIBRC/react-ts-template](https://github.com/IT-WIBRC/react-ts-template)",
+          "location": "https://github.com/IT-WIBRC/react-ts-template",
           "alias": "rt"
         },
         "nextjs": {
@@ -276,6 +280,23 @@ For a better developer experience, add a `$schema` property for auto-completion 
       }
     }
   }
+}
+```
+
+#### Option 2: IDE-specific Configuration
+
+If you do not want to add the `$schema` property directly to your file, you can configure your IDE's settings to link the file name to the schema URL. This is useful for monorepos or when you need a global setting.
+
+For VS Code, open your **`settings.json`** file and add the following entry:
+
+```json
+{
+  "json.schemas": [
+    {
+      "fileMatch": [".devkitrc.json", ".devkitrc"],
+      "url": "https://gist.githubusercontent.com/IT-WIBRC/baab4cc74a28af5b23936f5cf576f8e6/raw/ed7445f123554cf5ed7fc6fb727d1faae22a9bed/devkit-schema.json"
+    }
+  ]
 }
 ```
 
@@ -296,7 +317,7 @@ You can also define an **`alias`** to make it easier to reference a specific tem
         },
         "from-github": {
           "description": "A template from a GitHub repository",
-          "location": "[https://github.com/my-user/my-template-repo](https://github.com/my-user/my-template-repo)",
+          "location": "https://github.com/my-user/my-template-repo",
           "alias": "gh-template",
           "cacheStrategy": "daily"
         },

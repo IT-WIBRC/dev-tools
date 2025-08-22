@@ -45,6 +45,5 @@
     "defaultPackageManager": "bun",
     "cacheStrategy": "daily",
     "language": "en"
-  },
-  "$schema": "https://shorturl.at/QDcxK"
+  }
 }
