@@ -62,6 +62,8 @@ function printTemplates(
     const alias = templateConfig.alias
       ? chalk.dim(`(alias: ${templateConfig.alias})`)
       : "";
-    console.log(`  - ${chalk.green(templateName)} ${alias} ${description}`);
+    console.log(
+      ` - ${chalk.green(templateName)}${alias ? alias + " " : " "}${description}`,
+    );
   }
 }

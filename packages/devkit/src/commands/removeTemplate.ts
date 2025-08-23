@@ -2,13 +2,10 @@ import { type SetupCommandOptions } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import {
-  readConfigAtPath,
-  getConfigFilepath,
-  saveLocalConfig,
-  saveGlobalConfig,
-} from "#utils/configs/loader.js";
 import ora from "ora";
+import { getConfigFilepath } from "#utils/configs/path-finder.js";
+import { readConfigAtPath } from "#utils/configs/reader.js";
+import { saveGlobalConfig, saveLocalConfig } from "#utils/configs/writer.js";
 
 export function setupRemoveTemplateCommand(options: SetupCommandOptions) {
   const { program, config, source } = options;

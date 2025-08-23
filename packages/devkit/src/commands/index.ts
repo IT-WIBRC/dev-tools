@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { Command } from "commander";
 import {
   getLocaleFromConfigMinimal,
@@ -10,20 +8,19 @@ import ora from "ora";
 import chalk from "chalk";
 import { getProjectVersion } from "#utils/project.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import { setupNewCommand } from "./commands/new.js";
-import { setupConfigCommand } from "./commands/config/index.js";
-import { setupListCommand } from "./commands/list.js";
-import { setupRemoveTemplateCommand } from "./commands/removeTemplate.js";
-import { setupAddTemplateCommand } from "./commands/add-template.js";
-import { setupInitCommand } from "./commands/init.js";
+import { setupNewCommand } from "#commands/new.js";
+import { setupConfigCommand } from "#commands/config/index.js";
+import { setupListCommand } from "#commands/list.js";
+import { setupRemoveTemplateCommand } from "#commands/removeTemplate.js";
+import { setupAddTemplateCommand } from "#commands/add-template.js";
+import { setupInitCommand } from "#commands/init.js";
 
-const VERSION = await getProjectVersion();
-
-async function setupAndParse() {
+export async function setupAndParse() {
   const program = new Command();
   const spinner = ora(chalk.bold.cyan("Initializing CLI...")).start();
 
   try {
+    const VERSION = await getProjectVersion();
     const locale = await getLocaleFromConfigMinimal();
     await loadTranslations(locale);
 
@@ -58,5 +55,3 @@ async function setupAndParse() {
     handleErrorAndExit(error, spinner);
   }
 }
-
-setupAndParse();

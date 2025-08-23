@@ -1,7 +1,4 @@
-import {
-  type SetupCommandOptions,
-  type TemplateConfig,
-} from "#utils/configs/schema.js";
+import { type SetupCommandOptions } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
@@ -16,7 +13,7 @@ export function setupNewCommand(options: SetupCommandOptions) {
     .description(t("new.command.description"))
     .argument("<language>", t("new.project.language.argument"))
     .argument("<projectName>", t("new.project.name.argument"))
-    .option(
+    .requiredOption(
       "-t, --template <string>",
       t("new.project.template.option.description"),
     )
@@ -26,7 +23,7 @@ export function setupNewCommand(options: SetupCommandOptions) {
         chalk.cyan(
           t("new.project.scaffolding", {
             projectName,
-            template: template || "default",
+            template: template,
           }),
         ),
       ).start();
@@ -39,26 +36,14 @@ export function setupNewCommand(options: SetupCommandOptions) {
           );
         }
 
-        let templateConfig: TemplateConfig | undefined;
-
-        if (template) {
-          templateConfig = languageTemplates.templates[template];
-
-          if (!templateConfig) {
-            templateConfig = Object.values(languageTemplates.templates).find(
-              (t) => t.alias === template,
-            );
-          }
-        }
+        const templateConfig =
+          languageTemplates.templates[template] ||
+          Object.values(languageTemplates.templates).find(
+            (t) => t.alias === template,
+          );
 
         if (!templateConfig) {
-          if (languageTemplates.templates.default) {
-            templateConfig = languageTemplates.templates.default;
-          } else {
-            throw new DevkitError(
-              t("error.template.not_found", { template: template || "N/A" }),
-            );
-          }
+          throw new DevkitError(t("error.template.not_found", { template }));
         }
 
         const { scaffoldProject } = await import(`#scaffolding/${language}.js`);

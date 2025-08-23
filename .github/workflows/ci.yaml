@@ -12,6 +12,10 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
     steps:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
@@ -38,5 +42,12 @@ jobs:
         working-directory: packages/devkit
 
       - name: 🧪 Run tests
-        run: bun run test:ci
+        run: bun run test:coverage
         working-directory: packages/devkit
+
+      - name: ☂️ Coverage Report
+        uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          working-directory: packages/devkit
+          json-summary-path: "./coverage/coverage-summary.json"
+          json-final-path: "./coverage/coverage-final.json"

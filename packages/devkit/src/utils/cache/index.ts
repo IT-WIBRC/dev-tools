@@ -1,12 +1,11 @@
-import fs from "fs-extra";
-import path from "path";
-import { execa } from "execa";
+import chalk from "chalk";
 import type { Ora } from "ora";
 import os from "os";
-import chalk from "chalk";
+import path from "path";
 import type { CacheStrategy } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
-import { GitError } from "#utils/errors/base.js";
+import { cloneRepo, pullRepo, isRepoFresh, getRepoNameFromUrl } from "./git.js";
+import { doesRepoExist } from "./fs-manager.js";
 import { updateJavascriptProjectName } from "../update-project-name.js";
 import { copyJavascriptTemplate } from "../template-utils.js";
 
@@ -22,54 +21,6 @@ export interface GetTemplateFromCacheOptions extends CacheOptions {
   projectName: string;
 }
 
-function getRepoNameFromUrl(url: string): string {
-  const parts = url.split("/");
-  let repoName = parts.pop() || "";
-  if (repoName.endsWith(".git")) {
-    repoName = repoName.slice(0, -4);
-  }
-  return repoName;
-}
-
-async function cloneRepo(url: string, repoPath: string) {
-  try {
-    await fs.ensureDir(repoPath);
-    await execa("git", ["clone", url, "."], {
-      cwd: repoPath,
-      stdio: "ignore",
-    });
-  } catch (error) {
-    throw new GitError(t("cache.clone.fail"), url, { cause: error });
-  }
-}
-
-async function pullRepo(repoPath: string) {
-  try {
-    await execa("git", ["pull"], { cwd: repoPath, stdio: "ignore" });
-  } catch (error) {
-    throw new GitError(t("cache.refresh.fail"), undefined, { cause: error });
-  }
-}
-
-async function isRepoFresh(
-  repoPath: string,
-  strategy: CacheStrategy,
-): Promise<boolean> {
-  if (strategy === "never-refresh") {
-    return true;
-  }
-  if (strategy === "always-refresh") {
-    return false;
-  }
-  try {
-    const stat = await fs.promises.stat(path.join(repoPath, ".git/FETCH_HEAD"));
-    const oneDayInMs = 24 * 60 * 60 * 1000;
-    return Date.now() - stat.mtime.getTime() < oneDayInMs;
-  } catch {
-    return false;
-  }
-}
-
 export async function getTemplateFromCache(
   options: GetTemplateFromCacheOptions,
 ): Promise<void> {
@@ -83,10 +34,7 @@ export async function getTemplateFromCache(
     spinner.text = chalk.bold.cyan(`Checking cache for: ${repoName}...`);
     spinner.start();
 
-    const repoExists = await fs.promises
-      .stat(repoPath)
-      .then(() => true)
-      .catch(() => false);
+    const repoExists = await doesRepoExist(repoPath);
 
     if (!repoExists) {
       spinner.text = chalk.italic.cyan(t("cache.clone.start", { url }));
