@@ -1,9 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { setupInitCommand } from "../../src/commands/init.js";
-import {
-  defaultCliConfig,
-  CONFIG_FILE_NAMES,
-} from "../../src/utils/configs/schema.js";
+import { defaultCliConfig } from "../../src/utils/configs/schema.js";
 import { mockSpinner } from "../../vitest.setup.js";
 import { ConfigError } from "../../src/utils/errors/base.js";
 
@@ -11,6 +8,7 @@ const {
   mockFs,
   mockPath,
   mockOs,
+  mockPrompts,
   mockSaveGlobalConfig,
   mockSaveLocalConfig,
   mockHandleErrorAndExit,
@@ -26,10 +24,7 @@ const {
   mockOs: {
     homedir: vi.fn(),
   },
-  mockChalk: {
-    cyan: vi.fn((message) => message),
-    green: vi.fn((message) => message),
-  },
+  mockPrompts: vi.fn(),
   mockSaveGlobalConfig: vi.fn(),
   mockSaveLocalConfig: vi.fn(),
   mockHandleErrorAndExit: vi.fn(),
@@ -40,6 +35,7 @@ let actionFn: any;
 vi.mock("fs-extra", () => ({ default: mockFs }));
 vi.mock("path", () => ({ default: mockPath }));
 vi.mock("os", () => ({ default: mockOs }));
+vi.mock("prompts", () => ({ default: mockPrompts }));
 
 vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
@@ -52,6 +48,8 @@ vi.mock("#utils/configs/writer", () => ({
 
 describe("setupInitCommand", () => {
   let mockProgram: any;
+  const localConfigPath = "/current/directory/devkitrc.json";
+  const globalConfigPath = "/home/user/.devkitrc.json";
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -66,7 +64,10 @@ describe("setupInitCommand", () => {
         return mockProgram;
       }),
     };
+    // Default mock for path.join
     mockPath.join.mockImplementation((...args) => args.join("/"));
+    // Default mock for os.homedir
+    mockOs.homedir.mockReturnValue("/home/user");
   });
 
   it("should set up the init command correctly", () => {
@@ -88,11 +89,10 @@ describe("setupInitCommand", () => {
     );
   });
 
-  it("should create a local config file by default", async () => {
+  it("should create a local config file by default when no file exists", async () => {
     mockFs.promises.stat.mockRejectedValue({ code: "ENOENT" });
-    const joinReturnPath = "/current/directory/.devkitrc.json";
-    mockPath.join.mockReturnValue(joinReturnPath);
-    vi.spyOn(process, "cwd").mockReturnValue("/home/user");
+    mockPath.join.mockReturnValue(localConfigPath);
+    vi.spyOn(process, "cwd").mockReturnValue("/current/directory");
 
     setupInitCommand({
       program: mockProgram,
@@ -101,11 +101,7 @@ describe("setupInitCommand", () => {
     });
     await actionFn({ local: false, global: false });
 
-    expect(mockPath.join).toHaveBeenCalledWith(
-      "/home/user",
-      CONFIG_FILE_NAMES[1],
-    );
-    expect(mockFs.promises.stat).toHaveBeenCalledWith(joinReturnPath);
+    expect(mockFs.promises.stat).toHaveBeenCalledWith(localConfigPath);
     expect(mockSaveLocalConfig).toHaveBeenCalledWith({
       ...defaultCliConfig,
     });
@@ -114,24 +110,61 @@ describe("setupInitCommand", () => {
     expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
   });
 
-  it("should create a global config file when --global flag is set", async () => {
+  it("should create a global config file when --global flag is set and no file exists", async () => {
     mockFs.promises.stat.mockRejectedValue({ code: "ENOENT" });
-    mockPath.join.mockReturnValue("/home/user/.devkitrc.json");
-    mockOs.homedir.mockReturnValue("/home/user");
+    mockPath.join.mockReturnValue(globalConfigPath);
 
     setupInitCommand({ program: mockProgram, config: {}, source: "local" });
     await actionFn({ local: false, global: true });
 
-    expect(mockPath.join).toHaveBeenCalledWith(
-      mockOs.homedir(),
-      CONFIG_FILE_NAMES[0],
-    );
-    expect(mockFs.promises.stat).toHaveBeenCalledWith(
-      "/home/user/.devkitrc.json",
-    );
+    expect(mockFs.promises.stat).toHaveBeenCalledWith(globalConfigPath);
     expect(mockSaveGlobalConfig).toHaveBeenCalledWith({ ...defaultCliConfig });
     expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
     expect(mockSaveLocalConfig).not.toHaveBeenCalled();
+    expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
+  });
+
+  it("should overwrite a local config file when it exists and the user confirms", async () => {
+    mockFs.promises.stat.mockResolvedValue({});
+    mockPath.join.mockReturnValue(localConfigPath);
+    mockPrompts.mockResolvedValue({ overwrite: true });
+    vi.spyOn(process, "cwd").mockReturnValue("/current/directory");
+
+    setupInitCommand({ program: mockProgram, config: {}, source: "local" });
+    await actionFn({ local: true, global: false });
+
+    expect(mockPrompts).toHaveBeenCalledWith({
+      type: "confirm",
+      name: "overwrite",
+      message: expect.stringContaining(localConfigPath),
+      initial: false,
+    });
+    expect(mockFs.promises.stat).toHaveBeenCalledWith(localConfigPath);
+    expect(mockSaveLocalConfig).toHaveBeenCalledWith({
+      ...defaultCliConfig,
+    });
+    expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
+    expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
+  });
+
+  it("should not overwrite a local config file when it exists and the user cancels", async () => {
+    mockFs.promises.stat.mockResolvedValue({});
+    mockPath.join.mockReturnValue(localConfigPath);
+    mockPrompts.mockResolvedValue({ overwrite: false });
+    vi.spyOn(process, "cwd").mockReturnValue("/current/directory");
+
+    setupInitCommand({ program: mockProgram, config: {}, source: "local" });
+    await actionFn({ local: true, global: false });
+
+    expect(mockPrompts).toHaveBeenCalledWith({
+      type: "confirm",
+      name: "overwrite",
+      message: expect.stringContaining(localConfigPath),
+      initial: false,
+    });
+    expect(mockFs.promises.stat).toHaveBeenCalledWith(localConfigPath);
+    expect(mockSaveLocalConfig).not.toHaveBeenCalled();
+    expect(mockSpinner.info).toHaveBeenCalledWith("config.init.aborted");
     expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
   });
 
@@ -147,64 +180,19 @@ describe("setupInitCommand", () => {
     expect(mockSaveGlobalConfig).not.toHaveBeenCalled();
   });
 
-  it("should throw a ConfigError if a local config file already exists", async () => {
-    mockFs.promises.stat.mockResolvedValue({});
-    mockPath.join.mockReturnValue("/current/directory/.devkit.json");
-
-    setupInitCommand({ program: mockProgram, config: {}, source: "local" });
-    await actionFn({ local: true, global: false });
-
-    expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      new ConfigError(
-        "error.config.init.fail",
-        "/current/directory/.devkit.json",
-        {
-          cause: new ConfigError(
-            "error.config.exists- options path:/current/directory/.devkit.json",
-            "/current/directory/.devkit.json",
-          ),
-        },
-      ),
-      mockSpinner,
-    );
-    expect(mockSaveLocalConfig).not.toHaveBeenCalled();
-  });
-
-  it("should throw a ConfigError if a global config file already exists", async () => {
-    mockFs.promises.stat.mockResolvedValue({});
-    mockPath.join.mockReturnValue("/home/user/.devkitrc.json");
-    mockOs.homedir.mockReturnValue("/home/user");
-
-    setupInitCommand({ program: mockProgram, config: {}, source: "local" });
-    await actionFn({ local: false, global: true });
-
-    expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      new ConfigError("error.config.init.fail", "/home/user/.devkitrc.json", {
-        cause: new ConfigError(
-          "error.config.exists- options path:/home/user/.devkitrc.json",
-          "/home/user/.devkitrc.json",
-        ),
-      }),
-      mockSpinner,
-    );
-    expect(mockSaveGlobalConfig).not.toHaveBeenCalled();
-  });
-
   it("should handle unexpected I/O errors during file stat", async () => {
     const mockError = new Error("Permission denied");
     (mockError as any).code = "EACCES";
     mockFs.promises.stat.mockRejectedValue(mockError);
-    mockPath.join.mockReturnValue("/current/directory/.devkitrc.json");
+    mockPath.join.mockReturnValue(localConfigPath);
 
     setupInitCommand({ program: mockProgram, config: {}, source: "local" });
-    await actionFn({ local: true, global: false });
+    await actionFn({ local: false, global: false });
 
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      new ConfigError(
-        "error.config.init.fail",
-        "/current/directory/.devkitrc.json",
-        { cause: mockError },
-      ),
+      new ConfigError("error.config.init.fail", localConfigPath, {
+        cause: mockError,
+      }),
       mockSpinner,
     );
     expect(mockSaveLocalConfig).not.toHaveBeenCalled();

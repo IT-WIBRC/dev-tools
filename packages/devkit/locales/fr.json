@@ -1,79 +1,79 @@
 {
   "program": {
-    "description": "Un devkit puissant pour le scaffolding de nouveaux projets.",
-    "initialized": "CLI initialisé avec succès."
+    "description": "Une boîte à outils puissante pour échafauder de nouveaux projets.",
+    "initialized": "CLI initialisée avec succès."
   },
   "new": {
     "command": {
-      "description": "Créer un nouveau projet à partir d'un template"
+      "description": "Créer un nouveau projet à partir d'un modèle"
     },
     "project": {
       "language": {
-        "argument": "Le langage de programmation du template (par exemple, 'react', 'node')"
+        "argument": "Le langage de programmation du modèle (par exemple, 'react', 'node')"
       },
       "name": {
         "argument": "Le nom de votre nouveau projet"
       },
       "template": {
         "option": {
-          "description": "Le nom du template à utiliser (par exemple, 'ts', 'simple-api')"
+          "description": "Le nom du modèle à utiliser (par exemple, 'ts', 'simple-api')"
         }
       },
-      "scaffolding": "Scaffolding du projet '{projectName}' avec le template '{template}'...",
+      "scaffolding": "Échafaudage du projet '{projectName}' avec le modèle '{template}'...",
       "success": "✅ Projet '{projectName}' créé avec succès !",
-      "fail": "❌ Échec du scaffolding du projet : {error}"
+      "fail": "❌ Échec de l'échafaudage du projet : {error}"
     }
   },
   "list": {
     "command": {
-      "description": "Lister tous les templates disponibles dans la configuration.",
+      "description": "Lister tous les modèles disponibles dans la configuration.",
       "language": {
-        "argument": "Le langage pour filtrer les templates"
+        "argument": "Le langage pour filtrer les modèles"
       }
     },
     "templates": {
-      "loading": "Chargement des templates...",
-      "not_found": "Aucun template trouvé dans le fichier de configuration.",
-      "header": "Templates disponibles :"
+      "loading": "Chargement des modèles...",
+      "not_found": "Aucun modèle trouvé dans le fichier de configuration.",
+      "header": "Modèles disponibles :"
     }
   },
   "remove_template": {
     "command": {
-      "description": "Supprimer un template de la configuration."
+      "description": "Supprimer un modèle de la configuration."
     },
-    "start": "Suppression du template de la configuration...",
-    "success": "✅ Template '{templateName}' pour '{language}' supprimé avec succès !",
+    "start": "Suppression du modèle de la configuration...",
+    "success": "✅ Le modèle '{templateName}' pour '{language}' a été supprimé avec succès !",
     "language": {
-      "argument": "Le langage de programmation du template à supprimer."
+      "argument": "Le langage de programmation du modèle à supprimer."
     },
     "name": {
-      "argument": "Le nom ou l'alias du template à supprimer."
+      "argument": "Le nom ou l'alias du modèle à supprimer."
     },
     "option": {
-      "global": "Supprimer le template de la configuration globale au lieu de la configuration locale."
+      "global": "Supprimer le modèle de la configuration globale au lieu de la configuration locale."
     }
   },
   "version": {
-    "description": "Afficher la version actuelle de la CLI."
+    "description": "Affiche la version actuelle du CLI."
   },
   "help": {
-    "description": "Afficher l'aide pour une commande."
+    "description": "Affiche l'aide pour une commande."
   },
   "scaffolding": {
     "project": {
-      "start": "Scaffolding du projet {language} : {project}",
+      "start": "Échafaudage du projet {language} : {project}",
       "success": "✅ Projet {language} '{project}' créé avec succès !",
-      "fail": "❌ Échec du scaffolding du projet {language} : {error}"
+      "fail": "❌ Échec de l'échafaudage du projet {language} : {error}"
     },
     "copy": {
-      "start": "📂 Copie des fichiers du template local...",
-      "success": "✅ Template local copié avec succès !",
-      "fail": "❌ Échec de la copie du template local."
+      "start": "📂 Copie des fichiers du modèle local...",
+      "success": "✅ Modèle local copié avec succès !",
+      "fail": "❌ Échec de la copie du modèle local."
     },
     "run": {
-      "start": "📦 Exécution de la commande officielle de la CLI : {command}...",
-      "success": "✅ Commande officielle de la CLI exécutée avec succès !",
-      "fail": "❌ Échec de l'exécution de la commande officielle de la CLI."
+      "start": "📦 Exécution de la commande officielle CLI : {command}...",
+      "success": "✅ La commande officielle CLI a été exécutée avec succès !",
+      "fail": "❌ Échec de l'exécution de la commande officielle CLI."
     },
     "install": {
       "start": "📦 Installation des dépendances avec {pm}...",
@@ -91,13 +91,13 @@
     },
     "set": {
       "command": {
-        "description": "Définir une ou plusieurs valeurs de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache globale pour les templates distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit le langage de la CLI. Valeurs possibles : 'en', 'fr'\n"
+        "description": "Définir une ou plusieurs valeurs de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement global de mise en cache des modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue du CLI. Valeurs possibles : 'en', 'fr'\n"
       },
       "argument": {
-        "description": "Une liste de paires clé-valeur à définir (par exemple, 'pm npm lg fr')"
+        "description": "Une liste de paires clé-valeur à définir (par exemple, 'pm npm language fr')"
       },
       "option": {
-        "global": "Mettre à jour la configuration globale au lieu de la configuration locale."
+        "global": "Mettre à jour la configuration globale au lieu de la locale."
       },
       "updating": "Mise à jour de la configuration...",
       "success": "Configuration mise à jour avec succès."
@@ -111,53 +111,55 @@
       "fail": "Échec de l'initialisation de la configuration.",
       "initializing": "Initialisation de la configuration...",
       "option": {
-        "local": "Initialiser un fichier de configuration locale au lieu d'un fichier global.",
-        "global": "Initialiser un fichier de configuration globale au lieu d'un fichier local."
-      }
+        "local": "Initialiser un fichier de configuration local au lieu d'un global.",
+        "global": "Initialiser un fichier de configuration global au lieu d'un local."
+      },
+      "confirm_overwrite": "Un fichier de configuration existe déjà à {path}. Voulez-vous l'écraser ?",
+      "aborted": "Opération annulée. Aucune modification n'a été effectuée."
     },
     "update": {
       "command": {
-        "description": "Mettre à jour les propriétés d'un template, comme son alias, sa description ou son emplacement."
+        "description": "Mettre à jour les propriétés d'un modèle, telles que son alias, sa description ou son emplacement."
       },
       "language": {
-        "argument": "Le langage de programmation du template à mettre à jour."
+        "argument": "Le langage de programmation du modèle à mettre à jour."
       },
       "template": {
-        "argument": "Le nom ou l'alias du template à mettre à jour."
+        "argument": "Le nom ou l'alias du modèle à mettre à jour."
       },
       "option": {
-        "new_name": "Un nouveau nom pour le template.",
-        "description": "Une nouvelle brève description pour le template.",
-        "alias": "Un nouvel alias pour le template.",
-        "location": "Un nouvel emplacement pour le template.",
-        "cache_strategy": "Une nouvelle stratégie de cache pour le template.",
-        "package_manager": "Un nouveau gestionnaire de paquets pour le template.",
-        "global": "Mettre à jour le template dans la configuration globale au lieu de la configuration locale."
+        "new_name": "Un nouveau nom pour le modèle.",
+        "description": "Une nouvelle brève description pour le modèle.",
+        "alias": "Un nouvel alias pour le modèle.",
+        "location": "Un nouvel emplacement pour le modèle.",
+        "cache_strategy": "Une nouvelle stratégie de cache pour le modèle.",
+        "package_manager": "Un nouveau gestionnaire de paquets pour le modèle.",
+        "global": "Mettre à jour le modèle dans la configuration globale au lieu de la locale."
       },
-      "updating": "Mise à jour du template '{templateName}' dans la configuration...",
-      "success": "✅ Template '{templateName}' mis à jour avec succès !",
-      "success_name": "✅ Template '{oldName}' mis à jour en '{newName}' avec succès !"
+      "updating": "Mise à jour du modèle '{templateName}' dans la configuration...",
+      "success": "✅ Modèle '{templateName}' mis à jour avec succès !",
+      "success_name": "✅ Le modèle '{oldName}' a été mis à jour vers '{newName}' avec succès !"
     },
     "cache": {
       "command": {
-        "description": "Mettre à jour la stratégie de cache pour un template spécifique.",
-        "start": "Mise à jour de la stratégie de cache pour le template '{template}'...",
-        "fail": "❌ Échec de la mise à jour de la stratégie de cache pour le template '{template}'.",
-        "success": "✨ Stratégie de cache pour le template '{template}' mise à jour en '{strategy}'."
+        "description": "Mettre à jour la stratégie de cache pour un modèle spécifique.",
+        "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
+        "fail": "❌ Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'.",
+        "success": "✨ Stratégie de cache pour le modèle '{template}' mise à jour vers '{strategy}'."
       },
       "template": {
-        "argument": "Le nom du template à mettre à jour"
+        "argument": "Le nom du modèle à mettre à jour"
       },
       "strategy": {
         "argument": "La nouvelle stratégie de cache"
       },
-      "start": "Mise à jour de la stratégie de cache pour le template '{template}'...",
-      "success": "Stratégie de cache pour le template '{template}' mise à jour en '{strategy}'",
-      "fail": "Échec de la mise à jour de la stratégie de cache pour le template '{template}'",
+      "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
+      "success": "Stratégie de cache pour le modèle '{template}' mise à jour vers '{strategy}'",
+      "fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'",
       "updating": "Mise à jour du cache..."
     },
     "check": {
-      "local": "Vérification de la configuration locale ou monorepo...",
+      "local": "Vérification de la configuration locale ou du monorepo...",
       "global": "Configuration locale non trouvée. Vérification de la configuration globale..."
     },
     "found": {
@@ -193,17 +195,17 @@
       },
       "local": {
         "not": {
-          "found": "Aucun fichier de configuration locale trouvé. Exécutez 'devkit config init --local' pour en créer un."
+          "found": "Aucun fichier de configuration local trouvé. Exécutez 'devkit config init --local' pour en créer un."
         }
       },
       "generic": "Erreur de configuration",
       "init": {
         "fail": "Échec de l'initialisation de la configuration.",
-        "local_and_global": "Impossible d'utiliser les deux options --local et --global en même temps."
+        "local_and_global": "Impossible d'utiliser les options --local et --global en même temps."
       },
       "read": "Échec de la lecture de la configuration à {path}.",
       "no_file_found": "Aucun fichier de configuration trouvé. Exécutez 'devkit config init' pour en créer un global, ou 'devkit config init --local' pour en créer un local.",
-      "no_file_found_local": "Aucun fichier de configuration locale trouvé. Exécutez 'devkit config init --local' pour en créer un."
+      "no_file_found_local": "Aucun fichier de configuration local trouvé. Exécutez 'devkit config init --local' pour en créer un."
     },
     "file": {
       "not_found": "Impossible de trouver le fichier '{fileName}'."
@@ -216,28 +218,28 @@
       "failed_to_update_project_name": "Échec de la mise à jour du nom du projet :"
     },
     "version": {
-      "read_fail": "Échec de la lecture de la version dans package.json."
+      "read_fail": "Échec de la lecture de la version de package.json."
     },
     "template": {
-      "not_found": "Template '{template}' non trouvé dans la configuration.",
-      "exists": "Le template '{template}' existe déjà dans la configuration. Utilisez 'devkit config set' pour le mettre à jour."
+      "not_found": "Modèle '{template}' non trouvé dans la configuration.",
+      "exists": "Le modèle '{template}' existe déjà dans la configuration. Utilisez 'devkit config set' pour le mettre à jour."
     },
     "alias": {
-      "exists": "L'alias '{alias}' existe déjà pour un autre template dans ce langage. Veuillez choisir un alias différent."
+      "exists": "L'alias '{alias}' existe déjà pour un autre modèle dans cette langue. Veuillez choisir un alias différent."
     },
     "install": {
       "message": "Erreur d'installation :"
     },
     "scaffolding": {
-      "unexpected": "Une erreur inattendue est survenue pendant le scaffolding.",
+      "unexpected": "Une erreur inattendue est survenue lors de l'échafaudage.",
       "language": {
-        "not_found": "Langage de scaffolding non trouvé dans la configuration : '{language}'"
+        "not_found": "Langue d'échafaudage non trouvée dans la configuration : '{language}'"
       }
     },
     "command": {
       "config": {
         "cache": {
-          "fail": "Échec de la mise à jour de la stratégie de cache pour le template '{template}'"
+          "fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'"
         }
       },
       "set": {
@@ -256,24 +258,25 @@
     },
     "unexpected": "Une erreur inattendue est survenue",
     "unknown": "Une erreur inconnue est survenue",
-    "language_config_not_found": "Langage de scaffolding non trouvé dans la configuration : '{language}'"
+    "language_config_not_found": "Langue d'échafaudage non trouvée dans la configuration : '{language}'"
   },
   "cache": {
     "clone": {
-      "start": "✨ Clonage du nouveau template depuis {url}...",
-      "success": "✅ Template cloné avec succès !",
+      "start": "✨ Clonage du nouveau modèle depuis {url}...",
+      "success": "✅ Modèle cloné avec succès !",
       "fail": "❌ Échec du clonage du dépôt."
     },
     "refresh": {
-      "start": "🔄 Rafraîchissement du template en cache...",
-      "success": "✅ Template rafraîchi avec succès !",
-      "fail": "❌ Échec du rafraîchissement du template."
+      "start": "🔄 Rafraîchissement du modèle mis en cache...",
+      "success": "✅ Modèle rafraîchi avec succès !",
+      "fail": "❌ Échec du rafraîchissement du modèle."
     },
     "use": {
-      "info": "🚀 Utilisation du template en cache pour {repoName}."
+      "info": "🚀 Utilisation du modèle en cache pour {repoName}.",
+      "fail": "❌ Échec de l'utilisation du cache pour {repoName}."
     },
     "copy": {
-      "start": "📂 Copie du template en cache vers le répertoire du projet...",
+      "start": "📂 Copie du modèle mis en cache vers le répertoire du projet...",
       "success": "✅ Fichiers copiés avec succès !",
       "fail": "❌ Échec de la copie des fichiers depuis le cache."
     }
@@ -295,15 +298,15 @@
   },
   "cli": {
     "add_template": {
-      "description": "Ajouter un nouveau template à la configuration",
+      "description": "Ajouter un nouveau modèle à la configuration",
       "options": {
-        "description": "Une brève description du template",
-        "alias": "Un alias court pour le template",
-        "cache": "La stratégie de cache pour le template",
-        "package_manager": "Le gestionnaire de paquets à utiliser pour le template"
+        "description": "Une brève description du modèle",
+        "alias": "Un alias court pour le modèle",
+        "cache": "La stratégie de cache pour le modèle",
+        "package_manager": "Le gestionnaire de paquets à utiliser pour le modèle"
       },
-      "adding": "Ajout du template '{templateName}' à la configuration...",
-      "success": "Template '{templateName}' ajouté avec succès !"
+      "adding": "Ajout du modèle '{templateName}' à la configuration...",
+      "success": "Le modèle '{templateName}' a été ajouté avec succès !"
     }
   }
 }

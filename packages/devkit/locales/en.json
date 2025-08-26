@@ -113,7 +113,9 @@
       "option": {
         "local": "Initialize a local configuration file instead of a global one.",
         "global": "Initialize a global configuration file instead of a local one."
-      }
+      },
+      "confirm_overwrite": "Config file already exists at {path}. Do you want to overwrite it?",
+      "aborted": "Operation aborted. No changes were made."
     },
     "update": {
       "command": {
