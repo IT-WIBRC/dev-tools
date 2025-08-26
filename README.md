@@ -355,6 +355,8 @@ This project is in its early stages. We're committed to building a comprehensive
 - **Multi-Programming Language Support:** We'll progressively add templates for various frameworks and ecosystems (e.g., Python, Ruby, Go, Rust).
 - **Advanced Documentation:** Detailed guides on creating and managing custom templates, with examples for various frameworks.
 
+We're always working to improve the Dev Kit CLI. For a complete list of planned features, bug fixes, and development tasks, please see our [TODO list](./TODO.md).
+
 ---
 
 ## 🤝 Contributing
