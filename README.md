@@ -233,15 +233,20 @@ dk new javascript my-awesome-project -t custom-js-app
 
 ### Create and configure a project file
 
-The `config init` command now allows you to initialize a configuration file at different scopes.
+The `config init` command allows you to initialize a configuration file at different scopes.
 
-- To initialize a **local** configuration file in your current project, use the `--local` flag.
+**Note:** If a configuration file already exists at the specified location, you will be prompted to confirm if you want to overwrite it.
+
+- To initialize a **local** configuration file in your current project, use the `--local` flag, or run the command without any flags.
 - To initialize a **global** configuration file, use the `--global` flag.
 
 <!-- end list -->
 
 ```bash
-# Initialize a local configuration file in the current directory
+# Initialize a local configuration file in the current directory (default)
+dk config init
+
+# Initialize a local configuration file in the current directory (explicit)
 dk config init --local
 
 # Initialize a global configuration file

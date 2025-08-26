@@ -4,7 +4,7 @@
       "templates": {
         "simple": {
           "description": "A basic Node.js starter project.",
-          "location": "./templates/nodejs/simple",
+          "location": "/home/pc/.devkit/cache/template-vue",
           "alias": "sp"
         },
         "vue": {
@@ -24,19 +24,6 @@
         "vue-large": {
           "description": "A lightweight project for showcase websites.",
           "location": "https://github.com/CMGGEvolution/template-vue.git"
-        },
-        "medium": {
-          "description": "A more complex project with a pre-configured database.",
-          "location": "https://github.com/my-user/my-node-template.git"
-        },
-        "vitrine": {
-          "description": "A lightweight project for showcase websites.",
-          "location": "https://github.com/CMGGEvolution/template-vue.git"
-        },
-        "custom-template": {
-          "description": "A template for my team's projects.",
-          "location": "/path/to/my/local/template-folder",
-          "alias": "mct"
         }
       }
     }
