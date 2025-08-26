@@ -1,33 +1,28 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "es2022",
+    "module": "ESNext",
 
     "outDir": "./dist",
     "rootDir": "./src",
 
     "moduleResolution": "node10",
-    "esModuleInterop": true,
 
     "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
 
     "baseUrl": ".",
     "paths": {
-      "#locales/*": ["./locales/*"],
       "#/*": ["./src/*"],
+      "#locales/*": ["./locales/*"],
       "#scaffolding/*": ["./src/scaffolding/*"],
       "#utils/*": ["./src/utils/*"],
-      "#tests/*": ["./tests/*"]
+      "#commands/*": ["./src/commands/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "__tests__/**/*"]
 }

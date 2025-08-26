@@ -4,21 +4,15 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 
 ## Core Development
 
-- [ ] Update this TODO with all what has been done so far
-- [ ] Add template for all known Node.js templates
-- [ ] Use a better login method for errors
 - [x] Add pull request template and issue templates
 - [x] change the project name inside the package.json file after importing template content
-- [ ] Don't forget to test all of these changes
-- [ ] Use changesets for changelog and versioning, and automate the process
-- [ ] (Maybe) Support environment variables
 - [x] Check what can be changed into an argument instead of a command
 - [x] Support template creation using a command
 - [x] Update `$schema` to use to allow autocompletion in editors
 - [x] Detect system language dynamically
 - [x] Support Monorepo configuration
 - [x] Configure aliases
-- [ ] Add unit tests
+- [x] Add unit tests
 - [x] Refactor the `new` command to accept option to select a template
 - [x] Warn user to not use already used names for templates and tell we only support js templates containing nodejs related templates (No need anymore as user can create custom templates or edit existing ones)
 - [x] Add a command to list all available templates
@@ -26,9 +20,15 @@ This document tracks all planned tasks, bugs, and future ideas for the Dev Kit p
 - [x] Add a command to update a template (name and options)
 - [x] Improve the `set` command so support the setting of many config at once
 - [x] Improve the config management (Share config get on mounted and get it later only when necessary) `No need as it's better to load it each time to avoid issues`
-- [ ] Add a command to update the CLI itself
 - [ ] Add integration tests in addition to unit tests (reproduce monorepo, multi repo and bare repository)
 - [x] Enable copilot reviews for the project on GitHub (Impossible as it's not free as expected)
+- [ ] Update this TODO with all what has been done so far
+- [ ] Add template for all known Node.js templates
+- [ ] Use changesets for changelog and versioning, and automate the process
+- [ ] Use a better login method for errors
+
+- [ ] (Maybe) Support environment variables
+- [ ] (Maybe) Add a command to update the CLI itself
 
 ## Internationalization & Documentation
 

@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import { findPackageRoot } from "#utils/file-finder.js";
+import { findPackageRoot } from "#utils/files/finder.js";
 import { t } from "#utils/internationalization/i18n.js";
 import chalk from "chalk";
 import { FILE_NAMES } from "./configs/schema.js";

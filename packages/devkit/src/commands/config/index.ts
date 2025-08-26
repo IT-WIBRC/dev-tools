@@ -1,7 +1,7 @@
 import { type SetupCommandOptions } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
-import { setupConfigSetCommand } from "./set.js";
-import { setupConfigUpdateCommand } from "./update.js";
+import { setupConfigSetCommand } from "#commands/config/set.js";
+import { setupConfigUpdateCommand } from "#commands/config/update.js";
 
 export function setupConfigCommand(options: SetupCommandOptions) {
   const { program, config, source } = options;

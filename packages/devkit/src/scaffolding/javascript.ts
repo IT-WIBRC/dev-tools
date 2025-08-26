@@ -1,29 +1,15 @@
-import {
-  type TemplateConfig,
-  type CacheStrategy,
-  type SupportedJavascriptPackageManager,
-} from "#utils/configs/schema.js";
-import path from "path";
-import chalk from "chalk";
 import ora from "ora";
-import type { Ora } from "ora";
-import { execa } from "execa";
-import { getTemplateFromCache } from "#utils/cache/index.js";
+import chalk from "chalk";
 import { t } from "#utils/internationalization/i18n.js";
-import { findPackageRoot } from "#utils/file-finder.js";
-import { DevkitError } from "#utils/errors/base.js";
-import { updateJavascriptProjectName } from "#utils/update-project-name.js";
-import { copyJavascriptTemplate } from "#utils/template-utils.js";
-
-interface TemplateOptions {
-  projectName: string;
-  spinner: Ora;
-}
-
-interface RunOfficialCliOptions extends TemplateOptions {
-  command: string;
-  packageManager: SupportedJavascriptPackageManager;
-}
+import { getTemplateFromCache } from "#utils/cache/index.js";
+import { runCliCommand } from "#scaffolding/cli-runner.js";
+import { copyLocalTemplate } from "#scaffolding/local-template.js";
+import { installDependencies } from "#scaffolding/dependencies.js";
+import type {
+  TemplateConfig,
+  CacheStrategy,
+  SupportedJavascriptPackageManager,
+} from "#utils/configs/schema.js";
 
 interface ScaffoldJavascriptProjectOptions {
   projectName: string;
@@ -32,57 +18,9 @@ interface ScaffoldJavascriptProjectOptions {
   cacheStrategy: CacheStrategy;
 }
 
-async function copyLocalTemplate(
-  options: TemplateOptions & { sourcePath: string },
-) {
-  const { sourcePath, projectName } = options;
-  const projectPath = path.join(process.cwd(), projectName);
-  try {
-    await copyJavascriptTemplate(sourcePath, projectPath);
-    await updateJavascriptProjectName(projectPath, projectName);
-  } catch (error) {
-    throw new DevkitError(t("scaffolding.copy.fail"), { cause: error });
-  }
-}
-
-async function runOfficialCli(options: RunOfficialCliOptions) {
-  const { command, projectName, packageManager } = options;
-  const finalCommand = command.replace("{pm}", packageManager);
-
-  try {
-    const [exec, ...args] = finalCommand.split(" ");
-    if (!exec) {
-      throw new DevkitError(
-        t("error.invalid.command", { command: finalCommand }),
-      );
-    }
-
-    await execa(exec, [...args, projectName], { stdio: "inherit" });
-  } catch (error) {
-    throw new DevkitError(t("scaffolding.run.fail"), { cause: error });
-  }
-}
-
-async function installDependencies(
-  options: TemplateOptions & {
-    packageManager: SupportedJavascriptPackageManager;
-  },
-) {
-  const { projectName, packageManager } = options;
-  const projectPath = path.join(process.cwd(), projectName);
-  try {
-    await execa(packageManager, ["install"], {
-      cwd: projectPath,
-      stdio: "inherit",
-    });
-  } catch (error) {
-    throw new DevkitError(t("scaffolding.install.fail"), { cause: error });
-  }
-}
-
 export async function scaffoldProject(
   options: ScaffoldJavascriptProjectOptions,
-) {
+): Promise<void> {
   const { projectName, templateConfig, packageManager, cacheStrategy } =
     options;
   const spinner = ora();
@@ -95,7 +33,7 @@ export async function scaffoldProject(
         t("scaffolding.run.start", { command: templateConfig.location }),
       );
       spinner.stop();
-      await runOfficialCli({
+      await runCliCommand({
         command: templateConfig.location,
         projectName,
         packageManager,
@@ -114,11 +52,8 @@ export async function scaffoldProject(
     } else {
       spinner.text = chalk.cyan(t("scaffolding.copy.start"));
       spinner.start();
-      const sourcePath = path.isAbsolute(templateConfig.location)
-        ? templateConfig.location
-        : path.join(await findPackageRoot(), templateConfig.location);
       await copyLocalTemplate({
-        sourcePath: sourcePath,
+        sourcePath: templateConfig.location,
         projectName,
         spinner,
       });
@@ -133,6 +68,7 @@ export async function scaffoldProject(
       spinner.stop();
       await installDependencies({ projectName, packageManager, spinner });
     }
+
     if (!isOfficialCli) {
       console.log(chalk.bold.green(t("scaffolding.complete.success")));
       console.log(

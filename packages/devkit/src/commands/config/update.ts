@@ -1,10 +1,4 @@
 import {
-  saveLocalConfig,
-  saveGlobalConfig,
-  readConfigAtPath,
-  getConfigFilepath,
-} from "#utils/configs/loader.js";
-import {
   VALID_CACHE_STRATEGIES,
   VALID_PACKAGE_MANAGERS,
   type CliConfig,
@@ -18,6 +12,9 @@ import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";
 import chalk from "chalk";
 import deepmerge from "deepmerge";
+import { getConfigFilepath } from "#utils/configs/path-finder.js";
+import { readConfigAtPath } from "#utils/configs/reader.js";
+import { saveGlobalConfig, saveLocalConfig } from "#utils/configs/writer.js";
 
 async function getTargetConfig(
   isGlobal: boolean,

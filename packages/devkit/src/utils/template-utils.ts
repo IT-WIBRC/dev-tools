@@ -4,7 +4,7 @@ import {
   type SupportedProgrammingLanguageValues,
 } from "./configs/schema.js";
 
-function getFilesToFilter(
+export function getFilesToFilter(
   language: SupportedProgrammingLanguageValues,
 ): string[] {
   const commonFiles = Object.values(FILE_NAMES.common);

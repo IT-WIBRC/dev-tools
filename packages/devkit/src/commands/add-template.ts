@@ -5,17 +5,15 @@ import {
   VALID_PACKAGE_MANAGERS,
   type CliConfig,
 } from "#utils/configs/schema.js";
-import {
-  saveCliConfig,
-  readConfigAtPath,
-  getConfigFilepath,
-} from "#utils/configs/loader.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";
 import chalk from "chalk";
 import deepmerge from "deepmerge";
+import { getConfigFilepath } from "#utils/configs/path-finder.js";
+import { readConfigAtPath } from "#utils/configs/reader.js";
+import { saveCliConfig } from "#utils/configs/writer.js";
 
 export function setupAddTemplateCommand(options: SetupCommandOptions) {
   const { program, config, source } = options;
@@ -42,7 +40,7 @@ export function setupAddTemplateCommand(options: SetupCommandOptions) {
         }
 
         let targetConfig: CliConfig;
-        const isGlobal = cmdOptions.global;
+        const isGlobal = !!cmdOptions.global;
 
         if (isGlobal) {
           const globalConfigPath = await getConfigFilepath(true);
@@ -66,7 +64,6 @@ export function setupAddTemplateCommand(options: SetupCommandOptions) {
         }
 
         const languageConfig = targetConfig.templates[language];
-
         if (languageConfig.templates[templateName]) {
           throw new DevkitError(
             t("error.template.exists", { template: templateName }),
