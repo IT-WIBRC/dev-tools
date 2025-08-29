@@ -14,6 +14,7 @@ import { setupListCommand } from "#commands/list.js";
 import { setupRemoveTemplateCommand } from "#commands/removeTemplate.js";
 import { setupAddTemplateCommand } from "#commands/add-template.js";
 import { setupInitCommand } from "#commands/init.js";
+import { setupConfigUpdateCommand } from "#commands/update.js";
 
 export async function setupAndParse() {
   const program = new Command();
@@ -49,6 +50,7 @@ export async function setupAndParse() {
     setupListCommand({ program, config });
     setupRemoveTemplateCommand({ program, config, source });
     setupAddTemplateCommand({ program, config, source });
+    setupConfigUpdateCommand({ program, config, source });
 
     program.parse();
   } catch (error) {

@@ -5,6 +5,7 @@ import {
   findGlobalConfigFile,
   findProjectRoot,
   findPackageRoot,
+  findLocalConfigFile,
 } from "../../../../src/utils/files/finder.js";
 import * as path from "path";
 
@@ -49,7 +50,7 @@ vi.mock("path", async (importOriginal) => {
   };
 });
 
-describe("Root Finder Functions", () => {
+describe("Finder Functions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -104,9 +105,9 @@ describe("Root Finder Functions", () => {
     });
 
     it("should return the default path if no global config file exists", async () => {
-      mockOs.homedir.mockReturnValue("/home/user");
-      vi.mocked(path.join).mockReturnValue("/home/user/.devkitrc");
-      mockFs.pathExists.mockResolvedValue(false);
+      mockOs.homedir.mockReturnValueOnce("/home/user");
+      vi.mocked(path.join).mockReturnValueOnce("/home/user/.devkitrc");
+      mockFs.pathExists.mockResolvedValueOnce(false);
 
       const result = await findGlobalConfigFile();
       expect(result).toBe("/home/user/.devkitrc");
@@ -137,6 +138,44 @@ describe("Root Finder Functions", () => {
     it("should throw a DevkitError if package root is not found", async () => {
       mockFindUp.mockResolvedValue(null);
       await expect(findPackageRoot()).rejects.toThrow(DevkitError);
+    });
+  });
+
+  describe("findLocalConfigFile", () => {
+    it("should find the config file by searching upwards in a non-monorepo and checking both file names", async () => {
+      vi.spyOn(process, "cwd").mockReturnValue("/test/project/src");
+      mockFs.pathExists
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(true);
+
+      const result = await findLocalConfigFile();
+      expect(result).toBe("/test/project/.devkitrc");
+      expect(mockFs.pathExists).toHaveBeenCalledTimes(4);
+    });
+
+    it("should find the config file in the monorepo root from a package subdirectory", async () => {
+      vi.spyOn(process, "cwd").mockReturnValue(
+        "/test/monorepo/packages/my-package",
+      );
+      vi.spyOn(
+        await import("../../../../src/utils/files/finder.js"),
+        "findMonorepoRoot",
+      ).mockResolvedValueOnce("/test/monorepo");
+
+      mockFs.pathExists
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(true);
+
+      const result = await findLocalConfigFile();
+      expect(result).toBe("/test/monorepo/.devkitrc.json");
+      expect(mockFs.pathExists).toHaveBeenCalledWith(
+        "/test/monorepo/.devkitrc.json",
+      );
     });
   });
 });

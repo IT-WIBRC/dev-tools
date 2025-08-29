@@ -72,8 +72,5 @@ describe("setupConfigCommand", () => {
     };
     expect(mockSetupConfigSetCommand).toHaveBeenCalledOnce();
     expect(mockSetupConfigSetCommand).toHaveBeenCalledWith(expectedOptions);
-
-    expect(mockSetupConfigUpdateCommand).toHaveBeenCalledOnce();
-    expect(mockSetupConfigUpdateCommand).toHaveBeenCalledWith(expectedOptions);
   });
 });

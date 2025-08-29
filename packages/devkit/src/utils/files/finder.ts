@@ -7,9 +7,57 @@ import { CONFIG_FILE_NAMES, FILE_NAMES } from "#utils/configs/schema.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { findUp } from "./find-up.js";
 
+const allConfigFiles = [...CONFIG_FILE_NAMES];
+async function findFileInDirectory(
+  directory: string,
+  fileNames: string[],
+): Promise<string | null> {
+  for (const fileName of fileNames) {
+    const filePath = path.join(directory, fileName);
+    if (await fs.pathExists(filePath)) {
+      return filePath;
+    }
+  }
+  return null;
+}
+
+export async function findGlobalConfigFile(): Promise<string> {
+  const homeDir = os.homedir();
+  const finalPath =
+    (await findFileInDirectory(homeDir, allConfigFiles)) ||
+    path.join(homeDir, allConfigFiles[0]);
+  return finalPath;
+}
+
+export async function findLocalConfigFile(): Promise<string | null> {
+  const monorepoRoot = await findMonorepoRoot();
+  let currentDir = process.cwd();
+
+  while (true) {
+    const filePath = await findFileInDirectory(
+      currentDir,
+      [...allConfigFiles].reverse(),
+    );
+    if (filePath) {
+      return filePath;
+    }
+
+    const parentDir = path.dirname(currentDir);
+
+    if (
+      currentDir === parentDir ||
+      (monorepoRoot && currentDir === monorepoRoot)
+    ) {
+      return null;
+    }
+
+    currentDir = parentDir;
+  }
+}
+
 export async function findMonorepoRoot(): Promise<string | null> {
   const monorepoIndicators = ["pnpm-workspace.yaml", "lerna.json"];
-  const searchFor = [...monorepoIndicators, "package.json"];
+  const searchFor = [...monorepoIndicators, FILE_NAMES.packageJson];
 
   let currentSearchDir = process.cwd();
 
@@ -21,7 +69,8 @@ export async function findMonorepoRoot(): Promise<string | null> {
     }
 
     const rootDir = path.dirname(foundFile);
-    const isBunOrYarnOrNpm = path.basename(foundFile) === "package.json";
+    const isBunOrYarnOrNpm =
+      path.basename(foundFile) === FILE_NAMES.packageJson;
 
     if (isBunOrYarnOrNpm) {
       try {
@@ -37,19 +86,6 @@ export async function findMonorepoRoot(): Promise<string | null> {
     }
     currentSearchDir = path.dirname(rootDir);
   }
-}
-
-export async function findGlobalConfigFile(): Promise<string> {
-  const allConfigFiles = [...CONFIG_FILE_NAMES];
-  const homeDir = os.homedir();
-
-  for (const fileName of allConfigFiles) {
-    const globalConfigPath = path.join(homeDir, fileName);
-    if (await fs.pathExists(globalConfigPath)) {
-      return globalConfigPath;
-    }
-  }
-  return path.join(homeDir, allConfigFiles[0]);
 }
 
 export async function findProjectRoot(): Promise<string | null> {

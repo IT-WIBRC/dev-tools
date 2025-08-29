@@ -1,7 +1,6 @@
 import { type SetupCommandOptions } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { setupConfigSetCommand } from "#commands/config/set.js";
-import { setupConfigUpdateCommand } from "#commands/config/update.js";
 
 export function setupConfigCommand(options: SetupCommandOptions) {
   const { program, config, source } = options;
@@ -11,5 +10,4 @@ export function setupConfigCommand(options: SetupCommandOptions) {
     .description(t("config.command.description"));
 
   setupConfigSetCommand({ program: configCommand, config, source });
-  setupConfigUpdateCommand({ program: configCommand, config, source });
 }

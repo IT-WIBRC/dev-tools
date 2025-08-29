@@ -6,7 +6,7 @@ const { mocktFn, mockLoadTranslations, mockProgram, mockSpinner } = vi.hoisted(
       text: "",
       start: vi.fn(() => mockSpinner),
       succeed: vi.fn(),
-      info: vi.fn(),
+      info: vi.fn(() => mockSpinner),
       fail: vi.fn(),
       stop: vi.fn(),
     };

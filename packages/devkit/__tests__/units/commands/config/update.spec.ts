@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { setupConfigUpdateCommand } from "../../../../src/commands/config/update.js";
+import { setupConfigUpdateCommand } from "../../../../src/commands/update.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 import { mockSpinner, mockChalk, mocktFn } from "../../../../vitest.setup.js";
 import type { CliConfig } from "../../../../src/utils/configs/schema.js";
