@@ -115,6 +115,11 @@
         "global": "Initialize a global configuration file instead of a local one."
       },
       "confirm_overwrite": "Config file already exists at {path}. Do you want to overwrite it?",
+      "confirm_monorepo_overwrite": "A config file exists in the monorepo root at {path}. Do you want to create a new one in the current package?",
+      "found_existing": "Configuration file already exists at {path}. Skipping initialization.",
+      "monorepo_location": "A monorepo root was found, but no config file exists there. Where do you want to create the new config file?",
+      "location_current": "Create it in the current package.",
+      "location_root": "Create it in the monorepo root.",
       "aborted": "Operation aborted. No changes were made."
     },
     "update": {
@@ -307,5 +312,9 @@
       "adding": "Adding template '{templateName}' to configuration...",
       "success": "Template '{templateName}' added successfully!"
     }
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No"
   }
 }

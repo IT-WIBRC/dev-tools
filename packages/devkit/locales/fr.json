@@ -1,6 +1,6 @@
 {
   "program": {
-    "description": "Une boîte à outils puissante pour échafauder de nouveaux projets.",
+    "description": "Une puissante boîte à outils pour échafauder de nouveaux projets.",
     "initialized": "CLI initialisée avec succès."
   },
   "new": {
@@ -9,14 +9,14 @@
     },
     "project": {
       "language": {
-        "argument": "Le langage de programmation du modèle (par exemple, 'react', 'node')"
+        "argument": "Le langage de programmation du modèle (ex: 'react', 'node')"
       },
       "name": {
         "argument": "Le nom de votre nouveau projet"
       },
       "template": {
         "option": {
-          "description": "Le nom du modèle à utiliser (par exemple, 'ts', 'simple-api')"
+          "description": "Le nom du modèle à utiliser (ex: 'ts', 'simple-api')"
         }
       },
       "scaffolding": "Échafaudage du projet '{projectName}' avec le modèle '{template}'...",
@@ -42,7 +42,7 @@
       "description": "Supprimer un modèle de la configuration."
     },
     "start": "Suppression du modèle de la configuration...",
-    "success": "✅ Le modèle '{templateName}' pour '{language}' a été supprimé avec succès !",
+    "success": "✅ Modèle '{templateName}' pour '{language}' supprimé avec succès !",
     "language": {
       "argument": "Le langage de programmation du modèle à supprimer."
     },
@@ -54,10 +54,10 @@
     }
   },
   "version": {
-    "description": "Affiche la version actuelle du CLI."
+    "description": "Afficher la version actuelle de la CLI."
   },
   "help": {
-    "description": "Affiche l'aide pour une commande."
+    "description": "Afficher l'aide pour une commande."
   },
   "scaffolding": {
     "project": {
@@ -71,9 +71,9 @@
       "fail": "❌ Échec de la copie du modèle local."
     },
     "run": {
-      "start": "📦 Exécution de la commande officielle CLI : {command}...",
-      "success": "✅ La commande officielle CLI a été exécutée avec succès !",
-      "fail": "❌ Échec de l'exécution de la commande officielle CLI."
+      "start": "📦 Exécution de la commande CLI officielle : {command}...",
+      "success": "✅ Commande CLI officielle exécutée avec succès !",
+      "fail": "❌ Échec de l'exécution de la commande CLI officielle."
     },
     "install": {
       "start": "📦 Installation des dépendances avec {pm}...",
@@ -91,10 +91,10 @@
     },
     "set": {
       "command": {
-        "description": "Définir une ou plusieurs valeurs de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement global de mise en cache des modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue du CLI. Valeurs possibles : 'en', 'fr'\n"
+        "description": "Définir une ou plusieurs valeurs de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache globale pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue de la CLI. Valeurs possibles : 'en', 'fr'\n"
       },
       "argument": {
-        "description": "Une liste de paires clé-valeur à définir (par exemple, 'pm npm language fr')"
+        "description": "Une liste de paires clé-valeur à définir (ex: 'pm npm language fr')"
       },
       "option": {
         "global": "Mettre à jour la configuration globale au lieu de la locale."
@@ -114,8 +114,13 @@
         "local": "Initialiser un fichier de configuration local au lieu d'un global.",
         "global": "Initialiser un fichier de configuration global au lieu d'un local."
       },
-      "confirm_overwrite": "Un fichier de configuration existe déjà à {path}. Voulez-vous l'écraser ?",
-      "aborted": "Opération annulée. Aucune modification n'a été effectuée."
+      "confirm_overwrite": "Le fichier de configuration existe déjà à {path}. Voulez-vous l'écraser ?",
+      "confirm_monorepo_overwrite": "Un fichier de configuration existe à la racine du monorepo à {path}. Voulez-vous en créer un nouveau dans le paquet actuel ?",
+      "found_existing": "Le fichier de configuration existe déjà à {path}. Initialisation ignorée.",
+      "monorepo_location": "Une racine de monorepo a été trouvée, mais aucun fichier de configuration n'y existe. Où voulez-vous créer le nouveau fichier de configuration ?",
+      "location_current": "Le créer dans le paquet actuel.",
+      "location_root": "Le créer à la racine du monorepo.",
+      "aborted": "Opération annulée. Aucune modification n'a été faite."
     },
     "update": {
       "command": {
@@ -129,7 +134,7 @@
       },
       "option": {
         "new_name": "Un nouveau nom pour le modèle.",
-        "description": "Une nouvelle brève description pour le modèle.",
+        "description": "Une nouvelle description brève pour le modèle.",
         "alias": "Un nouvel alias pour le modèle.",
         "location": "Un nouvel emplacement pour le modèle.",
         "cache_strategy": "Une nouvelle stratégie de cache pour le modèle.",
@@ -138,14 +143,14 @@
       },
       "updating": "Mise à jour du modèle '{templateName}' dans la configuration...",
       "success": "✅ Modèle '{templateName}' mis à jour avec succès !",
-      "success_name": "✅ Le modèle '{oldName}' a été mis à jour vers '{newName}' avec succès !"
+      "success_name": "✅ Modèle '{oldName}' mis à jour en '{newName}' avec succès !"
     },
     "cache": {
       "command": {
         "description": "Mettre à jour la stratégie de cache pour un modèle spécifique.",
         "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
         "fail": "❌ Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'.",
-        "success": "✨ Stratégie de cache pour le modèle '{template}' mise à jour vers '{strategy}'."
+        "success": "✨ Stratégie de cache pour le modèle '{template}' mise à jour en '{strategy}'."
       },
       "template": {
         "argument": "Le nom du modèle à mettre à jour"
@@ -154,7 +159,7 @@
         "argument": "La nouvelle stratégie de cache"
       },
       "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
-      "success": "Stratégie de cache pour le modèle '{template}' mise à jour vers '{strategy}'",
+      "success": "Stratégie de cache pour le modèle '{template}' mise à jour en '{strategy}'",
       "fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'",
       "updating": "Mise à jour du cache..."
     },
@@ -183,7 +188,7 @@
     },
     "config": {
       "parse": "Échec de l'analyse de {file}. Utilisation de la configuration par défaut.",
-      "save": "❌ Échec de l'enregistrement du fichier de configuration : {file}",
+      "save": "❌ Échec de la sauvegarde du fichier de configuration : {file}",
       "exists": "Le fichier existe déjà à {path}. Utilisez 'config set' pour le mettre à jour.",
       "not": {
         "found": "Fichier de configuration non trouvé."
@@ -195,17 +200,17 @@
       },
       "local": {
         "not": {
-          "found": "Aucun fichier de configuration local trouvé. Exécutez 'devkit config init --local' pour en créer un."
+          "found": "Aucun fichier de configuration locale trouvé. Exécutez 'devkit config init --local' pour en créer un."
         }
       },
       "generic": "Erreur de configuration",
       "init": {
         "fail": "Échec de l'initialisation de la configuration.",
-        "local_and_global": "Impossible d'utiliser les options --local et --global en même temps."
+        "local_and_global": "Impossible d'utiliser les deux options --local et --global en même temps."
       },
       "read": "Échec de la lecture de la configuration à {path}.",
-      "no_file_found": "Aucun fichier de configuration trouvé. Exécutez 'devkit config init' pour en créer un global, ou 'devkit config init --local' pour en créer un local.",
-      "no_file_found_local": "Aucun fichier de configuration local trouvé. Exécutez 'devkit config init --local' pour en créer un."
+      "no_file_found": "Aucun fichier de configuration trouvé. Exécutez 'devkit config init' pour créer un fichier global, ou 'devkit config init --local' pour en créer un local.",
+      "no_file_found_local": "Aucun fichier de configuration locale trouvé. Exécutez 'devkit config init --local' pour en créer un."
     },
     "file": {
       "not_found": "Impossible de trouver le fichier '{fileName}'."
@@ -225,15 +230,15 @@
       "exists": "Le modèle '{template}' existe déjà dans la configuration. Utilisez 'devkit config set' pour le mettre à jour."
     },
     "alias": {
-      "exists": "L'alias '{alias}' existe déjà pour un autre modèle dans cette langue. Veuillez choisir un alias différent."
+      "exists": "L'alias '{alias}' existe déjà pour un autre modèle dans ce langage. Veuillez choisir un alias différent."
     },
     "install": {
       "message": "Erreur d'installation :"
     },
     "scaffolding": {
-      "unexpected": "Une erreur inattendue est survenue lors de l'échafaudage.",
+      "unexpected": "Une erreur inattendue s'est produite pendant l'échafaudage.",
       "language": {
-        "not_found": "Langue d'échafaudage non trouvée dans la configuration : '{language}'"
+        "not_found": "Langage d'échafaudage non trouvé dans la configuration : '{language}'"
       }
     },
     "command": {
@@ -249,16 +254,16 @@
     "save": {
       "local": {
         "config": {
-          "not_found": "Échec de l'enregistrement de la configuration locale. Fichier non trouvé à '{path}'."
+          "not_found": "Échec de la sauvegarde de la configuration locale. Fichier non trouvé à '{path}'."
         }
       }
     },
     "git": {
       "generic": "Erreur Git"
     },
-    "unexpected": "Une erreur inattendue est survenue",
-    "unknown": "Une erreur inconnue est survenue",
-    "language_config_not_found": "Langue d'échafaudage non trouvée dans la configuration : '{language}'"
+    "unexpected": "Une erreur inattendue s'est produite",
+    "unknown": "Une erreur inconnue s'est produite",
+    "language_config_not_found": "Langage d'échafaudage non trouvé dans la configuration : '{language}'"
   },
   "cache": {
     "clone": {
@@ -267,16 +272,15 @@
       "fail": "❌ Échec du clonage du dépôt."
     },
     "refresh": {
-      "start": "🔄 Rafraîchissement du modèle mis en cache...",
+      "start": "🔄 Rafraîchissement du modèle en cache...",
       "success": "✅ Modèle rafraîchi avec succès !",
       "fail": "❌ Échec du rafraîchissement du modèle."
     },
     "use": {
-      "info": "🚀 Utilisation du modèle en cache pour {repoName}.",
-      "fail": "❌ Échec de l'utilisation du cache pour {repoName}."
+      "info": "🚀 Utilisation du modèle en cache pour {repoName}."
     },
     "copy": {
-      "start": "📂 Copie du modèle mis en cache vers le répertoire du projet...",
+      "start": "📂 Copie du modèle en cache dans le répertoire du projet...",
       "success": "✅ Fichiers copiés avec succès !",
       "fail": "❌ Échec de la copie des fichiers depuis le cache."
     }
@@ -290,7 +294,7 @@
     "global": {
       "config": {
         "not": {
-          "initialized": "Configuration globale non initialisée. Exécutez 'devkit config init' pour en créer une."
+          "initialized": "La configuration globale n'est pas initialisée. Exécutez 'devkit config init' pour en créer une."
         }
       }
     },
@@ -306,7 +310,11 @@
         "package_manager": "Le gestionnaire de paquets à utiliser pour le modèle"
       },
       "adding": "Ajout du modèle '{templateName}' à la configuration...",
-      "success": "Le modèle '{templateName}' a été ajouté avec succès !"
+      "success": "Modèle '{templateName}' ajouté avec succès !"
     }
+  },
+  "common": {
+    "yes": "Oui",
+    "no": "Non"
   }
 }

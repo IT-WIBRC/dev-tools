@@ -48,6 +48,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "build:watch": "tsc --watch",
     "type-check": "tsc --noEmit",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",

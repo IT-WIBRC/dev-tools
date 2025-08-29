@@ -1,29 +1,20 @@
 import path from "path";
-import os from "os";
 import { CONFIG_FILE_NAMES } from "./schema.js";
-import { findMonorepoRoot, findProjectRoot } from "../files/finder.js";
 import { findUp } from "../files/find-up.js";
+import { findGlobalConfigFile } from "../files/finder.js";
 
 export async function getConfigFilepath(isGlobal = false): Promise<string> {
+  const allConfigFiles = [...CONFIG_FILE_NAMES];
+
   if (isGlobal) {
-    return path.join(os.homedir(), CONFIG_FILE_NAMES[0]);
+    return findGlobalConfigFile();
   }
 
-  const localConfigPath = await findUp([...CONFIG_FILE_NAMES], process.cwd());
+  const localConfigPath = await findUp([...allConfigFiles], process.cwd());
 
   if (localConfigPath) {
     return localConfigPath;
   }
 
-  const monorepoRoot = await findMonorepoRoot();
-  if (monorepoRoot) {
-    return path.join(monorepoRoot, CONFIG_FILE_NAMES[1]);
-  }
-
-  const projectRoot = await findProjectRoot();
-  if (projectRoot) {
-    return path.join(projectRoot, CONFIG_FILE_NAMES[1]);
-  }
-
-  return path.join(process.cwd(), CONFIG_FILE_NAMES[0]);
+  return path.join(process.cwd(), allConfigFiles[1]);
 }

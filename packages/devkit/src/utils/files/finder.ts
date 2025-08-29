@@ -1,14 +1,55 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { FILE_NAMES } from "#utils/configs/schema.js";
+import os from "os";
+import fs from "fs-extra";
+import { CONFIG_FILE_NAMES, FILE_NAMES } from "#utils/configs/schema.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { findUp } from "./find-up.js";
 
 export async function findMonorepoRoot(): Promise<string | null> {
   const monorepoIndicators = ["pnpm-workspace.yaml", "lerna.json"];
-  const rootFile = await findUp(monorepoIndicators, process.cwd());
-  return rootFile ? path.dirname(rootFile) : null;
+  const searchFor = [...monorepoIndicators, "package.json"];
+
+  let currentSearchDir = process.cwd();
+
+  while (true) {
+    const foundFile = await findUp(searchFor, currentSearchDir);
+
+    if (!foundFile) {
+      return null;
+    }
+
+    const rootDir = path.dirname(foundFile);
+    const isBunOrYarnOrNpm = path.basename(foundFile) === "package.json";
+
+    if (isBunOrYarnOrNpm) {
+      try {
+        const packageJson = await fs.readJson(foundFile);
+        if (packageJson.workspaces) {
+          return rootDir;
+        }
+      } catch (e) {
+        return null;
+      }
+    } else {
+      return rootDir;
+    }
+    currentSearchDir = path.dirname(rootDir);
+  }
+}
+
+export async function findGlobalConfigFile(): Promise<string> {
+  const allConfigFiles = [...CONFIG_FILE_NAMES];
+  const homeDir = os.homedir();
+
+  for (const fileName of allConfigFiles) {
+    const globalConfigPath = path.join(homeDir, fileName);
+    if (await fs.pathExists(globalConfigPath)) {
+      return globalConfigPath;
+    }
+  }
+  return path.join(homeDir, allConfigFiles[0]);
 }
 
 export async function findProjectRoot(): Promise<string | null> {

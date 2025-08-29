@@ -7,12 +7,132 @@ import { t } from "#utils/internationalization/i18n.js";
 import { ConfigError } from "#utils/errors/base.js";
 import fs from "fs-extra";
 import path from "path";
-import os from "os";
-import ora from "ora";
+import ora, { type Ora } from "ora";
 import chalk from "chalk";
-import { saveGlobalConfig, saveLocalConfig } from "#utils/configs/writer.js";
-import { handleErrorAndExit } from "#utils/errors/handler.js";
 import prompts from "prompts";
+import { findGlobalConfigFile, findMonorepoRoot } from "#utils/files/finder.js";
+import { findUp } from "#utils/files/find-up.js";
+import { saveConfig } from "#utils/configs/writer.js";
+import { handleErrorAndExit } from "#utils/errors/handler.js";
+
+async function promptForStandardOverwrite(filePath: string): Promise<boolean> {
+  const response = await prompts({
+    type: "select",
+    name: "overwrite",
+    message: chalk.yellow(
+      t("config.init.confirm_overwrite", { path: filePath }),
+    ),
+    choices: [
+      { title: t("common.yes"), value: true },
+      { title: t("common.no"), value: false },
+    ],
+    initial: 0,
+  });
+  return response.overwrite;
+}
+
+async function promptForMonorepoOverwrite(filePath: string): Promise<boolean> {
+  const response = await prompts({
+    type: "select",
+    name: "overwrite",
+    message: chalk.yellow(
+      t("config.init.confirm_monorepo_overwrite", { path: filePath }),
+    ),
+    choices: [
+      { title: t("common.yes"), value: true },
+      { title: t("common.no"), value: false },
+    ],
+    initial: 0,
+  });
+  return response.overwrite;
+}
+
+async function promptForMonorepoLocation(): Promise<string> {
+  const response = await prompts({
+    type: "select",
+    name: "location",
+    message: chalk.yellow(t("config.init.monorepo_location")),
+    choices: [
+      { title: t("config.init.location_current"), value: "local" },
+      { title: t("config.init.location_root"), value: "root" },
+    ],
+    initial: 0,
+  });
+  return response.location;
+}
+
+async function handleGlobalInit(spinner: Ora) {
+  const finalPath = await findGlobalConfigFile();
+  const shouldOverwrite = (await fs.pathExists(finalPath))
+    ? await promptForStandardOverwrite(finalPath)
+    : true;
+
+  if (shouldOverwrite) {
+    spinner.start(
+      chalk.cyan(t("config.init.initializing", { path: finalPath })),
+    );
+    await saveConfig({ ...defaultCliConfig }, finalPath);
+    spinner.succeed(chalk.green(t("config.init.success")));
+  } else {
+    spinner.info(chalk.yellow(t("config.init.aborted")));
+  }
+}
+
+async function handleLocalInit(spinner: Ora) {
+  const allConfigFiles = [...CONFIG_FILE_NAMES];
+  const currentPath = process.cwd();
+  const existingConfigPath = await findUp(allConfigFiles, currentPath);
+  const monorepoRoot = await findMonorepoRoot();
+  const hasRootConfig = monorepoRoot
+    ? (await findUp(allConfigFiles, monorepoRoot)) !== null
+    : false;
+
+  let finalPath = "";
+  let shouldOverwrite = false;
+
+  if (monorepoRoot && hasRootConfig) {
+    const isAtRoot =
+      existingConfigPath && path.dirname(existingConfigPath) === monorepoRoot;
+
+    if (isAtRoot) {
+      finalPath = existingConfigPath as string;
+      shouldOverwrite = await promptForStandardOverwrite(finalPath);
+    } else {
+      const overwriteConfirmed = await promptForMonorepoOverwrite(
+        existingConfigPath as string,
+      );
+      if (!overwriteConfirmed) {
+        spinner.info(chalk.yellow(t("config.init.aborted")));
+        return;
+      }
+      finalPath = path.join(currentPath, allConfigFiles[1]);
+      shouldOverwrite = true;
+    }
+  } else if (monorepoRoot && !hasRootConfig) {
+    const location = await promptForMonorepoLocation();
+    if (location === "root") {
+      finalPath = path.join(monorepoRoot, allConfigFiles[1]);
+    } else {
+      finalPath = path.join(currentPath, allConfigFiles[1]);
+    }
+    shouldOverwrite = true;
+  } else {
+    finalPath = path.join(currentPath, allConfigFiles[1]);
+    shouldOverwrite = (await fs.pathExists(finalPath))
+      ? await promptForStandardOverwrite(finalPath)
+      : true;
+  }
+
+  if (shouldOverwrite) {
+    spinner.start(
+      chalk.cyan(t("config.init.initializing", { path: finalPath })),
+    );
+    await saveConfig({ ...defaultCliConfig }, finalPath);
+    spinner.succeed(chalk.green(t("config.init.success")));
+  } else {
+    spinner.info(chalk.yellow(t("config.init.aborted")));
+  }
+}
 
 export function setupInitCommand(options: SetupCommandOptions) {
   const { program } = options;
@@ -32,44 +152,11 @@ export function setupInitCommand(options: SetupCommandOptions) {
           throw new ConfigError(t("error.config.init.local_and_global"));
         }
 
-        const configPath = isGlobal
-          ? path.join(os.homedir(), CONFIG_FILE_NAMES[0])
-          : path.join(process.cwd(), CONFIG_FILE_NAMES[1]);
-
-        try {
-          await fs.promises.stat(configPath);
-          const response = await prompts({
-            type: "confirm",
-            name: "overwrite",
-            message: chalk.yellow(
-              t("config.init.confirm_overwrite", { path: configPath }),
-            ),
-            initial: false,
-          });
-
-          if (response.overwrite === false) {
-            spinner.info(chalk.yellow(t("config.init.aborted")));
-            return;
-          }
-        } catch (error: any) {
-          if (error.code !== "ENOENT") {
-            throw new ConfigError(t("error.config.init.fail"), configPath, {
-              cause: error,
-            });
-          }
-        }
-
-        spinner.start(
-          chalk.cyan(t("config.init.initializing", { path: configPath })),
-        );
-
         if (isGlobal) {
-          await saveGlobalConfig({ ...defaultCliConfig });
+          await handleGlobalInit(spinner);
         } else {
-          await saveLocalConfig({ ...defaultCliConfig });
+          await handleLocalInit(spinner);
         }
-
-        spinner.succeed(chalk.green(t("config.init.success")));
       } catch (error) {
         handleErrorAndExit(error, spinner);
       }
