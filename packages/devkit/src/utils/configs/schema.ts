@@ -99,11 +99,6 @@ export const defaultCliConfig: CliConfig = {
   templates: {
     javascript: {
       templates: {
-        simple: {
-          description: "A basic Node.js starter project.",
-          location: "/home/pc/.devkit/cache/template-vue",
-          alias: "sp",
-        },
         vue: {
           description: "An official Vue.js project.",
           location: "{pm} create vue@latest",
@@ -117,10 +112,6 @@ export const defaultCliConfig: CliConfig = {
         nest: {
           description: "An official Nest.js project.",
           location: "{pm} install -g @nestjs/cli && nest new",
-        },
-        "vue-large": {
-          description: "A lightweight project for showcase websites.",
-          location: "https://github.com/CMGGEvolution/template-vue.git",
         },
       },
     },

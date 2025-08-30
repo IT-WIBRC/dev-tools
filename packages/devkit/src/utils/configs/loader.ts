@@ -1,5 +1,3 @@
-import os from "os";
-import path from "path";
 import deepmerge from "deepmerge";
 import type { Ora } from "ora";
 import {
@@ -38,7 +36,7 @@ export async function getLocaleFromConfigMinimal(): Promise<TextLanguageValues> 
     }
   }
 
-  const globalConfigPath = path.join(os.homedir(), CONFIG_FILE_NAMES[0]);
+  const globalConfigPath = await getConfigFilepath(true);
   try {
     const config = await readConfigAtPath(globalConfigPath);
     if (

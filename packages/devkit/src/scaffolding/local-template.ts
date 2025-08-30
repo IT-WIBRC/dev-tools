@@ -4,7 +4,6 @@ import { DevkitError } from "#utils/errors/base.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { copyJavascriptTemplate } from "#utils/template-utils.js";
 import { updateJavascriptProjectName } from "#utils/update-project-name.js";
-import { findPackageRoot } from "#utils/files/finder.js";
 
 interface CopyLocalTemplateOptions {
   sourcePath: string;
@@ -17,9 +16,16 @@ export async function copyLocalTemplate(options: CopyLocalTemplateOptions) {
   const projectPath = path.join(process.cwd(), projectName);
 
   try {
-    const finalSourcePath = path.isAbsolute(sourcePath)
-      ? sourcePath
-      : path.join(await findPackageRoot(), sourcePath);
+    let finalSourcePath = sourcePath;
+
+    if (finalSourcePath.startsWith("file://")) {
+      finalSourcePath = finalSourcePath.substring(7);
+    }
+
+    if (!path.isAbsolute(finalSourcePath)) {
+      finalSourcePath = path.join(process.cwd(), finalSourcePath);
+    }
+
     await copyJavascriptTemplate(finalSourcePath, projectPath);
     await updateJavascriptProjectName(projectPath, projectName);
   } catch (error) {

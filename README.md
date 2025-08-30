@@ -18,7 +18,7 @@ Built to fit the modern developer workflow, `dk` seamlessly integrates into mono
   - `never-refresh`: Use the local cached template without checking for updates.
   - `daily` (default): Refresh the cache only once every 24 hours.
 - **Seamless Internationalization (i18n):** The CLI supports multiple languages, with all commands and descriptions dynamically translated. It will automatically use the language defined in your configuration files or **detect your system's language as a fallback** for a seamless out-of-the-box experience.
-- **Centralized Settings:** Manage your preferred package manager (npm, yarn, pnpm, bun, deno) and cache strategy with a single command.
+- **Centralized Settings:** Manage your preferred package manager (npm, yarn, pnpm, bun) and cache strategy with a single command.
 
 ---
 
@@ -103,6 +103,9 @@ You must provide a `description` using the `--description` flag. Other options l
 ```bash
 # Example: Add a new template from a GitHub repository
 dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
+
+# Example: Add a new template from a local folder
+dk add-template javascript my-local-template ./path/to/my-template-folder --description "My local template"
 ```
 
 ### Update a template's configuration
@@ -146,14 +149,41 @@ dk remove-template node node-api --global
 
 ### List available templates
 
-The `list` command allows you to view all available templates defined in your configuration.
+The `list` command allows you to view all available templates defined in your configuration. You can filter the list using optional flags to specify the configuration scope.
 
 ```bash
-# List all templates categorized by language
+# List all templates, prioritizing the local config
 dk list
 
 # List templates for a specific language (e.g., 'javascript')
 dk list javascript
+```
+
+---
+
+### Options
+
+The `list` command now uses the following options to control which templates are displayed:
+
+- **`--local`**: Only list templates from the local configuration file (`.devkitrc`).
+- **`--global`**: Only list templates from the global configuration file (`~/.devkitrc`).
+- **`--all`**: List templates from both the local and global configurations, merging them into a single list.
+
+---
+
+### Examples
+
+Here are some examples of how to use the new options:
+
+```bash
+# List templates only from the local configuration file
+dk list --local
+
+# List templates only from the global configuration file
+dk list --global
+
+# List templates from both local and global configs
+dk list --all
 ```
 
 ### Manage your CLI configuration

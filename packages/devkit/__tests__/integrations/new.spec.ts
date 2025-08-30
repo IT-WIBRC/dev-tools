@@ -1,11 +1,11 @@
 import {
-  vi,
   describe,
   it,
   expect,
   beforeEach,
   afterEach,
   beforeAll,
+  vi,
 } from "vitest";
 import { execa } from "execa";
 import fs from "fs-extra";
@@ -19,165 +19,213 @@ import {
 
 const CLI_PATH = path.resolve("./dist/main.js");
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
-const CACHE_DIR = path.join(os.homedir(), ".devkit", "cache");
 
-let tempDir: string;
 let originalCwd: string;
 
-const localConfig: CliConfig = {
+const emptyConfig: CliConfig = {
   ...defaultCliConfig,
-  templates: {
-    javascript: {
-      templates: {
-        "react-ts": {
-          description: "A React project with TypeScript",
-          location: "https://github.com/microsoft/TypeScript-Node-Starter.git",
-          alias: "rt",
-          packageManager: "npm",
-        },
+  templates: {},
+};
+
+const userTemplates = {
+  javascript: {
+    templates: {
+      vuejs: {
+        description: "A Vue.js project template",
+        location: "file://./packages/templates/javascript/vuejs",
+        alias: "vue",
+        packageManager: "npm",
       },
-    },
-    node: {
-      templates: {
-        "node-api": {
-          description: "A Node.js API boilerplate",
-          location: "https://github.com/expressjs/express-generator.git",
-          alias: "na",
-        },
+      nestjs: {
+        description: "A NestJS API boilerplate",
+        location: "file://./packages/templates/javascript/nestjs",
+        alias: "nest",
+        packageManager: "npm",
       },
     },
   },
 };
 
-vi.mock("#scaffolding/javascript.js", () => ({
-  scaffoldProject: vi.fn(),
-}));
-
-vi.mock("#scaffolding/node.js", () => ({
-  scaffoldProject: vi.fn(),
-}));
-
-vi.mock("fs-extra", async (importOriginal) => {
-  const actual = await importOriginal<typeof fs>();
-  return {
-    ...actual,
-    remove: vi.fn(actual.remove),
-  };
-});
+const createConfigWithUserTemplates = (templateLocation: string): CliConfig =>
+  ({
+    ...emptyConfig,
+    templates: {
+      ...emptyConfig.templates,
+      javascript: {
+        templates: {
+          vuejs: {
+            ...userTemplates.javascript.templates.vuejs,
+            location: `${templateLocation}/javascript/vuejs`,
+          },
+          nestjs: {
+            ...userTemplates.javascript.templates.nestjs,
+            location: `${templateLocation}/javascript/nestjs`,
+          },
+        },
+      },
+    },
+  }) as CliConfig;
 
 describe("dk new", () => {
   beforeAll(() => {
     vi.unmock("execa");
   });
 
-  beforeEach(async () => {
-    originalCwd = process.cwd();
-    tempDir = path.join(os.tmpdir(), `devkit-test-new-${Date.now()}`);
-    await fs.ensureDir(tempDir);
-    process.chdir(tempDir);
-    await fs.writeJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      localConfig,
-      {
-        spaces: 2,
-      },
-    );
-  });
-
   afterEach(async () => {
-    console.log(path.join(CACHE_DIR, "..."));
     process.chdir(originalCwd);
-    await fs.remove(tempDir);
   });
 
-  it("should successfully scaffold a new project using the template name", async () => {
-    // const { all, exitCode } = await execa(
-    //   "bun",
-    //   [CLI_PATH, "new", "javascript", "my-app", "-t", "react-ts"],
-    //   { all: true },
-    // );
-    // const { scaffoldProject } = await import("#scaffolding/javascript.js");
-    // expect(exitCode).toBe(0);
-    // expect(all).toContain("✅ New project 'my-app' successfully created!");
-    // expect(scaffoldProject).toHaveBeenCalledWith({
-    //   projectName: "my-app",
-    //   templateConfig: expect.objectContaining({ alias: "rt" }),
-    //   packageManager: "npm",
-    //   cacheStrategy: "daily",
-    // });
-  });
+  describe("dk new (Global Install)", () => {
+    let mockInstallDir: string;
+    let mockProjectDir: string;
 
-  // Test case 2: Successfully scaffold a project using the template alias
-  it.skip("should successfully scaffold a new project using the template alias", async () => {
-    const { all, exitCode } = await execa(
-      "bun",
-      [CLI_PATH, "new", "node", "my-api", "-t", "na"],
-      { all: true },
-    );
+    beforeEach(async () => {
+      originalCwd = process.cwd();
+      mockInstallDir = path.join(
+        os.tmpdir(),
+        `devkit-test-install-${Date.now()}`,
+      );
+      mockProjectDir = path.join(
+        os.tmpdir(),
+        `devkit-test-project-${Date.now()}`,
+      );
 
-    const { scaffoldProject } = await import("#scaffolding/node.js");
+      await fs.ensureDir(mockInstallDir);
+      await fs.ensureDir(mockProjectDir);
 
-    expect(exitCode).toBe(0);
-    expect(all).toContain("✅ New project 'my-api' successfully created!");
-    expect(scaffoldProject).toHaveBeenCalledWith({
-      projectName: "my-api",
-      templateConfig: expect.objectContaining({ alias: "na" }),
-      packageManager: "bun",
-      cacheStrategy: "daily",
+      process.env.HOME = mockInstallDir;
+
+      const devkitDistDir = path.join(mockInstallDir, "dist");
+      const templatesDir = path.join(mockInstallDir, "templates", "javascript");
+      await fs.ensureDir(devkitDistDir);
+      await fs.ensureDir(templatesDir);
+
+      const configWithTemplates = createConfigWithUserTemplates(
+        `file://${path.join(mockInstallDir, "templates")}`,
+      );
+      await fs.writeJson(
+        path.join(mockInstallDir, LOCAL_CONFIG_FILE_NAME),
+        configWithTemplates,
+        { spaces: 2 },
+      );
+
+      await fs.ensureDir(path.join(templatesDir, "vuejs"));
+      await fs.writeFile(
+        path.join(templatesDir, "vuejs", "package.json"),
+        JSON.stringify({ name: "test-vue-template" }),
+      );
+      await fs.writeFile(
+        path.join(templatesDir, "vuejs", "vue-test.txt"),
+        "vue content",
+      );
+
+      await fs.ensureDir(path.join(templatesDir, "nestjs"));
+      await fs.writeFile(
+        path.join(templatesDir, "nestjs", "package.json"),
+        JSON.stringify({ name: "test-nest-template" }),
+      );
+      await fs.writeFile(
+        path.join(templatesDir, "nestjs", "nest-test.txt"),
+        "nestjs content",
+      );
+    });
+
+    afterEach(async () => {
+      await fs.remove(mockInstallDir);
+      await fs.remove(mockProjectDir);
+      delete process.env.HOME;
+    });
+
+    it("should successfully scaffold a new project from a different directory", async () => {
+      const { exitCode } = await execa(
+        "bun",
+        [CLI_PATH, "new", "javascript", "my-vue-app", "-t", "vuejs"],
+        { cwd: mockProjectDir },
+      );
+      expect(exitCode).toBe(0);
+
+      expect(
+        await fs.pathExists(
+          path.join(mockProjectDir, "my-vue-app", "package.json"),
+        ),
+      ).toBe(true);
+      expect(
+        await fs.pathExists(
+          path.join(mockProjectDir, "my-vue-app", "vue-test.txt"),
+        ),
+      ).toBe(true);
     });
   });
 
-  // Test case 3: Clears the cache directory if the cache strategy is always-refresh
-  it.skip("should clear the cache directory if cache strategy is always-refresh", async () => {
-    const configWithCacheStrategy: CliConfig = {
-      ...localConfig,
-      settings: {
-        ...localConfig.settings,
-        cacheStrategy: "always-refresh",
-      },
-    };
-    await fs.writeJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      configWithCacheStrategy,
-      {
-        spaces: 2,
-      },
-    );
+  describe("dk new (Monorepo Usage)", () => {
+    let tempDir: string;
 
-    await execa(
-      "bun",
-      [CLI_PATH, "new", "javascript", "my-app", "-t", "react-ts"],
-      { all: true },
-    );
+    beforeEach(async () => {
+      originalCwd = process.cwd();
+      tempDir = path.join(os.tmpdir(), `devkit-test-monorepo-${Date.now()}`);
+      await fs.ensureDir(tempDir);
 
-    expect(vi.mocked(fs.remove)).toHaveBeenCalledWith(CACHE_DIR);
-  });
+      process.env.HOME = tempDir;
 
-  // Test case 4: Fail if the language is not found in the config
-  it.skip("should fail if the specified language is not found in the config", async () => {
-    const { all, exitCode } = await execa(
-      "bun",
-      [CLI_PATH, "new", "rust", "rust-app", "-t", "cargo-app"],
-      { all: true, reject: false },
-    );
+      const packagesDevkitDir = path.join(tempDir, "packages", "devkit");
+      const packagesTemplatesJsDir = path.join(
+        tempDir,
+        "packages",
+        "templates",
+        "javascript",
+      );
+      await fs.ensureDir(packagesDevkitDir);
+      await fs.ensureDir(packagesTemplatesJsDir);
 
-    expect(exitCode).toBe(1);
-    expect(all).toContain(
-      "❌ An unexpected error occurred: Scaffolding language not found in configuration: 'rust'",
-    );
-  });
+      const configWithTemplates = createConfigWithUserTemplates(
+        "file://./packages/templates",
+      );
+      await fs.writeJson(
+        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+        configWithTemplates,
+        { spaces: 2 },
+      );
 
-  // Test case 5: Fail if the template name or alias is not found
-  it.skip("should fail if the template name or alias is not found", async () => {
-    const { all, exitCode } = await execa(
-      "bun",
-      [CLI_PATH, "new", "javascript", "my-app", "-t", "vue-basic"],
-      { all: true, reject: false },
-    );
+      await fs.ensureDir(path.join(packagesTemplatesJsDir, "vuejs"));
+      await fs.writeFile(
+        path.join(packagesTemplatesJsDir, "vuejs", "package.json"),
+        JSON.stringify({ name: "test-vue-template" }),
+      );
+      await fs.writeFile(
+        path.join(packagesTemplatesJsDir, "vuejs", "vue-test.txt"),
+        "vue content",
+      );
 
-    expect(exitCode).toBe(1);
-    expect(all).toContain(
-      "❌ An unexpected error occurred: Template 'vue-basic' not found in the configuration.",
-    );
+      await fs.ensureDir(path.join(packagesTemplatesJsDir, "nestjs"));
+      await fs.writeFile(
+        path.join(packagesTemplatesJsDir, "nestjs", "package.json"),
+        JSON.stringify({ name: "test-nest-template" }),
+      );
+      await fs.writeFile(
+        path.join(packagesTemplatesJsDir, "nestjs", "nest-test.txt"),
+        "nestjs content",
+      );
+    });
+
+    afterEach(async () => {
+      await fs.remove(tempDir);
+      delete process.env.HOME;
+    });
+
+    it("should successfully scaffold a new project within the monorepo", async () => {
+      const { exitCode } = await execa(
+        "bun",
+        [CLI_PATH, "new", "javascript", "my-vue-app", "-t", "vuejs"],
+        { all: true, cwd: tempDir },
+      );
+      expect(exitCode).toBe(0);
+
+      expect(
+        await fs.pathExists(path.join(tempDir, "my-vue-app", "package.json")),
+      ).toBe(true);
+      expect(
+        await fs.pathExists(path.join(tempDir, "my-vue-app", "vue-test.txt")),
+      ).toBe(true);
+    });
   });
 });

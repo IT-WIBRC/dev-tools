@@ -68,12 +68,15 @@ const globalConfig: CliConfig = {
 describe("dk list", () => {
   beforeAll(() => {
     vi.unmock("execa");
-    globalConfigDir = path.join(os.tmpdir(), "devkit-global-config-dir");
   });
 
   beforeEach(async () => {
     originalCwd = process.cwd();
     tempDir = path.join(os.tmpdir(), `devkit-test-list-${Date.now()}`);
+    globalConfigDir = path.join(
+      os.tmpdir(),
+      `devkit-global-config-dir-${Date.now()}`,
+    );
     await fs.ensureDir(tempDir);
     process.chdir(tempDir);
     await fs.ensureDir(globalConfigDir);

@@ -82,11 +82,19 @@ describe("Schema Constants and Defaults", () => {
     expect(defaultCliConfig.settings.cacheStrategy).toBe("daily");
     expect(defaultCliConfig.settings.language).toBe(TextLanguages.English);
 
+    expect(defaultCliConfig.templates.javascript?.templates.vue).toBeDefined();
     expect(
-      defaultCliConfig.templates.javascript?.templates.simple,
-    ).toBeDefined();
+      defaultCliConfig.templates.javascript?.templates?.vue?.location,
+    ).toContain("{pm} create vue@latest");
+
+    expect(defaultCliConfig.templates.javascript?.templates.nuxt).toBeDefined();
     expect(
-      defaultCliConfig.templates.javascript?.templates?.simple?.location,
-    ).toContain("/home/pc/.devkit/cache/template-vue");
+      defaultCliConfig.templates.javascript?.templates?.nuxt?.location,
+    ).toContain("{pm} create nuxt@latest");
+
+    expect(defaultCliConfig.templates.javascript?.templates.nest).toBeDefined();
+    expect(
+      defaultCliConfig.templates.javascript?.templates?.nest?.location,
+    ).toContain("{pm} install -g @nestjs/cli && nest new");
   });
 });

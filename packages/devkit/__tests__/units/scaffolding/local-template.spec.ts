@@ -4,15 +4,11 @@ import { copyLocalTemplate } from "../../../src/scaffolding/local-template.js";
 import { DevkitError } from "../../../src/utils/errors/base.js";
 import { mocktFn, mockSpinner } from "../../../vitest.setup.js";
 
-const {
-  mockCopyJavascriptTemplate,
-  mockUpdateJavascriptProjectName,
-  mockFindPackageRoot,
-} = vi.hoisted(() => ({
-  mockCopyJavascriptTemplate: vi.fn(),
-  mockUpdateJavascriptProjectName: vi.fn(),
-  mockFindPackageRoot: vi.fn(),
-}));
+const { mockCopyJavascriptTemplate, mockUpdateJavascriptProjectName } =
+  vi.hoisted(() => ({
+    mockCopyJavascriptTemplate: vi.fn(),
+    mockUpdateJavascriptProjectName: vi.fn(),
+  }));
 
 vi.mock("#utils/template-utils.js", () => ({
   copyJavascriptTemplate: mockCopyJavascriptTemplate,
@@ -20,10 +16,6 @@ vi.mock("#utils/template-utils.js", () => ({
 
 vi.mock("#utils/update-project-name.js", () => ({
   updateJavascriptProjectName: mockUpdateJavascriptProjectName,
-}));
-
-vi.mock("#utils/files/finder.js", () => ({
-  findPackageRoot: mockFindPackageRoot,
 }));
 
 describe("copyLocalTemplate", () => {
@@ -51,18 +43,15 @@ describe("copyLocalTemplate", () => {
       expectedProjectPath,
       options.projectName,
     );
-    expect(mockFindPackageRoot).not.toHaveBeenCalled();
   });
 
   it("should copy a local template when the source path is relative", async () => {
     const sourcePath = "./relative/path/to/template";
-    const packageRoot = "/project/root";
-    mockFindPackageRoot.mockResolvedValueOnce(packageRoot);
 
     await copyLocalTemplate({ ...options, sourcePath });
 
     const expectedProjectPath = path.join(process.cwd(), options.projectName);
-    const expectedSourcePath = path.join(packageRoot, sourcePath);
+    const expectedSourcePath = path.join("/current/dir", sourcePath);
 
     expect(mockCopyJavascriptTemplate).toHaveBeenCalledWith(
       expectedSourcePath,
@@ -72,7 +61,6 @@ describe("copyLocalTemplate", () => {
       expectedProjectPath,
       options.projectName,
     );
-    expect(mockFindPackageRoot).toHaveBeenCalled();
   });
 
   it("should throw a DevkitError if copying fails", async () => {
