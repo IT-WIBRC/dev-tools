@@ -123,7 +123,7 @@ export const defaultCliConfig: CliConfig = {
   },
 };
 
-export const CONFIG_FILE_NAMES = [".devkitrc", ".devkitrc.json"] as const;
+export const CONFIG_FILE_NAMES = [".devkitrc", ".devkit.json"] as const;
 
 export type DeepKeys<T> = T extends object
   ? {

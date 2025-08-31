@@ -12,7 +12,7 @@ Built to fit the modern developer workflow, `dk` seamlessly integrates into mono
 
 - **Unified Command:** Access all features with the short, intuitive command `dk`.
 - **Intelligent Scaffolding:** Create new projects from popular frameworks with a single, intuitive command. You can also use custom templates for a consistent workflow.
-- **Robust Configuration:** The tool reliably finds your configuration file (`.devkitrc`) in any project or monorepo structure.
+- **Robust Configuration:** The tool reliably finds your configuration file (`.devkit.json`) in any project or monorepo structure. It uses a clear priority system to manage both local and global settings.
 - **Powerful Cache Management:** Optimize project setup speed with flexible caching strategies for your templates. These strategies are mainly applied when using a GitHub URL:
   - `always-refresh`: Always pull the latest template from the remote repository.
   - `never-refresh`: Use the local cached template without checking for updates.
@@ -28,7 +28,7 @@ The Dev Kit CLI streamlines development workflows in various environments:
 
 - **Globally Installed CLI:** Install `@itwibrc/devkit` globally for a universal scaffolding tool on your machine.
 - **Monorepo:** A single configuration file at the root can manage settings and templates for all projects, ensuring consistency across your entire codebase.
-- **Multiple Repositories:** Each project can have its own `.devkitrc` file for unique settings, allowing for flexible project management.
+- **Multiple Repositories:** Each project can have its own `.devkit.json` file for unique settings, allowing for flexible project management.
 
 ---
 
@@ -95,7 +95,7 @@ The `add-template` command allows you to easily register a new template with you
 You must provide a `description` using the `--description` flag. Other options like `--alias`, `--cache-strategy`, and `--package-manager` are available to customize the template.
 
 - **Global:** You can explicitly add the template to your global (`~/.devkitrc`) file using the `--global` flag.
-- **Local:** It updates the `.devkitrc` file in the root of your current project.
+- **Local:** It updates the `.devkit.json` file in the root of your current project.
 - **Monorepo:** It updates the shared configuration at the monorepo's root.
 
 <!-- end list -->
@@ -115,7 +115,7 @@ The `update` command allows you to modify an existing template's properties. Thi
 You can also update the template's name using the `--new-name` flag, which is useful for correcting typos or renaming a template.
 
 - **Global:** Use the `--global` flag to update the template in your global (`~/.devkitrc`) file.
-- **Local:** It updates the `.devkitrc` file in the root of your current project.
+- **Local:** It updates the `.devkit.json` file in the root of your current project.
 
 <!-- end list -->
 
@@ -135,7 +135,7 @@ dk update javascript my-template --new-name my-cool-template --description "A ne
 The `remove-template` command allows you to delete a template from your configuration file. You can identify the template by its name or a configured alias.
 
 - **Global:** You can explicitly remove the template from your global (`~/.devkitrc`) file using the `--global` flag.
-- **Local:** It removes the template from the `.devkitrc` file in the root of your current project.
+- **Local:** It removes the template from the `.devkit.json` file in the root of your current project.
 
 <!-- end list -->
 
@@ -165,7 +165,7 @@ dk list javascript
 
 The `list` command now uses the following options to control which templates are displayed:
 
-- **`--local`**: Only list templates from the local configuration file (`.devkitrc`).
+- **`--local`**: Only list templates from the local configuration file (`.devkit.json`).
 - **`--global`**: Only list templates from the global configuration file (`~/.devkitrc`).
 - **`--all`**: List templates from both the local and global configurations, merging them into a single list.
 
@@ -230,7 +230,7 @@ Manage your configuration either through the CLI or by manual editing.
 
 Dev Kit now loads settings with a clear priority to give you maximum control and flexibility.
 
-1.  **Local Project Configuration (`./.devkitrc`)**: This file, at the root of your project, takes the **highest priority**.
+1.  **Local Project Configuration (`./.devkit.json`)**: This file, at the root of your project, takes the **highest priority**.
 2.  **Global Configuration (`~/.devkitrc`)**: This file, stored in your user's home directory, is used for all projects on your machine and is overridden by a local configuration.
 3.  **System Language Detection**: If a language setting is not found in either the local or global configuration, `dk` will **automatically detect your system's language** and load the corresponding translations.
 4.  **Default**: If none of the above are found, the language will default to English (`en`).
@@ -245,7 +245,7 @@ First, build your template. This is a standard project directory containing all 
 
 #### Step 2: Add the Template to Your Config
 
-Once your template project is ready, use the `add-template` command to register it with the CLI. This command adds the template's details to your `.devkitrc` file, making it available for use.
+Once your template project is ready, use the `add-template` command to register it with the CLI. This command adds the template's details to your `.devkit.json` file, making it available for use.
 
 ```bash
 # Add a template from a local folder to your global config
@@ -267,8 +267,8 @@ The `config init` command allows you to initialize a configuration file at diffe
 
 **Note:** If a configuration file already exists at the specified location, you will be prompted to confirm if you want to overwrite it.
 
-- To initialize a **local** configuration file in your current project, use the `--local` flag, or run the command without any flags.
-- To initialize a **global** configuration file, use the `--global` flag.
+- To initialize a **local** configuration file in your current project, use the `--local` flag, or run the command without any flags. The file will be named `.devkit.json`.
+- To initialize a **global** configuration file, use the `--global` flag. The file will be named `.devkitrc`.
 
 <!-- end list -->
 
@@ -285,11 +285,11 @@ dk config init --global
 
 ### Add the JSON Schema for Autocompletion
 
-To get autocompletion and validation for your `.devkitrc` or `.devkitrc.json` file, you have two options.
+To get autocompletion and validation for your `.devkit.json` or `.devkitrc` file, you have two options.
 
 #### Option 1: Direct Link in the JSON File
 
-This is the recommended approach for most developers. Simply add the `$schema` property as the very first key in your `.devkitrc` file. Modern editors like VS Code will automatically read this property and apply the schema without any additional configuration.
+This is the recommended approach for most developers. Simply add the `$schema` property as the very first key in your `.devkit.json` or `.devkitrc` file. Modern editors like VS Code will automatically read this property and apply the schema without any additional configuration.
 
 ```json
 {
@@ -328,7 +328,7 @@ For VS Code, open your **`settings.json`** file and add the following entry:
 {
   "json.schemas": [
     {
-      "fileMatch": [".devkitrc.json", ".devkitrc"],
+      "fileMatch": [".devkit.json", ".devkitrc"],
       "url": "https://gist.githubusercontent.com/IT-WIBRC/baab4cc74a28af5b23936f5cf576f8e6/raw/ed7445f123554cf5ed7fc6fb727d1faae22a9bed/devkit-schema.json"
     }
   ]

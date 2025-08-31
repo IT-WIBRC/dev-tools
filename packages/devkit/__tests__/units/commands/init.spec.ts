@@ -5,6 +5,7 @@ import { mockSpinner } from "../../../vitest.setup.js";
 import { ConfigError } from "../../../src/utils/errors/base.js";
 import path from "path";
 import fs from "fs-extra";
+import { CONFIG_FILE_NAMES } from "#utils/configs/schema.js";
 
 const {
   mockFs,
@@ -54,8 +55,9 @@ vi.mock("#utils/files/finder.js", () => ({
 
 describe("setupInitCommand", () => {
   let mockProgram: any;
-  const localConfigPath = "/current/directory/.devkitrc.json";
-  const globalConfigPath = "/home/user/.devkitrc.json";
+  const localConfigFile = CONFIG_FILE_NAMES[1] || "";
+  const localConfigPath = "/current/directory/" + localConfigFile;
+  const globalConfigPath = "/home/user/" + localConfigFile;
   const monorepoRootPath = "/monorepo/root";
 
   beforeEach(() => {
@@ -209,7 +211,7 @@ describe("setupInitCommand", () => {
     mockFindMonorepoRoot.mockResolvedValue(monorepoRootPath);
     mockFs.pathExists.mockResolvedValue(false);
     mockPrompts.mockResolvedValue({ location: "root" });
-    const rootConfigPath = path.join(monorepoRootPath, ".devkitrc.json");
+    const rootConfigPath = path.join(monorepoRootPath, localConfigFile);
     setupInitCommand({ program: mockProgram });
 
     await actionFn({ local: false, global: false });
@@ -225,7 +227,7 @@ describe("setupInitCommand", () => {
 
   it("should ask to overwrite a root monorepo config if a config exists at the root", async () => {
     mockFindMonorepoRoot.mockResolvedValue(monorepoRootPath);
-    mockFindUp.mockResolvedValue(path.join(monorepoRootPath, ".devkitrc.json"));
+    mockFindUp.mockResolvedValue(path.join(monorepoRootPath, localConfigFile));
     mockPrompts.mockResolvedValue({ overwrite: true });
 
     setupInitCommand({ program: mockProgram });
@@ -237,7 +239,7 @@ describe("setupInitCommand", () => {
       type: "select",
       name: "overwrite",
       message: expect.stringContaining(
-        path.join(monorepoRootPath, ".devkitrc.json"),
+        path.join(monorepoRootPath, localConfigFile),
       ),
       choices: [
         {
@@ -253,14 +255,14 @@ describe("setupInitCommand", () => {
     });
     expect(mockSaveConfig).toHaveBeenCalledWith(
       { ...defaultCliConfig },
-      path.join(monorepoRootPath, ".devkitrc.json"),
+      path.join(monorepoRootPath, localConfigFile),
     );
   });
 
   it("should ask to overwrite a root monorepo config if a config exists at the root", async () => {
     mockFindMonorepoRoot.mockResolvedValue(monorepoRootPath);
     mockFindUp.mockResolvedValueOnce(
-      path.join(monorepoRootPath, ".devkitrc.json"),
+      path.join(monorepoRootPath, localConfigFile),
     );
 
     mockPrompts.mockResolvedValue({ overwrite: true });

@@ -172,9 +172,9 @@ describe("Finder Functions", () => {
         .mockResolvedValueOnce(true);
 
       const result = await findLocalConfigFile();
-      expect(result).toBe("/test/monorepo/.devkitrc.json");
+      expect(result).toBe("/test/monorepo/.devkit.json");
       expect(mockFs.pathExists).toHaveBeenCalledWith(
-        "/test/monorepo/.devkitrc.json",
+        "/test/monorepo/.devkit.json",
       );
     });
   });
