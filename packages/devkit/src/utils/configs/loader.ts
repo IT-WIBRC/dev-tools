@@ -1,5 +1,6 @@
 import deepmerge from "deepmerge";
 import type { Ora } from "ora";
+import fs from "fs-extra";
 import {
   type CliConfig,
   CONFIG_FILE_NAMES,
@@ -13,6 +14,7 @@ import { ConfigError } from "../errors/base.js";
 import { findUp } from "../files/find-up.js";
 import { getConfigFilepath } from "./path-finder.js";
 import { readConfigAtPath } from "./reader.js";
+import { findGlobalConfigFile, findLocalConfigFile } from "../files/finder.js";
 
 export async function getLocaleFromConfigMinimal(): Promise<TextLanguageValues> {
   const localConfigPath = await findUp([...CONFIG_FILE_NAMES], process.cwd());
@@ -88,6 +90,49 @@ export async function loadUserConfig(spinner?: Ora): Promise<{
   if (localConfig) {
     finalConfig = deepmerge(finalConfig, localConfig);
     source = "local";
+  }
+
+  return { config: finalConfig, source };
+}
+
+interface ReadConfigOptions {
+  forceGlobal?: boolean;
+  forceLocal?: boolean;
+}
+
+export async function readAndMergeConfigs(
+  options: ReadConfigOptions = {},
+): Promise<{ config: CliConfig; source: ConfigurationSource }> {
+  let finalConfig: CliConfig = JSON.parse(JSON.stringify(defaultCliConfig));
+  let source: "local" | "global" | "default" = "default";
+  let configPath: string | null = null;
+
+  if (!options.forceGlobal) {
+    configPath = await findLocalConfigFile();
+    if (configPath) {
+      source = "local";
+    }
+  }
+
+  if (source === "default") {
+    configPath = await findGlobalConfigFile();
+    if (configPath && (await fs.pathExists(configPath))) {
+      source = "global";
+    }
+  }
+
+  if (configPath && (await fs.pathExists(configPath))) {
+    try {
+      const foundConfig = await fs.readJson(configPath);
+      finalConfig = deepmerge(finalConfig, foundConfig, {
+        arrayMerge: (_, sourceArray) => sourceArray,
+      });
+    } catch (e) {
+      console.error(
+        `Warning: Invalid configuration file found at ${configPath}. Using default settings.`,
+      );
+      source = "default";
+    }
   }
 
   return { config: finalConfig, source };

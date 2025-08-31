@@ -188,6 +188,8 @@ dk list --all
 
 ### Manage your CLI configuration
 
+#### Set a configuration value
+
 The `config set` command allows you to update one or more CLI settings in a single command.
 
 ```bash
@@ -196,6 +198,21 @@ dk config set pm pnpm language fr
 
 # Alternatively, you can set a single value
 dk config set pm npm
+```
+
+#### Get a configuration value
+
+The `config get` command allows you to view the current value of a configuration setting. If no key is specified, it will show the entire configuration file.
+
+```bash
+# Get the value of the 'defaultPackageManager' setting
+dk config get pm
+
+# Get the value of the 'language' setting from the global config
+dk config get language --global
+
+# Display the entire local configuration file
+dk config get
 ```
 
 ### Manage cache strategy for a template
@@ -263,7 +280,7 @@ dk new javascript my-awesome-project -t custom-js-app
 
 ### Create and configure a project file
 
-The `config init` command allows you to initialize a configuration file at different scopes.
+The `init` command allows you to initialize a configuration file at different scopes.
 
 **Note:** If a configuration file already exists at the specified location, you will be prompted to confirm if you want to overwrite it.
 
@@ -274,13 +291,13 @@ The `config init` command allows you to initialize a configuration file at diffe
 
 ```bash
 # Initialize a local configuration file in the current directory (default)
-dk config init
+dk init
 
 # Initialize a local configuration file in the current directory (explicit)
-dk config init --local
+dk init --local
 
 # Initialize a global configuration file
-dk config init --global
+dk init --global
 ```
 
 ### Add the JSON Schema for Autocompletion
