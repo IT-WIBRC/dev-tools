@@ -82,19 +82,80 @@ describe("Schema Constants and Defaults", () => {
     expect(defaultCliConfig.settings.cacheStrategy).toBe("daily");
     expect(defaultCliConfig.settings.language).toBe(TextLanguages.English);
 
-    expect(defaultCliConfig.templates.javascript?.templates.vue).toBeDefined();
-    expect(
-      defaultCliConfig.templates.javascript?.templates?.vue?.location,
-    ).toContain("{pm} create vue@latest");
+    const javascriptTemplates =
+      defaultCliConfig.templates.javascript?.templates;
+    expect(javascriptTemplates).toBeDefined();
 
-    expect(defaultCliConfig.templates.javascript?.templates.nuxt).toBeDefined();
-    expect(
-      defaultCliConfig.templates.javascript?.templates?.nuxt?.location,
-    ).toContain("{pm} create nuxt@latest");
+    // Node.js Frameworks
+    expect(javascriptTemplates?.vue).toBeDefined();
+    expect(javascriptTemplates?.vue?.location).toContain(
+      "{pm} create vue@latest",
+    );
+    expect(javascriptTemplates?.nuxt).toBeDefined();
+    expect(javascriptTemplates?.nuxt?.location).toContain(
+      "{pm} create nuxt@latest",
+    );
+    expect(javascriptTemplates?.nest).toBeDefined();
+    expect(javascriptTemplates?.nest?.location).toContain(
+      "{pm} install -g @nestjs/cli && nest new",
+    );
+    expect(javascriptTemplates?.nextjs).toBeDefined();
+    expect(javascriptTemplates?.nextjs?.location).toContain(
+      "{pm} create next-app@latest",
+    );
+    expect(javascriptTemplates?.express).toBeDefined();
+    expect(javascriptTemplates?.express?.location).toContain(
+      "https://github.com/expressjs/express-generator.git",
+    );
+    expect(javascriptTemplates?.fastify).toBeDefined();
+    expect(javascriptTemplates?.fastify?.location).toContain(
+      "https://github.com/fastify/fastify-cli.git",
+    );
+    expect(javascriptTemplates?.koa).toBeDefined();
+    expect(javascriptTemplates?.koa?.location).toContain(
+      "https://github.com/koajs/koa-generator.git",
+    );
+    expect(javascriptTemplates?.adonis).toBeDefined();
+    expect(javascriptTemplates?.adonis?.location).toContain(
+      "{pm} create adonisjs",
+    );
+    expect(javascriptTemplates?.sails).toBeDefined();
+    expect(javascriptTemplates?.sails?.location).toContain(
+      "{pm} install -g sails && sails new",
+    );
 
-    expect(defaultCliConfig.templates.javascript?.templates.nest).toBeDefined();
-    expect(
-      defaultCliConfig.templates.javascript?.templates?.nest?.location,
-    ).toContain("{pm} install -g @nestjs/cli && nest new");
+    // Front-end Frameworks
+    expect(javascriptTemplates?.angular).toBeDefined();
+    expect(javascriptTemplates?.angular?.location).toContain(
+      "{pm} install -g @angular/cli && ng new",
+    );
+    expect(javascriptTemplates?.["angular-vite"]).toBeDefined();
+    expect(javascriptTemplates?.["angular-vite"]?.location).toContain(
+      "{pm} create analog@latest",
+    );
+    expect(javascriptTemplates?.react).toBeDefined();
+    expect(javascriptTemplates?.react?.location).toContain(
+      "{pm} create vite@latest -- --template react",
+    );
+    expect(javascriptTemplates?.svelte).toBeDefined();
+    expect(javascriptTemplates?.svelte?.location).toContain(
+      "{pm} create svelte@latest",
+    );
+    expect(javascriptTemplates?.qwik).toBeDefined();
+    expect(javascriptTemplates?.qwik?.location).toContain(
+      "{pm} create qwik@latest",
+    );
+    expect(javascriptTemplates?.astro).toBeDefined();
+    expect(javascriptTemplates?.astro?.location).toContain(
+      "{pm} create astro@latest",
+    );
+    expect(javascriptTemplates?.solid).toBeDefined();
+    expect(javascriptTemplates?.solid?.location).toContain(
+      "{pm} create solid@latest",
+    );
+    expect(javascriptTemplates?.remix).toBeDefined();
+    expect(javascriptTemplates?.remix?.location).toContain(
+      "{pm} create remix@latest",
+    );
   });
 });

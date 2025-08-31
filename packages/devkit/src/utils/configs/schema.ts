@@ -113,6 +113,69 @@ export const defaultCliConfig: CliConfig = {
           description: "An official Nest.js project.",
           location: "{pm} install -g @nestjs/cli && nest new",
         },
+        nextjs: {
+          description: "An official Next.js project.",
+          location: "{pm} create next-app@latest",
+          alias: "next",
+        },
+        express: {
+          description: "A simple Express.js boilerplate from its generator.",
+          location: "https://github.com/expressjs/express-generator.git",
+          alias: "ex",
+        },
+        fastify: {
+          description: "A highly performant Fastify web framework boilerplate.",
+          location: "https://github.com/fastify/fastify-cli.git",
+          alias: "fy",
+        },
+        koa: {
+          description: "A Koa.js web framework boilerplate.",
+          location: "https://github.com/koajs/koa-generator.git",
+        },
+        adonis: {
+          description: "A full-stack Node.js framework (AdonisJS).",
+          location: "{pm} create adonisjs",
+          alias: "ad",
+        },
+        sails: {
+          description: "A real-time, MVC framework (Sails.js).",
+          location: "{pm} install -g sails && sails new",
+        },
+        angular: {
+          description: "An official Angular project.",
+          location: "{pm} install -g @angular/cli && ng new",
+          alias: "ng",
+        },
+        "angular-vite": {
+          description: "An Angular project using Vite via AnalogJS.",
+          location: "{pm} create analog@latest",
+          alias: "ng-v",
+        },
+        react: {
+          description: "A React project using the recommended Vite setup.",
+          location: "{pm} create vite@latest -- --template react",
+          alias: "rt",
+        },
+        svelte: {
+          description: "A Svelte project using SvelteKit.",
+          location: "{pm} create svelte@latest",
+        },
+        qwik: {
+          description: "An official Qwik project.",
+          location: "{pm} create qwik@latest",
+        },
+        astro: {
+          description: "A new Astro project.",
+          location: "{pm} create astro@latest",
+        },
+        solid: {
+          description: "An official SolidJS project.",
+          location: "{pm} create solid@latest",
+        },
+        remix: {
+          description: "An official Remix project.",
+          location: "{pm} create remix@latest",
+        },
       },
     },
   },
