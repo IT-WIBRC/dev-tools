@@ -11,7 +11,7 @@ Built to fit the modern developer workflow, `dk` seamlessly integrates into mono
 ## ✨ Key Features
 
 - **Unified Command:** Access all features with the short, intuitive command `dk`.
-- **Intelligent Scaffolding:** Create new projects from popular frameworks with a single, intuitive command. You can also use custom templates for a consistent workflow.
+- **Intelligent Scaffolding:** Create new projects from a wide variety of popular frameworks with a single, intuitive command. You can also use custom templates for a consistent workflow. **See the list of supported templates below.**
 - **Robust Configuration:** The tool reliably finds your configuration file (`.devkit.json`) in any project or monorepo structure. It uses a clear priority system to manage both local and global settings.
 - **Powerful Cache Management:** Optimize project setup speed with flexible caching strategies for your templates. These strategies are mainly applied when using a GitHub URL:
   - `always-refresh`: Always pull the latest template from the remote repository.
@@ -75,6 +75,32 @@ dk --help
 
 ---
 
+## 📦 Default Templates
+
+Dev Kit comes with a set of pre-configured templates for popular frameworks and libraries. You can use these templates out of the box with the `dk new` command.
+
+| Template Name  | Description                                            | Alias  |
+| -------------- | ------------------------------------------------------ | ------ |
+| `vue`          | An official Vue.js project.                            |        |
+| `nuxt`         | An official Nuxt.js project.                           | `nx`   |
+| `nest`         | An official Nest.js project.                           |        |
+| `nextjs`       | An official Next.js project.                           | `next` |
+| `express`      | A simple Express.js boilerplate.                       | `ex`   |
+| `fastify`      | A highly performant Fastify web framework boilerplate. | `fy`   |
+| `koa`          | A Koa.js web framework boilerplate.                    |        |
+| `adonis`       | A full-stack Node.js framework (AdonisJS).             | `ad`   |
+| `sails`        | A real-time, MVC framework (Sails.js).                 |        |
+| `angular`      | An official Angular project (via Angular CLI).         | `ng`   |
+| `angular-vite` | An Angular project using Vite (via AnalogJS).          | `ng-v` |
+| `react`        | A React project using the recommended Vite setup.      | `rt`   |
+| `svelte`       | A Svelte project using SvelteKit.                      |        |
+| `qwik`         | An official Qwik project.                              |        |
+| `astro`        | A new Astro project.                                   |        |
+| `solid`        | An official SolidJS project.                           |        |
+| `remix`        | An official Remix project.                             |        |
+
+---
+
 ## ⚙️ Usage
 
 Here's how to get started with the Dev Kit CLI.
@@ -84,8 +110,8 @@ Here's how to get started with the Dev Kit CLI.
 The `new` command now takes a language and a project name as arguments. You can then specify the template with the `-t` or `--template` flag.
 
 ```bash
-# Create a new Vue project in TypeScript from a custom template
-dk new javascript my-awesome-app -t vue-ts
+# Create a new Vue project
+dk new javascript my-awesome-app -t vue
 ```
 
 ### Add a new template to your configuration
@@ -190,14 +216,14 @@ dk list --all
 
 #### Set a configuration value
 
-The `config set` command allows you to update one or more CLI settings in a single command.
+The `config set` command allows you to update one or more CLI settings. By default, it updates the **local** configuration file. Use the `--global` flag to update your global settings instead.
 
 ```bash
-# Set your default package manager to pnpm and the language to French in a single command
+# Set your default package manager to pnpm and the language to French in a single command (local)
 dk config set pm pnpm language fr
 
-# Alternatively, you can set a single value
-dk config set pm npm
+# Set your default package manager to npm in your global config
+dk config set pm npm --global
 ```
 
 #### Get a configuration value

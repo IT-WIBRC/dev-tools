@@ -42,7 +42,7 @@ const localConfig: CliConfig = {
         "react-ts": {
           description: "A React project with TypeScript",
           location: "https://github.com/react-ts-template",
-          alias: "rt",
+          alias: "rts",
           packageManager: "npm",
         },
       },
@@ -124,7 +124,7 @@ describe("dk remove-template", () => {
 
     const { exitCode, all } = await execa(
       "bun",
-      [CLI_PATH, "remove-template", "javascript", "rt"],
+      [CLI_PATH, "remove-template", "javascript", "rts"],
       {
         all: true,
         env: { HOME: globalConfigDir },
@@ -135,7 +135,7 @@ describe("dk remove-template", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain(
-      "✅ Template 'rt' for 'javascript' removed successfully!",
+      "✅ Template 'rts' for 'javascript' removed successfully!",
     );
     expect(
       updatedConfig.templates.javascript.templates["react-ts"],
