@@ -53,8 +53,9 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 ### Remaining Tasks
 
 - [x] Add integration tests (reproduce monorepo, multi-repo, and bare repositories).
-- [ ] change config file for local project from `.devkitrc.json` to `devkit.json`
-- [ ] Add templates for all known Node.js frameworks.
+- [x] change config file for local project from `.devkitrc.json` to `.devkit.json`
+- [ ] Add commands to get settings (e.g., `config get <key>`).
+- [ ] Add templates for popular Node.js frameworks (e.g., Express, Next.js, NestJS).
 - [ ] Use Changesets for changelog and versioning.
 - [ ] **Multi-Programming Language Support**: Progressively add templates for other languages (e.g., Python, Ruby, Go, Rust).
 - [ ] **Advanced Documentation**: Create detailed guides on creating and managing custom templates.

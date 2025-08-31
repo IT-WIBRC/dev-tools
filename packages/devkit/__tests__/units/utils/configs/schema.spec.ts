@@ -61,7 +61,7 @@ describe("Schema Constants and Defaults", () => {
   });
 
   it("should have the correct CONFIG_FILE_NAMES", () => {
-    expect(CONFIG_FILE_NAMES).toEqual([".devkitrc", ".devkitrc.json"]);
+    expect(CONFIG_FILE_NAMES).toEqual([".devkitrc", ".devkit.json"]);
   });
 
   it("should have the correct FILE_NAMES", () => {
