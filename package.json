@@ -1,45 +1,38 @@
 {
-  "name": "devkit",
-  "version": "0.0.1",
-  "description": "A universal command-line tool for developers to automate project setup and streamline their workflows.",
+  "name": "dev-tools",
+  "version": "0.0.0",
+  "description": "A collection of universal command-line tools for professional developers to automate project setup and streamline their workflows.",
   "keywords": [
-    "devkit",
-    "cli",
-    "command-line-interface",
-    "project-scaffolding",
-    "developer-workflow",
-    "automation-tool",
-    "node-js-setup",
     "monorepo",
-    "template-management",
-    "configurable-cli",
+    "developer-tools",
+    "cli",
+    "project-scaffolding",
+    "automation-tool",
     "universal-cli",
-    "project-initializer",
-    "starter-kit",
-    "developer-utility",
-    "tooling",
-    "scaffolder"
+    "tooling"
   ],
   "author": "Ivany Botrel Rayn WAFFEU <wibrc.se.jc@gmail.com>",
   "license": "MIT",
   "private": true,
-  "homepage": "https://github.com/IT-WIBRC/devkit#readme",
+  "homepage": "https://github.com/IT-WIBRC/dev-tools#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/IT-WIBRC/devkit.git"
+    "url": "https://github.com/IT-WIBRC/dev-tools.git"
   },
   "bugs": {
-    "url": "https://github.com/IT-WIBRC/devkit/issues"
+    "url": "https://github.com/IT-WIBRC/dev-tools/issues"
   },
   "scripts": {
-    "test": "vitest",
+    "build": "bun --filter '*' build",
+    "type-check": "bun --filter '*' type-check",
+    "test": "bun --filter '*' test:coverage",
     "prepare": "husky install",
     "format": "prettier --write .",
     "lint:commit": "commitlint",
     "lint": "oxlint --fix .",
     "release": "changeset publish",
-    "changeset": "changeset",
-    "build": "cd packages/devkit && bun run build"
+    "version": "changeset version",
+    "changeset": "changeset"
   },
   "workspaces": [
     "packages/*"
@@ -62,8 +55,5 @@
       "oxlint"
     ],
     "*.{json,css,md,yaml,yml}": "prettier --write"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
   }
 }

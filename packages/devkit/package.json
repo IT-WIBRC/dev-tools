@@ -1,7 +1,7 @@
 {
-  "name": "@itwibrc/devkit",
-  "version": "0.0.1",
-  "description": "A universal command-line tool for developers to automate project scaffolding and streamline their workflows.",
+  "name": "@dev-tools/scaffolder",
+  "version": "0.0.0",
+  "description": "🚀 A universal command-line tool for developers to automate project scaffolding and streamline their workflows.",
   "keywords": [
     "devkit",
     "cli",
@@ -22,13 +22,13 @@
   ],
   "author": "Ivany Botrel Rayn WAFFEU <wibrc.se.jc@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/IT-WIBRC/devkit#readme",
+  "homepage": "https://github.com/IT-WIBRC/dev-tools#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/IT-WIBRC/devkit.git"
+    "url": "https://github.com/IT-WIBRC/dev-tools.git"
   },
   "bugs": {
-    "url": "https://github.com/IT-WIBRC/devkit/issues"
+    "url": "https://github.com/IT-WIBRC/dev-tools/issues"
   },
   "private": false,
   "engines": {
@@ -52,7 +52,7 @@
     "type-check": "tsc --noEmit",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "cpx ../../README.md . && cpx ../../LICENSE . && cpx ../../.devkit-schema.json . "
+    "prepublishOnly": "cpx ../../LICENSE . && cpx ../../.devkit-schema.json ."
   },
   "imports": {
     "#/*": "./dist/*",
