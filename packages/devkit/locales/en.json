@@ -114,6 +114,29 @@
       "updating": "Updating configuration...",
       "success": "Configuration updated successfully!"
     },
+    "get": {
+      "command": {
+        "description": "Get one or more configuration values."
+      },
+      "argument": {
+        "description": "The key of the configuration value to get (e.g., 'pm', 'language')."
+      },
+      "option": {
+        "global": "Get the global configuration instead of the local one."
+      },
+      "loading": "Loading configuration...",
+      "success": "Configuration loaded successfully!",
+      "not_found": "Configuration key '{key}' not found.",
+      "fallback": {
+        "global": "No global configuration file found. Displaying default settings instead.",
+        "local": "No local configuration file found. Displaying default settings instead.",
+        "local_to_global": "No local configuration file found. Displaying global settings instead."
+      },
+      "source": {
+        "local": "Using local configuration.",
+        "global": "Using global configuration."
+      }
+    },
     "init": {
       "command": {
         "description": "Initializes a configuration file with default settings."

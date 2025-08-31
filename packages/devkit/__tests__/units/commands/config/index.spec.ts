@@ -2,10 +2,10 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import { setupConfigCommand } from "../../../../src/commands/config/index.js";
 import type { CliConfig } from "../../../../src/utils/configs/schema.js";
 
-const { mockSetupConfigSetCommand, mockSetupConfigUpdateCommand } = vi.hoisted(
+const { mockSetupConfigSetCommand, mockSetupConfigGetCommand } = vi.hoisted(
   () => ({
     mockSetupConfigSetCommand: vi.fn(),
-    mockSetupConfigUpdateCommand: vi.fn(),
+    mockSetupConfigGetCommand: vi.fn(),
   }),
 );
 
@@ -13,8 +13,8 @@ vi.mock("#commands/config/set.js", () => ({
   setupConfigSetCommand: mockSetupConfigSetCommand,
 }));
 
-vi.mock("#commands/config/update.js", () => ({
-  setupConfigUpdateCommand: mockSetupConfigUpdateCommand,
+vi.mock("#commands/config/get.js", () => ({
+  setupConfigGetCommand: mockSetupConfigGetCommand,
 }));
 
 describe("setupConfigCommand", () => {
@@ -72,5 +72,8 @@ describe("setupConfigCommand", () => {
     };
     expect(mockSetupConfigSetCommand).toHaveBeenCalledOnce();
     expect(mockSetupConfigSetCommand).toHaveBeenCalledWith(expectedOptions);
+
+    expect(mockSetupConfigGetCommand).toHaveBeenCalledOnce();
+    expect(mockSetupConfigGetCommand).toHaveBeenCalledWith(expectedOptions);
   });
 });

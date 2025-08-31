@@ -1,12 +1,6 @@
 import {
-  type CliConfig,
   PackageManagers,
-  type PackageManager,
-  type CacheStrategy,
-  VALID_CACHE_STRATEGIES,
   type SetupCommandOptions,
-  TextLanguages,
-  type TextLanguageValues,
 } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { DevkitError } from "#utils/errors/base.js";
@@ -14,52 +8,11 @@ import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";
 import chalk from "chalk";
 import { saveGlobalConfig, saveLocalConfig } from "#utils/configs/writer.js";
+import { validateConfigValue, configAliases } from "./validate-config.js";
+import { readAndMergeConfigs } from "#utils/configs/loader.js";
 
-function validateConfigValue(key: string, value: unknown): void {
-  if (key === "defaultPackageManager") {
-    const validPackageManagers = Object.values(PackageManagers);
-    if (!validPackageManagers.includes(value as PackageManager)) {
-      throw new DevkitError(
-        t("error.invalid.value", {
-          key,
-          options: validPackageManagers.join(", "),
-        }),
-      );
-    }
-  } else if (key === "cacheStrategy") {
-    const validStrategies = VALID_CACHE_STRATEGIES;
-    if (!validStrategies.includes(value as CacheStrategy)) {
-      throw new DevkitError(
-        t("error.invalid.value", {
-          key,
-          options: validStrategies.join(", "),
-        }),
-      );
-    }
-  } else if (key === "language") {
-    const validLanguages = Object.values(TextLanguages);
-    if (!validLanguages.includes(value as TextLanguageValues)) {
-      throw new DevkitError(
-        t("error.invalid.value", {
-          key,
-          options: validLanguages.join(", "),
-        }),
-      );
-    }
-  }
-}
-
-export function setupConfigSetCommand(options: SetupCommandOptions) {
-  const { program, config, source } = options;
-
-  const configAliases: Record<string, keyof CliConfig["settings"]> = {
-    pm: "defaultPackageManager",
-    packageManager: "defaultPackageManager",
-    cache: "cacheStrategy",
-    cacheStrategy: "cacheStrategy",
-    language: "language",
-    lg: "language",
-  };
+export function setupConfigSetCommand(options: SetupCommandOptions): void {
+  const { program } = options;
 
   const setCommandDescription = t("config.set.command.description", {
     pmValues: Object.values(PackageManagers).join(", "),
@@ -73,6 +26,10 @@ export function setupConfigSetCommand(options: SetupCommandOptions) {
     .action(async (settings, cmdOptions) => {
       const spinner = ora(chalk.cyan(t("config.set.updating"))).start();
       try {
+        const { config, source } = await readAndMergeConfigs({
+          forceGlobal: cmdOptions.global,
+        });
+
         if (source === "default") {
           throw new DevkitError(t("error.config.no_file_found"));
         }
