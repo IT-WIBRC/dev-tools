@@ -218,34 +218,93 @@ describe("dk init in a monorepo", () => {
     expect(rootFileExists).toBe(false);
   });
 
-  it("should ask to overwrite a root config if it already exists", async () => {
+  it("should overwrite the root config when running the command from the root and user confirms", async () => {
     const rootConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    const rootConfigContent = { settings: { language: "en" } };
+    const rootConfigContent = {
+      settings: { defaultPackageManager: "yarn" },
+    };
     await fs.writeJson(rootConfigPath, rootConfigContent, { spaces: 2 });
 
-    const nestedPackagePath = path.join(tempDir, "packages", "my-app");
     const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
       all: true,
-      cwd: nestedPackagePath,
+      cwd: tempDir,
+      input: "\n",
+    });
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("✔ Configuration file created successfully!");
+
+    const newContent = await fs.readJson(rootConfigPath);
+    expect(newContent).toEqual(defaultCliConfig);
+  });
+
+  it("should not overwrite the root config when running the command from the root and user declines", async () => {
+    const rootConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
+    const rootConfigContent = {
+      settings: { defaultPackageManager: "yarn" },
+    };
+    await fs.writeJson(rootConfigPath, rootConfigContent, { spaces: 2 });
+
+    const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+      all: true,
+      cwd: tempDir,
       input: "\u001b[B\n",
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain(
-      `Config file already exists at ${rootConfigPath}. Do you want to overwrite it?`,
-    );
-    expect(all).toContain("Operation aborted. No changes were made.");
+    expect(all).toContain("Operation aborted.");
 
     const newContent = await fs.readJson(rootConfigPath);
     expect(newContent).toEqual(rootConfigContent);
   });
 
-  it("should not create a local config if a root config exists and user declines overwrite", async () => {
+  it("should create a new local config in a sub-package if a root config exists and user confirms", async () => {
     const rootConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    const rootConfigContent = { settings: { language: "en" } };
+    const rootConfigContent = {
+      settings: { language: "en" },
+    };
     await fs.writeJson(rootConfigPath, rootConfigContent, { spaces: 2 });
 
     const nestedPackagePath = path.join(tempDir, "packages", "my-app");
+    const nestedConfigPath = path.join(
+      nestedPackagePath,
+      LOCAL_CONFIG_FILE_NAME,
+    );
+
+    const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+      all: true,
+      cwd: nestedPackagePath,
+      input: "\n",
+    });
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("✔ Configuration file created successfully!");
+    expect(all).toContain(
+      `A config file exists in the monorepo root at ${rootConfigPath}. Do you want to create a new one in the current package?`,
+    );
+
+    const newRootContent = await fs.readJson(rootConfigPath);
+    expect(newRootContent).toEqual(rootConfigContent);
+
+    const nestedFileExists = await fs.pathExists(nestedConfigPath);
+    expect(nestedFileExists).toBe(true);
+
+    const nestedConfigContent = await fs.readJson(nestedConfigPath);
+    expect(nestedConfigContent).toEqual(defaultCliConfig);
+  });
+
+  it("should not create a local config if a root config exists and user declines overwrite", async () => {
+    const rootConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
+    const rootConfigContent = {
+      settings: { language: "en" },
+    };
+    await fs.writeJson(rootConfigPath, rootConfigContent, { spaces: 2 });
+
+    const nestedPackagePath = path.join(tempDir, "packages", "my-app");
+    const nestedConfigPath = path.join(
+      nestedPackagePath,
+      LOCAL_CONFIG_FILE_NAME,
+    );
 
     const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
       all: true,
@@ -259,10 +318,6 @@ describe("dk init in a monorepo", () => {
     const newRootContent = await fs.readJson(rootConfigPath);
     expect(newRootContent).toEqual(rootConfigContent);
 
-    const nestedConfigPath = path.join(
-      nestedPackagePath,
-      LOCAL_CONFIG_FILE_NAME,
-    );
     const nestedFileExists = await fs.pathExists(nestedConfigPath);
     expect(nestedFileExists).toBe(false);
   });
