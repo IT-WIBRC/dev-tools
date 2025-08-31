@@ -7,6 +7,7 @@ import { t } from "#utils/internationalization/i18n.js";
 import { ConfigError } from "#utils/errors/base.js";
 import fs from "fs-extra";
 import path from "path";
+import os from "os";
 import ora, { type Ora } from "ora";
 import chalk from "chalk";
 import prompts from "prompts";
@@ -62,7 +63,10 @@ async function promptForMonorepoLocation(): Promise<string> {
 }
 
 async function handleGlobalInit(spinner: Ora) {
-  const finalPath = await findGlobalConfigFile();
+  let finalPath = await findGlobalConfigFile();
+  if (!finalPath) {
+    finalPath = path.join(os.homedir(), CONFIG_FILE_NAMES[0]);
+  }
   const shouldOverwrite = (await fs.pathExists(finalPath))
     ? await promptForStandardOverwrite(finalPath)
     : true;
@@ -94,7 +98,9 @@ async function handleLocalInit(spinner: Ora) {
     const isAtRoot =
       existingConfigPath && path.dirname(existingConfigPath) === monorepoRoot;
 
-    if (isAtRoot) {
+    const initCommandAtRoot = path.dirname(currentPath) === monorepoRoot;
+
+    if (isAtRoot && initCommandAtRoot) {
       finalPath = existingConfigPath as string;
       shouldOverwrite = await promptForStandardOverwrite(finalPath);
     } else {

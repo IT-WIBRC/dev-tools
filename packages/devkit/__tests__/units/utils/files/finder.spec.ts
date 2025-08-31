@@ -104,13 +104,13 @@ describe("Finder Functions", () => {
       expect(result).toBe("/home/user/.devkitrc");
     });
 
-    it("should return the default path if no global config file exists", async () => {
+    it("should return the null if no global config file exists", async () => {
       mockOs.homedir.mockReturnValueOnce("/home/user");
       vi.mocked(path.join).mockReturnValueOnce("/home/user/.devkitrc");
       mockFs.pathExists.mockResolvedValueOnce(false);
 
       const result = await findGlobalConfigFile();
-      expect(result).toBe("/home/user/.devkitrc");
+      expect(result).toBeNull();
     });
   });
 

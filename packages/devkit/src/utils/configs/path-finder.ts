@@ -7,7 +7,7 @@ export async function getConfigFilepath(isGlobal = false): Promise<string> {
   const allConfigFiles = [...CONFIG_FILE_NAMES];
 
   if (isGlobal) {
-    return findGlobalConfigFile();
+    return (await findGlobalConfigFile()) || "";
   }
 
   const localConfigPath = await findUp([...allConfigFiles], process.cwd());

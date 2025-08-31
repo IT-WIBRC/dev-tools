@@ -21,12 +21,9 @@ async function findFileInDirectory(
   return null;
 }
 
-export async function findGlobalConfigFile(): Promise<string> {
+export async function findGlobalConfigFile(): Promise<string | null> {
   const homeDir = os.homedir();
-  const finalPath =
-    (await findFileInDirectory(homeDir, allConfigFiles)) ||
-    path.join(homeDir, allConfigFiles[0]);
-  return finalPath;
+  return findFileInDirectory(homeDir, allConfigFiles);
 }
 
 export async function findLocalConfigFile(): Promise<string | null> {
