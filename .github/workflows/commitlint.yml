@@ -4,10 +4,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
     branches:
-      - develop
+      - ttt
   push:
     branches:
-      - develop
+      - ttt
 
 jobs:
   commitlint:
