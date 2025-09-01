@@ -1,42 +1,36 @@
-name: Monorepo Release
+name: Release PR
 
 on:
-  push:
+  pull_request:
     branches:
-      - master
+      - main
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  release:
+  version:
     permissions:
       contents: write
-      issues: write
       pull-requests: write
 
-    timeout-minutes: 20
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up Bun and Node.js
+      - name: Setup Bun and Node.js
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-          registry-url: "https://registry.npmjs.org/"
 
       - name: Install dependencies with Bun
         run: bun install --frozen-lockfile
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: Create Release Pull Request
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: bun run release
           version: bun run version
-          commit: "chore: release @dev-tools/scaffolder"
-          title: "chore: release @dev-tools/scaffolder"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

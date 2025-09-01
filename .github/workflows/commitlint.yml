@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened, edited]
     branches:
       - develop
+      - main
   push:
     branches:
       - develop
