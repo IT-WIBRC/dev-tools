@@ -3,10 +3,11 @@ name: CI
 on:
   push:
     branches:
+      - develop
       - master
-
   pull_request:
     branches:
+      - develop
       - master
 
 jobs:
@@ -15,6 +16,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
+    if: github.event_name != 'pull_request' || github.base_ref != 'master' || github.head_ref != 'refs/heads/develop'
 
     steps:
       - name: ⬇️ Checkout code
@@ -30,24 +33,21 @@ jobs:
       - name: 📥 Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: 🧹 Lint with Oxlint
+      - name: 📝 Run type checking for all packages
+        run: bun run type-check
+
+      - name: 🧹 Run linting for all packages
         run: bun run lint
 
-      - name: 📝 Type checking process
-        run: bun run type-check
-        working-directory: packages/devkit
-
-      - name: 🛠️ Build project
+      - name: 🛠️ Build all projects
         run: bun run build
-        working-directory: packages/devkit
 
-      - name: 🧪 Run tests
-        run: bun run test:coverage
-        working-directory: packages/devkit
+      - name: 🧪 Run tests for all packages
+        run: bun run test
 
       - name: ☂️ Coverage Report
         uses: davelosert/vitest-coverage-report-action@v2
         with:
-          working-directory: packages/devkit
+          working-directory: ./packages/devkit
           json-summary-path: "./coverage/coverage-summary.json"
           json-final-path: "./coverage/coverage-final.json"

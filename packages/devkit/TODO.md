@@ -1,4 +1,4 @@
-## 🚀 Dev Kit Monorepo - TODO List
+## 🚀 @dev-tools/scaffolder Monorepo - TODO List
 
 This document tracks all planned and completed tasks for the Dev Kit project.
 
@@ -37,6 +37,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [x] Check what can be changed into an argument instead of a command.
 - [x] Implement a better login method for errors.
 - [x] Update this TODO with all that has been done so far.
+- [x] Prepare repo for publication
 
 ---
 
