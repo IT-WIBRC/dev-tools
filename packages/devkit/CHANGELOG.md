@@ -4,7 +4,7 @@
 
 ### Major Changes
 
-- 63c5ecc: ### **Summary of Changes for Version 1.0.0**
+- 215e20f: ### **Summary of Changes for Version 1.0.0**
 
   This release marks a significant milestone for the project, transitioning it from a standalone CLI to a multi-tool **monorepo**. This update focuses entirely on the project's internal architecture, laying a stable and scalable foundation for all future developer tools.
 
