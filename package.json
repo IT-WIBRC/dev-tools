@@ -23,6 +23,7 @@
     "url": "https://github.com/IT-WIBRC/dev-tools/issues"
   },
   "scripts": {
+    "prepare": "husky",
     "build": "bun --filter '*' build",
     "type-check": "bun --filter '*' type-check",
     "test": "bun --filter '*' test:coverage",
@@ -36,6 +37,7 @@
   "workspaces": [
     "packages/*"
   ],
+  "type": "module",
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
     "@commitlint/cli": "^19.8.1",

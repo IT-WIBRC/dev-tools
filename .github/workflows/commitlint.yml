@@ -24,7 +24,7 @@ jobs:
           bun_version: "latest"
 
       - name: Lint Commit Messages
-        uses: wagoid/commitlint-github-action@v5
+        uses: wagoid/commitlint-github-action@v6
         with:
-          configFile: "commitlint.config.ts"
+          configFile: "commitlint.config.cjs"
           failOnWarnings: true

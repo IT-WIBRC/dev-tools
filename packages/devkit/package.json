@@ -1,6 +1,6 @@
 {
   "name": "scaffolder-toolkit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "🚀 A universal command-line tool for developers to automate project scaffolding and streamline their workflows.",
   "keywords": [
     "devkit",
@@ -32,7 +32,11 @@
   },
   "private": false,
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.19.0",
+    "npm": ">=10.0.0",
+    "yarn": ">=1.22.0",
+    "pnpm": ">=8.0.0",
+    "bun": ">=1.0.0"
   },
   "type": "module",
   "main": "dist/main.js",
@@ -50,12 +54,14 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "type-check": "tsc --noEmit",
-    "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "bunx cpx ../../LICENSE . && bunx cpx ../../devkit-schema.json ."
+    "test:unit": "vitest",
+    "prepack": "bun run build && bunx cpx ../../LICENSE . && bunx cpx ../../devkit-schema.json .",
+    "preversion": "git fetch && git status -uno | grep -q 'Your branch is up to date'"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "imports": {
     "#/*": "./dist/*",
