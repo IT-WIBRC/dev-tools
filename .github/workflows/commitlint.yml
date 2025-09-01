@@ -3,6 +3,8 @@ name: Lint Commit Messages
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
+    branches:
+      - develop
   push:
     branches:
       - develop
