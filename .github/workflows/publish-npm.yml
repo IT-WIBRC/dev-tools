@@ -1,0 +1,41 @@
+name: Publish to NPM
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  publish:
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun and Node.js
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          registry-url: "https://registry.npmjs.org/"
+
+      - name: Install dependencies with Bun
+        run: bun install --frozen-lockfile
+
+      - name: Publish to NPM
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: bun run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
