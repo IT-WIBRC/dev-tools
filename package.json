@@ -26,7 +26,6 @@
     "build": "bun --filter '*' build",
     "type-check": "bun --filter '*' type-check",
     "test": "bun --filter '*' test:coverage",
-    "prepare": "husky install",
     "format": "prettier --write .",
     "lint:commit": "commitlint",
     "lint": "oxlint --fix .",

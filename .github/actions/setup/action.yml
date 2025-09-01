@@ -1,0 +1,24 @@
+name: 'Bun Setup'
+description: 'Checks out code, sets up Bun, and installs dependencies'
+inputs:
+  bun_version:
+    description: 'The Bun version to install'
+    required: true
+    default: 'latest'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: ⬇️ Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: ⚙️ Setup Bun
+      uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: ${{ inputs.bun_version }}
+
+    - name: 📥 Install dependencies
+      run: bun install --frozen-lockfile
+      shell: bash
