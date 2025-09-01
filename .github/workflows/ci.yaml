@@ -5,6 +5,7 @@ on:
     branches:
       - develop
 
+
   pull_request:
     branches:
       - develop
@@ -24,7 +25,10 @@ jobs:
 
       - name: Reusable Setup
         uses: ./.github/actions/setup
+      - name: Reusable Setup
+        uses: ./.github/actions/setup
         with:
+          bun_version: "latest"
           bun_version: "latest"
 
       - name: 📝 Run type checking for all packages
