@@ -140,7 +140,7 @@ describe("dk new", () => {
       const { exitCode } = await execa(
         "bun",
         [CLI_PATH, "new", "javascript", "my-vue-app", "-t", "vuejs"],
-        { cwd: mockProjectDir },
+        { cwd: mockProjectDir, all: true },
       );
       expect(exitCode).toBe(0);
 

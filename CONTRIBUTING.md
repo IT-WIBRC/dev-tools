@@ -27,20 +27,20 @@ To contribute code, you'll need to set up your local development environment.
 1.  **Fork the repository** on GitHub.
 2.  **Clone your forked repository** to your local machine.
     ```bash
-    git clone [https://github.com/your-username/devkit.git](https://github.com/your-username/devkit.git)
-    cd devkit
+    git clone [https://github.com/IT-WIBRC/dev-tools.git](https://github.com/IT-WIBRC/dev-tools.git)
+    cd dev-tools
     ```
 3.  **Install dependencies**. DevKit uses a package manager.
     ```bash
-    npm install # or yarn install, pnpm install, bun install
+    bun install # or yarn install, pnpm install, bun install
     ```
 4.  **Build the project** to compile the TypeScript code.
     ```bash
-    npm run build
+    bun run build
     ```
 5.  **Run the CLI locally** using `npm link` or `bun link`. This will make the `dk` command available globally on your machine and point it to your local source code.
     ```bash
-    npm link
+    bun link
     ```
     Now you can run `dk --help` to test your local changes.
 
@@ -65,6 +65,6 @@ We use Conventional Commits for our commit messages. This allows for automated c
 **Before Submitting**
 
 - Make sure your changes are formatted and linted correctly.
-- Run the tests (`npm test`) to ensure everything works as expected.
+- Run the tests (`bun test:unit`) to ensure everything works as expected.
 
 Thank you for your contribution!
