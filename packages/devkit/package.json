@@ -1,6 +1,6 @@
 {
   "name": "@dev-tools/scaffolder",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "🚀 A universal command-line tool for developers to automate project scaffolding and streamline their workflows.",
   "keywords": [
     "devkit",
