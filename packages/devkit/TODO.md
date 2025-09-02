@@ -1,4 +1,4 @@
-## 🚀 @dev-tools/scaffolder Monorepo - TODO List
+## 🚀 scaffolder-toolkit Monorepo - TODO List
 
 This document tracks all planned and completed tasks for the Dev Kit project.
 

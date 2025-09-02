@@ -8,19 +8,19 @@ All packages are written in TypeScript and managed with Bun Workspaces.
 
 | Package Name                       | Description                                                 | Docs                                  |
 | ---------------------------------- | ----------------------------------------------------------- | ------------------------------------- |
-| **`@dev-tools/scaffolder`** (`dk`) | A powerful CLI for scaffolding new projects from templates. | [README](./packages/devkit/README.md) |
+| **`scaffolder-toolkit`** (`dk`) | A powerful CLI for scaffolding new projects from templates. | [README](./packages/devkit/README.md) |
 
 ### Coming Soon...
 
 | Package Name               | Description                                                                                                             |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **`@dev-tools/dev-setup`** | An interactive Bash CLI to automate software and tool installation on a Linux distro, making a system ready for coding. |
+| **`dev-setup`** | An interactive Bash CLI to automate software and tool installation on a Linux distro, making a system ready for coding. |
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions\! Please see the individual package's documentation for details on how to get started.
+We welcome contributions\! Please see our [Contributing Guide](../../CONTRIBUTING.md) for details on how to get started.
 
 ---
 

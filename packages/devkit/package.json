@@ -1,5 +1,5 @@
 {
-  "name": "@dev-tools/scaffolder",
+  "name": "scaffolder-toolkit",
   "version": "1.0.0",
   "description": "🚀 A universal command-line tool for developers to automate project scaffolding and streamline their workflows.",
   "keywords": [
@@ -52,7 +52,10 @@
     "type-check": "tsc --noEmit",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "cpx ../../LICENSE . && cpx ../../.devkit-schema.json ."
+    "prepublishOnly": "bunx cpx ../../LICENSE . && bunx cpx ../../devkit-schema.json ."
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "imports": {
     "#/*": "./dist/*",
@@ -73,9 +76,10 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
+    "@types/prompts": "^2.4.9",
     "@vitest/coverage-v8": "^3.2.4",
+    "cpx": "^1.5.0",
     "typescript": "^5.0.0",
-    "vitest": "^3.2.4",
-    "@types/prompts": "^2.4.9"
+    "vitest": "^3.2.4"
   }
 }

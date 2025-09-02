@@ -1,0 +1,38 @@
+name: Publish to NPM
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  publish:
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reusable Setup
+        uses: ./.github/actions/setup
+        with:
+          bun_version: "latest"
+
+      - name: Publish to NPM
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: bun run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
