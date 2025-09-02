@@ -5,7 +5,6 @@ on:
     types: [opened, synchronize, reopened, edited]
     branches:
       - develop
-      - main
 permissions:
   contents: read
   pull-requests: read

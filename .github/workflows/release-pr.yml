@@ -30,7 +30,6 @@ jobs:
         uses: changesets/action@v1
         with:
           version: bun run version
-          base-branch: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
