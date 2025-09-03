@@ -1,9 +1,3 @@
-It's a great idea to update your documentation to reflect the new package name and ensure all the information is consistent. I've gone through the document and adjusted all instances of `@dev-tools/scaffolder` and `@dev-tools` to the new name, `scaffolder-toolkit`.
-
-Here is the adjusted documentation with all the necessary changes.
-
------
-
 # 🚀 Scaffolder-Toolkit (`dk`)
 
 A universal CLI for professional developers to automate project scaffolding and streamline workflows.
