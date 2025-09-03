@@ -1,5 +1,11 @@
 # scaffolder-toolkit
 
+## 1.0.1
+
+### Patch Changes
+
+- 75b4a91: Fix the documentation error and naming
+
 ## 1.0.0
 
 ### Major Changes
