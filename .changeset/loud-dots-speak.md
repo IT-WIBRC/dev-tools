@@ -1,5 +1,5 @@
 ---
-"@dev-tools/scaffolder": major
+"scaffolder-toolkit": major
 ---
 
 ### **Summary of Changes for Version 1.0.0**
