@@ -45,7 +45,7 @@ The CLI's internationalization (`i18n`) feature dynamically translates commands 
 
 ### Prerequisites
 
-Ensure you have **Node.js (v18 or higher)** and a package manager installed.
+Ensure you have **Node.js (v20.19.0 or higher)** and a package manager installed.
 
 ### Installation
 
