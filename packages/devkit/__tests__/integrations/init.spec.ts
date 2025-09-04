@@ -17,7 +17,7 @@ import {
   type CliConfig,
 } from "../../src/utils/configs/schema.js";
 
-const CLI_PATH = path.resolve("./dist/main.js");
+const CLI_PATH = path.resolve("./dist/bundle.js");
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
 
 let tempDir: string;
