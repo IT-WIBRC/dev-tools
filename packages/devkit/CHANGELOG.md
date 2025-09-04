@@ -1,5 +1,11 @@
 # scaffolder-toolkit
 
+## 1.0.3
+
+### Patch Changes
+
+- 12cd2ce: Change build to bundling to support environment
+
 ## 1.0.2
 
 ### Patch Changes
