@@ -6,11 +6,11 @@ on:
       bun_version:
         required: true
         type: string
-        description: 'The Bun version to use'
+        description: "The Bun version to use"
 
     outputs:
       bun_cache_key:
-        description: 'The cache key for Bun dependencies'
+        description: "The cache key for Bun dependencies"
         value: ${{ jobs.setup.outputs.bun_cache_key }}
 
 jobs:
@@ -29,4 +29,3 @@ jobs:
       - name: Save Bun Cache Key
         id: cache-key
         run: echo "bun_cache_key=${{ steps.setup-bun.outputs.cache-hit }}" >> $GITHUB_OUTPUT
-
