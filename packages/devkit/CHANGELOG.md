@@ -1,5 +1,11 @@
 # scaffolder-toolkit
 
+## 1.0.4
+
+### Patch Changes
+
+- f1b3fe8: Adjust build process to make it more light
+
 ## 1.0.3
 
 ### Patch Changes
@@ -32,4 +38,3 @@
   - **Unified Build System**: The build process is now managed from the monorepo root, enabling a single command to build all present and future tools in the correct dependency order.
   - **Streamlined Documentation**: The repository now has a centralized `README.md` at the root, which acts as a directory for all individual tool documentation.
   - **Dependency Management**: All dependencies are now centrally hoisted to the monorepo root, ensuring a more efficient and consistent development environment.
-
