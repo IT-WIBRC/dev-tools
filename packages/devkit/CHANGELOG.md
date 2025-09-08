@@ -1,5 +1,11 @@
 # scaffolder-toolkit
 
+## 1.0.7
+
+### Patch Changes
+
+- 4f5cabc: chore: expose the package locales folder
+
 ## 1.0.6
 
 ### Patch Changes
