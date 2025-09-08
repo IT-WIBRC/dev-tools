@@ -17,13 +17,13 @@
   "homepage": "https://github.com/IT-WIBRC/dev-tools#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/IT-WIBRC/dev-tools.git"
+    "url": "git+https://github.com/IT-WIBRC/dev-tools.git"
   },
   "bugs": {
     "url": "https://github.com/IT-WIBRC/dev-tools/issues"
   },
   "scripts": {
-    "husky:prepare": "husky",
+    "prepare": "husky",
     "build": "bun --filter '*' build",
     "type-check": "bun --filter '*' type-check",
     "test": "bun --filter '*' test:coverage",
