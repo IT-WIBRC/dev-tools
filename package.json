@@ -2,10 +2,6 @@
   "name": "dev-tools",
   "version": "0.0.0",
   "author": "Ivany Botrel Rayn WAFFEU <wibrc.se.jc@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/IT-WIBRC/dev-tools.git"
-  },
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
     "@commitlint/cli": "^19.8.1",
@@ -17,11 +13,7 @@
     "prettier": "^3.6.2",
     "vitest": "^3.2.4"
   },
-  "bugs": {
-    "url": "https://github.com/IT-WIBRC/dev-tools/issues"
-  },
   "description": "A collection of universal command-line tools for professional developers to automate project setup and streamline their workflows.",
-  "homepage": "https://github.com/IT-WIBRC/dev-tools#readme",
   "keywords": [
     "monorepo",
     "developer-tools",
@@ -33,7 +25,16 @@
   ],
   "license": "MIT",
   "private": true,
+  "homepage": "https://github.com/IT-WIBRC/dev-tools#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IT-WIBRC/dev-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/IT-WIBRC/dev-tools/issues"
+  },
   "scripts": {
+    "prepare": "husky",
     "build": "bun --filter '*' build",
     "type-check": "bun --filter '*' type-check",
     "test": "bun --filter '*' test:coverage",
@@ -42,8 +43,7 @@
     "lint": "oxlint --fix .",
     "release": "changeset publish",
     "version": "changeset version",
-    "changeset": "changeset",
-    "prepare": "husky"
+    "changeset": "changeset"
   },
   "type": "module",
   "workspaces": [
