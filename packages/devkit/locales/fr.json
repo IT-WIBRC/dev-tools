@@ -20,7 +20,7 @@
         }
       },
       "scaffolding": "Création du projet '{projectName}' avec le modèle '{template}'...",
-      "success": "✅ Projet '{projectName}' créé avec succès !",
+      "success": "✔ Projet '{projectName}' créé avec succès !",
       "fail": "❌ Échec de la création du projet : {error}"
     }
   },
@@ -54,7 +54,7 @@
       "description": "Supprimer un modèle de la configuration."
     },
     "start": "Suppression du modèle de la configuration...",
-    "success": "✅ Modèle '{templateName}' pour '{language}' supprimé avec succès !",
+    "success": "✔ Modèle '{templateName}' pour '{language}' supprimé avec succès !",
     "language": {
       "argument": "Le langage de programmation du modèle à supprimer."
     },
@@ -74,22 +74,22 @@
   "scaffolding": {
     "project": {
       "start": "Création du projet {language} : {project}",
-      "success": "✅ Projet {language} '{project}' créé avec succès !",
+      "success": "✔ Projet {language} '{project}' créé avec succès !",
       "fail": "❌ Échec de la création du projet {language} : {error}"
     },
     "copy": {
       "start": "📂 Copie des fichiers du modèle local...",
-      "success": "✅ Modèle local copié avec succès !",
+      "success": "✔ Modèle local copié avec succès !",
       "fail": "❌ Échec de la copie du modèle local."
     },
     "run": {
       "start": "📦 Exécution de la commande CLI officielle : {command}...",
-      "success": "✅ Commande CLI officielle exécutée avec succès !",
+      "success": "✔ Commande CLI officielle exécutée avec succès !",
       "fail": "❌ Échec de l'exécution de la commande CLI officielle."
     },
     "install": {
       "start": "📦 Installation des dépendances avec {pm}...",
-      "success": "✅ Dépendances installées avec succès !",
+      "success": "✔ Dépendances installées avec succès !",
       "fail": "❌ Échec de l'installation des dépendances."
     },
     "complete": {
@@ -177,8 +177,8 @@
         "global": "Mettre à jour le modèle dans la configuration globale au lieu de la locale."
       },
       "updating": "Mise à jour du modèle '{templateName}' dans la configuration...",
-      "success": "✅ Modèle '{templateName}' mis à jour avec succès !",
-      "success_name": "✅ Modèle '{oldName}' mis à jour en '{newName}' avec succès !"
+      "success": "✔ Modèle '{templateName}' mis à jour avec succès !",
+      "success_name": "✔ Modèle '{oldName}' mis à jour en '{newName}' avec succès !"
     },
     "cache": {
       "command": {
@@ -306,12 +306,12 @@
   "cache": {
     "clone": {
       "start": "✨ Clonage du nouveau modèle depuis {url}...",
-      "success": "✅ Modèle cloné avec succès !",
+      "success": "✔ Modèle cloné avec succès !",
       "fail": "❌ Échec du clonage du dépôt."
     },
     "refresh": {
       "start": "🔄 Actualisation du modèle en cache...",
-      "success": "✅ Modèle actualisé avec succès !",
+      "success": "✔ Modèle actualisé avec succès !",
       "fail": "❌ Échec de l'actualisation du modèle."
     },
     "use": {
@@ -319,7 +319,7 @@
     },
     "copy": {
       "start": "📂 Copie du modèle en cache vers le répertoire du projet...",
-      "success": "✅ Fichiers copiés avec succès !",
+      "success": "✔ Fichiers copiés avec succès !",
       "fail": "❌ Échec de la copie des fichiers depuis le cache."
     }
   },
