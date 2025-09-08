@@ -20,7 +20,7 @@
         }
       },
       "scaffolding": "Scaffolding project '{projectName}' with the '{template}' template...",
-      "success": "✅ Project '{projectName}' created successfully!",
+      "success": "✔ Project '{projectName}' created successfully!",
       "fail": "❌ Failed to scaffold project: {error}"
     }
   },
@@ -54,7 +54,7 @@
       "description": "Remove a template from the configuration."
     },
     "start": "Removing template from configuration...",
-    "success": "✅ Template '{templateName}' for '{language}' removed successfully!",
+    "success": "✔ Template '{templateName}' for '{language}' removed successfully!",
     "language": {
       "argument": "The programming language of the template to remove."
     },
@@ -74,22 +74,22 @@
   "scaffolding": {
     "project": {
       "start": "Scaffolding {language} project: {project}",
-      "success": "✅ {language} project '{project}' created successfully!",
+      "success": "✔ {language} project '{project}' created successfully!",
       "fail": "❌ Failed to scaffold {language} project: {error}"
     },
     "copy": {
       "start": "📂 Coping local template files...",
-      "success": "✅ Local template copied successfully!",
+      "success": "✔ Local template copied successfully!",
       "fail": "❌ Failed to copy local template."
     },
     "run": {
       "start": "📦 Running official CLI command: {command}...",
-      "success": "✅ Official CLI command ran successfully!",
+      "success": "✔ Official CLI command ran successfully!",
       "fail": "❌ Failed to run official CLI command."
     },
     "install": {
       "start": "📦 Installing dependencies with {pm}...",
-      "success": "✅ Dependencies installed successfully!",
+      "success": "✔ Dependencies installed successfully!",
       "fail": "❌ Failed to install dependencies."
     },
     "complete": {
@@ -177,8 +177,8 @@
         "global": "Update the template in the global configuration instead of the local one."
       },
       "updating": "Updating template '{templateName}' in configuration...",
-      "success": "✅ Template '{templateName}' updated successfully!",
-      "success_name": "✅ Template '{oldName}' updated to '{newName}' successfully!"
+      "success": "✔ Template '{templateName}' updated successfully!",
+      "success_name": "✔ Template '{oldName}' updated to '{newName}' successfully!"
     },
     "cache": {
       "command": {
@@ -306,12 +306,12 @@
   "cache": {
     "clone": {
       "start": "✨ Cloning new template from {url}...",
-      "success": "✅ Template cloned successfully!",
+      "success": "✔ Template cloned successfully!",
       "fail": "❌ Failed to clone repository."
     },
     "refresh": {
       "start": "🔄 Refreshing cached template...",
-      "success": "✅ Template refreshed successfully!",
+      "success": "✔ Template refreshed successfully!",
       "fail": "❌ Failed to refresh template."
     },
     "use": {
@@ -319,7 +319,7 @@
     },
     "copy": {
       "start": "📂 Coping cached template to project directory...",
-      "success": "✅ Files copied successfully!",
+      "success": "✔ Files copied successfully!",
       "fail": "❌ Failed to copy files from cache."
     }
   },

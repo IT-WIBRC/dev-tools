@@ -46,7 +46,7 @@ describe("dk init", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✅ Configuration file created successfully!");
+    expect(all).toContain("✔ Configuration file created successfully!");
     const configPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
     const fileExists = await fs.pathExists(configPath);
     expect(fileExists).toBe(true);
@@ -69,7 +69,7 @@ describe("dk init", () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✅ Configuration file created successfully!");
+    expect(all).toContain("✔ Configuration file created successfully!");
     const fileExists = await fs.pathExists(globalConfigPath);
     expect(fileExists).toBe(true);
 
@@ -125,7 +125,7 @@ describe("dk init with existing file", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✅ Configuration file created successfully!");
+    expect(all).toContain("✔ Configuration file created successfully!");
     const newContent = await fs.readJson(
       path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
     );
@@ -171,7 +171,7 @@ describe("dk init in a monorepo", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✅ Configuration file created successfully!");
+    expect(all).toContain("✔ Configuration file created successfully!");
     const rootConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
     const fileExists = await fs.pathExists(rootConfigPath);
     expect(fileExists).toBe(true);
@@ -195,7 +195,7 @@ describe("dk init in a monorepo", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✅ Configuration file created successfully!");
+    expect(all).toContain("✔ Configuration file created successfully!");
     const nestedConfigPath = path.join(
       nestedPackagePath,
       LOCAL_CONFIG_FILE_NAME,
@@ -224,7 +224,7 @@ describe("dk init in a monorepo", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✅ Configuration file created successfully!");
+    expect(all).toContain("✔ Configuration file created successfully!");
 
     const newContent = await fs.readJson(rootConfigPath);
     expect(newContent).toEqual(defaultCliConfig);
@@ -275,7 +275,7 @@ describe("dk init in a monorepo", () => {
       .trim();
     expect(exitCode).toBe(0);
     expect(cleanedOutput).toContain(
-      "✅ Configuration file created successfully!",
+      "✔ Configuration file created successfully!",
     );
     expect(cleanedOutput).toContain(
       `A config file exists in the monorepo root at ${rootConfigPath}. Do you want to create a new one in the current package?`,

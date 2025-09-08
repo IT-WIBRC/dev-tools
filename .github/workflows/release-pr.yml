@@ -32,3 +32,4 @@ jobs:
           version: bun run version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY_SKIP_HOOKS: 1

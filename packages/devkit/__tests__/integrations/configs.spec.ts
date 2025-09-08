@@ -53,7 +53,7 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✅ Configuration updated successfully!");
+      expect(all).toContain("✔ Configuration updated successfully!");
 
       const configContent = await fs.readJson(
         path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
@@ -69,7 +69,7 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✅ Configuration updated successfully!");
+      expect(all).toContain("✔ Configuration updated successfully!");
 
       const configContent = await fs.readJson(
         path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
@@ -97,7 +97,7 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✅ Configuration updated successfully!");
+      expect(all).toContain("✔ Configuration updated successfully!");
 
       const globalConfigContent = await fs.readJson(globalConfigPath);
       expect(globalConfigContent.settings.language).toBe("fr");
@@ -162,7 +162,7 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✅ Configuration loaded successfully!");
+      expect(all).toContain("✔ Configuration loaded successfully!");
       expect(all).toContain("Using local configuration.");
       expect(all).toContain("language: en");
     });
@@ -175,7 +175,7 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✅ Configuration loaded successfully!");
+      expect(all).toContain("✔ Configuration loaded successfully!");
       expect(all).toContain("defaultPackageManager: bun");
     });
 
@@ -200,7 +200,7 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✅ Configuration loaded successfully!");
+      expect(all).toContain("✔ Configuration loaded successfully!");
       expect(all).toContain("Using local configuration.");
       expect(all).toContain('"language": "en"');
       expect(all).toContain('"defaultPackageManager": "bun"');
@@ -228,7 +228,7 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✅ Configuration loaded successfully!");
+      expect(all).toContain("✔ Configuration loaded successfully!");
       expect(all).toContain("Using global configuration.");
       expect(all).toContain("language: fr");
 
@@ -262,7 +262,7 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✅ Configuration loaded successfully!");
+      expect(all).toContain("✔ Configuration loaded successfully!");
       expect(all).toContain(
         "No local configuration file found. Displaying global settings instead.",
       );
@@ -286,7 +286,7 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✅ Configuration loaded successfully!");
+      expect(all).toContain("✔ Configuration loaded successfully!");
       expect(all).toContain(
         "No local configuration file found. Displaying default settings instead.",
       );
