@@ -1,0 +1,87 @@
+{
+  "title": "DevKit CLI Configuration",
+  "description": "JSON schema for the .devkitrc configuration file, providing autocompletion and validation. Only the 'javascript' language is currently supported.",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "settings": {
+      "type": "object",
+      "description": "Global settings for the DevKit CLI.",
+      "properties": {
+        "defaultPackageManager": {
+          "type": "string",
+          "description": "The default package manager to use for new projects.",
+          "enum": ["bun", "npm", "yarn", "deno", "pnpm"],
+          "default": "bun"
+        },
+        "cacheStrategy": {
+          "type": "string",
+          "description": "The default caching strategy for remote templates.",
+          "enum": ["always-refresh", "never-refresh", "daily"],
+          "default": "daily"
+        },
+        "language": {
+          "type": "string",
+          "description": "The language of the CLI's interface.",
+          "enum": ["en", "fr"],
+          "default": "en"
+        }
+      },
+      "required": ["defaultPackageManager", "cacheStrategy", "language"],
+      "additionalProperties": false
+    },
+    "templates": {
+      "type": "object",
+      "description": "A collection of templates, currently only for JavaScript.",
+      "properties": {
+        "javascript": {
+          "type": "object",
+          "description": "Templates for the JavaScript ecosystem.",
+          "properties": {
+            "templates": {
+              "type": "object",
+              "description": "The available templates for JavaScript.",
+              "patternProperties": {
+                "^.*$": {
+                  "type": "object",
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "description": "A short description of the template."
+                    },
+                    "location": {
+                      "type": "string",
+                      "description": "The location of the template (e.g., local path, GitHub URL, or a CLI command)."
+                    },
+                    "alias": {
+                      "type": "string",
+                      "description": "A short alias for the template."
+                    },
+                    "cacheStrategy": {
+                      "type": "string",
+                      "description": "The caching strategy for this specific template.",
+                      "enum": ["always-refresh", "never-refresh", "daily"]
+                    },
+                    "packageManager": {
+                      "type": "string",
+                      "description": "The package manager to use for this specific template.",
+                      "enum": ["bun", "npm", "yarn", "deno", "pnpm"]
+                    }
+                  },
+                  "required": ["description", "location"],
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": ["templates"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["settings", "templates"],
+  "additionalProperties": false
+}
