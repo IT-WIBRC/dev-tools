@@ -218,6 +218,6 @@ describe("dk list", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✅ No templates found in the configuration file.");
+    expect(all).toContain("✔ No templates found in the configuration file.");
   });
 });

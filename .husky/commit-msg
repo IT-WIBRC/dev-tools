@@ -1,2 +1,7 @@
 #!/usr/bin/env sh
+
+if [ "$CI" ]; then
+  exit 0
+fi
+
 bunx --no-install commitlint --edit "$1" && cd packages/devkit && bun run tsc --noEmit

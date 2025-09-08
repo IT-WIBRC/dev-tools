@@ -1,5 +1,11 @@
 # scaffolder-toolkit
 
+## 1.0.6
+
+### Patch Changes
+
+- edaff67: chore: fix missing locales on build
+
 ## 1.0.5
 
 ### Patch Changes

@@ -110,7 +110,7 @@ describe("dk remove-template", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain(
-      "✅ Template 'node-api' for 'node' removed successfully!",
+      "✔ Template 'node-api' for 'node' removed successfully!",
     );
     expect(updatedConfig.templates.node.templates["node-api"]).toBeUndefined();
     expect(
@@ -135,7 +135,7 @@ describe("dk remove-template", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain(
-      "✅ Template 'rts' for 'javascript' removed successfully!",
+      "✔ Template 'rts' for 'javascript' removed successfully!",
     );
     expect(
       updatedConfig.templates.javascript.templates["react-ts"],
@@ -162,7 +162,7 @@ describe("dk remove-template", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain(
-      "✅ Template 'django' for 'python' removed successfully!",
+      "✔ Template 'django' for 'python' removed successfully!",
     );
     expect(updatedConfig.templates.python.templates.django).toBeUndefined();
   });
