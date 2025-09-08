@@ -2,7 +2,6 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import json from "@rollup/plugin-json";
-import copy from "rollup-plugin-copy";
 
 export default {
   input: "src/main.ts",
@@ -17,10 +16,6 @@ export default {
     commonjs(),
     typescript({
       tsconfig: "./tsconfig.json",
-    }),
-    copy({
-      targets: [{ src: "locales", dest: "dist" }],
-      copyOnce: false,
     }),
   ],
   external: [
