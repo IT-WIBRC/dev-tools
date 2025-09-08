@@ -1,15 +1,18 @@
 name: Publish to NPM
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
       - develop
+  workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   publish:
-    if: startsWith(github.ref, 'refs/heads/changeset-release/')
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged && startsWith(github.head_ref, 'changeset-release/')
     permissions:
       contents: write
       issues: write
@@ -22,6 +25,7 @@ jobs:
       - name: ⬇️ Checkout code
         uses: actions/checkout@v4
         with:
+          ref: develop
           fetch-depth: 0
 
       - name: Reusable Setup
