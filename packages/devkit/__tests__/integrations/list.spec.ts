@@ -8,7 +8,7 @@ import {
   beforeAll,
 } from "vitest";
 import { execa } from "execa";
-import fs from "fs-extra";
+import fs from "../../src/utils/fileSystem.js";
 import path from "path";
 import os from "os";
 import {
@@ -89,15 +89,10 @@ describe("dk list", () => {
   });
 
   it("should list templates from local config by default when it exists", async () => {
-    await fs.writeJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      localConfig,
-      { spaces: 2 },
-    );
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     await fs.writeJson(
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
       globalConfig,
-      { spaces: 2 },
     );
 
     const { all, exitCode } = await execa("bun", [CLI_PATH, "list"], {
@@ -116,7 +111,6 @@ describe("dk list", () => {
     await fs.writeJson(
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
       globalConfig,
-      { spaces: 2 },
     );
 
     const { all, exitCode } = await execa("bun", [CLI_PATH, "list"], {
@@ -135,15 +129,10 @@ describe("dk list", () => {
   });
 
   it("should list templates from both local and global configurations when --all is used", async () => {
-    await fs.writeJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      localConfig,
-      { spaces: 2 },
-    );
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     await fs.writeJson(
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
       globalConfig,
-      { spaces: 2 },
     );
 
     const { all, exitCode } = await execa("bun", [CLI_PATH, "list", "--all"], {
@@ -159,15 +148,10 @@ describe("dk list", () => {
   });
 
   it("should only list templates from local config when --local is used", async () => {
-    await fs.writeJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      localConfig,
-      { spaces: 2 },
-    );
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     await fs.writeJson(
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
       globalConfig,
-      { spaces: 2 },
     );
 
     const { all, exitCode } = await execa(
@@ -188,15 +172,10 @@ describe("dk list", () => {
   });
 
   it("should only list templates from global config when --global is used", async () => {
-    await fs.writeJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      localConfig,
-      { spaces: 2 },
-    );
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     await fs.writeJson(
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
       globalConfig,
-      { spaces: 2 },
     );
 
     const { all, exitCode } = await execa(
@@ -217,11 +196,7 @@ describe("dk list", () => {
   });
 
   it("should show an error if a language filter is provided but no templates are found for it", async () => {
-    await fs.writeJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      localConfig,
-      { spaces: 2 },
-    );
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { all, exitCode } = await execa("bun", [CLI_PATH, "list", "rust"], {
       all: true,
       env: { HOME: globalConfigDir },
@@ -236,17 +211,13 @@ describe("dk list", () => {
 
   it("should handle a config file with an empty templates section", async () => {
     const emptyConfig = { ...localConfig, templates: {} };
-    await fs.writeJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      emptyConfig,
-      { spaces: 2 },
-    );
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), emptyConfig);
     const { all, exitCode } = await execa("bun", [CLI_PATH, "list"], {
       all: true,
       env: { HOME: globalConfigDir },
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✔ No templates found in the configuration file.");
+    expect(all).toContain("✅ No templates found in the configuration file.");
   });
 });

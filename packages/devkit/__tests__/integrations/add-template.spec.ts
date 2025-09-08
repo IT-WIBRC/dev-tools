@@ -8,7 +8,7 @@ import {
   beforeAll,
 } from "vitest";
 import { execa } from "execa";
-import fs from "fs-extra";
+import fs from "../../src/utils/fileSystem.js";
 import path from "path";
 import os from "os";
 import {
@@ -77,7 +77,7 @@ describe("dk add-template", () => {
 
   it("should successfully add a new template to the local config", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, baseLocalConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, baseLocalConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -111,7 +111,7 @@ describe("dk add-template", () => {
       globalConfigDir,
       GLOBAL_CONFIG_FILE_NAME,
     );
-    await fs.writeJson(globalConfigPath, baseGlobalConfig, { spaces: 2 });
+    await fs.writeJson(globalConfigPath, baseGlobalConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -143,7 +143,7 @@ describe("dk add-template", () => {
 
   it("should fail to add a template if the language is not found", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, baseLocalConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, baseLocalConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -167,7 +167,7 @@ describe("dk add-template", () => {
 
   it("should fail to add a template if the template name already exists", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, baseLocalConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, baseLocalConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -191,7 +191,7 @@ describe("dk add-template", () => {
 
   it("should fail to add a template if the alias already exists", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, baseLocalConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, baseLocalConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -260,7 +260,7 @@ describe("dk add-template", () => {
 
   it("should fail on an invalid cache strategy value", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, baseLocalConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, baseLocalConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -286,7 +286,7 @@ describe("dk add-template", () => {
 
   it("should fail on an invalid package manager value", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, baseLocalConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, baseLocalConfig);
 
     const { exitCode, all } = await execa(
       "bun",

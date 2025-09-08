@@ -6,7 +6,7 @@ const { mockExistsSync, mockReadJson, mockWriteJson } = vi.hoisted(() => ({
   mockWriteJson: vi.fn(),
 }));
 
-vi.mock("fs-extra", () => ({
+vi.mock("#utils/fileSystem.js", () => ({
   default: {
     existsSync: mockExistsSync,
     readJson: mockReadJson,
@@ -49,11 +49,10 @@ describe("update-project-name.ts", () => {
       expect(mockReadJson).toHaveBeenCalledWith(packageJsonPath);
 
       expect(mockWriteJson).toHaveBeenCalledOnce();
-      expect(mockWriteJson).toHaveBeenCalledWith(
-        packageJsonPath,
-        { ...mockPackageJson, name: newProjectName },
-        { spaces: 2 },
-      );
+      expect(mockWriteJson).toHaveBeenCalledWith(packageJsonPath, {
+        ...mockPackageJson,
+        name: newProjectName,
+      });
       expect(mockConsoleError).not.toHaveBeenCalled();
     });
 
@@ -84,11 +83,10 @@ describe("update-project-name.ts", () => {
       expect(mockReadJson).toHaveBeenCalledWith(packageJsonPath);
 
       expect(mockWriteJson).toHaveBeenCalledOnce();
-      expect(mockWriteJson).toHaveBeenCalledWith(
-        packageJsonPath,
-        { ...mockPackageJson, name: newProjectName },
-        { spaces: 2 },
-      );
+      expect(mockWriteJson).toHaveBeenCalledWith(packageJsonPath, {
+        ...mockPackageJson,
+        name: newProjectName,
+      });
       expect(mockConsoleError).toHaveBeenCalledWith(
         expect.any(String),
         writeError,

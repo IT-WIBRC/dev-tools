@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "fs-extra";
+import fs from "#utils/fileSystem.js";
 import { homedir } from "os";
 
 export async function findUp(
@@ -13,7 +13,7 @@ export async function findUp(
     for (const file of filesToFind) {
       const filePath = path.join(currentDir, file);
       try {
-        await fs.promises.stat(filePath);
+        await fs.stat(filePath);
         return filePath;
       } catch (e) {
         // File does not exist, continue search

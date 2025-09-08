@@ -65,13 +65,31 @@ pnpm install -g scaffolder-toolkit
 yarn global add scaffolder-toolkit
 ```
 
-### Verify Installation
+### Usage
 
-To confirm everything is working, run the help command.
+Since this is a Node.js-based CLI, you can run it using your package manager's runner.
 
 ```bash
-dk --help
+# using bun
+bunx dk --help
+
+# using npm
+npx dk --help
+
+# using pnpm
+pnpx dk --help
+
+# using yarn
+yarn dk --help
 ```
+
+> **Advice:** To use the command directly as `dk`, consider creating an **alias** in your shell configuration file (e.g., `.bashrc`, `.zshrc`, or `config.fish`).
+>
+> ```bash
+> # Example for Bash or Zsh
+> echo 'alias dk="bunx dk"' >> ~/.zshrc
+> source ~/.zshrc
+> ```
 
 ---
 
@@ -347,7 +365,7 @@ This is the recommended approach for most developers. Simply add the `$schema` p
       "templates": {
         "react": {
           "description": "A robust React project with TypeScript",
-          "location": "https://github.com/IT-WIBRC/react-ts-template",
+          "location": "https://github.com/IT-WIBRC/react-ts-template.git",
           "alias": "rt"
         },
         "nextjs": {
@@ -395,7 +413,7 @@ You can also define an **`alias`** to make it easier to reference a specific tem
         },
         "from-github": {
           "description": "A template from a GitHub repository",
-          "location": "https://github.com/my-user/my-template-repo",
+          "location": "https://github.com/my-user/my-template-repo.git",
           "alias": "gh-template",
           "cacheStrategy": "daily"
         },

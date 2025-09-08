@@ -1,8 +1,8 @@
-import fs from "fs-extra";
+import fs from "#utils/fileSystem.js";
 
 export async function doesRepoExist(repoPath: string): Promise<boolean> {
   try {
-    await fs.promises.stat(repoPath);
+    await fs.stat(repoPath);
     return true;
   } catch {
     return false;

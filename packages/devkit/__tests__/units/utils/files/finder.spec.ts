@@ -24,7 +24,7 @@ vi.mock("../../../../src/utils/files/find-up.js", () => ({
   findUp: mockFindUp,
 }));
 
-vi.mock("fs-extra", () => ({
+vi.mock("#utils/fileSystem.js", () => ({
   default: {
     readJson: mockFs.readJson,
     pathExists: mockFs.pathExists,

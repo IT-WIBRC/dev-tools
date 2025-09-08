@@ -1,4 +1,4 @@
-import fs from "fs-extra";
+import fs from "#utils/fileSystem.js";
 import path from "path";
 import { FILE_NAMES } from "./configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
@@ -19,7 +19,7 @@ export async function updateJavascriptProjectName(
     const packageJson = await fs.readJson(packageJsonPath);
     packageJson.name = newProjectName;
 
-    await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
+    await fs.writeJson(packageJsonPath, packageJson);
   } catch (error) {
     console.error(
       chalk.red(t("error.package.failed_to_update_project_name")),
@@ -27,4 +27,3 @@ export async function updateJavascriptProjectName(
     );
   }
 }
-//

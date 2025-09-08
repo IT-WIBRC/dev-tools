@@ -16,12 +16,10 @@ vi.mock("execa", () => ({
   execa: mockExeca,
 }));
 
-vi.mock("fs-extra", () => ({
+vi.mock("#utils/fileSystem.js", () => ({
   default: {
     ensureDir: mockEnsureDir,
-    promises: {
-      stat: mockStat,
-    },
+    stat: mockStat,
   },
 }));
 

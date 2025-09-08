@@ -2,7 +2,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import os from "os";
-import fs from "fs-extra";
+import fs from "#utils/fileSystem.js";
 import { CONFIG_FILE_NAMES, FILE_NAMES } from "#utils/configs/schema.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { findUp } from "./find-up.js";
