@@ -3,12 +3,13 @@ name: Publish to NPM
 on:
   push:
     branches:
-      - main
+      - develop
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   publish:
+    if: startsWith(github.ref, 'refs/heads/changeset-release/')
     permissions:
       contents: write
       issues: write
