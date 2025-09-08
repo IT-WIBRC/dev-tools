@@ -14,8 +14,10 @@ const { mockExistsSync, mockGetConfigFilePath, mockReadFile } = vi.hoisted(
   }),
 );
 
-vi.mock("fs-extra", () => ({
-  existsSync: mockExistsSync,
+vi.mock("#utils/fileSystem.js", () => ({
+  default: {
+    existsSync: mockExistsSync,
+  },
 }));
 
 vi.mock("fs/promises", () => ({

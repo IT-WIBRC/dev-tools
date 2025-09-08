@@ -1,16 +1,17 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { setupInitCommand } from "../../../src/commands/init.js";
-import { defaultCliConfig } from "../../../src/utils/configs/schema.js";
+import {
+  CONFIG_FILE_NAMES,
+  defaultCliConfig,
+} from "../../../src/utils/configs/schema.js";
 import { mockSpinner } from "../../../vitest.setup.js";
 import { ConfigError } from "../../../src/utils/errors/base.js";
 import path from "path";
 import os from "os";
-import fs from "fs-extra";
-import { CONFIG_FILE_NAMES } from "#utils/configs/schema.js";
 
 const {
   mockFs,
-  mockPrompts,
+  mockInquirerSelect,
   mockSaveConfig,
   mockHandleErrorAndExit,
   mockFindUp,
@@ -20,7 +21,7 @@ const {
   mockFs: {
     pathExists: vi.fn(),
   },
-  mockPrompts: vi.fn(),
+  mockInquirerSelect: vi.fn(),
   mockSaveConfig: vi.fn(),
   mockHandleErrorAndExit: vi.fn(),
   mockFindUp: vi.fn(),
@@ -30,12 +31,13 @@ const {
 
 let actionFn: any;
 
-vi.mock("fs-extra", () => ({
+vi.mock("#utils/fileSystem.js", () => ({
   default: {
     pathExists: mockFs.pathExists,
   },
 }));
-vi.mock("prompts", () => ({ default: mockPrompts }));
+
+vi.mock("@inquirer/prompts", () => ({ select: mockInquirerSelect }));
 
 vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
@@ -78,6 +80,9 @@ describe("setupInitCommand", () => {
     };
     vi.spyOn(process, "cwd").mockReturnValue("/current/directory");
     vi.spyOn(path, "join").mockImplementation((...args) => args.join(path.sep));
+    vi.spyOn(path, "dirname").mockImplementation((p) =>
+      p.split(path.sep).slice(0, -1).join(path.sep),
+    );
     mockFindUp.mockResolvedValue(null);
     mockFindMonorepoRoot.mockResolvedValue(null);
     mockFindGlobalConfigFile.mockResolvedValue(globalConfigPath);
@@ -131,13 +136,13 @@ describe("setupInitCommand", () => {
 
     it("should overwrite a global config file when --global flag is set and user confirms", async () => {
       mockFs.pathExists.mockResolvedValue(true);
-      mockPrompts.mockResolvedValue({ overwrite: true });
+      mockInquirerSelect.mockResolvedValueOnce(true);
       setupInitCommand({ program: mockProgram });
 
       await actionFn({ local: false, global: true });
 
       expect(mockFs.pathExists).toHaveBeenCalledWith(globalConfigPath);
-      expect(mockPrompts).toHaveBeenCalled();
+      expect(mockInquirerSelect).toHaveBeenCalled();
       expect(mockSaveConfig).toHaveBeenCalledWith(
         { ...defaultCliConfig },
         globalConfigPath,
@@ -147,7 +152,7 @@ describe("setupInitCommand", () => {
 
     it("should not overwrite a global config file when user cancels", async () => {
       mockFs.pathExists.mockResolvedValue(true);
-      mockPrompts.mockResolvedValue({ overwrite: false });
+      mockInquirerSelect.mockResolvedValueOnce(false);
       setupInitCommand({ program: mockProgram });
 
       await actionFn({ local: false, global: true });
@@ -175,13 +180,13 @@ describe("setupInitCommand", () => {
 
     it("should ask to overwrite a local config file if it already exists", async () => {
       mockFs.pathExists.mockResolvedValue(true);
-      mockPrompts.mockResolvedValue({ overwrite: true });
+      mockInquirerSelect.mockResolvedValueOnce(true);
       setupInitCommand({ program: mockProgram });
 
       await actionFn({ local: false, global: false });
 
       expect(mockFs.pathExists).toHaveBeenCalledWith(localConfigPath);
-      expect(mockPrompts).toHaveBeenCalledTimes(1);
+      expect(mockInquirerSelect).toHaveBeenCalledTimes(1);
       expect(mockSaveConfig).toHaveBeenCalledWith(
         { ...defaultCliConfig },
         localConfigPath,
@@ -195,18 +200,16 @@ describe("setupInitCommand", () => {
       });
 
       it("should create a config in the package if user chooses local", async () => {
-        mockPrompts.mockResolvedValue({ location: "local" });
+        mockInquirerSelect.mockResolvedValueOnce("local");
         setupInitCommand({ program: mockProgram });
 
         await actionFn({ local: false, global: false });
 
         expect(mockFindMonorepoRoot).toHaveBeenCalled();
-        expect(mockPrompts).toHaveBeenCalledWith({
-          type: "select",
-          name: "location",
+        expect(mockInquirerSelect).toHaveBeenCalledWith({
           message: expect.any(String),
           choices: expect.any(Array),
-          initial: 0,
+          default: expect.any(String),
         });
         expect(mockSaveConfig).toHaveBeenCalledWith(
           { ...defaultCliConfig },
@@ -216,18 +219,16 @@ describe("setupInitCommand", () => {
       });
 
       it("should create a config in the root if user chooses root", async () => {
-        mockPrompts.mockResolvedValue({ location: "root" });
+        mockInquirerSelect.mockResolvedValueOnce("root");
         setupInitCommand({ program: mockProgram });
 
         await actionFn({ local: false, global: false });
 
         expect(mockFindMonorepoRoot).toHaveBeenCalled();
-        expect(mockPrompts).toHaveBeenCalledWith({
-          type: "select",
-          name: "location",
+        expect(mockInquirerSelect).toHaveBeenCalledWith({
           message: expect.any(String),
           choices: expect.any(Array),
-          initial: 0,
+          default: expect.any(String),
         });
         expect(mockSaveConfig).toHaveBeenCalledWith(
           { ...defaultCliConfig },
@@ -241,23 +242,23 @@ describe("setupInitCommand", () => {
       beforeEach(() => {
         mockFindMonorepoRoot.mockResolvedValue(monorepoRootPath);
         mockFindUp.mockResolvedValue(monorepoRootConfigPath);
+        vi.spyOn(process, "cwd").mockReturnValue(
+          "/monorepo/root/packages/sub-package",
+        );
       });
 
       it("should prompt for overwrite if in a sub-package and user confirms", async () => {
-        mockPrompts.mockResolvedValue({ overwrite: true });
-        vi.spyOn(process, "cwd").mockReturnValue("/current/directory/sub-dir");
+        mockInquirerSelect.mockResolvedValueOnce(true);
         setupInitCommand({ program: mockProgram });
 
         await actionFn({ local: false, global: false });
 
         expect(mockFindMonorepoRoot).toHaveBeenCalled();
         expect(mockFindUp).toHaveBeenCalledTimes(2);
-        expect(mockPrompts).toHaveBeenCalledWith({
-          type: "select",
-          name: "overwrite",
+        expect(mockInquirerSelect).toHaveBeenCalledWith({
           message: expect.stringContaining(monorepoRootConfigPath),
           choices: expect.any(Array),
-          initial: 0,
+          default: expect.any(Boolean),
         });
         expect(mockSaveConfig).toHaveBeenCalledWith(
           { ...defaultCliConfig },
@@ -266,8 +267,7 @@ describe("setupInitCommand", () => {
       });
 
       it("should abort if in a sub-package and user cancels overwrite", async () => {
-        mockPrompts.mockResolvedValue({ overwrite: false });
-        vi.spyOn(process, "cwd").mockReturnValue("/current/directory/sub-dir");
+        mockInquirerSelect.mockResolvedValueOnce(false);
         setupInitCommand({ program: mockProgram });
 
         await actionFn({ local: false, global: false });

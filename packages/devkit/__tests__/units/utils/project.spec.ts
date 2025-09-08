@@ -6,7 +6,9 @@ const { mockFindPackageRoot, mockFsReadJson } = vi.hoisted(() => ({
   mockFsReadJson: vi.fn(),
 }));
 
-vi.mock("fs-extra", () => ({ default: { readJson: mockFsReadJson } }));
+vi.mock("#utils/fileSystem.js", () => ({
+  default: { readJson: mockFsReadJson },
+}));
 
 vi.mock("#utils/files/finder.js", () => ({
   findPackageRoot: mockFindPackageRoot,

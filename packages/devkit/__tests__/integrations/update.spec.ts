@@ -8,7 +8,7 @@ import {
   beforeAll,
 } from "vitest";
 import { execa } from "execa";
-import fs from "fs-extra";
+import fs from "../../src/utils/fileSystem.js";
 import path from "path";
 import os from "os";
 import { CONFIG_FILE_NAMES } from "../../src/utils/configs/schema.js";

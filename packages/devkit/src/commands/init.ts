@@ -5,61 +5,55 @@ import {
 } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { ConfigError } from "#utils/errors/base.js";
-import fs from "fs-extra";
+import fs from "#utils/fileSystem.js";
 import path from "path";
 import os from "os";
 import ora, { type Ora } from "ora";
 import chalk from "chalk";
-import prompts from "prompts";
+import { select } from "@inquirer/prompts";
 import { findGlobalConfigFile, findMonorepoRoot } from "#utils/files/finder.js";
 import { findUp } from "#utils/files/find-up.js";
 import { saveConfig } from "#utils/configs/writer.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 
 async function promptForStandardOverwrite(filePath: string): Promise<boolean> {
-  const response = await prompts({
-    type: "select",
-    name: "overwrite",
+  const response = await select({
     message: chalk.yellow(
       t("config.init.confirm_overwrite", { path: filePath }),
     ),
     choices: [
-      { title: t("common.yes"), value: true },
-      { title: t("common.no"), value: false },
+      { name: t("common.yes"), value: true },
+      { name: t("common.no"), value: false },
     ],
-    initial: 0,
+    default: true,
   });
-  return response.overwrite;
+  return response;
 }
 
 async function promptForMonorepoOverwrite(filePath: string): Promise<boolean> {
-  const response = await prompts({
-    type: "select",
-    name: "overwrite",
+  const response = await select({
     message: chalk.yellow(
       t("config.init.confirm_monorepo_overwrite", { path: filePath }),
     ),
     choices: [
-      { title: t("common.yes"), value: true },
-      { title: t("common.no"), value: false },
+      { name: t("common.yes"), value: true },
+      { name: t("common.no"), value: false },
     ],
-    initial: 0,
+    default: true,
   });
-  return response.overwrite;
+  return response;
 }
 
 async function promptForMonorepoLocation(): Promise<string> {
-  const response = await prompts({
-    type: "select",
-    name: "location",
+  const response = await select({
     message: chalk.yellow(t("config.init.monorepo_location")),
     choices: [
-      { title: t("config.init.location_current"), value: "local" },
-      { title: t("config.init.location_root"), value: "root" },
+      { name: t("config.init.location_current"), value: "local" },
+      { name: t("config.init.location_root"), value: "root" },
     ],
-    initial: 0,
+    default: "local",
   });
-  return response.location;
+  return response;
 }
 
 async function handleGlobalInit(spinner: Ora) {

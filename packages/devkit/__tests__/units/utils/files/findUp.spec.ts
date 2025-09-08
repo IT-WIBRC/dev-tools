@@ -7,11 +7,9 @@ const { mockFsStat } = vi.hoisted(() => ({
   mockFsStat: vi.fn(),
 }));
 
-vi.mock("fs-extra", () => ({
+vi.mock("#utils/fileSystem.js", () => ({
   default: {
-    promises: {
-      stat: mockFsStat,
-    },
+    stat: mockFsStat,
   },
 }));
 

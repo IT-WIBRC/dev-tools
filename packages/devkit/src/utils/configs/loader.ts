@@ -1,6 +1,6 @@
 import deepmerge from "deepmerge";
 import type { Ora } from "ora";
-import fs from "fs-extra";
+import fs from "#utils/fileSystem.js";
 import {
   type CliConfig,
   CONFIG_FILE_NAMES,

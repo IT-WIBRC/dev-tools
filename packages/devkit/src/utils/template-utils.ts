@@ -1,8 +1,8 @@
-import fs from "fs-extra";
 import {
   FILE_NAMES,
   type SupportedProgrammingLanguageValues,
 } from "./configs/schema.js";
+import fs from "#utils/fileSystem.js";
 
 export function getFilesToFilter(
   language: SupportedProgrammingLanguageValues,

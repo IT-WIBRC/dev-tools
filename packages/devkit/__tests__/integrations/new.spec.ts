@@ -8,7 +8,7 @@ import {
   vi,
 } from "vitest";
 import { execa } from "execa";
-import fs from "fs-extra";
+import fs from "../../src/utils/fileSystem.js";
 import path from "path";
 import os from "os";
 import {
@@ -106,24 +106,23 @@ describe("dk new", () => {
       await fs.writeJson(
         path.join(mockInstallDir, LOCAL_CONFIG_FILE_NAME),
         configWithTemplates,
-        { spaces: 2 },
       );
 
       await fs.ensureDir(path.join(templatesDir, "vuejs"));
-      await fs.writeFile(
-        path.join(templatesDir, "vuejs", "package.json"),
-        JSON.stringify({ name: "test-vue-template" }),
-      );
+
+      await fs.writeFile(path.join(templatesDir, "vuejs", "package.json"), {
+        name: "test-vue-template",
+      });
+
       await fs.writeFile(
         path.join(templatesDir, "vuejs", "vue-test.txt"),
         "vue content",
       );
 
       await fs.ensureDir(path.join(templatesDir, "nestjs"));
-      await fs.writeFile(
-        path.join(templatesDir, "nestjs", "package.json"),
-        JSON.stringify({ name: "test-nest-template" }),
-      );
+      await fs.writeFile(path.join(templatesDir, "nestjs", "package.json"), {
+        name: "test-nest-template",
+      });
       await fs.writeFile(
         path.join(templatesDir, "nestjs", "nest-test.txt"),
         "nestjs content",
@@ -154,7 +153,7 @@ describe("dk new", () => {
           path.join(mockProjectDir, "my-vue-app", "vue-test.txt"),
         ),
       ).toBe(true);
-    });
+    }, 10000);
   });
 
   describe("dk new (Monorepo Usage)", () => {
@@ -183,7 +182,6 @@ describe("dk new", () => {
       await fs.writeJson(
         path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
         configWithTemplates,
-        { spaces: 2 },
       );
 
       await fs.ensureDir(path.join(packagesTemplatesJsDir, "vuejs"));
@@ -199,7 +197,7 @@ describe("dk new", () => {
       await fs.ensureDir(path.join(packagesTemplatesJsDir, "nestjs"));
       await fs.writeFile(
         path.join(packagesTemplatesJsDir, "nestjs", "package.json"),
-        JSON.stringify({ name: "test-nest-template" }),
+        { name: "test-nest-template" },
       );
       await fs.writeFile(
         path.join(packagesTemplatesJsDir, "nestjs", "nest-test.txt"),

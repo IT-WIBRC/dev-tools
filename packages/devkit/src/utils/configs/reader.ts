@@ -1,7 +1,9 @@
-import { existsSync } from "fs-extra";
+import fs from "#utils/fileSystem.js";
 import { readFile } from "fs/promises";
 import { type CliConfig } from "#utils/configs/schema.js";
 import { getConfigFilepath } from "#utils/configs/path-finder.js";
+
+const { existsSync } = fs;
 
 export async function readConfigAtPath(
   filePath: string,

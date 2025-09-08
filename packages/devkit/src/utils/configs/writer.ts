@@ -1,4 +1,4 @@
-import fs from "fs-extra";
+import fs from "#utils/fileSystem.js";
 import { DevkitError, ConfigError } from "../errors/base.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { getConfigFilepath } from "./path-finder.js";
@@ -6,7 +6,7 @@ import { type CliConfig, type CacheStrategy } from "./schema.js";
 
 export async function saveConfig(config: CliConfig, filePath: string) {
   try {
-    await fs.writeJson(filePath, config, { spaces: 2 });
+    await fs.writeJson(filePath, config);
   } catch (error) {
     throw new DevkitError(t("error.config.save", { file: filePath }), {
       cause: error,

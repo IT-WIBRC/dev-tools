@@ -41,7 +41,7 @@ vi.mock("#utils/configs/reader.js", () => ({
   readConfigAtPath: mockReadConfigAtPath,
 }));
 
-vi.mock("fs-extra", () => ({
+vi.mock("#utils/fileSystem.js", () => ({
   default: {
     pathExists: mockFs.pathExists,
     readJson: mockFs.readJson,

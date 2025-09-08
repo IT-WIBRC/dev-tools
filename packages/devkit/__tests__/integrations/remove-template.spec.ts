@@ -8,7 +8,7 @@ import {
   beforeAll,
 } from "vitest";
 import { execa } from "execa";
-import fs from "fs-extra";
+import fs from "../../src/utils/fileSystem.js";
 import path from "path";
 import os from "os";
 import {
@@ -95,7 +95,7 @@ describe("dk remove-template", () => {
 
   it("should successfully remove a template from the local config", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, localConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, localConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -120,7 +120,7 @@ describe("dk remove-template", () => {
 
   it("should successfully remove a template using an alias from the local config", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, localConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, localConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -147,7 +147,7 @@ describe("dk remove-template", () => {
       globalConfigDir,
       GLOBAL_CONFIG_FILE_NAME,
     );
-    await fs.writeJson(globalConfigPath, globalConfig, { spaces: 2 });
+    await fs.writeJson(globalConfigPath, globalConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -186,7 +186,7 @@ describe("dk remove-template", () => {
 
   it("should fail to remove a template if the specified language is not found", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, localConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, localConfig);
 
     const { exitCode, all } = await execa(
       "bun",
@@ -206,7 +206,7 @@ describe("dk remove-template", () => {
 
   it("should fail to remove a template if the template name/alias is not found", async () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
-    await fs.writeJson(localConfigPath, localConfig, { spaces: 2 });
+    await fs.writeJson(localConfigPath, localConfig);
 
     const { exitCode, all } = await execa(
       "bun",

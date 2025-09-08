@@ -1,4 +1,4 @@
-import fs from "fs-extra";
+import fs from "#utils/fileSystem.js";
 import path from "path";
 import { osLocale } from "os-locale";
 import {
@@ -35,12 +35,12 @@ export async function loadTranslations(
     const localesDir = await findLocalesDir();
     const filePath = path.join(localesDir, `${languageToLoad}.json`);
 
-    translations = await fs.readJson(filePath, { encoding: "utf-8" });
+    translations = await fs.readJson(filePath);
   } catch (error) {
     const localesDir = await findLocalesDir();
     const fallbackPath = path.join(localesDir, "en.json");
     try {
-      translations = await fs.readJson(fallbackPath, { encoding: "utf-8" });
+      translations = await fs.readJson(fallbackPath);
     } catch (e) {
       throw new DevkitError(
         `Failed to load translations from both ${languageToLoad}.json and the fallback en.json`,

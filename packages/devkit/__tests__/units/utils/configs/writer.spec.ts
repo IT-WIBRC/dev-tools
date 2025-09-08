@@ -1,5 +1,4 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import fs from "fs-extra";
 import {
   saveConfig,
   saveCliConfig,
@@ -13,7 +12,7 @@ const { mockWriteJson, mockGetConfigFilepath } = vi.hoisted(() => ({
   mockGetConfigFilepath: vi.fn(),
 }));
 
-vi.mock("fs-extra", () => ({
+vi.mock("#utils/fileSystem.js", () => ({
   default: {
     writeJson: mockWriteJson,
   },
@@ -43,9 +42,7 @@ describe("Configuration Writer Functions", () => {
     const config = { setting: "value" };
     mockWriteJson.mockResolvedValueOnce(undefined);
     await saveConfig(config as any, filePath);
-    expect(vi.mocked(fs.writeJson)).toHaveBeenCalledWith(filePath, config, {
-      spaces: 2,
-    });
+    expect(mockWriteJson).toHaveBeenCalledWith(filePath, config);
   });
 
   it("saveConfig should throw a DevkitError on write failure", async () => {
@@ -64,10 +61,9 @@ describe("Configuration Writer Functions", () => {
     mockWriteJson.mockResolvedValueOnce(undefined);
     await saveCliConfig({} as any, false);
     expect(vi.mocked(getConfigFilepath)).toHaveBeenCalledWith(false);
-    expect(vi.mocked(fs.writeJson)).toHaveBeenCalledWith(
+    expect(mockWriteJson).toHaveBeenCalledWith(
       "/cli/config.json",
       expect.any(Object),
-      { spaces: 2 },
     );
   });
 
@@ -82,7 +78,6 @@ describe("Configuration Writer Functions", () => {
     expect(mockWriteJson).toHaveBeenCalledWith(
       "/project/config.json",
       expect.any(Object),
-      { spaces: 2 },
     );
   });
 

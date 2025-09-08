@@ -14,7 +14,7 @@ const { mockFs, mockOsLocale, mockFindLocalesDir } = vi.hoisted(() => ({
   mockFindLocalesDir: vi.fn(),
 }));
 
-vi.mock("fs-extra", () => ({
+vi.mock("#utils/fileSystem.js", () => ({
   default: mockFs,
 }));
 
@@ -47,9 +47,7 @@ describe("loadTranslations", () => {
 
     await loadTranslations("fr");
 
-    expect(mockFs.readJson).toHaveBeenCalledWith(mockFrJsonPath, {
-      encoding: "utf-8",
-    });
+    expect(mockFs.readJson).toHaveBeenCalledWith(mockFrJsonPath);
     expect(translations).toEqual({ "test.key": "Bonjour" });
   });
 
@@ -64,14 +62,12 @@ describe("loadTranslations", () => {
 
     await loadTranslations(null);
 
-    expect(mockFs.readJson).toHaveBeenCalledWith(mockFrJsonPath, {
-      encoding: "utf-8",
-    });
+    expect(mockFs.readJson).toHaveBeenCalledWith(mockFrJsonPath);
     expect(translations).toEqual({ "test.key": "Bonjour" });
   });
 
   it("should fall back to 'en' if the system locale is not supported", async () => {
-    mockOsLocale.mockResolvedValue("es-ES"); // Unsupported locale
+    mockOsLocale.mockResolvedValue("es-ES");
     mockFs.readJson.mockImplementation(async (filePath) => {
       if (filePath === mockEnJsonPath) {
         return { "test.key": "Hello" };
@@ -81,9 +77,7 @@ describe("loadTranslations", () => {
 
     await loadTranslations(null);
 
-    expect(mockFs.readJson).toHaveBeenCalledWith(mockEnJsonPath, {
-      encoding: "utf-8",
-    });
+    expect(mockFs.readJson).toHaveBeenCalledWith(mockEnJsonPath);
     expect(translations).toEqual({ "test.key": "Hello" });
   });
 
@@ -98,9 +92,7 @@ describe("loadTranslations", () => {
 
     await loadTranslations(null);
 
-    expect(mockFs.readJson).toHaveBeenCalledWith(mockEnJsonPath, {
-      encoding: "utf-8",
-    });
+    expect(mockFs.readJson).toHaveBeenCalledWith(mockEnJsonPath);
     expect(translations).toEqual({ "test.key": "Hello" });
   });
 
@@ -118,12 +110,8 @@ describe("loadTranslations", () => {
 
     await loadTranslations("fr");
 
-    expect(mockFs.readJson).toHaveBeenCalledWith(mockFrJsonPath, {
-      encoding: "utf-8",
-    });
-    expect(mockFs.readJson).toHaveBeenCalledWith(mockEnJsonPath, {
-      encoding: "utf-8",
-    });
+    expect(mockFs.readJson).toHaveBeenCalledWith(mockFrJsonPath);
+    expect(mockFs.readJson).toHaveBeenCalledWith(mockEnJsonPath);
     expect(translations).toEqual({ "test.key": "Hello" });
   });
 
