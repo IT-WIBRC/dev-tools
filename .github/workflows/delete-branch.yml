@@ -1,0 +1,22 @@
+name: Delete Merged Head Branch
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  delete_branch:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'develop' && github.event.pull_request.head.ref != 'main' && !startsWith(github.event.pull_request.head.ref, 'auto-gen-')
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Delete merged head branch
+        uses: dawidd6/action-delete-branch@v3
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          branches: |
+            ${{ github.event.pull_request.head.ref }}
