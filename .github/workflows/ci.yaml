@@ -24,8 +24,6 @@ jobs:
 
       - name: Reusable Setup
         uses: ./.github/actions/setup
-      - name: Reusable Setup
-        uses: ./.github/actions/setup
         with:
           bun_version: "latest"
 
