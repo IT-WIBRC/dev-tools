@@ -93,6 +93,14 @@ yarn dk --help
 
 ---
 
+### Global Options
+
+In addition to the options for each command, you can use a global flag that affects the entire CLI's output.
+
+- **`--verbose`**: The verbose flag (`-v`) provides more detailed output during execution. It's particularly useful for debugging or when you want to see exactly what the CLI is doing behind the scenes, such as confirming initialization and configuration loading.
+
+---
+
 ## 📦 Default Templates
 
 Scaffolder comes with a set of pre-configured templates for popular frameworks and libraries. You can use these templates out of the box with the `dk new` command.
@@ -146,7 +154,7 @@ You must provide a `description` using the `--description` flag. Other options l
 
 ```bash
 # Example: Add a new template from a GitHub repository
-dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template --description "My custom React TS template"
+dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template.git --description "My custom React TS template"
 
 # Example: Add a new template from a local folder
 dk add-template javascript my-local-template ./path/to/my-template-folder --description "My local template"
@@ -452,7 +460,7 @@ We're always working to improve the Scaffolder CLI. For a complete list of plann
 
 ## 🤝 Contributing
 
-We welcome contributions\! Please see our [Contributing Guide](../../CONTRIBUTING.md) for details on how to get started.
+We welcome contributions. Please see our [Contribution Guide](../../CONTRIBUTING.md) for details on how to get started.
 
 ---
 

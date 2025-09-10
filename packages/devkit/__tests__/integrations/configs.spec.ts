@@ -8,15 +8,10 @@ import {
   beforeAll,
 } from "vitest";
 import { execa } from "execa";
-import fs from "../../src/utils/fileSystem.js";
 import path from "path";
 import os from "os";
-import {
-  CONFIG_FILE_NAMES,
-  defaultCliConfig,
-} from "../../src/utils/configs/schema.js";
+import { CLI_PATH, fs, CONFIG_FILE_NAMES, defaultCliConfig } from "./common.js";
 
-const CLI_PATH = path.resolve("./dist/bundle.js");
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
 const GLOBAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[0];
 

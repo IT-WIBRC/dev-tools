@@ -1,7 +1,9 @@
 {
   "program": {
     "description": "A powerful devkit for scaffolding new projects.",
-    "initialized": "CLI initialized successfully."
+    "initialized": "CLI initialized successfully.",
+    "initializing": "Initializing CLI ...",
+    "verbose_option": "Enable verbose logging for detailed output"
   },
   "new": {
     "command": {

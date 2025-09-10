@@ -31,7 +31,9 @@ const { mocktFn, mockLoadTranslations, mockProgram, mockSpinner } = vi.hoisted(
         command: vi.fn(() => mockProgram),
         requiredOption: vi.fn(() => mockProgram),
         option: vi.fn(() => mockProgram),
-        parse: vi.fn(() => Promise.resolve()),
+        parse: vi.fn(() => mockProgram),
+        opts: vi.fn(),
+        parseOptions: vi.fn(),
       },
       mockSpinner,
     };

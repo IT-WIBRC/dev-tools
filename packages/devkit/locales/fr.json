@@ -1,27 +1,29 @@
 {
   "program": {
-    "description": "Une CLI puissante pour automatiser la création de nouveaux projets.",
-    "initialized": "CLI initialisée avec succès."
+    "description": "Une boîte à outils puissante pour l'échafaudage de nouveaux projets.",
+    "initialized": "CLI initialisée avec succès.",
+    "initializing": "Initialisation du CLI ...",
+    "verbose_option": "Activer la journalisation détaillée."
   },
   "new": {
     "command": {
-      "description": "Créer un nouveau projet à partir d'un modèle"
+      "description": "Créer un nouveau projet à partir d'un modèle."
     },
     "project": {
       "language": {
-        "argument": "Le langage de programmation du modèle (par exemple, 'react', 'node')"
+        "argument": "Le langage de programmation du modèle (par ex. 'react', 'node')"
       },
       "name": {
         "argument": "Le nom de votre nouveau projet"
       },
       "template": {
         "option": {
-          "description": "Le nom du modèle à utiliser (par exemple, 'ts', 'simple-api')"
+          "description": "Le nom du modèle à utiliser (par ex. 'ts', 'simple-api')"
         }
       },
-      "scaffolding": "Création du projet '{projectName}' avec le modèle '{template}'...",
+      "scaffolding": "Échafaudage du projet '{projectName}' avec le modèle '{template}'...",
       "success": "✔ Projet '{projectName}' créé avec succès !",
-      "fail": "❌ Échec de la création du projet : {error}"
+      "fail": "❌ Échec de l'échafaudage du projet : {error}"
     }
   },
   "list": {
@@ -62,7 +64,7 @@
       "argument": "Le nom ou l'alias du modèle à supprimer."
     },
     "option": {
-      "global": "Supprimer le modèle de la configuration globale au lieu de la locale."
+      "global": "Supprimer le modèle de la configuration globale au lieu de la configuration locale."
     }
   },
   "version": {
@@ -73,12 +75,12 @@
   },
   "scaffolding": {
     "project": {
-      "start": "Création du projet {language} : {project}",
+      "start": "Échafaudage du projet {language} : {project}",
       "success": "✔ Projet {language} '{project}' créé avec succès !",
-      "fail": "❌ Échec de la création du projet {language} : {error}"
+      "fail": "❌ Échec de l'échafaudage du projet {language} : {error}"
     },
     "copy": {
-      "start": "📂 Copie des fichiers du modèle local...",
+      "start": "📂 Copie des fichiers de modèle local...",
       "success": "✔ Modèle local copié avec succès !",
       "fail": "❌ Échec de la copie du modèle local."
     },
@@ -103,13 +105,13 @@
     },
     "set": {
       "command": {
-        "description": "Définir une ou plusieurs valeurs de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement global de mise en cache pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue de la CLI. Valeurs possibles : 'en', 'fr'\n"
+        "description": "Définir une ou plusieurs valeurs de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache globale pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue de la CLI. Valeurs possibles : 'en', 'fr'\n"
       },
       "argument": {
-        "description": "Une liste de paires clé-valeur à définir (par exemple, 'pm npm language fr')"
+        "description": "Une liste de paires clé-valeur à définir (par ex. 'pm npm language fr')"
       },
       "option": {
-        "global": "Mettre à jour la configuration globale au lieu de la locale."
+        "global": "Mettre à jour la configuration globale au lieu de la configuration locale."
       },
       "updating": "Mise à jour de la configuration...",
       "success": "Configuration mise à jour avec succès !"
@@ -119,14 +121,14 @@
         "description": "Obtenir une ou plusieurs valeurs de configuration."
       },
       "argument": {
-        "description": "La clé de la valeur de configuration à obtenir (par exemple, 'pm', 'language')."
+        "description": "La clé de la valeur de configuration à obtenir (par ex. 'pm', 'language')."
       },
       "option": {
-        "global": "Obtenir la configuration globale au lieu de la locale."
+        "global": "Obtenir la configuration globale au lieu de la configuration locale."
       },
       "loading": "Chargement de la configuration...",
       "success": "Configuration chargée avec succès !",
-      "not_found": "Clé de configuration '{key}' introuvable.",
+      "not_found": "Clé de configuration '{key}' non trouvée.",
       "fallback": {
         "global": "Aucun fichier de configuration globale trouvé. Affichage des paramètres par défaut à la place.",
         "local": "Aucun fichier de configuration locale trouvé. Affichage des paramètres par défaut à la place.",
@@ -146,16 +148,16 @@
       "fail": "Échec de l'initialisation de la configuration.",
       "initializing": "Initialisation de la configuration...",
       "option": {
-        "local": "Initialiser un fichier de configuration locale au lieu d'un global.",
-        "global": "Initialiser un fichier de configuration globale au lieu d'un local."
+        "local": "Initialiser un fichier de configuration locale au lieu d'un fichier global.",
+        "global": "Initialiser un fichier de configuration globale au lieu d'un fichier local."
       },
       "confirm_overwrite": "Le fichier de configuration existe déjà à {path}. Voulez-vous l'écraser ?",
-      "confirm_monorepo_overwrite": "Un fichier de configuration existe à la racine du monorepo à {path}. Voulez-vous en créer un nouveau dans le package actuel ?",
+      "confirm_monorepo_overwrite": "Un fichier de configuration existe déjà à la racine du monorepo à {path}. Voulez-vous en créer un nouveau dans le paquet actuel ?",
       "found_existing": "Le fichier de configuration existe déjà à {path}. Initialisation ignorée.",
       "monorepo_location": "Une racine de monorepo a été trouvée, mais aucun fichier de configuration n'y existe. Où voulez-vous créer le nouveau fichier de configuration ?",
-      "location_current": "Le créer dans le package actuel.",
+      "location_current": "Le créer dans le paquet actuel.",
       "location_root": "Le créer à la racine du monorepo.",
-      "aborted": "Opération annulée. Aucune modification n'a été effectuée."
+      "aborted": "Opération annulée. Aucune modification n'a été faite."
     },
     "update": {
       "command": {
@@ -169,12 +171,12 @@
       },
       "option": {
         "new_name": "Un nouveau nom pour le modèle.",
-        "description": "Une nouvelle description pour le modèle.",
+        "description": "Une nouvelle brève description pour le modèle.",
         "alias": "Un nouvel alias pour le modèle.",
         "location": "Un nouvel emplacement pour le modèle.",
-        "cache_strategy": "Une nouvelle stratégie de cache pour le modèle.",
+        "cache_strategy": "Une nouvelle stratégie de mise en cache pour le modèle.",
         "package_manager": "Un nouveau gestionnaire de paquets pour le modèle.",
-        "global": "Mettre à jour le modèle dans la configuration globale au lieu de la locale."
+        "global": "Mettre à jour le modèle dans la configuration globale au lieu de la configuration locale."
       },
       "updating": "Mise à jour du modèle '{templateName}' dans la configuration...",
       "success": "✔ Modèle '{templateName}' mis à jour avec succès !",
@@ -182,25 +184,25 @@
     },
     "cache": {
       "command": {
-        "description": "Mettre à jour la stratégie de cache pour un modèle spécifique.",
-        "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
-        "fail": "❌ Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'.",
-        "success": "✨ Stratégie de cache pour le modèle '{template}' mise à jour en '{strategy}'."
+        "description": "Mettre à jour la stratégie de mise en cache pour un modèle spécifique.",
+        "start": "Mise à jour de la stratégie de mise en cache pour le modèle '{template}'...",
+        "fail": "❌ Échec de la mise à jour de la stratégie de mise en cache pour le modèle '{template}'.",
+        "success": "✨ Stratégie de mise en cache pour le modèle '{template}' mise à jour en '{strategy}'."
       },
       "template": {
         "argument": "Le nom du modèle à mettre à jour"
       },
       "strategy": {
-        "argument": "La nouvelle stratégie de cache"
+        "argument": "La nouvelle stratégie de mise en cache"
       },
-      "start": "Mise à jour de la stratégie de cache pour le modèle '{template}'...",
-      "success": "Stratégie de cache pour le modèle '{template}' mise à jour en '{strategy}'",
-      "fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'",
+      "start": "Mise à jour de la stratégie de mise en cache pour le modèle '{template}'...",
+      "success": "Stratégie de mise en cache pour le modèle '{template}' mise à jour en '{strategy}'",
+      "fail": "Échec de la mise à jour de la stratégie de mise en cache pour le modèle '{template}'",
       "updating": "Mise à jour du cache..."
     },
     "check": {
       "local": "Vérification de la configuration locale ou du monorepo...",
-      "global": "Configuration locale introuvable. Vérification de la configuration globale..."
+      "global": "Configuration locale non trouvée. Vérification de la configuration globale..."
     },
     "found": {
       "local": "Configuration locale trouvée et utilisée à {path}.",
@@ -217,7 +219,7 @@
       "key": "Clé invalide : '{key}'. Les clés valides sont : {keys}",
       "value": "Valeur invalide pour {key}. Les options valides sont : {options}",
       "command": "Commande invalide dans la configuration : '{command}'",
-      "cache_strategy": "Stratégie de cache invalide : '{value}'. Les options valides sont : {options}",
+      "cache_strategy": "Stratégie de mise en cache invalide : '{value}'. Les options valides sont : {options}",
       "package_manager": "Gestionnaire de paquets invalide : '{value}'. Les options valides sont : {options}",
       "remove_required": "Impossible de supprimer une propriété requise : '{key}'."
     },
@@ -226,11 +228,11 @@
       "save": "❌ Échec de l'enregistrement du fichier de configuration : {file}",
       "exists": "Le fichier existe déjà à {path}. Utilisez 'config set' pour le mettre à jour.",
       "not": {
-        "found": "Fichier de configuration introuvable."
+        "found": "Fichier de configuration non trouvé."
       },
       "global": {
         "not": {
-          "found": "Fichier de configuration globale introuvable. Exécutez 'devkit config init --global' pour en créer un."
+          "found": "Fichier de configuration globale non trouvé. Exécutez 'devkit config init --global' pour en créer un."
         }
       },
       "local": {
@@ -241,7 +243,7 @@
       "generic": "Erreur de configuration",
       "init": {
         "fail": "Échec de l'initialisation de la configuration.",
-        "local_and_global": "Impossible d'utiliser les deux options --local et --global en même temps."
+        "local_and_global": "Impossible d'utiliser les deux drapeaux --local et --global en même temps."
       },
       "read": "Échec de la lecture de la configuration à {path}.",
       "no_file_found": "Aucun fichier de configuration trouvé. Exécutez 'devkit config init' pour en créer un global, ou 'devkit config init --local' pour en créer un local.",
@@ -254,14 +256,14 @@
       "root": {
         "not_found": "Impossible de trouver la racine du projet contenant package.json."
       },
-      "file_not_found": "{file} introuvable à {path}",
+      "file_not_found": "{file} non trouvé à {path}",
       "failed_to_update_project_name": "Échec de la mise à jour du nom du projet :"
     },
     "version": {
       "read_fail": "Échec de la lecture de la version de package.json."
     },
     "template": {
-      "not_found": "Modèle '{template}' introuvable dans la configuration.",
+      "not_found": "Modèle '{template}' non trouvé dans la configuration.",
       "exists": "Le modèle '{template}' existe déjà dans la configuration. Utilisez 'devkit config set' pour le mettre à jour."
     },
     "alias": {
@@ -271,28 +273,28 @@
       "message": "Erreur d'installation :"
     },
     "scaffolding": {
-      "unexpected": "Une erreur inattendue est survenue lors de la création.",
+      "unexpected": "Une erreur inattendue est survenue pendant l'échafaudage.",
       "language": {
-        "not_found": "Langage de création introuvable dans la configuration : '{language}'"
+        "not_found": "Langage d'échafaudage non trouvé dans la configuration : '{language}'"
       }
     },
     "command": {
       "config": {
         "cache": {
-          "fail": "Échec de la mise à jour de la stratégie de cache pour le modèle '{template}'"
+          "fail": "Échec de la mise à jour de la stratégie de mise en cache pour le modèle '{template}'"
         }
       },
       "set": {
         "invalid_arguments_count": "Nombre d'arguments invalide. Veuillez fournir des paires clé-valeur."
       },
       "update": {
-        "no_options": "Aucune option de mise à jour n'a été fournie. Veuillez spécifier au moins une option à mettre à jour (par exemple, --new-name, --description, etc.)."
+        "no_options": "Aucune option de mise à jour n'a été fournie. Veuillez spécifier au moins une option à mettre à jour (par ex. --new-name, --description, etc.)."
       }
     },
     "save": {
       "local": {
         "config": {
-          "not_found": "Échec de l'enregistrement de la configuration locale. Fichier introuvable à '{path}'."
+          "not_found": "Échec de l'enregistrement de la configuration locale. Fichier non trouvé à '{path}'."
         }
       }
     },
@@ -301,24 +303,24 @@
     },
     "unexpected": "Une erreur inattendue est survenue",
     "unknown": "Une erreur inconnue est survenue",
-    "language_config_not_found": "Langage de création introuvable dans la configuration : '{language}'"
+    "language_config_not_found": "Langage d'échafaudage non trouvé dans la configuration : '{language}'"
   },
   "cache": {
     "clone": {
-      "start": "✨ Clonage du nouveau modèle depuis {url}...",
+      "start": "✨ Clonage du nouveau modèle à partir de {url}...",
       "success": "✔ Modèle cloné avec succès !",
       "fail": "❌ Échec du clonage du dépôt."
     },
     "refresh": {
-      "start": "🔄 Actualisation du modèle en cache...",
-      "success": "✔ Modèle actualisé avec succès !",
-      "fail": "❌ Échec de l'actualisation du modèle."
+      "start": "🔄 Rafraîchissement du modèle mis en cache...",
+      "success": "✔ Modèle rafraîchi avec succès !",
+      "fail": "❌ Échec du rafraîchissement du modèle."
     },
     "use": {
-      "info": "🚀 Utilisation du modèle en cache pour {repoName}."
+      "info": "🚀 Utilisation du modèle mis en cache pour {repoName}."
     },
     "copy": {
-      "start": "📂 Copie du modèle en cache vers le répertoire du projet...",
+      "start": "📂 Copie du modèle mis en cache vers le répertoire du projet...",
       "success": "✔ Fichiers copiés avec succès !",
       "fail": "❌ Échec de la copie des fichiers depuis le cache."
     }
@@ -344,7 +346,7 @@
       "options": {
         "description": "Une brève description du modèle",
         "alias": "Un alias court pour le modèle",
-        "cache": "La stratégie de cache pour le modèle",
+        "cache": "La stratégie de mise en cache pour le modèle",
         "package_manager": "Le gestionnaire de paquets à utiliser pour le modèle"
       },
       "adding": "Ajout du modèle '{templateName}' à la configuration...",
