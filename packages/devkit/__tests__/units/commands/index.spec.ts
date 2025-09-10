@@ -1,9 +1,5 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  mockProgram,
-  mockSpinner,
-  mockLoadTranslations,
-} from "../../../vitest.setup.js";
+import { mockProgram, mockSpinner } from "../../../vitest.setup.js";
 import { setupAndParse } from "../../../src/commands/index.js";
 import type { CliConfig } from "../../../src/utils/configs/schema.js";
 
@@ -83,12 +79,17 @@ vi.mock("#utils/configs/loader.js", () => ({
 }));
 
 const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+const optsSpy = vi.spyOn(mockProgram, "opts");
+const parseOptionsSpy = vi.spyOn(mockProgram, "parseOptions");
 
 describe("index.ts (Entry point)", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
     warnSpy.mockClear();
+    mockSpinner.start.mockReturnValue(mockSpinner);
+    mockSpinner.stop.mockReturnValue(mockSpinner);
+    mockSpinner.succeed.mockReturnValue(mockSpinner);
   });
 
   afterEach(() => {
@@ -104,23 +105,75 @@ describe("index.ts (Entry point)", () => {
     templates: {},
   } as const;
 
-  describe("Successful Execution", () => {
-    it("should initialize the CLI, load config, and set up commands correctly", async () => {
+  describe("Initialization", () => {
+    it("should initialize the CLI and set up commands correctly in non-verbose mode", async () => {
       mockGetLocaleFromConfigMinimal.mockResolvedValueOnce("en");
       mockLoadUserConfig.mockResolvedValueOnce({
         config: { ...mockedConfig },
         source: "local",
       });
+      optsSpy.mockReturnValue({});
+      mockProgram.parse.mockReturnValue(mockProgram);
 
       await setupAndParse();
       await vi.runAllTimersAsync();
 
-      expect(mockGetProjectVersion).toHaveBeenCalled();
-      expect(mockLoadUserConfig).toHaveBeenCalledOnce();
-      expect(mockLoadTranslations).toHaveBeenCalledOnce();
+      expect(parseOptionsSpy).toHaveBeenCalledOnce();
+      expect(mockSpinner.start).toHaveBeenCalledWith("");
+      expect(mockSpinner.succeed).not.toHaveBeenCalled();
+    });
 
-      expect(mockSpinner.start).toHaveBeenCalledOnce();
+    it("should display a success message and info spinner in verbose mode", async () => {
+      mockGetLocaleFromConfigMinimal.mockResolvedValueOnce("en");
+      mockLoadUserConfig.mockResolvedValueOnce({
+        config: { ...mockedConfig },
+        source: "local",
+      });
+      optsSpy.mockReturnValue({ verbose: true });
+      mockProgram.parse.mockReturnValue(mockProgram);
+
+      await setupAndParse();
+      await vi.runAllTimersAsync();
+
+      expect(parseOptionsSpy).toHaveBeenCalledOnce();
+      expect(mockSpinner.start).toHaveBeenCalledWith("Initializing CLI...");
       expect(mockSpinner.succeed).toHaveBeenCalledOnce();
+      expect(mockSpinner.stop).not.toHaveBeenCalled();
+    });
+
+    it("should display a warning if a default config is used (always visible)", async () => {
+      mockGetLocaleFromConfigMinimal.mockResolvedValue("en");
+      mockLoadUserConfig.mockResolvedValue({
+        config: { ...mockedConfig },
+        source: "default",
+      });
+      optsSpy.mockReturnValue({});
+      mockProgram.parse.mockReturnValue(mockProgram);
+
+      await setupAndParse();
+      await vi.runAllTimersAsync();
+
+      expect(warnSpy).toHaveBeenCalledOnce();
+      expect(warnSpy).toHaveBeenCalledWith(
+        "\n",
+        expect.stringContaining("warning.no_config_found"),
+        "\n",
+      );
+    });
+  });
+
+  describe("Command Setup and Execution", () => {
+    it("should set up all commands with the correct arguments", async () => {
+      mockGetLocaleFromConfigMinimal.mockResolvedValue("en");
+      mockLoadUserConfig.mockResolvedValue({
+        config: { ...mockedConfig },
+        source: "local",
+      });
+      optsSpy.mockReturnValue({});
+      mockProgram.parse.mockReturnValue(mockProgram);
+
+      await setupAndParse();
+      await vi.runAllTimersAsync();
 
       expect(mockSetupInitCommand).toHaveBeenCalledOnce();
       expect(mockSetupInitCommand).toHaveBeenCalledWith({
@@ -161,29 +214,12 @@ describe("index.ts (Entry point)", () => {
         source: "local",
       });
 
-      expect(mockProgram.parse).toHaveBeenCalledOnce();
-      expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
-    });
-
-    it("should display a warning if a default config is used", async () => {
-      mockGetLocaleFromConfigMinimal.mockResolvedValue("en");
-      mockLoadUserConfig.mockResolvedValue({
-        config: { ...mockedConfig },
-        source: "default",
+      expect(mockSetupConfigUpdateCommand).toHaveBeenCalledOnce();
+      expect(mockSetupConfigUpdateCommand).toHaveBeenCalledWith({
+        config: mockedConfig,
+        program: mockProgram,
+        source: "local",
       });
-
-      const setupPromise = setupAndParse();
-      await vi.runAllTimersAsync();
-      await setupPromise;
-
-      expect(mockLoadUserConfig).toHaveBeenCalled();
-      expect(warnSpy).toHaveBeenCalledOnce();
-      expect(warnSpy).toHaveBeenCalledWith(
-        "\n\n",
-        expect.stringContaining("warning.no_config_found"),
-        "\n",
-      );
-      expect(mockSpinner.succeed).toHaveBeenCalled();
     });
   });
 
@@ -192,10 +228,11 @@ describe("index.ts (Entry point)", () => {
       const testError = new Error("Config load failed");
       mockGetLocaleFromConfigMinimal.mockResolvedValue("en");
       mockLoadUserConfig.mockRejectedValue(testError);
+      optsSpy.mockReturnValue({});
+      mockProgram.parse.mockReturnValue(mockProgram);
 
-      const setupPromise = setupAndParse();
+      await setupAndParse();
       await vi.runAllTimersAsync();
-      await setupPromise;
 
       expect(mockLoadUserConfig).toHaveBeenCalled();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(

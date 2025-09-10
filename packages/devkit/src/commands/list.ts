@@ -21,32 +21,42 @@ async function getConfigsToDisplay(
   const { global, local, all } = opts;
   const configs: ConfigsToDisplay = [];
 
-  if (all) {
+  const addTemplates = (config: any) => {
+    if (config) {
+      configs.push({ templates: config.config.templates });
+    }
+  };
+
+  const getAndAddLocalConfig = async () => {
     const localConfig = await readLocalConfig();
+    addTemplates(localConfig);
+    return localConfig;
+  };
+
+  const getAndAddGlobalConfig = async () => {
     const globalConfig = await readGlobalConfig();
-    if (localConfig) configs.push({ templates: localConfig.config.templates });
-    if (globalConfig)
-      configs.push({ templates: globalConfig.config.templates });
+    addTemplates(globalConfig);
+    return globalConfig;
+  };
+
+  if (all) {
+    await getAndAddLocalConfig();
+    await getAndAddGlobalConfig();
   } else if (global) {
-    const globalConfig = await readGlobalConfig();
+    const globalConfig = await getAndAddGlobalConfig();
     if (globalConfig) {
-      configs.push({ templates: globalConfig.config.templates });
       spinner.info(t("list.templates.using_global")).start();
     }
   } else if (local) {
-    const localConfig = await readLocalConfig();
+    const localConfig = await getAndAddLocalConfig();
     if (localConfig) {
-      configs.push({ templates: localConfig.config.templates });
       spinner.info(t("list.templates.using_local")).start();
     }
   } else {
-    const localConfig = await readLocalConfig();
-    if (localConfig) {
-      configs.push({ templates: localConfig.config.templates });
-    } else {
-      const globalConfig = await readGlobalConfig();
+    const localConfig = await getAndAddLocalConfig();
+    if (!localConfig) {
+      const globalConfig = await getAndAddGlobalConfig();
       if (globalConfig) {
-        configs.push({ templates: globalConfig.config.templates });
         spinner.info(t("list.templates.using_global_fallback")).start();
       }
     }
@@ -82,22 +92,21 @@ export function setupListCommand(options: SetupCommandOptions) {
         console.log("\n", chalk.bold(t("list.templates.header")));
 
         if (language) {
-          let found = false;
-          for (const configSource of configsToDisplay) {
-            const languageTemplates = configSource.templates[language];
-            if (
-              languageTemplates &&
-              Object.keys(languageTemplates.templates).length > 0
-            ) {
-              printTemplates(language, languageTemplates.templates);
-              found = true;
-            }
-          }
-          if (!found) {
+          const foundTemplates = configsToDisplay.flatMap((configSource) =>
+            Object.entries(configSource.templates)
+              .filter(([lang]) => lang === language)
+              .map(([_, langTemplates]) => langTemplates),
+          );
+
+          if (foundTemplates.length === 0) {
             throw new DevkitError(
               t("error.language_config_not_found", { language }),
             );
           }
+
+          foundTemplates.forEach((langTemplates) => {
+            printTemplates(language, langTemplates.templates);
+          });
         } else {
           for (const configSource of configsToDisplay) {
             for (const [lang, langTemplates] of Object.entries(
