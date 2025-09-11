@@ -1,14 +1,12 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import os from "os";
 import fs from "#utils/fileSystem.js";
-import { CONFIG_FILE_NAMES, FILE_NAMES } from "#utils/configs/schema.js";
+import { FILE_NAMES } from "#utils/configs/schema.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { findUp } from "./find-up.js";
 
-const allConfigFiles = [...CONFIG_FILE_NAMES];
-async function findFileInDirectory(
+export async function findFileInDirectory(
   directory: string,
   fileNames: string[],
 ): Promise<string | null> {
@@ -21,72 +19,35 @@ async function findFileInDirectory(
   return null;
 }
 
-export async function findGlobalConfigFile(): Promise<string | null> {
-  const homeDir = os.homedir();
-  return findFileInDirectory(homeDir, allConfigFiles);
-}
-
-export async function findLocalConfigFile(): Promise<string | null> {
-  const monorepoRoot = await findMonorepoRoot();
-  let currentDir = process.cwd();
-
-  while (true) {
-    const filePath = await findFileInDirectory(
-      currentDir,
-      [...allConfigFiles].reverse(),
-    );
-    if (filePath) {
-      return filePath;
-    }
-
-    const parentDir = path.dirname(currentDir);
-
-    if (
-      currentDir === parentDir ||
-      (monorepoRoot && currentDir === monorepoRoot)
-    ) {
-      return null;
-    }
-
-    currentDir = parentDir;
-  }
-}
+const MONOREPO_INDICATORS: string[] = [
+  "pnpm-workspace.yaml",
+  "lerna.json",
+] as const;
+const NODE_MODULES = "node_modules";
 
 export async function findMonorepoRoot(): Promise<string | null> {
-  const monorepoIndicators = ["pnpm-workspace.yaml", "lerna.json"];
-  const searchFor = [...monorepoIndicators, FILE_NAMES.packageJson];
+  const foundFile = await findUp({
+    files: [...MONOREPO_INDICATORS, NODE_MODULES],
+  });
 
-  let currentSearchDir = process.cwd();
-
-  while (true) {
-    const foundFile = await findUp(searchFor, currentSearchDir);
-
-    if (!foundFile) {
-      return null;
-    }
-
-    const rootDir = path.dirname(foundFile);
-    const isBunOrYarnOrNpm =
-      path.basename(foundFile) === FILE_NAMES.packageJson;
-
-    if (isBunOrYarnOrNpm) {
-      try {
-        const packageJson = await fs.readJson(foundFile);
-        if (packageJson.workspaces) {
-          return rootDir;
-        }
-      } catch (e) {
-        return null;
-      }
-    } else {
-      return rootDir;
-    }
-    currentSearchDir = path.dirname(rootDir);
+  if (!foundFile) {
+    return null;
   }
+
+  const rootDir = path.dirname(foundFile);
+  const fileName = path.basename(foundFile);
+
+  if (MONOREPO_INDICATORS.includes(fileName) || fileName === NODE_MODULES) {
+    return rootDir;
+  }
+
+  return null;
 }
 
 export async function findProjectRoot(): Promise<string | null> {
-  const filePath = await findUp(FILE_NAMES.packageJson, process.cwd());
+  const filePath = await findUp({
+    files: [NODE_MODULES],
+  });
   if (!filePath) {
     return null;
   }
@@ -96,7 +57,10 @@ export async function findProjectRoot(): Promise<string | null> {
 export async function findPackageRoot(): Promise<string> {
   const __filename = fileURLToPath(import.meta.url);
   const startDir = dirname(__filename);
-  const filePath = await findUp(FILE_NAMES.packageJson, startDir);
+  const filePath = await findUp({
+    files: [FILE_NAMES.packageJson],
+    cwd: startDir,
+  });
   if (!filePath) {
     throw new DevkitError(
       "Package root not found. Cannot determine the root of the devkit.",

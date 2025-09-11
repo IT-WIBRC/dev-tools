@@ -42,18 +42,11 @@
     "@changesets/cli": "^2.29.5",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@types/bun": "latest",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
+    "lint-staged": "^16.1.6",
     "oxlint": "^1.11.2",
     "prettier": "^3.6.2",
-    "vitest": "^3.2.4",
-    "@types/bun": "latest"
-  },
-  "lint-staged": {
-    "*.{ts,js}": [
-      "prettier --write",
-      "oxlint"
-    ],
-    "*.{json,css,md,yaml,yml}": "prettier --write"
+    "vitest": "^3.2.4"
   }
 }

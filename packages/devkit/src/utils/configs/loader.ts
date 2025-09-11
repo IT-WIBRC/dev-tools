@@ -3,7 +3,6 @@ import type { Ora } from "ora";
 import fs from "#utils/fileSystem.js";
 import {
   type CliConfig,
-  CONFIG_FILE_NAMES,
   defaultCliConfig,
   SUPPORTED_LANGUAGES,
   type TextLanguageValues,
@@ -11,13 +10,16 @@ import {
 } from "./schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { ConfigError } from "../errors/base.js";
-import { findUp } from "../files/find-up.js";
 import { getConfigFilepath } from "./path-finder.js";
 import { readConfigAtPath } from "./reader.js";
-import { findGlobalConfigFile, findLocalConfigFile } from "../files/finder.js";
+import {
+  findGlobalConfigFile,
+  findLocalConfigFile,
+} from "../configs/search.js";
 
 export async function getLocaleFromConfigMinimal(): Promise<TextLanguageValues> {
-  const localConfigPath = await findUp([...CONFIG_FILE_NAMES], process.cwd());
+  const localConfigPath = await findLocalConfigFile();
+
   if (localConfigPath) {
     try {
       const config = await readConfigAtPath(localConfigPath);

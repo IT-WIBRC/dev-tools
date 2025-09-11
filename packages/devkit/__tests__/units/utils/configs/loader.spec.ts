@@ -4,21 +4,16 @@ import {
   loadUserConfig,
   readAndMergeConfigs,
 } from "../../../../src/utils/configs/loader.js";
-import {
-  CONFIG_FILE_NAMES,
-  defaultCliConfig,
-} from "../../../../src/utils/configs/schema.js";
+import { defaultCliConfig } from "../../../../src/utils/configs/schema.js";
 import { ConfigError } from "../../../../src/utils/errors/base.js";
 
 const {
-  mockFindUp,
   mockReadConfigAtPath,
   mockGetConfigFilepath,
   mockFs,
   mockFindGlobalConfigFile,
   mockFindLocalConfigFile,
 } = vi.hoisted(() => ({
-  mockFindUp: vi.fn(),
   mockReadConfigAtPath: vi.fn(),
   mockGetConfigFilepath: vi.fn(),
   mockFs: {
@@ -33,10 +28,6 @@ vi.mock("#utils/configs/path-finder.js", () => ({
   getConfigFilepath: mockGetConfigFilepath,
 }));
 
-vi.mock("#utils/files/find-up.js", () => ({
-  findUp: mockFindUp,
-}));
-
 vi.mock("#utils/configs/reader.js", () => ({
   readConfigAtPath: mockReadConfigAtPath,
 }));
@@ -48,7 +39,7 @@ vi.mock("#utils/fileSystem.js", () => ({
   },
 }));
 
-vi.mock("#utils/files/finder.js", () => ({
+vi.mock("#utils/configs/search.js", () => ({
   findGlobalConfigFile: mockFindGlobalConfigFile,
   findLocalConfigFile: mockFindLocalConfigFile,
 }));
@@ -67,7 +58,7 @@ describe("Configuration Loader Functions", () => {
 
   describe("getLocaleFromConfigMinimal", () => {
     it("should return locale from local config if it exists", async () => {
-      mockFindUp.mockResolvedValueOnce("/local/config.json");
+      mockFindLocalConfigFile.mockResolvedValueOnce("/local/config.json");
       mockReadConfigAtPath.mockResolvedValueOnce({
         settings: { language: "en" },
       });
@@ -75,15 +66,11 @@ describe("Configuration Loader Functions", () => {
       expect(locale).toBe("en");
       expect(mockReadConfigAtPath).toHaveBeenCalledOnce();
       expect(mockReadConfigAtPath).toHaveBeenCalledWith("/local/config.json");
-      expect(mockFindUp).toHaveBeenCalledOnce();
-      expect(mockFindUp).toHaveBeenCalledWith(
-        [...CONFIG_FILE_NAMES],
-        expect.any(String),
-      );
+      expect(mockFindLocalConfigFile).toHaveBeenCalledOnce();
     });
 
     it("should return locale from global config if local is not found", async () => {
-      mockFindUp.mockResolvedValueOnce(null);
+      mockFindLocalConfigFile.mockResolvedValueOnce(null);
       mockGetConfigFilepath.mockResolvedValueOnce("/global/config.json");
       mockReadConfigAtPath.mockResolvedValueOnce({
         settings: { language: "fr" },
@@ -91,12 +78,12 @@ describe("Configuration Loader Functions", () => {
       const locale = await getLocaleFromConfigMinimal();
       expect(locale).toBe("fr");
       expect(mockReadConfigAtPath).toHaveBeenCalledWith("/global/config.json");
-      expect(mockFindUp).toHaveBeenCalledOnce();
+      expect(mockGetConfigFilepath).toHaveBeenCalledOnce();
       expect(mockGetConfigFilepath).toHaveBeenCalledWith(true);
     });
 
     it("should return default locale if no config is found", async () => {
-      mockFindUp.mockResolvedValueOnce(null);
+      mockFindLocalConfigFile.mockResolvedValueOnce(null);
       mockGetConfigFilepath.mockResolvedValueOnce(null);
       mockReadConfigAtPath.mockResolvedValueOnce(null);
       const locale = await getLocaleFromConfigMinimal();
@@ -104,7 +91,7 @@ describe("Configuration Loader Functions", () => {
     });
 
     it("should throw a ConfigError on invalid local config", async () => {
-      mockFindUp.mockResolvedValueOnce("/local/config.json");
+      mockFindLocalConfigFile.mockResolvedValueOnce("/local/config.json");
       mockReadConfigAtPath.mockRejectedValueOnce(new Error("Invalid config"));
       await expect(getLocaleFromConfigMinimal()).rejects.toThrow(ConfigError);
     });

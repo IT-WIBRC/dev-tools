@@ -2,7 +2,6 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import { getConfigFilepath } from "../../../../src/utils/configs/path-finder.js";
 import { CONFIG_FILE_NAMES } from "../../../../src/utils/configs/schema.js";
 
-// Mock external dependencies
 const { mockFindUp, mockFindGlobalConfigFile } = vi.hoisted(() => ({
   mockFindUp: vi.fn(),
   mockFindGlobalConfigFile: vi.fn(),
@@ -12,7 +11,7 @@ vi.mock("../../../../src/utils/files/find-up.js", () => ({
   findUp: mockFindUp,
 }));
 
-vi.mock("../../../../src/utils/files/finder.js", () => ({
+vi.mock("../../../../src/utils/configs/search.js", () => ({
   findGlobalConfigFile: mockFindGlobalConfigFile,
 }));
 

@@ -1,54 +1,92 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { DevkitError } from "../../../../src/utils/errors/base.js";
 import {
   findMonorepoRoot,
-  findGlobalConfigFile,
   findProjectRoot,
   findPackageRoot,
-  findLocalConfigFile,
 } from "../../../../src/utils/files/finder.js";
-import * as path from "path";
+import { DevkitError } from "../../../../src/utils/errors/base.js";
 
-const { mockFindUp, mockFs, mockOs } = vi.hoisted(() => ({
-  mockFindUp: vi.fn(),
-  mockFs: {
-    readJson: vi.fn(),
-    pathExists: vi.fn(),
-  },
-  mockOs: {
-    homedir: vi.fn(),
-  },
-}));
+const { mockFsStat, mockFsReadJson, mockFindUpLogic } = vi.hoisted(() => {
+  const mockFsStat = vi.fn();
+  const mockFsReadJson = vi.fn();
 
-vi.mock("../../../../src/utils/files/find-up.js", () => ({
-  findUp: mockFindUp,
-}));
+  const mockFindUpLogic = vi.fn(async ({ files, cwd = process.cwd() }) => {
+    let currentDir = cwd;
+    const filesToFind = Array.isArray(files) ? files : [files];
+
+    while (true) {
+      for (const file of filesToFind) {
+        const filePath = `${currentDir}/${file}`.replace(/\/\//g, "/");
+
+        try {
+          const stats = await mockFsStat(filePath);
+          if (stats.isFile() || stats.isDirectory()) {
+            return filePath;
+          }
+        } catch (e) {
+          // File not found, continue search
+        }
+      }
+
+      const parentDir = currentDir.split("/").slice(0, -1).join("/") || "/";
+
+      if (parentDir === currentDir || currentDir === "/mock-home") {
+        break;
+      }
+
+      currentDir = parentDir;
+    }
+
+    return null;
+  });
+
+  return { mockFsStat, mockFsReadJson, mockFindUpLogic };
+});
 
 vi.mock("#utils/fileSystem.js", () => ({
   default: {
-    readJson: mockFs.readJson,
-    pathExists: mockFs.pathExists,
+    stat: mockFsStat,
+    readJson: mockFsReadJson,
+    pathExists: vi.fn(async (p) => {
+      try {
+        await mockFsStat(p);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }),
   },
 }));
 
-vi.mock("os", () => ({
-  default: {
-    homedir: mockOs.homedir,
-  },
+vi.mock("path", () => {
+  const pathMock = {
+    dirname: vi.fn((p) => {
+      const parts = p.split("/");
+      if (parts.length <= 2 && parts[0] === "") return "/";
+      return parts.slice(0, -1).join("/");
+    }),
+    basename: vi.fn((p) => p.split("/").pop()),
+    join: vi.fn((...args) => args.join("/")),
+    resolve: vi.fn((p) => p),
+  };
+  return { ...pathMock, default: pathMock };
+});
+
+vi.mock("os", async () => {
+  const actual = await vi.importActual("os");
+  return {
+    ...actual,
+    homedir: vi.fn(() => "/mock-home"),
+  };
+});
+
+vi.mock("../../../../src/utils/files/find-up.js", () => ({
+  findUp: mockFindUpLogic,
 }));
 
 vi.mock("url", () => ({
   fileURLToPath: vi.fn().mockReturnValue("/test/devkit/dist/finder.js"),
 }));
-
-vi.mock("path", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("path")>();
-  return {
-    ...actual,
-    dirname: vi.fn(actual.dirname),
-    join: vi.fn(actual.join),
-  };
-});
 
 describe("Finder Functions", () => {
   beforeEach(() => {
@@ -56,73 +94,72 @@ describe("Finder Functions", () => {
   });
 
   describe("findMonorepoRoot", () => {
-    it("should return the monorepo root path when pnpm-workspace.yaml is found", async () => {
-      mockFindUp.mockResolvedValueOnce("/test/monorepo/pnpm-workspace.yaml");
+    it("should return the monorepo root path when a pnpm-workspace.yaml is found", async () => {
+      vi.spyOn(process, "cwd").mockReturnValue(
+        "/test/monorepo/packages/my-package",
+      );
+      mockFsStat.mockImplementation(async (filePath) => {
+        if (filePath === "/test/monorepo/pnpm-workspace.yaml") {
+          return { isFile: () => true, isDirectory: () => false };
+        }
+        throw new Error("Not found");
+      });
       const result = await findMonorepoRoot();
       expect(result).toBe("/test/monorepo");
     });
 
-    it("should return the monorepo root path when lerna.json is found", async () => {
-      mockFindUp.mockResolvedValueOnce("/test/monorepo/lerna.json");
+    it("should return the monorepo root path when a lerna.json is found", async () => {
+      vi.spyOn(process, "cwd").mockReturnValue(
+        "/test/monorepo/packages/my-package",
+      );
+      mockFsStat.mockImplementation(async (filePath) => {
+        if (filePath === "/test/monorepo/lerna.json") {
+          return { isFile: () => true, isDirectory: () => false };
+        }
+        throw new Error("Not found");
+      });
       const result = await findMonorepoRoot();
       expect(result).toBe("/test/monorepo");
     });
 
-    it("should return the monorepo root path when package.json with 'workspaces' is found", async () => {
-      mockFindUp.mockResolvedValueOnce("/test/monorepo/package.json");
-      mockFs.readJson.mockResolvedValueOnce({ workspaces: ["packages/*"] });
+    it("should return the monorepo root path when node_modules is found", async () => {
+      vi.spyOn(process, "cwd").mockReturnValue(
+        "/test/monorepo/packages/my-package",
+      );
+      mockFsStat.mockImplementation(async (filePath) => {
+        if (filePath === "/test/monorepo/node_modules") {
+          return { isFile: () => false, isDirectory: () => true };
+        }
+        throw new Error("Not found");
+      });
       const result = await findMonorepoRoot();
       expect(result).toBe("/test/monorepo");
     });
 
     it("should return null if no monorepo indicators are found", async () => {
-      mockFindUp.mockResolvedValue(null);
+      vi.spyOn(process, "cwd").mockReturnValue("/test/project/my-package");
+      mockFsStat.mockRejectedValue(new Error("Not found"));
       const result = await findMonorepoRoot();
-      expect(result).toBeNull();
-    });
-
-    it("should search parent directories if a package.json without 'workspaces' is found", async () => {
-      mockFindUp
-        .mockResolvedValueOnce("/test/project/package.json")
-        .mockResolvedValueOnce("/test/monorepo/package.json");
-      mockFs.readJson
-        .mockResolvedValueOnce({})
-        .mockResolvedValueOnce({ workspaces: ["packages/*"] });
-      const result = await findMonorepoRoot();
-      expect(result).toBe("/test/monorepo");
-      expect(mockFindUp).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  describe("findGlobalConfigFile", () => {
-    it("should return the path of an existing global config file", async () => {
-      mockOs.homedir.mockReturnValue("/home/user");
-      vi.mocked(path.join).mockReturnValueOnce("/home/user/.devkitrc");
-      mockFs.pathExists.mockResolvedValueOnce(true);
-
-      const result = await findGlobalConfigFile();
-      expect(result).toBe("/home/user/.devkitrc");
-    });
-
-    it("should return the null if no global config file exists", async () => {
-      mockOs.homedir.mockReturnValueOnce("/home/user");
-      vi.mocked(path.join).mockReturnValueOnce("/home/user/.devkitrc");
-      mockFs.pathExists.mockResolvedValueOnce(false);
-
-      const result = await findGlobalConfigFile();
       expect(result).toBeNull();
     });
   });
 
   describe("findProjectRoot", () => {
-    it("should return the project root path", async () => {
-      mockFindUp.mockResolvedValue("/test/project/package.json");
+    it("should return the project root path when node_modules is found", async () => {
+      vi.spyOn(process, "cwd").mockReturnValue("/test/project/src");
+      mockFsStat.mockImplementation(async (filePath) => {
+        if (filePath === "/test/project/node_modules") {
+          return { isFile: () => false, isDirectory: () => true };
+        }
+        throw new Error("Not found");
+      });
       const result = await findProjectRoot();
       expect(result).toBe("/test/project");
     });
 
-    it("should return null if project root is not found", async () => {
-      mockFindUp.mockResolvedValue(null);
+    it("should return null if node_modules is not found", async () => {
+      vi.spyOn(process, "cwd").mockReturnValue("/test/project/src");
+      mockFsStat.mockRejectedValue(new Error("Not found"));
       const result = await findProjectRoot();
       expect(result).toBeNull();
     });
@@ -130,52 +167,19 @@ describe("Finder Functions", () => {
 
   describe("findPackageRoot", () => {
     it("should return the package root path", async () => {
-      mockFindUp.mockResolvedValue("/test/package/package.json");
+      mockFsStat.mockImplementation(async (filePath) => {
+        if (filePath === "/test/devkit/package.json") {
+          return { isFile: () => true, isDirectory: () => false };
+        }
+        throw new Error("Not found");
+      });
       const result = await findPackageRoot();
-      expect(result).toBe("/test/package");
+      expect(result).toBe("/test/devkit");
     });
 
     it("should throw a DevkitError if package root is not found", async () => {
-      mockFindUp.mockResolvedValue(null);
+      mockFsStat.mockRejectedValue(new Error("Not found"));
       await expect(findPackageRoot()).rejects.toThrow(DevkitError);
-    });
-  });
-
-  describe("findLocalConfigFile", () => {
-    it("should find the config file by searching upwards in a non-monorepo and checking both file names", async () => {
-      vi.spyOn(process, "cwd").mockReturnValue("/test/project/src");
-      mockFs.pathExists
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(true);
-
-      const result = await findLocalConfigFile();
-      expect(result).toBe("/test/project/.devkitrc");
-      expect(mockFs.pathExists).toHaveBeenCalledTimes(4);
-    });
-
-    it("should find the config file in the monorepo root from a package subdirectory", async () => {
-      vi.spyOn(process, "cwd").mockReturnValue(
-        "/test/monorepo/packages/my-package",
-      );
-      vi.spyOn(
-        await import("../../../../src/utils/files/finder.js"),
-        "findMonorepoRoot",
-      ).mockResolvedValueOnce("/test/monorepo");
-
-      mockFs.pathExists
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(true);
-
-      const result = await findLocalConfigFile();
-      expect(result).toBe("/test/monorepo/.devkit.json");
-      expect(mockFs.pathExists).toHaveBeenCalledWith(
-        "/test/monorepo/.devkit.json",
-      );
     });
   });
 });

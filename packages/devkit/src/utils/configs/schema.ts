@@ -200,6 +200,7 @@ export type DeepKeys<T> = T extends object
 
 export const FILE_NAMES = {
   packageJson: "package.json",
+  node_modules: "node_modules",
   common: {
     git: ".git",
   },
