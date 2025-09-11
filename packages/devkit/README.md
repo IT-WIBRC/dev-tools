@@ -354,7 +354,7 @@ dk init --global
 
 ### Add the JSON Schema for Autocompletion
 
-To get autocompletion and validation for your `.devkit.json` or `.devkitrc` file, you have two options.
+To get autocompletion and validation for your `.devkit.json` or `.devkitrc` file, you have a couple of options.
 
 #### Option 1: Direct Link in the JSON File
 
@@ -399,6 +399,52 @@ For VS Code, open your **`settings.json`** file and add the following entry:
     {
       "fileMatch": [".devkit.json", ".devkitrc"],
       "url": "https://gist.githubusercontent.com/IT-WIBRC/baab4cc74a28af5b23936f5cf576f8e6/raw/ed7445f123554cf5ed7fc6fb727d1faae22a9bed/devkit-schema.json"
+    }
+  ]
+}
+```
+
+Or using the one from `node_modules`(recommended if you have it installed):
+
+```json
+{
+  "json.schemas": [
+    {
+      "fileMatch": [".devkit.json", ".devkitrc"],
+      "url": "node_modules/scaffolder-toolkit/devkit-schema.json"
+    }
+  ]
+}
+```
+
+#### Option 3: Offline Schema
+
+If you prefer to have the schema available offline, you can download the JSON file and link to it locally. This ensures autocompletion and validation work even without an internet connection.
+
+1.  **Download the schema:** Save the file from the URL provided above (`devkit-schema.json`) to a permanent location on your computer.
+2.  **Update your IDE settings:** In your `settings.json`, replace the `url` with a local file path.
+
+Example for macOS/Linux:
+
+```json
+{
+  "json.schemas": [
+    {
+      "fileMatch": [".devkit.json", ".devkitrc"],
+      "url": "/Users/your-username/my-schemas/devkit-schema.json"
+    }
+  ]
+}
+```
+
+Example for Windows:
+
+```json
+{
+  "json.schemas": [
+    {
+      "fileMatch": [".devkit.json", ".devkitrc"],
+      "url": "C:\\Users\\your-username\\my-schemas\\devkit-schema.json"
     }
   ]
 }

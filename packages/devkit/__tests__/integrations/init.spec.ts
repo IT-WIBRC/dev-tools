@@ -14,11 +14,16 @@ import {
   CLI_PATH,
   fs,
   CONFIG_FILE_NAMES,
-  defaultCliConfig,
+  defaultCliConfig as schemaDefaultCliConfig,
   type CliConfig,
+  SCHEMA_PATH,
 } from "./common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
+const defaultCliConfig = {
+  $schema: SCHEMA_PATH,
+  ...schemaDefaultCliConfig,
+};
 
 let tempDir: string;
 let originalCwd: string;

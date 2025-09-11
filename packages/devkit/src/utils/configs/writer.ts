@@ -4,9 +4,15 @@ import { t } from "#utils/internationalization/i18n.js";
 import { getConfigFilepath } from "./path-finder.js";
 import { type CliConfig, type CacheStrategy } from "./schema.js";
 
+export const SCHEMA_PATH =
+  "./node_modules/scaffolder-toolkit/devkit-schema.json";
+
 export async function saveConfig(config: CliConfig, filePath: string) {
   try {
-    await fs.writeJson(filePath, config);
+    await fs.writeJson(filePath, {
+      $schema: SCHEMA_PATH,
+      ...config,
+    });
   } catch (error) {
     throw new DevkitError(t("error.config.save", { file: filePath }), {
       cause: error,
