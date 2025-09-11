@@ -77,6 +77,7 @@ describe("dk update", () => {
     if (tempDir) {
       await fs.remove(tempDir);
     }
+    delete process.env.HOME;
   });
 
   async function createMockEnvironment(configType: "local" | "global") {
@@ -87,9 +88,9 @@ describe("dk update", () => {
     if (configType === "local") {
       await fs.writeJson(LOCAL_CONFIG_FILE_NAME, mockLocalConfig);
     } else {
-      process.env.HOME = tempDir;
       await fs.writeJson(GLOBAL_CONFIG_FILE_NAME, mockGlobalConfig);
     }
+    process.env.HOME = tempDir;
   }
 
   describe("dk update (Local Configuration)", () => {
@@ -108,7 +109,7 @@ describe("dk update", () => {
           "--description",
           "Updated desc",
         ],
-        { all: true, cwd: tempDir },
+        { cwd: tempDir },
       );
       expect(exitCode).toBe(0);
 

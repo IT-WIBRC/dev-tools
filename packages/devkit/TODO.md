@@ -4,63 +4,73 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 ---
 
-### Core CLI Commands
+### ✅ Completed Tasks
 
-- [x] **Familiarize myself with CLI concepts and core functionalities.**
-- [x] Refactor the `new` command to accept a language and project name as arguments, with a `--template` option.
-- [x] Add the `add-template` command to support adding a new template to the configuration.
-- [x] Add the `list` command to list all available templates in the configuration.
-- [x] Add the `remove-template` command to remove a template from the configuration.
-- [x] Add the `update` command to modify an existing template's properties.
-- [x] Implement aliases for main commands (e.g., `dk` for `devkit`, `i` for `init`, `ls` for `list`).
+#### Core CLI Commands
 
----
+- **Refactor `new` command**: Accept language and project name as arguments, with a `--template` option.
+- **Implement command management**: Added `add-template`, `list`, and `remove-template` commands.
+- **Implement aliases**: Aliases for main commands are now implemented (`dk`, `i`, `ls`).
+- **Implement `update` command**: Modify an existing template's properties.
+- **Implement verbose option**: A new global `--verbose` option has been added for detailed output.
+- **Review arguments vs. commands**: Evaluated and adjusted command structures.
 
-### Configuration Management
+#### Configuration Management
 
-- [x] Implement `config init` to initialize a configuration file.
-- [x] Implement the `config set` command to set one or more configuration values at once.
-- [x] Implement the `config cache` command to manage the cache strategy for templates.
-- [x] Implement a clear configuration hierarchy (local > global > system language > default).
-- [x] Add a JSON schema to the configuration file for editor autocompletion and validation.
-- [x] Ask for confirmation before initializing when a config file is already present.
-- [x] Make `config init` default to a local configuration if no flag is passed.
-- [x] Enable monorepo support by correctly identifying the local configuration file.
-- [x] Add the verbose option for detailed output
-- [x] Add support for the offline autocompletion configuration
+- **Implement `config init`**: Initialize configuration files.
+- **Implement `config set`**: Set multiple configuration values at once.
+- **Implement `config cache`**: Manage the cache strategy for templates.
+- **Establish configuration hierarchy**: Local > global > system language > default.
+- **Add JSON schema**: For editor autocompletion and validation.
+- **Implement confirmations**: Added confirmation prompts for `config init` and sub-package configurations.
+- **Default `config init` behavior**: Now defaults to a local configuration.
+- **Add offline autocompletion**: For enhanced user experience.
+- **Fix `findGlobalConfig`**: The function has been refactored.
+- **Implement `config get`**: Retrieve specific configuration settings.
+- **Configuration file change**: Changed local config file from `.devkitrc.json` to `.devkit.json`.
 
----
+#### Project Infrastructure
 
-### Project Infrastructure
+- **Set up templates**: Added pull request and issue templates.
+- **Implement tests**: Added unit and integration tests (for monorepo, multi-repo, and bare repositories).
+- **Automation**: Enhanced GitHub Actions workflows for CI/CD.
+- **Error handling**: Improved error logging.
+- **Project naming**: The project name in `package.json` is now updated after template import.
+- **Publishing**: The repository is now prepared for publication.
+- **Package management**: Outdated and corrupted packages have been checked and updated.
 
-- [x] Add pull request and issue templates.
-- [x] Set up unit tests for the CLI.
-- [x] Change the project name inside `package.json` after importing a template.
-- [x] Check what can be changed into an argument instead of a command.
-- [x] Implement a better login method for errors.
-- [x] Update this TODO with all that has been done so far.
-- [x] Prepare repo for publication
-- [x] Enhance GitHub Actions workflows for CI/CD.
+#### Internationalization & Documentation
 
----
-
-### Internationalization & Documentation
-
-- [x] Change language JSON to a real JSON structure and infer types for translation.
-- [x] Dynamically detect the system's language as a fallback.
-- [x] Update the documentation with the new features, including the `init` command's confirmation prompt.
-- [x] Use appropriate language for an unpublished document.
-- [x] Adjust the TODO file to reflect completed tasks.
+- **Language management**: Changed language JSON to a real JSON structure with inferred types.
+- **Dynamic language detection**: The CLI now detects the system's language as a fallback.
+- **Document updates**: Documentation has been updated to reflect new features.
+- **Tone & content**: The documentation's language has been adjusted for an unpublished project, and the TODO file is up to date.
 
 ---
 
-### Remaining Tasks
+### ⏳ Remaining Tasks
 
-- [x] Add integration tests (reproduce monorepo, multi-repo, and bare repositories).
-- [x] change config file for local project from `.devkitrc.json` to `.devkit.json`
-- [x] Add commands to get settings (e.g., `config get <key>`).
-- [x] Refactor the `findGlobalConfig` function
-- [x] Add templates for popular Node.js frameworks (e.g., Express, Next.js, NestJS).
-- [ ] Use Changesets for changelog and versioning.
+#### Core CLI & Configuration
+
+- [ ] Add a global option `-y` or `--yes` to skip confirmation prompts in commands like `dk init`.
+- [ ] Implement a command to update the CLI itself.
+- [ ] Add color configuration for templates (evaluate if this is a worthwhile feature).
+- [ ] Adjust autocompletion JSON to provide template-specific autocompletion for properties like `packageManager`.
+- [ ] Centralize `chalk` and `ora` in a single file for better code organization.
+
+#### Multi-Repo Support
+
+- [x] Implement a clear confirmation message and warning when a local configuration is about to be initialized at the root of a multi-repo project.
+- [ ] Add a comment in the `$schema` field of the configuration file to clarify that the path must be adjusted if the file is not at the same level as the `node_modules` directory.
+
+#### Language Support
+
 - [ ] **Multi-Programming Language Support**: Progressively add templates for other languages (e.g., Python, Ruby, Go, Rust).
+- [ ] **Detect Package Manager**: Detect the user's default package manager (e.g., `npm`, `yarn`, `pnpm`) at initialization and set it in the configuration file, as the current default is always `bun`.
+- [ ] Test for Deno support.
+- [ ] Clarify that configurations are currently for Node.js projects and must be placed within the `javascript` template section.
+
+#### Documentation & Versioning
+
 - [ ] **Advanced Documentation**: Create detailed guides on creating and managing custom templates.
+- [ ] Update the packages section in the root `package.json` to include all new packages. Change the one corrupted by the npm supply chain attack.

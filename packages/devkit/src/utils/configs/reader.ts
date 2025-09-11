@@ -1,5 +1,4 @@
 import fs from "#utils/fileSystem.js";
-import { readFile } from "fs/promises";
 import { type CliConfig } from "#utils/configs/schema.js";
 import { getConfigFilepath } from "#utils/configs/path-finder.js";
 
@@ -12,10 +11,11 @@ export async function readConfigAtPath(
     return null;
   }
   try {
-    const fileContent = await readFile(filePath, "utf-8");
-    return JSON.parse(fileContent);
+    return await fs.readJson(filePath);
   } catch (error) {
-    throw new Error(`Failed to read or parse config file at ${filePath}`);
+    throw new Error(`Failed to read or parse config file at ${filePath}`, {
+      cause: error,
+    });
   }
 }
 

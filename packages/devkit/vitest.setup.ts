@@ -81,6 +81,7 @@ vi.mock("#utils/internationalization/i18n.js", () => ({
   loadTranslations: mockLoadTranslations,
   t: mocktFn,
 }));
+
 const { mockExeca, mockExecaCommand } = vi.hoisted(() => ({
   mockExeca: vi.fn(),
   mockExecaCommand: vi.fn(),

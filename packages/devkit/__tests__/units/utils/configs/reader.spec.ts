@@ -6,10 +6,10 @@ import {
 } from "../../../../src/utils/configs/reader.js";
 import { getConfigFilepath } from "../../../../src/utils/configs/path-finder.js";
 
-const { mockExistsSync, mockGetConfigFilePath, mockReadFile } = vi.hoisted(
+const { mockExistsSync, mockGetConfigFilePath, mockReadJson } = vi.hoisted(
   () => ({
     mockExistsSync: vi.fn(),
-    mockReadFile: vi.fn(),
+    mockReadJson: vi.fn(),
     mockGetConfigFilePath: vi.fn(),
   }),
 );
@@ -20,8 +20,11 @@ vi.mock("#utils/fileSystem.js", () => ({
   },
 }));
 
-vi.mock("fs/promises", () => ({
-  readFile: mockReadFile,
+vi.mock("#utils/fileSystem.js", () => ({
+  default: {
+    readJson: mockReadJson,
+    existsSync: mockExistsSync,
+  },
 }));
 
 vi.mock("../../../../src/utils/configs/path-finder.js", () => ({
@@ -36,16 +39,13 @@ describe("readConfigAtPath", () => {
   it("should read and return a valid config file", async () => {
     const mockConfig = { settings: { language: "en" } };
     mockExistsSync.mockReturnValue(true);
-    mockReadFile.mockResolvedValue(JSON.stringify(mockConfig));
+    mockReadJson.mockResolvedValue(mockConfig);
 
     const result = await readConfigAtPath("/path/to/.devkitrc.json");
 
     expect(result).toEqual(mockConfig);
     expect(mockExistsSync).toHaveBeenCalledWith("/path/to/.devkitrc.json");
-    expect(mockReadFile).toHaveBeenCalledWith(
-      "/path/to/.devkitrc.json",
-      "utf-8",
-    );
+    expect(mockReadJson).toHaveBeenCalledWith("/path/to/.devkitrc.json");
   });
 
   it("should return null if the file does not exist", async () => {
@@ -55,21 +55,18 @@ describe("readConfigAtPath", () => {
 
     expect(result).toBeNull();
     expect(mockExistsSync).toHaveBeenCalledWith("/path/to/.devkitrc.json");
-    expect(mockReadFile).not.toHaveBeenCalled();
+    expect(mockReadJson).not.toHaveBeenCalled();
   });
 
   it("should throw an error if the file cannot be parsed", async () => {
     mockExistsSync.mockReturnValue(true);
-    mockReadFile.mockResolvedValue("invalid json content");
+    mockReadJson.mockRejectedValue("invalid json content");
 
     await expect(readConfigAtPath("/path/to/.devkitrc.json")).rejects.toThrow(
       `Failed to read or parse config file at /path/to/.devkitrc.json`,
     );
     expect(mockExistsSync).toHaveBeenCalledWith("/path/to/.devkitrc.json");
-    expect(mockReadFile).toHaveBeenCalledWith(
-      "/path/to/.devkitrc.json",
-      "utf-8",
-    );
+    expect(mockReadJson).toHaveBeenCalledWith("/path/to/.devkitrc.json");
   });
 });
 
@@ -82,7 +79,7 @@ describe("readLocalConfig", () => {
     const mockConfig = { templates: { javascript: {} } };
     mockGetConfigFilePath.mockResolvedValue("/mock/path/.devkitrc.json");
     mockExistsSync.mockReturnValue(true);
-    mockReadFile.mockResolvedValue(JSON.stringify(mockConfig));
+    mockReadJson.mockResolvedValue(mockConfig);
 
     const result = await readLocalConfig();
 
@@ -113,7 +110,7 @@ describe("readGlobalConfig", () => {
     const mockConfig = { templates: { python: {} } };
     mockGetConfigFilePath.mockResolvedValue("/mock/path/.devkitrc");
     mockExistsSync.mockReturnValue(true);
-    mockReadFile.mockResolvedValue(JSON.stringify(mockConfig));
+    mockReadJson.mockResolvedValue(mockConfig);
 
     const result = await readGlobalConfig();
 
