@@ -3,6 +3,7 @@ import {
   saveConfig,
   saveCliConfig,
   updateTemplateCacheStrategy,
+  SCHEMA_PATH,
 } from "../../../../src/utils/configs/writer.js";
 import { getConfigFilepath } from "../../../../src/utils/configs/path-finder.js";
 import { DevkitError, ConfigError } from "../../../../src/utils/errors/base.js";
@@ -42,7 +43,10 @@ describe("Configuration Writer Functions", () => {
     const config = { setting: "value" };
     mockWriteJson.mockResolvedValueOnce(undefined);
     await saveConfig(config as any, filePath);
-    expect(mockWriteJson).toHaveBeenCalledWith(filePath, config);
+    expect(mockWriteJson).toHaveBeenCalledWith(filePath, {
+      $schema: SCHEMA_PATH,
+      ...config,
+    });
   });
 
   it("saveConfig should throw a DevkitError on write failure", async () => {

@@ -27,6 +27,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [x] Make `config init` default to a local configuration if no flag is passed.
 - [x] Enable monorepo support by correctly identifying the local configuration file.
 - [x] Add the verbose option for detailed output
+- [x] Add support for the offline autocompletion configuration
 
 ---
 
