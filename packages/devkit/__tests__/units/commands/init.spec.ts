@@ -64,6 +64,8 @@ describe("setupInitCommand", () => {
   const globalConfigPath = path.join(os.homedir(), globalConfigFile);
   const monorepoRootPath = "/monorepo/root";
   const monorepoRootConfigPath = path.join(monorepoRootPath, localConfigFile);
+  const multiRepoRootPath = "/multi-repo/project";
+  const multiRepoRootConfigPath = path.join(multiRepoRootPath, localConfigFile);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -164,33 +166,117 @@ describe("setupInitCommand", () => {
   });
 
   describe("handleLocalInit", () => {
-    it("should create a local config file by default in a non-monorepo project", async () => {
-      mockFs.pathExists.mockResolvedValue(false);
+    it("should create a local config file by default in a non-monorepo project with no root config", async () => {
+      console.log("here ----------->");
+      mockFindUp.mockResolvedValue(null);
+      mockFindMonorepoRoot.mockResolvedValue(null);
       setupInitCommand({ program: mockProgram });
-      await actionFn({ local: false, global: false });
+      await actionFn({ local: true, global: false });
 
       expect(mockFindMonorepoRoot).toHaveBeenCalled();
+      expect(mockFindUp).toHaveBeenCalledWith("package.json", process.cwd());
       expect(mockFs.pathExists).toHaveBeenCalledWith(localConfigPath);
+
+      expect(mockSaveConfig).toHaveBeenCalledOnce();
       expect(mockSaveConfig).toHaveBeenCalledWith(
         { ...defaultCliConfig },
         localConfigPath,
       );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith(expect.any(String));
+      expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
     });
 
     it("should ask to overwrite a local config file if it already exists", async () => {
-      mockFs.pathExists.mockResolvedValue(true);
       mockInquirerSelect.mockResolvedValueOnce(true);
+      mockFindUp
+        .mockResolvedValueOnce(localConfigPath)
+        .mockResolvedValueOnce(localConfigPath);
       setupInitCommand({ program: mockProgram });
 
-      await actionFn({ local: false, global: false });
+      await actionFn({ local: true, global: false });
 
-      expect(mockFs.pathExists).toHaveBeenCalledWith(localConfigPath);
+      expect(mockFindMonorepoRoot).toHaveBeenCalledOnce();
       expect(mockInquirerSelect).toHaveBeenCalledTimes(1);
+      expect(mockInquirerSelect).toHaveBeenCalledWith({
+        message:
+          "config.init.confirm_overwrite- options path:/current/directory/.devkit.json",
+        choices: [
+          {
+            name: "common.yes",
+            value: true,
+          },
+          {
+            name: "common.no",
+            value: false,
+          },
+        ],
+        default: true,
+      });
       expect(mockSaveConfig).toHaveBeenCalledWith(
         { ...defaultCliConfig },
         localConfigPath,
       );
+    });
+
+    describe("in a standard project with an existing root config", () => {
+      beforeEach(() => {
+        vi.spyOn(process, "cwd").mockReturnValue("/multi-repo/project/src");
+        mockFindUp.mockImplementation((name) => {
+          if (name === "package.json") {
+            return Promise.resolve(
+              path.join(multiRepoRootPath, "package.json"),
+            );
+          }
+          if (
+            name.includes(CONFIG_FILE_NAMES[0]) ||
+            name.includes(CONFIG_FILE_NAMES[1])
+          ) {
+            return Promise.resolve(multiRepoRootConfigPath);
+          }
+          return Promise.resolve(null);
+        });
+      });
+
+      it("should prompt to overwrite the root config if a config file is found at the project root", async () => {
+        mockInquirerSelect.mockResolvedValueOnce(true);
+        setupInitCommand({ program: mockProgram });
+        await actionFn({ local: false, global: false });
+
+        expect(mockFindUp).toHaveBeenCalledWith("package.json", process.cwd());
+        expect(mockFindUp).toHaveBeenCalledWith(
+          expect.arrayContaining(CONFIG_FILE_NAMES as unknown as unknown[]),
+          multiRepoRootPath,
+        );
+        expect(mockInquirerSelect).toHaveBeenCalledTimes(1);
+        expect(mockInquirerSelect).toHaveBeenCalledWith({
+          message:
+            "config.init.confirm_overwrite- options path:/multi-repo/project/.devkit.json",
+          choices: [
+            {
+              name: "common.yes",
+              value: true,
+            },
+            {
+              name: "common.no",
+              value: false,
+            },
+          ],
+          default: true,
+        });
+        expect(mockSaveConfig).toHaveBeenCalledWith(
+          { ...defaultCliConfig },
+          multiRepoRootConfigPath,
+        );
+      });
+
+      it("should abort if user cancels overwriting the root config", async () => {
+        mockInquirerSelect.mockResolvedValueOnce(false);
+        setupInitCommand({ program: mockProgram });
+        await actionFn({ local: false, global: false });
+
+        expect(mockInquirerSelect).toHaveBeenCalledTimes(1);
+        expect(mockSaveConfig).not.toHaveBeenCalled();
+        expect(mockSpinner.info).toHaveBeenCalledWith("config.init.aborted");
+      });
     });
 
     describe("in a monorepo with no root config", () => {
@@ -215,7 +301,7 @@ describe("setupInitCommand", () => {
           { ...defaultCliConfig },
           localConfigPath,
         );
-        expect(mockSpinner.succeed).toHaveBeenCalledWith(expect.any(String));
+        expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
       });
 
       it("should create a config in the root if user chooses root", async () => {
@@ -226,50 +312,66 @@ describe("setupInitCommand", () => {
 
         expect(mockFindMonorepoRoot).toHaveBeenCalled();
         expect(mockInquirerSelect).toHaveBeenCalledWith({
-          message: expect.any(String),
-          choices: expect.any(Array),
-          default: expect.any(String),
+          message: "config.init.monorepo_location",
+          choices: [
+            {
+              name: "config.init.location_current",
+              value: "local",
+            },
+            {
+              name: "config.init.location_root",
+              value: "root",
+            },
+          ],
+          default: "local",
         });
         expect(mockSaveConfig).toHaveBeenCalledWith(
           { ...defaultCliConfig },
           monorepoRootConfigPath,
         );
-        expect(mockSpinner.succeed).toHaveBeenCalledWith(expect.any(String));
+        expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
       });
     });
 
     describe("in a monorepo with an existing root config", () => {
+      const configPath = path.join(monorepoRootPath, localConfigFile);
+
       beforeEach(() => {
+        mockFindUp.mockResolvedValue(configPath);
+        mockInquirerSelect.mockClear();
         mockFindMonorepoRoot.mockResolvedValue(monorepoRootPath);
-        mockFindUp.mockResolvedValue(monorepoRootConfigPath);
-        vi.spyOn(process, "cwd").mockReturnValue(
-          "/monorepo/root/packages/sub-package",
-        );
       });
 
       it("should prompt for overwrite if in a sub-package and user confirms", async () => {
         mockInquirerSelect.mockResolvedValueOnce(true);
         setupInitCommand({ program: mockProgram });
-
         await actionFn({ local: false, global: false });
 
-        expect(mockFindMonorepoRoot).toHaveBeenCalled();
+        expect(mockFindMonorepoRoot).toHaveBeenCalledOnce();
         expect(mockFindUp).toHaveBeenCalledTimes(2);
         expect(mockInquirerSelect).toHaveBeenCalledWith({
-          message: expect.stringContaining(monorepoRootConfigPath),
-          choices: expect.any(Array),
-          default: expect.any(Boolean),
+          message: `config.init.confirm_monorepo_overwrite- options path:${configPath}`,
+          choices: [
+            {
+              name: "common.yes",
+              value: true,
+            },
+            {
+              name: "common.no",
+              value: false,
+            },
+          ],
+          default: true,
         });
         expect(mockSaveConfig).toHaveBeenCalledWith(
           { ...defaultCliConfig },
-          path.join(process.cwd(), localConfigFile),
+          configPath,
         );
       });
 
       it("should abort if in a sub-package and user cancels overwrite", async () => {
         mockInquirerSelect.mockResolvedValueOnce(false);
         setupInitCommand({ program: mockProgram });
-
         await actionFn({ local: false, global: false });
 
         expect(mockSaveConfig).not.toHaveBeenCalled();

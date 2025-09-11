@@ -16,6 +16,19 @@ import { findUp } from "#utils/files/find-up.js";
 import { saveConfig } from "#utils/configs/writer.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 
+interface InitResult {
+  finalPath: string;
+  shouldOverwrite: boolean;
+}
+
+interface InitContext {
+  allConfigFiles: string[];
+  currentPath: string;
+  monorepoRoot: string | null;
+  hasRootConfig: boolean;
+  spinner: Ora;
+}
+
 async function promptForStandardOverwrite(filePath: string): Promise<boolean> {
   const response = await select({
     message: chalk.yellow(
@@ -56,12 +69,12 @@ async function promptForMonorepoLocation(): Promise<string> {
   return response;
 }
 
-async function handleGlobalInit(spinner: Ora) {
+async function handleGlobalInit(spinner: Ora): Promise<void> {
   let finalPath = await findGlobalConfigFile();
   if (!finalPath) {
     finalPath = path.join(os.homedir(), CONFIG_FILE_NAMES[0]);
   }
-  const shouldOverwrite = (await fs.pathExists(finalPath))
+  const shouldOverwrite: boolean = (await fs.pathExists(finalPath))
     ? await promptForStandardOverwrite(finalPath)
     : true;
 
@@ -76,65 +89,102 @@ async function handleGlobalInit(spinner: Ora) {
   }
 }
 
-async function handleLocalInit(spinner: Ora) {
+async function handleMonorepoWithConfig(
+  context: InitContext,
+): Promise<InitResult> {
+  const { allConfigFiles, currentPath, monorepoRoot } = context;
+  const existingConfigPath = await findUp(allConfigFiles, currentPath);
+
+  if (existingConfigPath) {
+    const isAtRoot = path.dirname(existingConfigPath) === monorepoRoot;
+    if (isAtRoot) {
+      const shouldOverwrite =
+        await promptForMonorepoOverwrite(existingConfigPath);
+      return { finalPath: existingConfigPath, shouldOverwrite };
+    }
+  }
+
+  return {
+    finalPath: path.join(currentPath, allConfigFiles[1]),
+    shouldOverwrite: true,
+  };
+}
+
+async function handleMonorepoWithoutConfig(
+  context: InitContext,
+): Promise<InitResult> {
+  const { allConfigFiles, currentPath, monorepoRoot } = context;
+  const location: string = await promptForMonorepoLocation();
+  const finalPath: string =
+    location === "root"
+      ? path.join(monorepoRoot!, allConfigFiles[1])
+      : path.join(currentPath, allConfigFiles[1]);
+  return { finalPath, shouldOverwrite: true };
+}
+
+async function handleStandardMultiRepo(
+  context: InitContext,
+): Promise<InitResult> {
+  const { allConfigFiles, currentPath } = context;
+  const projectRoot = await findUp("package.json", currentPath);
+  const existingRootConfig = projectRoot
+    ? await findUp(allConfigFiles, path.dirname(projectRoot))
+    : null;
+
+  if (existingRootConfig) {
+    const shouldOverwrite =
+      await promptForStandardOverwrite(existingRootConfig);
+    return { finalPath: existingRootConfig, shouldOverwrite };
+  }
+
+  const finalPath: string = path.join(currentPath, allConfigFiles[1]);
+  const shouldOverwrite =
+    !(await fs.pathExists(finalPath)) ||
+    (await promptForStandardOverwrite(finalPath));
+  return { finalPath, shouldOverwrite };
+}
+
+async function handleLocalInit(spinner: Ora): Promise<void> {
   const allConfigFiles = [...CONFIG_FILE_NAMES];
   const currentPath = process.cwd();
-  const existingConfigPath = await findUp(allConfigFiles, currentPath);
   const monorepoRoot = await findMonorepoRoot();
-  const hasRootConfig = monorepoRoot
+
+  const hasRootConfig: boolean = monorepoRoot
     ? (await findUp(allConfigFiles, monorepoRoot)) !== null
     : false;
 
   let finalPath = "";
   let shouldOverwrite = false;
 
+  const context: InitContext = {
+    allConfigFiles,
+    currentPath,
+    monorepoRoot,
+    hasRootConfig,
+    spinner,
+  };
+
   if (monorepoRoot && hasRootConfig) {
-    const isAtRoot =
-      existingConfigPath && path.dirname(existingConfigPath) === monorepoRoot;
-
-    const initCommandAtRoot = path.dirname(currentPath) === monorepoRoot;
-
-    if (isAtRoot && initCommandAtRoot) {
-      finalPath = existingConfigPath as string;
-      shouldOverwrite = await promptForStandardOverwrite(finalPath);
-    } else {
-      const overwriteConfirmed = await promptForMonorepoOverwrite(
-        existingConfigPath as string,
-      );
-      if (!overwriteConfirmed) {
-        spinner.info(chalk.yellow(t("config.init.aborted")));
-        return;
-      }
-      finalPath = path.join(currentPath, allConfigFiles[1]);
-      shouldOverwrite = true;
-    }
+    ({ finalPath, shouldOverwrite } = await handleMonorepoWithConfig(context));
   } else if (monorepoRoot && !hasRootConfig) {
-    const location = await promptForMonorepoLocation();
-    if (location === "root") {
-      finalPath = path.join(monorepoRoot, allConfigFiles[1]);
-    } else {
-      finalPath = path.join(currentPath, allConfigFiles[1]);
-    }
-    shouldOverwrite = true;
+    ({ finalPath, shouldOverwrite } =
+      await handleMonorepoWithoutConfig(context));
   } else {
-    finalPath = path.join(currentPath, allConfigFiles[1]);
-    shouldOverwrite = (await fs.pathExists(finalPath))
-      ? await promptForStandardOverwrite(finalPath)
-      : true;
+    console.log("===---->");
+    ({ finalPath, shouldOverwrite } = await handleStandardMultiRepo(context));
   }
 
-  if (shouldOverwrite) {
-    spinner.start(
-      chalk.cyan(t("config.init.initializing", { path: finalPath })),
-    );
-    await saveConfig({ ...defaultCliConfig }, finalPath);
-    spinner.succeed(chalk.green(t("config.init.success")));
-  } else {
+  if (!shouldOverwrite) {
     spinner.info(chalk.yellow(t("config.init.aborted")));
+    return;
   }
+
+  spinner.start(chalk.cyan(t("config.init.initializing", { path: finalPath })));
+  await saveConfig({ ...defaultCliConfig }, finalPath);
+  spinner.succeed(chalk.green(t("config.init.success")));
 }
 
-export function setupInitCommand(options: SetupCommandOptions) {
+export function setupInitCommand(options: SetupCommandOptions): void {
   const { program } = options;
   program
     .command("init")
@@ -142,10 +192,10 @@ export function setupInitCommand(options: SetupCommandOptions) {
     .description(t("config.init.command.description"))
     .option("-l, --local", t("config.init.option.local"), false)
     .option("-g, --global", t("config.init.option.global"), false)
-    .action(async (cmdOptions) => {
-      const isLocal = cmdOptions.local;
-      const isGlobal = cmdOptions.global;
-      const spinner = ora();
+    .action(async (cmdOptions: { local: boolean; global: boolean }) => {
+      const isLocal: boolean = cmdOptions.local;
+      const isGlobal: boolean = cmdOptions.global;
+      const spinner: Ora = ora();
 
       try {
         if (isLocal && isGlobal) {
