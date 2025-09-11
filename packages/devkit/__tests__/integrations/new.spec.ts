@@ -153,7 +153,7 @@ describe("dk new", () => {
           path.join(mockProjectDir, "my-vue-app", "vue-test.txt"),
         ),
       ).toBe(true);
-    }, 10000);
+    });
   });
 
   describe("dk new (Monorepo Usage)", () => {

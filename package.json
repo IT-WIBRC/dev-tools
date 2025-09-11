@@ -23,7 +23,7 @@
     "url": "https://github.com/IT-WIBRC/dev-tools/issues"
   },
   "scripts": {
-    "prepare": "husky",
+    "postinstall": "husky || true",
     "build": "bun --filter '*' build",
     "type-check": "bun --filter '*' type-check",
     "test": "bun --filter '*' test:coverage",
@@ -32,7 +32,8 @@
     "lint": "oxlint --fix .",
     "release": "changeset publish",
     "version": "changeset version",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "lint-staged": "lint-staged"
   },
   "workspaces": [
     "packages/*"

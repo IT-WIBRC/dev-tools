@@ -1,3 +1,4 @@
 {
-  "*.{json,md,yml,yaml,cjs}": "prettier --write"
+  "*.{json,md,yml,yaml,cjs}": ["prettier --write"],
+  "packages/**/*.{js,ts}": ["prettier --write", "oxlint --fix"]
 }

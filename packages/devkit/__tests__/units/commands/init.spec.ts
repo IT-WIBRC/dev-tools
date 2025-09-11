@@ -6,6 +6,8 @@ import {
 } from "../../../src/utils/configs/schema.js";
 import { mockSpinner } from "../../../vitest.setup.js";
 import { ConfigError } from "../../../src/utils/errors/base.js";
+import path from "path";
+import os from "os";
 
 const {
   mockFs,
@@ -16,6 +18,7 @@ const {
   mockFindMonorepoRoot,
   mockFindProjectRoot,
   mockFindGlobalConfigFile,
+  mockGetPackageManager,
 } = vi.hoisted(() => ({
   mockFs: {
     pathExists: vi.fn(),
@@ -27,13 +30,21 @@ const {
   mockFindMonorepoRoot: vi.fn(),
   mockFindProjectRoot: vi.fn(),
   mockFindGlobalConfigFile: vi.fn(),
+  mockGetPackageManager: vi.fn(),
 }));
 
 let actionFn: any;
-
-vi.mock("os", () => ({
-  default: {
+vi.mock("os", async () => {
+  const actual = await vi.importActual("os");
+  return {
+    ...actual,
     homedir: vi.fn(() => "/home/user"),
+  };
+});
+
+vi.mock("process", () => ({
+  default: {
+    cwd: vi.fn(() => "/current/directory"),
   },
 }));
 
@@ -41,6 +52,10 @@ vi.mock("#utils/fileSystem.js", () => ({
   default: {
     pathExists: mockFs.pathExists,
   },
+}));
+
+vi.mock("#utils/files/package-manager.js", () => ({
+  getPackageManager: mockGetPackageManager,
 }));
 
 vi.mock("@inquirer/prompts", () => ({ select: mockInquirerSelect }));
@@ -73,9 +88,14 @@ describe("setupInitCommand", () => {
   const localConfigPath = `/current/directory/${localConfigFile}`;
   const globalConfigPath = `/home/user/${globalConfigFile}`;
   const monorepoRootPath = "/monorepo/root";
-  const monorepoRootConfigPath = `${monorepoRootPath}/${localConfigFile}`;
+  const monorepoRootConfigPath = path.join(monorepoRootPath, localConfigFile);
   const projectRootPath = "/project/root";
-  const projectRootConfigPath = `${projectRootPath}/${localConfigFile}`;
+  const projectRootConfigPath = path.join(projectRootPath, localConfigFile);
+
+  const mockDetectedConfig = {
+    ...defaultCliConfig,
+    settings: { ...defaultCliConfig.settings, defaultPackageManager: "npm" },
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -91,6 +111,8 @@ describe("setupInitCommand", () => {
       }),
     };
     vi.spyOn(process, "cwd").mockReturnValue("/current/directory");
+    vi.spyOn(os, "homedir").mockReturnValue("/home/user");
+    mockGetPackageManager.mockResolvedValue("npm");
   });
 
   it("should set up the init command correctly", () => {
@@ -119,8 +141,9 @@ describe("setupInitCommand", () => {
       expect(mockFindGlobalConfigFile).toHaveBeenCalledOnce();
       expect(mockFs.pathExists).toHaveBeenCalledOnce();
       expect(mockFs.pathExists).toHaveBeenCalledWith(globalConfigPath);
+      expect(mockGetPackageManager).toHaveBeenCalledOnce();
       expect(mockSaveConfig).toHaveBeenCalledWith(
-        defaultCliConfig,
+        mockDetectedConfig,
         globalConfigPath,
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
@@ -135,8 +158,9 @@ describe("setupInitCommand", () => {
       expect(mockFindGlobalConfigFile).toHaveBeenCalledOnce();
       expect(mockFs.pathExists).toHaveBeenCalledOnce();
       expect(mockFs.pathExists).toHaveBeenCalledWith(globalConfigPath);
+      expect(mockGetPackageManager).toHaveBeenCalledOnce();
       expect(mockSaveConfig).toHaveBeenCalledWith(
-        defaultCliConfig,
+        mockDetectedConfig,
         globalConfigPath,
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
@@ -159,8 +183,9 @@ describe("setupInitCommand", () => {
         ],
         default: true,
       });
+      expect(mockGetPackageManager).toHaveBeenCalledOnce();
       expect(mockSaveConfig).toHaveBeenCalledWith(
-        defaultCliConfig,
+        mockDetectedConfig,
         globalConfigPath,
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
@@ -175,6 +200,7 @@ describe("setupInitCommand", () => {
       await actionFn({ local: false, global: true });
 
       expect(mockFs.pathExists).toHaveBeenCalledWith(globalConfigPath);
+      expect(mockGetPackageManager).not.toHaveBeenCalled();
       expect(mockSaveConfig).not.toHaveBeenCalled();
       expect(mockSpinner.info).toHaveBeenCalledWith("config.init.aborted");
     });
@@ -184,7 +210,7 @@ describe("setupInitCommand", () => {
     it("should create a local config file in a non-monorepo project when no local config exists", async () => {
       mockFindMonorepoRoot.mockResolvedValueOnce(null);
       mockFindProjectRoot.mockResolvedValueOnce(null);
-      mockFindUp.mockResolvedValue(null);
+      mockFindUp.mockResolvedValueOnce(null);
 
       setupInitCommand({ program: mockProgram });
       await actionFn({ local: true, global: false });
@@ -196,8 +222,9 @@ describe("setupInitCommand", () => {
         cwd: "/current/directory",
         limit: "/current/directory",
       });
+      expect(mockGetPackageManager).toHaveBeenCalledOnce();
       expect(mockSaveConfig).toHaveBeenCalledWith(
-        defaultCliConfig,
+        mockDetectedConfig,
         localConfigPath,
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
@@ -227,8 +254,9 @@ describe("setupInitCommand", () => {
         ],
         default: true,
       });
+      expect(mockGetPackageManager).toHaveBeenCalledOnce();
       expect(mockSaveConfig).toHaveBeenCalledWith(
-        defaultCliConfig,
+        mockDetectedConfig,
         localConfigPath,
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
@@ -258,8 +286,9 @@ describe("setupInitCommand", () => {
         ],
         default: true,
       });
+      expect(mockGetPackageManager).toHaveBeenCalledOnce();
       expect(mockSaveConfig).toHaveBeenCalledWith(
-        defaultCliConfig,
+        mockDetectedConfig,
         monorepoRootConfigPath,
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
@@ -289,8 +318,9 @@ describe("setupInitCommand", () => {
         ],
         default: true,
       });
+      expect(mockGetPackageManager).toHaveBeenCalledOnce();
       expect(mockSaveConfig).toHaveBeenCalledWith(
-        defaultCliConfig,
+        mockDetectedConfig,
         projectRootConfigPath,
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
@@ -305,5 +335,6 @@ describe("setupInitCommand", () => {
       mockSpinner,
     );
     expect(mockSaveConfig).not.toHaveBeenCalled();
+    expect(mockGetPackageManager).not.toHaveBeenCalled();
   });
 });

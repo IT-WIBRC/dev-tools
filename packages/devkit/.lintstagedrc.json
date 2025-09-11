@@ -1,4 +1,0 @@
-{
-  "*.{ts,js}": ["prettier --write", "oxlint"],
-  "*.{json,md}": "prettier --write"
-}

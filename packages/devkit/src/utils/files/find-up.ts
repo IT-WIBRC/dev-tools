@@ -24,6 +24,7 @@ export async function findUp({
         if (stats.isDirectory() || stats.isFile()) {
           return filePath;
         }
+        // oxlint-disable-next-line no-unused-vars
       } catch (e) {
         // File does not exist, continue search
       }

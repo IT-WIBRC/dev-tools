@@ -15,6 +15,7 @@ export async function copyTemplate(
 ) {
   try {
     await fs.copy(sourcePath, destinationPath);
+    // oxlint-disable-next-line no-unused-vars
   } catch (error) {
     throw new Error("Failed to copy template.");
   }

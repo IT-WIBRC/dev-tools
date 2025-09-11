@@ -1,3 +1,4 @@
+// oxlint-disable no-unused-vars
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import {
   findMonorepoRoot,
@@ -23,7 +24,7 @@ const { mockFsStat, mockFsReadJson, mockFindUpLogic } = vi.hoisted(() => {
           if (stats.isFile() || stats.isDirectory()) {
             return filePath;
           }
-        } catch (e) {
+        } catch (_) {
           // File not found, continue search
         }
       }
@@ -51,7 +52,7 @@ vi.mock("#utils/fileSystem.js", () => ({
       try {
         await mockFsStat(p);
         return true;
-      } catch (e) {
+      } catch (_) {
         return false;
       }
     }),

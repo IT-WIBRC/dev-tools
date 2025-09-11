@@ -55,6 +55,7 @@ async function pathExists(filePath: string): Promise<boolean> {
   try {
     await fsPromises.access(filePath);
     return true;
+    // oxlint-disable-next-line no-unused-vars
   } catch (error) {
     return false;
   }
