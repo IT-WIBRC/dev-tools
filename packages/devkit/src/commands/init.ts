@@ -1,6 +1,7 @@
 import {
   CONFIG_FILE_NAMES,
   defaultCliConfig,
+  type CliConfig,
   type SetupCommandOptions,
 } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
@@ -16,6 +17,7 @@ import { findMonorepoRoot, findProjectRoot } from "#utils/files/finder.js";
 import { findUp } from "#utils/files/find-up.js";
 import { saveConfig } from "#utils/configs/writer.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
+import { getPackageManager } from "#utils/files/package-manager.js";
 
 async function promptForStandardOverwrite(filePath: string): Promise<boolean> {
   const response = await select({
@@ -31,6 +33,19 @@ async function promptForStandardOverwrite(filePath: string): Promise<boolean> {
   return response;
 }
 
+async function getUpdatedConfig(): Promise<CliConfig> {
+  const detectedPackageManager = await getPackageManager(true);
+  return {
+    ...defaultCliConfig,
+    settings: {
+      ...defaultCliConfig.settings,
+      defaultPackageManager:
+        detectedPackageManager ||
+        defaultCliConfig.settings.defaultPackageManager,
+    },
+  };
+}
+
 async function handleGlobalInit(spinner: Ora): Promise<void> {
   let finalPath = await findGlobalConfigFile();
   if (!finalPath) {
@@ -42,10 +57,11 @@ async function handleGlobalInit(spinner: Ora): Promise<void> {
     : true;
 
   if (shouldOverwrite) {
+    const configToSave = await getUpdatedConfig();
     spinner.start(
       chalk.cyan(t("config.init.initializing", { path: finalPath })),
     );
-    await saveConfig({ ...defaultCliConfig }, finalPath);
+    await saveConfig(configToSave, finalPath);
     spinner.succeed(chalk.green(t("config.init.success")));
   } else {
     spinner.info(chalk.yellow(t("config.init.aborted")));
@@ -76,10 +92,11 @@ async function handleLocalInit(spinner: Ora): Promise<void> {
   }
 
   if (shouldOverwrite && finalPath) {
+    const configToSave = await getUpdatedConfig();
     spinner.start(
       chalk.cyan(t("config.init.initializing", { path: finalPath })),
     );
-    await saveConfig({ ...defaultCliConfig }, finalPath);
+    await saveConfig(configToSave, finalPath);
     spinner.succeed(chalk.green(t("config.init.success")));
   } else {
     spinner.info(chalk.yellow(t("config.init.aborted")));

@@ -36,6 +36,7 @@ export async function loadTranslations(
     const filePath = path.join(localesDir, `${languageToLoad}.json`);
 
     translations = await fs.readJson(filePath);
+    // oxlint-disable-next-line no-unused-vars
   } catch (error) {
     const localesDir = await findLocalesDir();
     const fallbackPath = path.join(localesDir, "en.json");

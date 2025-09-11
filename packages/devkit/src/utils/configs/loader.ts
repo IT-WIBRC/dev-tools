@@ -129,6 +129,7 @@ export async function readAndMergeConfigs(
       finalConfig = deepmerge(finalConfig, foundConfig, {
         arrayMerge: (_, sourceArray) => sourceArray,
       });
+      // oxlint-disable-next-line no-unused-vars
     } catch (e) {
       console.error(
         `Warning: Invalid configuration file found at ${configPath}. Using default settings.`,
