@@ -1,5 +1,12 @@
 # scaffolder-toolkit
 
+## 1.0.9
+
+### Patch Changes
+
+- 2a669b3: fix publish workflow
+- 7e45a47: ci: adjust release-pr workflow for dynamic messaging
+
 ## 1.0.8
 
 ### Patch Changes
