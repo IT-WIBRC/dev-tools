@@ -56,22 +56,52 @@ export function setupConfigGetCommand(options: SetupCommandOptions): void {
         }
 
         if (key) {
-          const canonicalKey = configAliases[key] || key;
-          const value =
-            activeConfig[canonicalKey as keyof CliConfig["settings"]];
-          if (value !== undefined) {
-            console.log(chalk.cyan(`${canonicalKey}:`), chalk.white(value));
-          } else {
-            console.log(
-              chalk.red(t("config.get.not_found", { key: canonicalKey })),
-            );
-          }
+          printConfigValue(activeConfig, key);
         } else {
-          const formattedConfig = JSON.stringify(activeConfig, null, 2);
-          console.log(chalk.white(formattedConfig));
+          printConfig(activeConfig);
         }
       } catch (error) {
         handleErrorAndExit(error, spinner);
       }
     });
+}
+
+function printConfig(activeConfig: CliConfig["settings"]) {
+  console.log(`\n${chalk.bold.blue("Current Configuration:")}`);
+
+  for (const [key, value] of Object.entries(activeConfig)) {
+    if (value === null || value === undefined) {
+      continue;
+    }
+
+    if (typeof value === "object" && !Array.isArray(value)) {
+      console.log(` - ${chalk.green(key)}:`);
+      for (const [subKey, subValue] of Object.entries(value)) {
+        console.log(`   - ${chalk.yellow(subKey)}: ${chalk.white(subValue)}`);
+      }
+    } else {
+      console.log(` - ${chalk.green(key)}: ${chalk.white(value)}`);
+    }
+  }
+
+  console.log("");
+}
+
+function printConfigValue(activeConfig: CliConfig["settings"], key: string) {
+  const canonicalKey = configAliases[key] || key;
+  const value = activeConfig[canonicalKey as keyof CliConfig["settings"]];
+
+  if (value === undefined) {
+    console.log(
+      chalk.red(t("config.get.not_found", { key: canonicalKey })),
+    );
+    return;
+  }
+
+  const outputValue =
+    typeof value === "object" ? JSON.stringify(value, null, 2) : value;
+
+  console.log(
+    `\n${chalk.cyan(canonicalKey)}: ${chalk.white(outputValue)}\n`,
+  );
 }

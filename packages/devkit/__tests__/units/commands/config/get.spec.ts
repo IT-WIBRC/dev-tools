@@ -23,9 +23,12 @@ vi.mock("chalk", () => ({
     bold: {
       green: vi.fn((message) => message),
       yellow: vi.fn((message) => message),
+      blue: vi.fn((message) => message),
     },
     white: vi.fn((message) => message),
     red: vi.fn((message) => message),
+    green: vi.fn((message) => message),
+    yellow: vi.fn((message) => message),
   },
 }));
 
@@ -40,7 +43,7 @@ describe("setupConfigGetCommand", () => {
     templates: {},
   };
 
-  const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => { });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -99,7 +102,16 @@ describe("setupConfigGetCommand", () => {
         mockChalk.bold.yellow("config.get.source.local"),
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.white(JSON.stringify(initialConfig.settings, null, 2)),
+        `\n${mockChalk.bold.blue("Current Configuration:")}`,
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        ` - ${mockChalk.green("defaultPackageManager")}: ${mockChalk.white("npm")}`,
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        ` - ${mockChalk.green("cacheStrategy")}: ${mockChalk.white("daily")}`,
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        ` - ${mockChalk.green("language")}: ${mockChalk.white("en")}`,
       );
       expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
     });
@@ -115,8 +127,7 @@ describe("setupConfigGetCommand", () => {
         mockChalk.bold.green("config.get.success"),
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.cyan("language:"),
-        mockChalk.white("en"),
+        `\n${mockChalk.cyan("language")}: ${mockChalk.white("en")}\n`,
       );
       expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
     });
@@ -129,8 +140,7 @@ describe("setupConfigGetCommand", () => {
       });
       await actionFn("pm", {});
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.cyan("defaultPackageManager:"),
-        mockChalk.white("npm"),
+        `\n${mockChalk.cyan("defaultPackageManager")}: ${mockChalk.white("npm")}\n`,
       );
     });
 
@@ -164,8 +174,7 @@ describe("setupConfigGetCommand", () => {
         mockChalk.bold.yellow("config.get.source.global"),
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.cyan("language:"),
-        mockChalk.white("fr"),
+        `\n${mockChalk.cyan("language")}: ${mockChalk.white("fr")}\n`,
       );
     });
 
@@ -187,8 +196,7 @@ describe("setupConfigGetCommand", () => {
         mockChalk.bold.yellow("config.get.fallback.local_to_global"),
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.cyan("language:"),
-        mockChalk.white("fr"),
+        `\n${mockChalk.cyan("language")}: ${mockChalk.white("fr")}\n`,
       );
     });
 
@@ -207,8 +215,7 @@ describe("setupConfigGetCommand", () => {
         mockChalk.bold.yellow("config.get.fallback.global"),
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.cyan("language:"),
-        mockChalk.white("en"),
+        `\n${mockChalk.cyan("language")}: ${mockChalk.white("en")}\n`,
       );
     });
 

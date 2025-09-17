@@ -52,11 +52,12 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 #### Core CLI & Configuration
 
-- [ ] Add a global option `-y` or `--yes` to skip confirmation prompts in commands like `dk init`.
 - [ ] Implement a command to update the CLI itself.
-- [ ] Add color configuration for templates (evaluate if this is a worthwhile feature).
-- [ ] Adjust autocompletion JSON to provide template-specific autocompletion for properties like `packageManager`.
+- [x] Adjust autocompletion JSON to provide template-specific autocompletion for properties like `packageManager`.
 - [ ] Centralize `chalk` and `ora` in a single file for better code organization.
+- [x] Format `config get` display to make it more user friendly
+- [ ] Add a global option `-y` or `--yes` to skip confirmation prompts in commands like `dk init`.
+- [ ] Add color configuration for templates (evaluate if this is a worthwhile feature).
 
 #### Multi-Repo Support
 
@@ -65,12 +66,12 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 #### Language Support
 
-- [ ] **Multi-Programming Language Support**: Progressively add templates for other languages (e.g., Python, Ruby, Go, Rust).
-- [ ] **Detect Package Manager**: Detect the user's default package manager (e.g., `npm`, `yarn`, `pnpm`) at initialization and set it in the configuration file, as the current default is always `bun`.
+- [x] **Detect Package Manager**: Detect the user's default package manager (e.g., `npm`, `yarn`, `pnpm`) at initialization and set it in the configuration file, as the current default is always `bun`.
 - [ ] Test for Deno support.
-- [ ] Clarify that configurations are currently for Node.js projects and must be placed within the `javascript` template section.
+- [x] Clarify that configurations are currently for Node.js projects and must be placed within the `javascript` template section.
+- [ ] **Multi-Programming Language Support**: Progressively add templates for other languages (e.g., Python, Ruby, Go, Rust).
 
 #### Documentation & Versioning
 
-- [ ] **Advanced Documentation**: Create detailed guides on creating and managing custom templates.
+- [x] **Advanced Documentation**: Create detailed guides on creating and managing custom templates.
 - [ ] Update the packages section in the root `package.json` to include all new packages. Change the one corrupted by the npm supply chain attack.

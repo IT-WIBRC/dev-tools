@@ -182,7 +182,9 @@ describe("dk config commands", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("Configuration key 'invalid-key' not found.");
+      expect(all).toContain(
+        "Configuration key 'invalid-key' not found.",
+      );
     });
 
     it("should get the entire local config if no key is specified", async () => {
@@ -197,8 +199,10 @@ describe("dk config commands", () => {
       expect(exitCode).toBe(0);
       expect(all).toContain("✔ Configuration loaded successfully!");
       expect(all).toContain("Using local configuration.");
-      expect(all).toContain('"language": "en"');
-      expect(all).toContain('"defaultPackageManager": "bun"');
+      expect(all).toContain("Current Configuration:");
+      expect(all).toContain("- defaultPackageManager: bun");
+      expect(all).toContain("- cacheStrategy: daily");
+      expect(all).toContain("- language: en");
     });
 
     it("should get a value from the global config when --global is used", async () => {
@@ -224,7 +228,7 @@ describe("dk config commands", () => {
 
       expect(exitCode).toBe(0);
       expect(all).toContain("✔ Configuration loaded successfully!");
-      expect(all).toContain("Using global configuration.");
+      expect(all).toContain("Using global configuration");
       expect(all).toContain("language: fr");
 
       await fs.remove(tempGlobalHome);
@@ -258,9 +262,7 @@ describe("dk config commands", () => {
 
       expect(exitCode).toBe(0);
       expect(all).toContain("✔ Configuration loaded successfully!");
-      expect(all).toContain(
-        "No local configuration file found. Displaying global settings instead.",
-      );
+      expect(all).toContain("No local configuration file found. Displaying global settings instead.");
       expect(all).toContain("defaultPackageManager: yarn");
 
       await fs.remove(tempGlobalHome);
@@ -282,9 +284,7 @@ describe("dk config commands", () => {
 
       expect(exitCode).toBe(0);
       expect(all).toContain("✔ Configuration loaded successfully!");
-      expect(all).toContain(
-        "No local configuration file found. Displaying default settings instead.",
-      );
+      expect(all).toContain("No local configuration file found. Displaying default settings instead.");
       expect(all).toContain("language: en");
 
       await fs.remove(tempGlobalHome);
