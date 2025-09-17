@@ -14,7 +14,6 @@ jobs:
     if: github.event.pull_request.merged && startsWith(github.head_ref, 'changeset-release/')
     permissions:
       contents: write
-      issues: write
       pull-requests: write
       id-token: write
 
@@ -42,14 +41,31 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Create PR from develop to main
-        id: create_pr
+      - name: 📦 Get Package Name and Version
+        id: get_version
+        run: |
+          PACKAGE_NAME=$(bun -e 'console.log(require("./packages/devkit/package.json").name)')
+          VERSION=$(bun -e 'console.log(require("./packages/devkit/package.json").version)')
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: 🔄 Sync changes to temporary branch
+        run: |
+          git fetch origin main:main
+          git checkout -b auto-gen-sync-develop-to-main
+          git merge develop --no-ff -m "chore(release): merge develop changes for ${{ steps.get_version.outputs.PACKAGE_NAME }}@${{ steps.get_version.outputs.VERSION }}"
+
+      - name: 🚀 Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: sync main with develop"
-          title: "Release: Sync main with latest changes"
-          body: "This PR was automatically created to sync the `main` branch with the latest changes in `develop` after a successful package publish."
+          commit-message: "chore(release): update main with the new release ${{ steps.get_version.outputs.PACKAGE_NAME }}@${{ steps.get_version.outputs.VERSION }}"
+          title: "Release: update the `main` branch with new release ${{ steps.get_version.outputs.PACKAGE_NAME }}@${{ steps.get_version.outputs.VERSION }}"
+          body: |
+            This PR was automatically created to sync the `main` branch with the latest changes in `develop` after a successful package publish.
+
+            Package: ${{ steps.get_version.outputs.PACKAGE_NAME }}
+            Version: ${{ steps.get_version.outputs.VERSION }}
           base: "main"
           branch: "auto-gen-sync-develop-to-main"
           delete-branch: true
