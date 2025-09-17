@@ -24,11 +24,44 @@ jobs:
         with:
           bun_version: "latest"
 
-      - name: Create Release Pull Request
-        id: changesets
+      - name: 🚀 Validate Git Status
+        run: |
+          git fetch
+          if [ "$(git rev-list --count @{u}..HEAD)" -ne 0 ] || [ "$(git rev-list --count HEAD..@{u})" -ne 0 ]; then
+            echo "❌ Your branch is out of sync with remote. Please pull or push before running this workflow."
+            exit 1
+          fi
+
+      - name: Create Release Pull Request (Update Files Only)
+        id: changeset_version
         uses: changesets/action@v1
         with:
           version: bun run version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY_SKIP_HOOKS: 1
+
+      - name: 📦 Get Package Name and Version
+        id: get_version
+        run: |
+          PACKAGE_NAME=$(bun --filter "." --cwd . --silent --print "pkg.name")
+          VERSION=$(bun --filter "." --cwd . --silent --print "pkg.version")
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: 📝 Commit and Push Version Changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "chore(release): release ${{ steps.get_version.outputs.PACKAGE_NAME }}@${{ steps.get_version.outputs.VERSION }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🚀 Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(release): update main with the new release ${{ steps.get_version.outputs.PACKAGE_NAME }}@${{ steps.get_version.outputs.VERSION }}"
+          title: "Release: update the `main` branch with new release${{ steps.get_version.outputs.PACKAGE_NAME }}@${{ steps.get_version.outputs.VERSION }}"
+          branch: "auto-gen-release-pr"
