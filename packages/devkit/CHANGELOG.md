@@ -1,5 +1,15 @@
 # scaffolder-toolkit
 
+## 1.0.8
+
+### Patch Changes
+
+- b7ce351: Format `config get` display to make it more user friendly
+- 41583f9: fix: manage config initialization on multi repository
+- 93cb5bd: Add the verbose option for detailed output
+- 19f7295: Add support for the offline autocompletion configuration
+- e187d77: ci: add automated release and branch deletion workflows
+
 ## 1.0.7
 
 ### Patch Changes
