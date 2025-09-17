@@ -1,5 +1,11 @@
 # scaffolder-toolkit
 
+## 1.0.9
+
+### Patch Changes
+
+- 2a669b3: fix publish workflow
+
 ## 1.0.8
 
 ### Patch Changes
