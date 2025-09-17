@@ -120,6 +120,7 @@ describe("index.ts (Entry point)", () => {
 
       expect(parseOptionsSpy).toHaveBeenCalledOnce();
       expect(mockSpinner.start).toHaveBeenCalledWith("");
+      expect(mockSpinner.stop).toHaveBeenCalledOnce();
       expect(mockSpinner.succeed).not.toHaveBeenCalled();
     });
 
@@ -138,7 +139,7 @@ describe("index.ts (Entry point)", () => {
       expect(parseOptionsSpy).toHaveBeenCalledOnce();
       expect(mockSpinner.start).toHaveBeenCalledWith("Initializing CLI...");
       expect(mockSpinner.succeed).toHaveBeenCalledOnce();
-      expect(mockSpinner.stop).not.toHaveBeenCalled();
+      expect(mockSpinner.stop).toHaveBeenCalled();
     });
 
     it("should display a warning if a default config is used (always visible)", async () => {

@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
-
 if [ "$CI" ]; then
   exit 0
 fi

@@ -117,6 +117,7 @@ describe("setupNewCommand", () => {
     await actionFn(language, projectName, cmdOptions);
 
     expect(mockSpinner.start).toHaveBeenCalledOnce();
+    expect(mockSpinner.stop).toHaveBeenCalledOnce();
     expect(mockScaffoldProject).toHaveBeenCalledWith({
       projectName,
       templateConfig,
@@ -154,6 +155,7 @@ describe("setupNewCommand", () => {
     expect(mockSpinner.succeed).toHaveBeenCalledWith(
       "new.project.success- options projectName:vue-project",
     );
+    expect(mockSpinner.stop).toHaveBeenCalledOnce();
     expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
   });
 

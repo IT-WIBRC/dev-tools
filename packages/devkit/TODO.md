@@ -55,14 +55,30 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [ ] Implement a command to update the CLI itself.
 - [x] Adjust autocompletion JSON to provide template-specific autocompletion for properties like `packageManager`.
 - [ ] Centralize `chalk` and `ora` in a single file for better code organization.
+- [x] Remove constant spinner when running a command and resolving the new command invocation
 - [x] Format `config get` display to make it more user friendly
 - [ ] Add a global option `-y` or `--yes` to skip confirmation prompts in commands like `dk init`.
 - [ ] Add color configuration for templates (evaluate if this is a worthwhile feature).
 
+#### Command Enhancements
+
+- [ ] **New Command Improvements**:
+  - [ ] Add interactive prompts for template location input
+  - [ ] Add field-by-field input for template configuration
+  - [ ] Implement selection menu for supported package managers
+  - [ ] Add description field prompt
+  - [ ] Add validation for entered values
+
+- [ ] **List Command Improvements**:
+  - [ ] Add interactive selection menu for template filtering
+  - [ ] Implement "Show All" option in selection
+  - [ ] Add scope selection (local/global templates)
+  - [ ] Improve template display formatting
+  - [ ] Add sorting options for template list
+
 #### Multi-Repo Support
 
 - [x] Implement a clear confirmation message and warning when a local configuration is about to be initialized at the root of a multi-repo project.
-- [ ] Add a comment in the `$schema` field of the configuration file to clarify that the path must be adjusted if the file is not at the same level as the `node_modules` directory.
 
 #### Language Support
 
@@ -75,6 +91,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 - [x] **Advanced Documentation**: Create detailed guides on creating and managing custom templates.
 - [x] Fix the publish workflows in GitHub Actions.
-- [ ] Investigate and fix the problem with the lint-staged pre-commit hook failing with no reason.
+- [x] Investigate and fix the problem with the lint-staged pre-commit hook failing with no reason.
+- [x] investigate the workflows to publish the packages, they seem to not work as expected mainly after releasing a new version and does not create a PR with the version bumps to main branch. Also see while after changing the release message on the PR, the commitlint worflow failed to validate the commit message.
 - [ ] Add a section in the documentation about the security measures taken to prevent supply chain attacks
 - [ ] Update the packages section in the root `package.json` to include all new packages. Change the one corrupted by the npm supply chain attack.

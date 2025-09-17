@@ -5,6 +5,14 @@ import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";
 import chalk from "chalk";
 
+const getScaffolder = async (language: string) => {
+  if (language === "javascript") {
+    const { scaffoldProject } = await import("#scaffolding/javascript.js");
+    return scaffoldProject;
+  }
+  throw new DevkitError(t("error.language_config_not_found", { language }));
+};
+
 export function setupNewCommand(options: SetupCommandOptions) {
   const { program, config } = options;
   program
@@ -46,8 +54,9 @@ export function setupNewCommand(options: SetupCommandOptions) {
           throw new DevkitError(t("error.template.not_found", { template }));
         }
 
-        const { scaffoldProject } = await import(`#scaffolding/${language}.js`);
-        await scaffoldProject({
+        const scaffoldAppropriateProject = await getScaffolder(language);
+        scaffoldSpinner.stop();
+        await scaffoldAppropriateProject({
           projectName,
           templateConfig,
           packageManager:

@@ -60,6 +60,7 @@ export async function setupAndParse() {
     setupConfigUpdateCommand({ program, config, source });
 
     program.parse(process.argv);
+    spinner.stop();
   } catch (error) {
     handleErrorAndExit(error, spinner);
   }
