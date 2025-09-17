@@ -44,19 +44,10 @@ jobs:
       - name: 📦 Get Package Name and Version
         id: get_version
         run: |
-          PACKAGE_NAME=$(bun --filter "." --cwd . --silent --print "pkg.name")
-          VERSION=$(bun --filter "." --cwd . --silent --print "pkg.version")
+          PACKAGE_NAME=$(bun -e 'console.log(require("./packages/devkit/package.json").name)')
+          VERSION=$(bun -e 'console.log(require("./packages/devkit/package.json").version)')
           echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: 📝 Commit and Push Version Changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "chore(release): release ${{ steps.get_version.outputs.PACKAGE_NAME }}@${{ steps.get_version.outputs.VERSION }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🚀 Create Pull Request
         uses: peter-evans/create-pull-request@v5
