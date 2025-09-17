@@ -1,5 +1,11 @@
 # scaffolder-toolkit
 
+## 1.0.10
+
+### Patch Changes
+
+- e0fea6f: Revise and change the publish worflow by combining both jobs in one to avoid delay
+
 ## 1.0.9
 
 ### Patch Changes
