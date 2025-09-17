@@ -92,16 +92,12 @@ function printConfigValue(activeConfig: CliConfig["settings"], key: string) {
   const value = activeConfig[canonicalKey as keyof CliConfig["settings"]];
 
   if (value === undefined) {
-    console.log(
-      chalk.red(t("config.get.not_found", { key: canonicalKey })),
-    );
+    console.log(chalk.red(t("config.get.not_found", { key: canonicalKey })));
     return;
   }
 
   const outputValue =
     typeof value === "object" ? JSON.stringify(value, null, 2) : value;
 
-  console.log(
-    `\n${chalk.cyan(canonicalKey)}: ${chalk.white(outputValue)}\n`,
-  );
+  console.log(`\n${chalk.cyan(canonicalKey)}: ${chalk.white(outputValue)}\n`);
 }
