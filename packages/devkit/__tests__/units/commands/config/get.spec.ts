@@ -43,7 +43,7 @@ describe("setupConfigGetCommand", () => {
     templates: {},
   };
 
-  const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => { });
+  const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
   beforeEach(() => {
     vi.clearAllMocks();

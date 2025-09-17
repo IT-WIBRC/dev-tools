@@ -44,8 +44,8 @@ jobs:
       - name: 📦 Get Package Name and Version
         id: get_version
         run: |
-          PACKAGE_NAME=$(bun --filter "." --cwd . --silent --print "pkg.name")
-          VERSION=$(bun --filter "." --cwd . --silent --print "pkg.version")
+          PACKAGE_NAME=$(bun -e 'console.log(require("./packages/devkit/package.json").name)')
+          VERSION=$(bun -e 'console.log(require("./packages/devkit/package.json").version)')
           echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_OUTPUT
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 

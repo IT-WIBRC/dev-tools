@@ -6,41 +6,41 @@ A universal CLI for professional developers to automate project scaffolding and 
 
 Built to fit the modern developer workflow, `dk` seamlessly integrates into monorepos and supports a wide range of features to help you start coding faster.
 
------
+---
 
 ## ✨ Key Features
 
-  - **Unified Command:** Access all features with the short, intuitive command `dk`.
-  - **Intelligent Scaffolding:** Create new projects from a wide variety of popular frameworks with a single, intuitive command. You can also use custom templates for a consistent workflow. **See the list of supported templates below.**
-  - **Node.js Ecosystem Support:** All commands and templates are currently designed for and support the **Node.js ecosystem**, including projects managed with **npm**, **Yarn**, **pnpm**, and **Bun**.
-  - **Robust Configuration:** The tool reliably finds your configuration file (`.devkit.json`) in any project or monorepo structure. It uses a clear priority system to manage both local and global settings.
-  - **Powerful Cache Management:** Optimize project setup speed with flexible caching strategies for your templates. These strategies are mainly applied when using a GitHub URL:
-      - `always-refresh`: Always pull the latest template from the remote repository.
-      - `never-refresh`: Use the local cached template without checking for updates.
-      - `daily` (default): Refresh the cache only once every 24 hours.
-  - **Seamless Internationalization (i18n):** The CLI supports multiple languages, with all commands and descriptions dynamically translated. It will automatically use the language defined in your configuration files or **detect your system's language as a fallback** for a seamless out-of-the-box experience.
-  - **Centralized Settings:** Manage your preferred package manager (npm, yarn, pnpm, bun) and cache strategy with a single command.
+- **Unified Command:** Access all features with the short, intuitive command `dk`.
+- **Intelligent Scaffolding:** Create new projects from a wide variety of popular frameworks with a single, intuitive command. You can also use custom templates for a consistent workflow. **See the list of supported templates below.**
+- **Node.js Ecosystem Support:** All commands and templates are currently designed for and support the **Node.js ecosystem**, including projects managed with **npm**, **Yarn**, **pnpm**, and **Bun**.
+- **Robust Configuration:** The tool reliably finds your configuration file (`.devkit.json`) in any project or monorepo structure. It uses a clear priority system to manage both local and global settings.
+- **Powerful Cache Management:** Optimize project setup speed with flexible caching strategies for your templates. These strategies are mainly applied when using a GitHub URL:
+  - `always-refresh`: Always pull the latest template from the remote repository.
+  - `never-refresh`: Use the local cached template without checking for updates.
+  - `daily` (default): Refresh the cache only once every 24 hours.
+- **Seamless Internationalization (i18n):** The CLI supports multiple languages, with all commands and descriptions dynamically translated. It will automatically use the language defined in your configuration files or **detect your system's language as a fallback** for a seamless out-of-the-box experience.
+- **Centralized Settings:** Manage your preferred package manager (npm, yarn, pnpm, bun) and cache strategy with a single command.
 
------
+---
 
 ## 📂 Use Cases
 
 The Scaffolder CLI streamlines development workflows in various environments:
 
-  - **Globally Installed CLI:** Install `scaffolder-toolkit` globally for a universal scaffolding tool on your machine.
-  - **Monorepo:** A single configuration file at the root can manage settings and templates for all projects, ensuring consistency across your entire codebase.
-  - **Multiple Repositories:** Each project can have its own `.devkit.json` file for unique settings, allowing for flexible project management.
+- **Globally Installed CLI:** Install `scaffolder-toolkit` globally for a universal scaffolding tool on your machine.
+- **Monorepo:** A single configuration file at the root can manage settings and templates for all projects, ensuring consistency across your entire codebase.
+- **Multiple Repositories:** Each project can have its own `.devkit.json` file for unique settings, allowing for flexible project management.
 
------
+---
 
 ## 🗺️ Supported Languages
 
 The CLI's internationalization (`i18n`) feature dynamically translates commands and descriptions. Currently, the following languages are supported:
 
-  - English (`en`)
-  - French (`fr`)
+- English (`en`)
+- French (`fr`)
 
------
+---
 
 ## 🚀 Getting Started
 
@@ -92,15 +92,15 @@ yarn dk --help
 > source ~/.zshrc
 > ```
 
------
+---
 
 ### Global Options
 
 In addition to the options for each command, you can use a global flag that affects the entire CLI's output.
 
-  - **`--verbose`**: The verbose flag (`-v`) provides more detailed output during execution. It's particularly useful for debugging or when you want to see exactly what the CLI is doing behind the scenes, such as confirming initialization and configuration loading.
+- **`--verbose`**: The verbose flag (`-v`) provides more detailed output during execution. It's particularly useful for debugging or when you want to see exactly what the CLI is doing behind the scenes, such as confirming initialization and configuration loading.
 
------
+---
 
 ## 📦 Default Templates
 
@@ -108,27 +108,27 @@ Scaffolder comes with a set of pre-configured templates for popular frameworks a
 
 > **Note:** All templates currently support Node.js projects and must be configured under the `javascript` key.
 
-| Template Name | Description | Alias |
-| --- | --- | --- |
-| `vue` | An official Vue.js project. | |
-| `nuxt` | An official Nuxt.js project. | `nx` |
-| `nest` | An official Nest.js project. | |
-| `nextjs` | An official Next.js project. | `next` |
-| `express` | A simple Express.js boilerplate. | `ex` |
-| `fastify` | A highly performant Fastify web framework boilerplate. | `fy` |
-| `koa` | A Koa.js web framework boilerplate. | |
-| `adonis` | A full-stack Node.js framework (AdonisJS). | `ad` |
-| `sails` | A real-time, MVC framework (Sails.js). | |
-| `angular` | An official Angular project (via Angular CLI). | `ng` |
-| `angular-vite` | An Angular project using Vite (via AnalogJS). | `ng-v` |
-| `react` | A React project using the recommended Vite setup. | `rt` |
-| `svelte` | A Svelte project using SvelteKit. | |
-| `qwik` | An official Qwik project. | |
-| `astro` | A new Astro project. | |
-| `solid` | An official SolidJS project. | |
-| `remix` | An official Remix project. | |
+| Template Name  | Description                                            | Alias  |
+| -------------- | ------------------------------------------------------ | ------ |
+| `vue`          | An official Vue.js project.                            |        |
+| `nuxt`         | An official Nuxt.js project.                           | `nx`   |
+| `nest`         | An official Nest.js project.                           |        |
+| `nextjs`       | An official Next.js project.                           | `next` |
+| `express`      | A simple Express.js boilerplate.                       | `ex`   |
+| `fastify`      | A highly performant Fastify web framework boilerplate. | `fy`   |
+| `koa`          | A Koa.js web framework boilerplate.                    |        |
+| `adonis`       | A full-stack Node.js framework (AdonisJS).             | `ad`   |
+| `sails`        | A real-time, MVC framework (Sails.js).                 |        |
+| `angular`      | An official Angular project (via Angular CLI).         | `ng`   |
+| `angular-vite` | An Angular project using Vite (via AnalogJS).          | `ng-v` |
+| `react`        | A React project using the recommended Vite setup.      | `rt`   |
+| `svelte`       | A Svelte project using SvelteKit.                      |        |
+| `qwik`         | An official Qwik project.                              |        |
+| `astro`        | A new Astro project.                                   |        |
+| `solid`        | An official SolidJS project.                           |        |
+| `remix`        | An official Remix project.                             |        |
 
------
+---
 
 ## ⚙️ Usage
 
@@ -149,9 +149,9 @@ The `add-template` command allows you to easily register a new template with you
 
 You must provide a `description` using the `--description` flag. Other options like `--alias`, `--cache-strategy`, and `--package-manager` are available to customize the template.
 
-  - **Global:** You can explicitly add the template to your global (`~/.devkitrc`) file using the `--global` flag.
-  - **Local:** It updates the `.devkit.json` file in the root of your current project.
-  - **Monorepo:** It updates the shared configuration at the monorepo's root.
+- **Global:** You can explicitly add the template to your global (`~/.devkitrc`) file using the `--global` flag.
+- **Local:** It updates the `.devkit.json` file in the root of your current project.
+- **Monorepo:** It updates the shared configuration at the monorepo's root.
 
 <!-- end list -->
 
@@ -169,8 +169,8 @@ The `update` command allows you to modify an existing template's properties. Thi
 
 You can also update the template's name using the `--new-name` flag, which is useful for correcting typos or renaming a template.
 
-  - **Global:** Use the `--global` flag to update the template in your global (`~/.devkitrc`) file.
-  - **Local:** It updates the `.devkit.json` file in the root of your current project.
+- **Global:** Use the `--global` flag to update the template in your global (`~/.devkitrc`) file.
+- **Local:** It updates the `.devkit.json` file in the root of your current project.
 
 <!-- end list -->
 
@@ -189,8 +189,8 @@ dk update javascript my-template --new-name my-cool-template --description "A ne
 
 The `remove-template` command allows you to delete a template from your configuration file. You can identify the template by its name or a configured alias.
 
-  - **Global:** You can explicitly remove the template from your global (`~/.devkitrc`) file using the `--global` flag.
-  - **Local:** It removes the template from the `.devkit.json` file in the root of your current project.
+- **Global:** You can explicitly remove the template from your global (`~/.devkitrc`) file using the `--global` flag.
+- **Local:** It removes the template from the `.devkit.json` file in the root of your current project.
 
 <!-- end list -->
 
@@ -214,17 +214,17 @@ dk list
 dk list javascript
 ```
 
------
+---
 
 ### Options
 
 The `list` command now uses the following options to control which templates are displayed:
 
-  - **`--local`**: Only list templates from the local configuration file (`.devkit.json`).
-  - **`--global`**: Only list templates from the global configuration file (`~/.devkitrc`).
-  - **`--all`**: List templates from both the local and global configurations, merging them into a single list.
+- **`--local`**: Only list templates from the local configuration file (`.devkit.json`).
+- **`--global`**: Only list templates from the global configuration file (`~/.devkitrc`).
+- **`--all`**: List templates from both the local and global configurations, merging them into a single list.
 
------
+---
 
 ### Examples
 
@@ -283,16 +283,16 @@ dk config cache react always-refresh
 
 For a faster workflow, the following commands have shortcuts:
 
-  - `devkit` -\> `dk`
-  - `init` -\> `i`
-  - `config` -\> `cf`
-  - `cache` -\> `c`
-  - `update` -\> `up`
-  - `add-template` -\> `at`
-  - `remove-template` -\> `rt`
-  - `list` -\> `ls`
+- `devkit` -\> `dk`
+- `init` -\> `i`
+- `config` -\> `cf`
+- `cache` -\> `c`
+- `update` -\> `up`
+- `add-template` -\> `at`
+- `remove-template` -\> `rt`
+- `list` -\> `ls`
 
------
+---
 
 ## ⚙️ Configuration
 
@@ -341,8 +341,8 @@ The `init` command allows you to initialize a configuration file at different sc
 
 **Note:** If a configuration file already exists at the specified location, you will be prompted to confirm if you want to overwrite it.
 
-  - To initialize a **local** configuration file in your current project, use the `--local` flag, or run the command without any flags. The file will be named `.devkit.json`.
-  - To initialize a **global** configuration file, use the `--global` flag. The file will be named `.devkitrc`.
+- To initialize a **local** configuration file in your current project, use the `--local` flag, or run the command without any flags. The file will be named `.devkit.json`.
+- To initialize a **global** configuration file, use the `--global` flag. The file will be named `.devkitrc`.
 
 <!-- end list -->
 
@@ -498,24 +498,24 @@ Once an alias is configured, you can use it in place of the full template name f
 dk new javascript my-new-project-name -t gh-template
 ```
 
------
+---
 
 ## 🗺️ Roadmap & Future Features
 
 This project is in its early stages. We're committed to building a comprehensive developer toolkit.
 
-  - **Multi-Programming Language Support:** We'll progressively add templates for various frameworks and ecosystems (e.g., Python, Ruby, Go, Rust).
-  - **Advanced Documentation:** Detailed guides on creating and managing custom templates, with examples for various frameworks.
+- **Multi-Programming Language Support:** We'll progressively add templates for various frameworks and ecosystems (e.g., Python, Ruby, Go, Rust).
+- **Advanced Documentation:** Detailed guides on creating and managing custom templates, with examples for various frameworks.
 
 We're always working to improve the Scaffolder CLI. For a complete list of planned features, bug fixes, and development tasks, please see our [TODO list](./TODO.md).
 
------
+---
 
 ## 🤝 Contributing
 
 We welcome contributions. Please see our [Contribution Guide](../../CONTRIBUTING.md) for details on how to get started.
 
------
+---
 
 ## 📄 License
 
@@ -524,4 +524,3 @@ MIT
 Copyright (c) 2025, WAFFEU Ivany Botrel Rayn
 Contact
 Ivany Botrel Rayn WAFFEU - wibrc.se.jc@gmail.com
-
