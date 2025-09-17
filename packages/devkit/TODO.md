@@ -74,4 +74,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 #### Documentation & Versioning
 
 - [x] **Advanced Documentation**: Create detailed guides on creating and managing custom templates.
+- [x] Fix the publish workflows in GitHub Actions.
+- [ ] Investigate and fix the problem with the lint-staged pre-commit hook failing with no reason.
+- [ ] Add a section in the documentation about the security measures taken to prevent supply chain attacks
 - [ ] Update the packages section in the root `package.json` to include all new packages. Change the one corrupted by the npm supply chain attack.
