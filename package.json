@@ -33,9 +33,7 @@
     "release": "changeset publish",
     "version": "changeset version",
     "changeset": "changeset",
-    "lint-staged": "lint-staged",
-    "preversion": "git fetch && git status -uno | grep -Eq 'Your branch is up to date|Your branch is ahead of'",
-    "postversion": "git commit -am 'chore(changeset): release'"
+    "lint-staged": "lint-staged"
   },
   "workspaces": [
     "packages/*"
