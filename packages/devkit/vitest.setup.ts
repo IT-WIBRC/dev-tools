@@ -61,6 +61,7 @@ const mockChalk = vi.hoisted(() => {
     "cyan",
     "green",
     "yellow",
+    "magenta",
     "red",
     "italic",
     "redBright",

@@ -52,7 +52,7 @@ jobs:
       - name: 🔄 Sync changes to temporary branch
         run: |
           git fetch origin main:main
-          git checkout -b auto-gen-sync-develop-to-main
+          git checkout -b auto-gen-sync-develop-to-main-${{ github.run_id }}
           git merge develop --no-ff -m "chore(release): merge develop changes for ${{ steps.get_version.outputs.PACKAGE_NAME }}@${{ steps.get_version.outputs.VERSION }}"
 
       - name: 🚀 Create Pull Request
@@ -67,5 +67,5 @@ jobs:
             Package: ${{ steps.get_version.outputs.PACKAGE_NAME }}
             Version: ${{ steps.get_version.outputs.VERSION }}
           base: "main"
-          branch: "auto-gen-sync-develop-to-main"
+          branch: "auto-gen-sync-develop-to-main-${{ github.run_id }}"
           delete-branch: true

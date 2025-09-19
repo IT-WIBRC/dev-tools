@@ -40,6 +40,9 @@
       },
       "all": {
         "option": "List templates from both local and global configurations."
+      },
+      "filter": {
+        "option": "Filter templates by name or substring."
       }
     },
     "templates": {

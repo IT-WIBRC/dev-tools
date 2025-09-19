@@ -107,40 +107,19 @@ describe("setupListCommand", () => {
       "-a, --all",
       "list.command.all.option",
     );
+    expect(mockProgram.option).toHaveBeenCalledWith(
+      "-f, --filter <string>",
+      "list.command.filter.option",
+    );
   });
 
-  describe("when no flags are provided (default behavior)", () => {
-    it("should list templates from the local config if it exists", async () => {
+  describe("display modes", () => {
+    it("should display both local and global templates with --all flag", async () => {
       mockReadLocalConfig.mockResolvedValue({
         config: sampleLocalConfig,
         filePath: "/path/to/local",
         source: "local",
       });
-      mockReadGlobalConfig.mockResolvedValue(null);
-
-      setupListCommand({ program: mockProgram });
-      await actionFn("", {});
-
-      expect(mockSpinner.start).toHaveBeenCalled();
-      expect(mockSpinner.stop).toHaveBeenCalled();
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        "\n",
-        mockChalk.bold("list.templates.header"),
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining(" - vue-basic "),
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("PYTHON")}:`,
-      );
-      expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
-    });
-
-    it("should fallback to global config if no local config is found", async () => {
-      mockReadLocalConfig.mockResolvedValue(null);
       mockReadGlobalConfig.mockResolvedValue({
         config: sampleGlobalConfig,
         filePath: "/path/to/global",
@@ -148,40 +127,57 @@ describe("setupListCommand", () => {
       });
 
       setupListCommand({ program: mockProgram });
-      await actionFn("", {});
+      await actionFn("", { all: true });
 
       expect(mockSpinner.start).toHaveBeenCalled();
-      expect(mockSpinner.info).toHaveBeenCalledWith(
-        "list.templates.using_global_fallback",
-      );
-      expect(mockSpinner.stop).toHaveBeenCalled();
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        "\n",
-        mockChalk.bold("list.templates.header"),
+        "\n" + mockChalk.magenta.bold("list.templates.using_local"),
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        "\n" + mockChalk.cyan.bold("list.templates.using_global"),
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        `\n${mockChalk.blue.bold("TYPESCRIPT")}:`,
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
         `\n${mockChalk.blue.bold("PYTHON")}:`,
       );
-      expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
     });
 
-    it("should show a 'not found' message if both configs are empty", async () => {
-      mockReadLocalConfig.mockResolvedValue(null);
-      mockReadGlobalConfig.mockResolvedValue(null);
+    it("should display only global templates with --global flag", async () => {
+      mockReadLocalConfig.mockResolvedValue({
+        config: sampleLocalConfig,
+        filePath: "/path/to/local",
+        source: "local",
+      });
+      mockReadGlobalConfig.mockResolvedValue({
+        config: sampleGlobalConfig,
+        filePath: "/path/to/global",
+        source: "global",
+      });
 
       setupListCommand({ program: mockProgram });
-      await actionFn("", {});
+      await actionFn("", { global: true });
 
       expect(mockSpinner.start).toHaveBeenCalled();
-      expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockChalk.yellow("list.templates.not_found"),
+      expect(mockSpinner.info).toHaveBeenCalledWith(
+        "list.templates.using_global",
       );
-      expect(consoleLogSpy).not.toHaveBeenCalled();
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        "\n" + mockChalk.cyan.bold("list.templates.using_global"),
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        `\n${mockChalk.blue.bold("PYTHON")}:`,
+      );
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
+      );
     });
-  });
 
-  describe("when flags are provided", () => {
-    it("should list templates only from the local config with --local flag", async () => {
+    it("should display only local templates with --local flag", async () => {
       mockReadLocalConfig.mockResolvedValue({
         config: sampleLocalConfig,
         filePath: "/path/to/local",
@@ -201,41 +197,20 @@ describe("setupListCommand", () => {
         "list.templates.using_local",
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
+        "\n" + mockChalk.magenta.bold("list.templates.using_local"),
       );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("PYTHON")}:`,
-      );
-    });
-
-    it("should list templates only from the global config with --global flag", async () => {
-      mockReadLocalConfig.mockResolvedValue({
-        config: sampleLocalConfig,
-        filePath: "/path/to/local",
-        source: "local",
-      });
-      mockReadGlobalConfig.mockResolvedValue({
-        config: sampleGlobalConfig,
-        filePath: "/path/to/global",
-        source: "global",
-      });
-
-      setupListCommand({ program: mockProgram });
-      await actionFn("", { global: true });
-
-      expect(mockSpinner.start).toHaveBeenCalled();
-      expect(mockSpinner.info).toHaveBeenCalledWith(
-        "list.templates.using_global",
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
+      expect(consoleLogSpy).toHaveBeenCalledWith(
         `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
+        `\n${mockChalk.blue.bold("TYPESCRIPT")}:`,
+      );
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
         `\n${mockChalk.blue.bold("PYTHON")}:`,
       );
     });
 
-    it("should list templates from both configs with --all flag", async () => {
+    it("should display templates for a specific language with language argument", async () => {
       mockReadLocalConfig.mockResolvedValue({
         config: sampleLocalConfig,
         filePath: "/path/to/local",
@@ -248,7 +223,34 @@ describe("setupListCommand", () => {
       });
 
       setupListCommand({ program: mockProgram });
-      await actionFn("", { all: true });
+      await actionFn("javascript", {});
+
+      expect(mockSpinner.start).toHaveBeenCalled();
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
+      );
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        `\n${mockChalk.blue.bold("TYPESCRIPT")}:`,
+      );
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        `\n${mockChalk.blue.bold("PYTHON")}:`,
+      );
+    });
+
+    it("should display all templates if no flags or language are provided (default)", async () => {
+      mockReadLocalConfig.mockResolvedValue({
+        config: sampleLocalConfig,
+        filePath: "/path/to/local",
+        source: "local",
+      });
+      mockReadGlobalConfig.mockResolvedValue({
+        config: sampleGlobalConfig,
+        filePath: "/path/to/global",
+        source: "global",
+      });
+
+      setupListCommand({ program: mockProgram });
+      await actionFn("", {});
 
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(consoleLogSpy).toHaveBeenCalledWith(
@@ -257,13 +259,13 @@ describe("setupListCommand", () => {
       expect(consoleLogSpy).toHaveBeenCalledWith(
         `\n${mockChalk.blue.bold("TYPESCRIPT")}:`,
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
         `\n${mockChalk.blue.bold("PYTHON")}:`,
       );
     });
   });
 
-  describe("filtering by language", () => {
+  describe("filter option", () => {
     beforeEach(() => {
       mockReadLocalConfig.mockResolvedValue({
         config: sampleLocalConfig,
@@ -277,40 +279,52 @@ describe("setupListCommand", () => {
       });
     });
 
-    it("should list templates for a specific language from all sources by default", async () => {
+    it("should filter templates by name", async () => {
       setupListCommand({ program: mockProgram });
-      await actionFn("javascript", {});
+      await actionFn("", { filter: "vue" });
 
-      expect(mockSpinner.start).toHaveBeenCalled();
-      expect(mockSpinner.stop).toHaveBeenCalled();
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
-      );
       expect(consoleLogSpy).toHaveBeenCalledWith(
         expect.stringContaining(" - vue-basic "),
       );
       expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("TYPESCRIPT")}:`,
+        expect.stringContaining(" - react-basic "),
       );
       expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("PYTHON")}:`,
+        expect.stringContaining(" - ts-node "),
       );
-      expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
     });
 
-    it("should list templates for a specific language from both local and global with --all flag", async () => {
+    it("should filter templates by alias", async () => {
       setupListCommand({ program: mockProgram });
-      await actionFn("python", { all: true });
+      await actionFn("", { filter: "vb" });
 
-      expect(mockSpinner.start).toHaveBeenCalled();
-      expect(mockSpinner.stop).toHaveBeenCalled();
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("PYTHON")}:`,
+        expect.stringContaining(" - vue-basic "),
       );
       expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining(" - react-basic "),
+      );
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining(" - ts-node "),
+      );
+    });
+
+    it("should show nothing if filter does not match any template", async () => {
+      setupListCommand({ program: mockProgram });
+      await actionFn("", { filter: "nomatch" });
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(
         `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
       );
-      expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining(" - vue-basic "),
+      );
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining(" - react-basic "),
+      );
+      expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        expect.stringContaining(" - ts-node "),
+      );
     });
   });
 
