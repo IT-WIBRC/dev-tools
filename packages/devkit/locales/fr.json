@@ -40,6 +40,9 @@
       },
       "all": {
         "option": "Lister les modèles des configurations locale et globale."
+      },
+      "filter": {
+        "option": "Filtrer les modèles par nom ou sous-chaîne."
       }
     },
     "templates": {

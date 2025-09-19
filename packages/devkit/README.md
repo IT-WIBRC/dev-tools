@@ -212,6 +212,9 @@ dk list
 
 # List templates for a specific language (e.g., 'javascript')
 dk list javascript
+
+# List templates and filter by a substring (e.g., 'vue')
+dk list --filter vue
 ```
 
 ---
@@ -223,6 +226,7 @@ The `list` command now uses the following options to control which templates are
 - **`--local`**: Only list templates from the local configuration file (`.devkit.json`).
 - **`--global`**: Only list templates from the global configuration file (`~/.devkitrc`).
 - **`--all`**: List templates from both the local and global configurations, merging them into a single list.
+- **`--filter <string>`**: Filter templates by name or alias substring.
 
 ---
 
@@ -239,6 +243,15 @@ dk list --global
 
 # List templates from both local and global configs
 dk list --all
+
+# List templates and filter by name or alias substring
+dk list --filter vue
+
+# List javascript templates and filter by name or alias substring
+dk list javascript --filter react
+
+# List javascript templates and filter by name starting or containing
+dk list javascript --filter r
 ```
 
 ### Manage your CLI configuration

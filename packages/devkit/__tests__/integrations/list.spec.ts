@@ -36,6 +36,11 @@ const localConfig: CliConfig = {
           alias: "rt",
           packageManager: "npm",
         },
+        "vue-basic": {
+          description: "A basic Vue template",
+          location: "https://github.com/vuejs/vue",
+          alias: "vb",
+        },
       },
     },
     node: {
@@ -195,6 +200,52 @@ describe("dk list", () => {
     expect(all).not.toContain("NODE");
   });
 
+  it("should filter templates by name when --filter is used", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    await fs.writeJson(
+      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
+      globalConfig,
+    );
+
+    const { all, exitCode } = await execa(
+      "bun",
+      [CLI_PATH, "list", "--filter", "vue"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("Available Templates:");
+    expect(all).toContain("vue-basic");
+    expect(all).not.toContain("REACT-TS");
+    expect(all).not.toContain("NODE-API");
+  });
+
+  it("should filter templates by alias when --filter is used", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    await fs.writeJson(
+      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
+      globalConfig,
+    );
+
+    const { all, exitCode } = await execa(
+      "bun",
+      [CLI_PATH, "list", "--filter", "rt"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("Available Templates:");
+    expect(all).toContain("react-ts");
+    expect(all).not.toContain("VUE-BASIC");
+    expect(all).not.toContain("NODE-API");
+  });
+
   it("should show an error if a language filter is provided but no templates are found for it", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { all, exitCode } = await execa("bun", [CLI_PATH, "list", "rust"], {
@@ -212,6 +263,23 @@ describe("dk list", () => {
   it("should handle a config file with an empty templates section", async () => {
     const emptyConfig = { ...localConfig, templates: {} };
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), emptyConfig);
+    const { all, exitCode } = await execa("bun", [CLI_PATH, "list"], {
+      all: true,
+      env: { HOME: globalConfigDir },
+    });
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("✔ No templates found in the configuration file.");
+  });
+
+  it("should handle both local and global configs being empty", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), {
+      templates: {},
+    });
+    await fs.writeJson(path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME), {
+      templates: {},
+    });
+
     const { all, exitCode } = await execa("bun", [CLI_PATH, "list"], {
       all: true,
       env: { HOME: globalConfigDir },

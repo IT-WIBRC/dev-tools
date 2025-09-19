@@ -69,12 +69,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
   - [ ] Add description field prompt
   - [ ] Add validation for entered values
 
-- [ ] **List Command Improvements**:
-  - [ ] Add interactive selection menu for template filtering
-  - [ ] Implement "Show All" option in selection
-  - [ ] Add scope selection (local/global templates)
-  - [ ] Improve template display formatting
-  - [ ] Add sorting options for template list
+- [x] enhance list command with filter option and improved output
 
 #### Multi-Repo Support
 
