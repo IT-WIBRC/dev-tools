@@ -3,8 +3,8 @@ import chalk from "chalk";
 import { ConfigError, GitError } from "./base.js";
 import { t } from "#utils/internationalization/i18n.js";
 
-export function handleErrorAndExit(error: unknown, spinner: Ora): void {
-  spinner.stop();
+export function handleErrorAndExit(error: unknown, spinner?: Ora): void {
+  spinner?.stop();
 
   if (error instanceof ConfigError) {
     console.error(

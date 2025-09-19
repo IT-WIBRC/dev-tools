@@ -1,3 +1,4 @@
+import type { Ora } from "ora";
 import { vi } from "vitest";
 
 const { mocktFn, mockLoadTranslations, mockProgram, mockSpinner } = vi.hoisted(
@@ -9,7 +10,7 @@ const { mocktFn, mockLoadTranslations, mockProgram, mockSpinner } = vi.hoisted(
       info: vi.fn(() => mockSpinner),
       fail: vi.fn(),
       stop: vi.fn(),
-    };
+    } as unknown as Ora;
 
     return {
       mocktFn: vi.fn().mockImplementation(

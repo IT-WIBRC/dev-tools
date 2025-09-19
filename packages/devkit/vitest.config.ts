@@ -17,7 +17,13 @@ export default defineConfig({
       },
       cleanOnRerun: true,
       reportOnFailure: true,
-      exclude: [...coverageConfigDefaults.exclude, "**/i18n.ts", "bin"],
+      exclude: [
+        ...coverageConfigDefaults.exclude,
+        "**/i18n.ts",
+        "bin",
+        "**/types.ts",
+        "**/configAliases.ts",
+      ],
     },
   },
   resolve: {

@@ -8,7 +8,8 @@ import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";
 import chalk from "chalk";
 import { saveGlobalConfig, saveLocalConfig } from "#utils/configs/writer.js";
-import { validateConfigValue, configAliases } from "./validate-config.js";
+import { validateConfigValue } from "#utils/validations/validateConfigValue.js";
+import { configAliases } from "#utils/validations/configAliases.js";
 import { readAndMergeConfigs } from "#utils/configs/loader.js";
 
 export function setupConfigSetCommand(options: SetupCommandOptions): void {
@@ -53,7 +54,7 @@ export function setupConfigSetCommand(options: SetupCommandOptions): void {
             );
           }
 
-          validateConfigValue(canonicalKey, value);
+          validateConfigValue(key, value);
 
           (config.settings[canonicalKey] as unknown) = value;
         }

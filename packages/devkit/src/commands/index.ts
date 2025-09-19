@@ -12,14 +12,14 @@ import { setupNewCommand } from "#commands/new.js";
 import { setupConfigCommand } from "#commands/config/index.js";
 import { setupListCommand } from "#commands/list.js";
 import { setupRemoveTemplateCommand } from "#commands/removeTemplate.js";
-import { setupAddTemplateCommand } from "#commands/add-template.js";
+import { setupAddTemplateCommand } from "#commands/add-template/index.js";
 import { setupInitCommand } from "#commands/init.js";
 import { setupConfigUpdateCommand } from "#commands/update.js";
 
 export async function setupAndParse() {
   const program = new Command();
 
-  program.option("-v, --verbose", t("program.verbose_option"));
+  program.option("-v, --verbose", "Enable verbose logging for detailed output");
 
   program.parseOptions(process.argv);
   const isVerbose = !!program.opts().verbose;
