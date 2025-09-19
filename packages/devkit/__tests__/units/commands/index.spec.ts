@@ -45,7 +45,7 @@ vi.mock("#commands/list.js", () => ({
   setupListCommand: mockSetupListCommand,
 }));
 
-vi.mock("#commands/add-template.js", () => ({
+vi.mock("#commands/add-template/index.js", () => ({
   setupAddTemplateCommand: vi.fn(),
 }));
 
@@ -53,7 +53,7 @@ vi.mock("#commands/removeTemplate.js", () => ({
   setupRemoveTemplateCommand: mockSetupRemoveTemplateCommand,
 }));
 
-vi.mock("#commands/add-template.js", () => ({
+vi.mock("#commands/add-template/index.js", () => ({
   setupAddTemplateCommand: mockSetupAddTemplateCommand,
 }));
 
@@ -87,9 +87,6 @@ describe("index.ts (Entry point)", () => {
     vi.useFakeTimers();
     vi.clearAllMocks();
     warnSpy.mockClear();
-    mockSpinner.start.mockReturnValue(mockSpinner);
-    mockSpinner.stop.mockReturnValue(mockSpinner);
-    mockSpinner.succeed.mockReturnValue(mockSpinner);
   });
 
   afterEach(() => {
@@ -165,12 +162,12 @@ describe("index.ts (Entry point)", () => {
 
   describe("Command Setup and Execution", () => {
     it("should set up all commands with the correct arguments", async () => {
-      mockGetLocaleFromConfigMinimal.mockResolvedValue("en");
-      mockLoadUserConfig.mockResolvedValue({
+      mockGetLocaleFromConfigMinimal.mockResolvedValueOnce("en");
+      mockLoadUserConfig.mockResolvedValueOnce({
         config: { ...mockedConfig },
         source: "local",
       });
-      optsSpy.mockReturnValue({});
+      optsSpy.mockReturnValueOnce({});
       mockProgram.parse.mockReturnValue(mockProgram);
 
       await setupAndParse();

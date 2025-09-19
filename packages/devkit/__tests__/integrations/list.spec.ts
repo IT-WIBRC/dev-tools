@@ -256,7 +256,7 @@ describe("dk list", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "An unexpected error occurred: Scaffolding language not found in configuration: 'rust'",
+      "An unexpected error occurred: Programming language not found in configuration: 'rust'",
     );
   });
 

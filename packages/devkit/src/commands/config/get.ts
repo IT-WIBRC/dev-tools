@@ -4,7 +4,7 @@ import {
 } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import { configAliases } from "./validate-config.js";
+import { configAliases } from "#utils/validations/configAliases.js";
 import chalk from "chalk";
 import ora from "ora";
 import { readAndMergeConfigs } from "#utils/configs/loader.js";

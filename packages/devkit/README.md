@@ -145,23 +145,32 @@ dk new javascript my-awesome-app -t vue
 
 ### Add a new template to your configuration
 
-The `add-template` command allows you to easily register a new template with your CLI. It intelligently updates the configuration file in your current context. You must provide a `language` and `alias` (or template name) for the template, as well as a `--description`.
+The `add-template` command allows you to easily register a new template with your CLI. It intelligently updates the configuration file in your current context.
 
-You must provide a `description` using the `--description` flag. Other options like `--alias`, `--cache-strategy`, and `--package-manager` are available to customize the template.
+You can use it in two ways:
+
+1.  **Non-Interactive Mode**: Provide all required information (language, name, description, and location) as command-line options.
+
+    ```bash
+    # Example: Add a new template from a GitHub repository
+    dk add-template --language javascript --name react-ts-template --description "My custom React TS template" --location https://github.com/my-user/my-react-ts-template.git
+    ```
+
+2.  **Interactive Mode**: Run the command without any options or with the `--interactive` flag. The CLI will guide you through the setup process with prompts. Any options you do provide (e.g., `--language`) will be used to **pre-fill the prompts**, so you only have to provide the missing information.
+
+    ```bash
+    # Run the interactive setup for a new template
+    dk add-template
+
+    # Run interactive setup and pre-fill with a language
+    dk add-template --interactive --language javascript
+    ```
+
+Other options like `--alias`, `--cache-strategy`, and `--package-manager` are available to customize the template in either mode.
 
 - **Global:** You can explicitly add the template to your global (`~/.devkitrc`) file using the `--global` flag.
 - **Local:** It updates the `.devkit.json` file in the root of your current project.
 - **Monorepo:** It updates the shared configuration at the monorepo's root.
-
-<!-- end list -->
-
-```bash
-# Example: Add a new template from a GitHub repository
-dk add-template javascript react-ts-template https://github.com/my-user/my-react-ts-template.git --description "My custom React TS template"
-
-# Example: Add a new template from a local folder
-dk add-template javascript my-local-template ./path/to/my-template-folder --description "My local template"
-```
 
 ### Update a template's configuration
 
@@ -336,7 +345,7 @@ Once your template project is ready, use the `add-template` command to register 
 
 ```bash
 # Add a template from a local folder to your global config
-dk add-template javascript custom-js-app /Users/myuser/projects/my-template --description "My personal JavaScript boilerplate" --global
+dk add-template --language javascript --name custom-js-app --description "My personal JavaScript boilerplate" --location /Users/myuser/projects/my-template --global
 ```
 
 #### Step 3: Use the Template

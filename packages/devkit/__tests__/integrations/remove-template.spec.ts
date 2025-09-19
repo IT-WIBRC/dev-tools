@@ -180,7 +180,7 @@ describe("dk remove-template", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "No configuration file found. Run 'devkit config init' to create a global one, or 'devkit config init --local' to create a local one.",
+      "An unexpected error occurred: No configuration file found. Run 'devkit config init' to create a global one, or 'devkit config init --local' to create a local one.",
     );
   });
 
@@ -200,7 +200,7 @@ describe("dk remove-template", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "An unexpected error occurred: Scaffolding language not found in configuration: 'rust'",
+      "An unexpected error occurred: Programming language not found in configuration: 'rust'",
     );
   });
 

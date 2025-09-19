@@ -262,7 +262,7 @@ describe("dk update", () => {
       );
       expect(exitCode).toBe(1);
       expect(all).toContain(
-        "An unexpected error occurred: Scaffolding language not found in configuration: 'non-existent-lang'",
+        "An unexpected error occurred: Programming language not found in configuration: 'non-existent-lang'",
       );
     });
 

@@ -94,7 +94,6 @@ describe("setupRemoveTemplateCommand", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Deep clone the configs before each test
     localConfigCopy = JSON.parse(JSON.stringify(initialLocalConfig));
     globalConfigCopy = JSON.parse(JSON.stringify(initialGlobalConfig));
 

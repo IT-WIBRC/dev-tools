@@ -60,7 +60,6 @@ describe("setupConfigSetCommand", () => {
       }),
     };
 
-    // Set a default mock for readAndMergeConfigs
     mockReadAndMergeConfigs.mockResolvedValue({
       config: JSON.parse(JSON.stringify(initialConfig)),
       source: "local",
@@ -104,6 +103,11 @@ describe("setupConfigSetCommand", () => {
       ...initialConfig,
       settings: { ...initialConfig.settings, defaultPackageManager: "yarn" },
     };
+    expect(mockReadAndMergeConfigs).toHaveBeenCalledOnce();
+    expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
+      forceGlobal: false,
+    });
+
     expect(mockSaveLocalConfig).toHaveBeenCalledWith(expectedConfig);
     expect(mockSpinner.succeed).toHaveBeenCalledWith(
       mockChalk.bold.green(mocktFn("config.set.success")),
