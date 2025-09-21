@@ -16,7 +16,7 @@ import {
   CONFIG_FILE_NAMES,
   defaultCliConfig,
   type CliConfig,
-} from "./common.js";
+} from "../common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
 const GLOBAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[0];
@@ -70,14 +70,14 @@ const globalConfig: CliConfig = {
   },
 };
 
-describe("dk list", () => {
+describe("dk config list", () => {
   beforeAll(() => {
     vi.unmock("execa");
   });
 
   beforeEach(async () => {
     originalCwd = process.cwd();
-    tempDir = path.join(os.tmpdir(), `devkit-test-list-${Date.now()}`);
+    tempDir = path.join(os.tmpdir(), `devkit-test-config-list-${Date.now()}`);
     globalConfigDir = path.join(
       os.tmpdir(),
       `devkit-global-config-dir-${Date.now()}`,
@@ -93,24 +93,41 @@ describe("dk list", () => {
     await fs.remove(globalConfigDir);
   });
 
-  it("should list templates from local config by default when it exists", async () => {
+  it("should list local config by default", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     await fs.writeJson(
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
       globalConfig,
     );
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "list"], {
+    const { all, exitCode } = await execa("bun", [CLI_PATH, "config", "list"], {
       all: true,
       env: { HOME: globalConfigDir },
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("Using templates from local configuration.");
-    expect(all).toContain("Available Templates:");
+    expect(all).toContain("Using local configuration.");
     expect(all).toContain("JAVASCRIPT");
     expect(all).toContain("NODE");
     expect(all).not.toContain("PYTHON");
+  });
+
+  it("should fall back to the `default` config if no local config exists", async () => {
+    await fs.writeJson(
+      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
+      globalConfig,
+    );
+
+    const { all, exitCode } = await execa("bun", [CLI_PATH, "config", "list"], {
+      all: true,
+      env: { HOME: globalConfigDir },
+    });
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "No local configuration found. Using templates from global configuration.",
+    );
+    expect(all).toContain("PYTHON");
   });
 
   it("should list templates from both local and global configurations when --all is used", async () => {
@@ -120,22 +137,23 @@ describe("dk list", () => {
       globalConfig,
     );
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "list", "--all"], {
-      all: true,
-      env: { HOME: globalConfigDir },
-    });
+    const { all, exitCode } = await execa(
+      "bun",
+      [CLI_PATH, "config", "list", "--all"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
 
     expect(exitCode).toBe(0);
-    expect(all).toContain(
-      "Using templates from both local and global configurations.",
-    );
-    expect(all).toContain("Available Templates:");
+    expect(all).toContain("Using local and global configurations.");
     expect(all).toContain("JAVASCRIPT");
     expect(all).toContain("NODE");
     expect(all).toContain("PYTHON");
   });
 
-  it("should only list templates from global config when --global is used", async () => {
+  it("should only list global config when --global is used", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     await fs.writeJson(
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
@@ -144,7 +162,7 @@ describe("dk list", () => {
 
     const { all, exitCode } = await execa(
       "bun",
-      [CLI_PATH, "config", "--global", "list"],
+      [CLI_PATH, "config", "list", "--global"],
       {
         all: true,
         env: { HOME: globalConfigDir },
@@ -153,110 +171,43 @@ describe("dk list", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("Using global configuration.");
-    expect(all).toContain("Available Templates:");
     expect(all).toContain("PYTHON");
     expect(all).not.toContain("JAVASCRIPT");
     expect(all).not.toContain("NODE");
   });
 
-  it("should filter templates by language when a language argument is provided", async () => {
+  it("should show an error when --global is used and no global config exists", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
 
     const { all, exitCode } = await execa(
       "bun",
-      [CLI_PATH, "list", "javascript"],
+      [CLI_PATH, "config", "list", "--global"],
       {
         all: true,
         env: { HOME: globalConfigDir },
+        reject: false,
       },
     );
-
-    expect(exitCode).toBe(0);
-    expect(all).toContain("Using templates from local configuration.");
-    expect(all).toContain("JAVASCRIPT");
-    expect(all).toContain("react-ts");
-    expect(all).toContain("vue-basic");
-    expect(all).not.toContain("NODE");
-  });
-
-  it("should filter templates by name when --filter is used", async () => {
-    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    await fs.writeJson(
-      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
-      globalConfig,
-    );
-
-    const { all, exitCode } = await execa(
-      "bun",
-      [CLI_PATH, "list", "--filter", "vue"],
-      {
-        all: true,
-        env: { HOME: globalConfigDir },
-      },
-    );
-
-    expect(exitCode).toBe(0);
-    expect(all).toContain("Using templates from local configuration.");
-    expect(all).toContain("JAVASCRIPT");
-    expect(all).toContain("vue-basic");
-    expect(all).not.toContain("react-ts");
-    expect(all).not.toContain("NODE");
-    expect(all).not.toContain("PYTHON");
-  });
-
-  it("should filter templates by alias when --filter is used", async () => {
-    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    await fs.writeJson(
-      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
-      globalConfig,
-    );
-
-    const { all, exitCode } = await execa(
-      "bun",
-      [CLI_PATH, "list", "--filter", "rt"],
-      {
-        all: true,
-        env: { HOME: globalConfigDir },
-      },
-    );
-
-    expect(exitCode).toBe(0);
-    expect(all).toContain("Using templates from local configuration.");
-    expect(all).toContain("JAVASCRIPT");
-    expect(all).toContain("react-ts");
-    expect(all).not.toContain("vue-basic");
-    expect(all).not.toContain("NODE");
-    expect(all).not.toContain("PYTHON");
-  });
-
-  it("should show an error if a language is provided but no templates are found for it", async () => {
-    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "list", "rust"], {
-      all: true,
-      env: { HOME: globalConfigDir },
-      reject: false,
-    });
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "Invalid value for language. Valid options are: javascript",
+      "An unexpected error occurred: Global configuration file not found.",
     );
   });
 
   it("should handle a config file with an empty templates section", async () => {
     const emptyConfig = { ...localConfig, templates: {} };
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), emptyConfig);
-
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "list", "--all"], {
+    const { all, exitCode } = await execa("bun", [CLI_PATH, "config", "list"], {
       all: true,
       env: { HOME: globalConfigDir },
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain(
-      "Using templates from local configuration only, as no global configuration was found.",
-    );
     expect(all).toContain("No templates found in the configuration file.");
+    expect(all).not.toContain("JAVASCRIPT");
+    expect(all).not.toContain("NODE");
+    expect(all).not.toContain("PYTHON");
   });
 
   it("should handle both local and global configs being empty", async () => {
@@ -267,15 +218,15 @@ describe("dk list", () => {
       templates: {},
     });
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "list", "--all"], {
+    const { all, exitCode } = await execa("bun", [CLI_PATH, "config", "list"], {
       all: true,
       env: { HOME: globalConfigDir },
     });
 
     expect(exitCode).toBe(0);
     expect(all).toContain("No templates found in the configuration file.");
-    expect(all).toContain(
-      "Using templates from both local and global configurations.",
-    );
+    expect(all).not.toContain("JAVASCRIPT");
+    expect(all).not.toContain("NODE");
+    expect(all).not.toContain("PYTHON");
   });
 });

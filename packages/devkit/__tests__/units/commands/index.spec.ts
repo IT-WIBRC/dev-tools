@@ -8,25 +8,17 @@ const {
   mockSetupNewCommand,
   mockSetupConfigCommand,
   mockSetupListCommand,
-  mockSetupRemoveTemplateCommand,
-  mockSetupAddTemplateCommand,
   mockHandleErrorAndExit,
   mockGetProjectVersion,
-  mockGetLocaleFromConfigMinimal,
-  mockLoadUserConfig,
-  mockSetupConfigUpdateCommand,
+  mockReadAndMergeConfigs,
 } = vi.hoisted(() => ({
   mockSetupInitCommand: vi.fn(),
   mockSetupNewCommand: vi.fn(),
   mockSetupConfigCommand: vi.fn(),
   mockSetupListCommand: vi.fn(),
-  mockSetupRemoveTemplateCommand: vi.fn(),
-  mockSetupAddTemplateCommand: vi.fn(),
   mockHandleErrorAndExit: vi.fn(),
   mockGetProjectVersion: vi.fn(),
-  mockLoadUserConfig: vi.fn(),
-  mockGetLocaleFromConfigMinimal: vi.fn(),
-  mockSetupConfigUpdateCommand: vi.fn(),
+  mockReadAndMergeConfigs: vi.fn(),
 }));
 
 vi.mock("#commands/init.js", () => ({
@@ -45,22 +37,6 @@ vi.mock("#commands/list.js", () => ({
   setupListCommand: mockSetupListCommand,
 }));
 
-vi.mock("#commands/add-template/index.js", () => ({
-  setupAddTemplateCommand: vi.fn(),
-}));
-
-vi.mock("#commands/removeTemplate.js", () => ({
-  setupRemoveTemplateCommand: mockSetupRemoveTemplateCommand,
-}));
-
-vi.mock("#commands/add-template/index.js", () => ({
-  setupAddTemplateCommand: mockSetupAddTemplateCommand,
-}));
-
-vi.mock("#commands/update.js", () => ({
-  setupConfigUpdateCommand: mockSetupConfigUpdateCommand,
-}));
-
 vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
@@ -74,8 +50,7 @@ vi.mock("#utils/project.js", () => ({
 }));
 
 vi.mock("#utils/configs/loader.js", () => ({
-  getLocaleFromConfigMinimal: mockGetLocaleFromConfigMinimal,
-  loadUserConfig: mockLoadUserConfig,
+  readAndMergeConfigs: mockReadAndMergeConfigs,
 }));
 
 const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -104,8 +79,7 @@ describe("index.ts (Entry point)", () => {
 
   describe("Initialization", () => {
     it("should initialize the CLI and set up commands correctly in non-verbose mode", async () => {
-      mockGetLocaleFromConfigMinimal.mockResolvedValueOnce("en");
-      mockLoadUserConfig.mockResolvedValueOnce({
+      mockReadAndMergeConfigs.mockResolvedValueOnce({
         config: { ...mockedConfig },
         source: "local",
       });
@@ -122,8 +96,7 @@ describe("index.ts (Entry point)", () => {
     });
 
     it("should display a success message and info spinner in verbose mode", async () => {
-      mockGetLocaleFromConfigMinimal.mockResolvedValueOnce("en");
-      mockLoadUserConfig.mockResolvedValueOnce({
+      mockReadAndMergeConfigs.mockResolvedValueOnce({
         config: { ...mockedConfig },
         source: "local",
       });
@@ -140,8 +113,7 @@ describe("index.ts (Entry point)", () => {
     });
 
     it("should display a warning if a default config is used (always visible)", async () => {
-      mockGetLocaleFromConfigMinimal.mockResolvedValue("en");
-      mockLoadUserConfig.mockResolvedValue({
+      mockReadAndMergeConfigs.mockResolvedValue({
         config: { ...mockedConfig },
         source: "default",
       });
@@ -162,8 +134,7 @@ describe("index.ts (Entry point)", () => {
 
   describe("Command Setup and Execution", () => {
     it("should set up all commands with the correct arguments", async () => {
-      mockGetLocaleFromConfigMinimal.mockResolvedValueOnce("en");
-      mockLoadUserConfig.mockResolvedValueOnce({
+      mockReadAndMergeConfigs.mockResolvedValueOnce({
         config: { ...mockedConfig },
         source: "local",
       });
@@ -186,37 +157,12 @@ describe("index.ts (Entry point)", () => {
       });
 
       expect(mockSetupConfigCommand).toHaveBeenCalledOnce();
-      expect(mockSetupConfigCommand).toHaveBeenCalledWith({
-        config: mockedConfig,
-        program: mockProgram,
-        source: "local",
-      });
+      expect(mockSetupConfigCommand).toHaveBeenCalledWith(mockProgram);
 
       expect(mockSetupListCommand).toHaveBeenCalledOnce();
       expect(mockSetupListCommand).toHaveBeenCalledWith({
         config: mockedConfig,
         program: mockProgram,
-      });
-
-      expect(mockSetupRemoveTemplateCommand).toHaveBeenCalledOnce();
-      expect(mockSetupRemoveTemplateCommand).toHaveBeenCalledWith({
-        config: mockedConfig,
-        program: mockProgram,
-        source: "local",
-      });
-
-      expect(mockSetupAddTemplateCommand).toHaveBeenCalledOnce();
-      expect(mockSetupAddTemplateCommand).toHaveBeenCalledWith({
-        config: mockedConfig,
-        program: mockProgram,
-        source: "local",
-      });
-
-      expect(mockSetupConfigUpdateCommand).toHaveBeenCalledOnce();
-      expect(mockSetupConfigUpdateCommand).toHaveBeenCalledWith({
-        config: mockedConfig,
-        program: mockProgram,
-        source: "local",
       });
     });
   });
@@ -224,15 +170,14 @@ describe("index.ts (Entry point)", () => {
   describe("Error Handling", () => {
     it("should handle and exit gracefully on an initialization error", async () => {
       const testError = new Error("Config load failed");
-      mockGetLocaleFromConfigMinimal.mockResolvedValue("en");
-      mockLoadUserConfig.mockRejectedValue(testError);
+      mockReadAndMergeConfigs.mockRejectedValue(testError);
       optsSpy.mockReturnValue({});
       mockProgram.parse.mockReturnValue(mockProgram);
 
       await setupAndParse();
       await vi.runAllTimersAsync();
 
-      expect(mockLoadUserConfig).toHaveBeenCalled();
+      expect(mockReadAndMergeConfigs).toHaveBeenCalledOnce();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         testError,
         mockSpinner,

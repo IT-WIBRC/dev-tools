@@ -1,35 +1,22 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import {
-  getLocaleFromConfigMinimal,
-  loadUserConfig,
-  readAndMergeConfigs,
-} from "../../../../src/utils/configs/loader.js";
+import { readAndMergeConfigs } from "../../../../src/utils/configs/loader.js";
 import { defaultCliConfig } from "../../../../src/utils/configs/schema.js";
-import { ConfigError } from "../../../../src/utils/errors/base.js";
 
-const {
-  mockReadConfigAtPath,
-  mockGetConfigFilepath,
-  mockFs,
-  mockFindGlobalConfigFile,
-  mockFindLocalConfigFile,
-} = vi.hoisted(() => ({
-  mockReadConfigAtPath: vi.fn(),
-  mockGetConfigFilepath: vi.fn(),
+const { mockFs, mockDeepmerge, mockFindConfigPaths } = vi.hoisted(() => ({
   mockFs: {
     pathExists: vi.fn(),
     readJson: vi.fn(),
   },
-  mockFindGlobalConfigFile: vi.fn(),
-  mockFindLocalConfigFile: vi.fn(),
+  mockDeepmerge: vi.fn(),
+  mockFindConfigPaths: vi.fn(),
 }));
 
-vi.mock("#utils/configs/path-finder.js", () => ({
-  getConfigFilepath: mockGetConfigFilepath,
+vi.mock("#utils/path/finder.js", () => ({
+  findConfigPaths: mockFindConfigPaths,
 }));
 
-vi.mock("#utils/configs/reader.js", () => ({
-  readConfigAtPath: mockReadConfigAtPath,
+vi.mock("deepmerge", () => ({
+  default: mockDeepmerge,
 }));
 
 vi.mock("#utils/fileSystem.js", () => ({
@@ -39,156 +26,156 @@ vi.mock("#utils/fileSystem.js", () => ({
   },
 }));
 
-vi.mock("#utils/configs/search.js", () => ({
-  findGlobalConfigFile: mockFindGlobalConfigFile,
-  findLocalConfigFile: mockFindLocalConfigFile,
-}));
-
-const mockOra = {
-  text: "",
-};
-
 describe("Configuration Loader Functions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetConfigFilepath.mockResolvedValue("/some/path/config.json");
-    mockFindGlobalConfigFile.mockResolvedValue("/global/config.json");
-    mockFindLocalConfigFile.mockResolvedValue("/local/config.json");
-  });
-
-  describe("getLocaleFromConfigMinimal", () => {
-    it("should return locale from local config if it exists", async () => {
-      mockFindLocalConfigFile.mockResolvedValueOnce("/local/config.json");
-      mockReadConfigAtPath.mockResolvedValueOnce({
-        settings: { language: "en" },
-      });
-      const locale = await getLocaleFromConfigMinimal();
-      expect(locale).toBe("en");
-      expect(mockReadConfigAtPath).toHaveBeenCalledOnce();
-      expect(mockReadConfigAtPath).toHaveBeenCalledWith("/local/config.json");
-      expect(mockFindLocalConfigFile).toHaveBeenCalledOnce();
-    });
-
-    it("should return locale from global config if local is not found", async () => {
-      mockFindLocalConfigFile.mockResolvedValueOnce(null);
-      mockGetConfigFilepath.mockResolvedValueOnce("/global/config.json");
-      mockReadConfigAtPath.mockResolvedValueOnce({
-        settings: { language: "fr" },
-      });
-      const locale = await getLocaleFromConfigMinimal();
-      expect(locale).toBe("fr");
-      expect(mockReadConfigAtPath).toHaveBeenCalledWith("/global/config.json");
-      expect(mockGetConfigFilepath).toHaveBeenCalledOnce();
-      expect(mockGetConfigFilepath).toHaveBeenCalledWith(true);
-    });
-
-    it("should return default locale if no config is found", async () => {
-      mockFindLocalConfigFile.mockResolvedValueOnce(null);
-      mockGetConfigFilepath.mockResolvedValueOnce(null);
-      mockReadConfigAtPath.mockResolvedValueOnce(null);
-      const locale = await getLocaleFromConfigMinimal();
-      expect(locale).toBe(defaultCliConfig.settings.language);
-    });
-
-    it("should throw a ConfigError on invalid local config", async () => {
-      mockFindLocalConfigFile.mockResolvedValueOnce("/local/config.json");
-      mockReadConfigAtPath.mockRejectedValueOnce(new Error("Invalid config"));
-      await expect(getLocaleFromConfigMinimal()).rejects.toThrow(ConfigError);
-    });
-  });
-
-  describe("loadUserConfig", () => {
-    it("should merge with global config if found", async () => {
-      mockGetConfigFilepath
-        .mockResolvedValueOnce("/global/config.json")
-        .mockResolvedValueOnce(null);
-      mockReadConfigAtPath.mockResolvedValueOnce({
-        settings: { language: "es" },
-      });
-      const { config, source } = await loadUserConfig(mockOra as any);
-      expect(config.settings.language).toBe("es");
-      expect(source).toBe("global");
-      expect(mockOra.text).toBe("config.check.local");
-    });
-
-    it("should merge with local config and override global", async () => {
-      mockGetConfigFilepath.mockResolvedValueOnce("/global/config.json");
-      mockReadConfigAtPath.mockResolvedValueOnce({
-        settings: { language: "es" },
-      });
-      mockGetConfigFilepath.mockResolvedValueOnce("/local/config.json");
-      mockReadConfigAtPath.mockResolvedValueOnce({
-        settings: { language: "fr" },
-      });
-      const { config, source } = await loadUserConfig(mockOra as any);
-      expect(config.settings.language).toBe("fr");
-      expect(source).toBe("local");
-    });
-
-    it("should return default config if no files are found", async () => {
-      mockGetConfigFilepath.mockResolvedValue(null);
-      mockReadConfigAtPath.mockResolvedValue(null);
-      const { config, source } = await loadUserConfig(mockOra as any);
-      expect(config).toEqual(defaultCliConfig);
-      expect(source).toBe("default");
-      expect(mockOra.text).toBe("config.check.local");
-    });
+    mockDeepmerge.mockImplementation((x, y) => ({ ...x, ...y }));
   });
 
   describe("readAndMergeConfigs", () => {
-    it("should merge with local config by default", async () => {
-      mockFindLocalConfigFile.mockResolvedValueOnce("/local/config.json");
-      mockFs.pathExists.mockResolvedValueOnce(true);
-      mockFs.readJson.mockResolvedValueOnce({ settings: { language: "fr" } });
+    const localConfig = { settings: { language: "fr" } };
+    const globalConfig = { settings: { defaultPackageManager: "pnpm" } };
+
+    it("should load only the local config when it exists", async () => {
+      mockFindConfigPaths.mockResolvedValue({
+        primary: "/local/.devkitrc",
+        secondary: null,
+        source: "local",
+        configFound: true,
+      });
+      mockFs.pathExists.mockResolvedValue(true);
+      mockFs.readJson.mockResolvedValue(localConfig);
+
       const { config, source } = await readAndMergeConfigs();
-      expect(config.settings.language).toBe("fr");
+
+      expect(mockFindConfigPaths).toHaveBeenCalledWith({});
+      expect(mockFs.readJson).toHaveBeenCalledWith("/local/.devkitrc");
+      expect(config).toEqual(localConfig);
       expect(source).toBe("local");
     });
 
-    it("should fallback to global if no local config exists", async () => {
-      mockFindLocalConfigFile.mockResolvedValueOnce(null);
-      mockFindGlobalConfigFile.mockResolvedValueOnce("/global/config.json");
+    it("should load only the global config when local does not exist", async () => {
+      mockFindConfigPaths.mockResolvedValue({
+        primary: "/global/.devkitrc",
+        secondary: null,
+        source: "global",
+        configFound: true,
+      });
       mockFs.pathExists.mockResolvedValue(true);
-      mockFs.readJson.mockResolvedValueOnce({ settings: { language: "es" } });
+      mockFs.readJson.mockResolvedValue(globalConfig);
+
       const { config, source } = await readAndMergeConfigs();
-      expect(config.settings.language).toBe("es");
+
+      expect(mockFindConfigPaths).toHaveBeenCalledWith({});
+      expect(mockFs.readJson).toHaveBeenCalledWith("/global/.devkitrc");
+      expect(config).toEqual(globalConfig);
       expect(source).toBe("global");
     });
 
-    it("should use forced global config when options.forceGlobal is true", async () => {
-      mockFindGlobalConfigFile.mockResolvedValueOnce("/global/config.json");
-      mockFs.pathExists.mockResolvedValueOnce(true);
-      mockFs.readJson.mockResolvedValueOnce({ settings: { language: "pt" } });
+    it("should merge local and global configs when mergeAll is true", async () => {
+      mockFindConfigPaths.mockResolvedValue({
+        primary: "/local/.devkitrc",
+        secondary: "/global/.devkitrc",
+        source: "local",
+        configFound: true,
+      });
+      mockFs.pathExists.mockResolvedValue(true);
+      mockFs.readJson
+        .mockResolvedValueOnce(localConfig)
+        .mockResolvedValueOnce(globalConfig);
+      mockDeepmerge
+        .mockReturnValueOnce(localConfig)
+        .mockReturnValueOnce({ ...localConfig, ...globalConfig });
+
+      const { config, source } = await readAndMergeConfigs({ mergeAll: true });
+
+      expect(mockFindConfigPaths).toHaveBeenCalledWith({ mergeAll: true });
+      expect(mockFs.readJson).toHaveBeenCalledTimes(2);
+      expect(mockFs.readJson).toHaveBeenCalledWith("/local/.devkitrc");
+      expect(mockFs.readJson).toHaveBeenCalledWith("/global/.devkitrc");
+      expect(config).toEqual({ ...localConfig, ...globalConfig });
+      expect(source).toBe("local");
+    });
+
+    it("should use fallback to default config when no config is found and useFallback is true", async () => {
+      mockFindConfigPaths.mockResolvedValue({
+        primary: null,
+        secondary: null,
+        source: "default",
+        configFound: false,
+      });
+      mockDeepmerge.mockReturnValue(defaultCliConfig);
+
+      const { config, source } = await readAndMergeConfigs({
+        useFallback: true,
+      });
+
+      expect(mockFindConfigPaths).toHaveBeenCalledWith({ useFallback: true });
+      expect(mockFs.readJson).not.toHaveBeenCalled();
+      expect(mockDeepmerge).toHaveBeenCalledWith(defaultCliConfig, {});
+      expect(config).toEqual(defaultCliConfig);
+      expect(source).toBe("default");
+    });
+
+    it("should return an empty config when no config is found and useFallback is false", async () => {
+      mockFindConfigPaths.mockResolvedValue({
+        primary: null,
+        secondary: null,
+        source: "default",
+        configFound: false,
+      });
+
+      const { config, source } = await readAndMergeConfigs();
+
+      expect(mockFindConfigPaths).toHaveBeenCalledWith({});
+      expect(mockFs.readJson).not.toHaveBeenCalled();
+      expect(mockDeepmerge).not.toHaveBeenCalled();
+      expect(config).toEqual({});
+      expect(source).toBe("default");
+    });
+
+    it("should handle JSON parsing errors gracefully", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      mockFindConfigPaths.mockResolvedValue({
+        primary: "/bad/.devkitrc",
+        secondary: null,
+        source: "local",
+        configFound: true,
+      });
+      mockFs.pathExists.mockResolvedValue(true);
+      mockFs.readJson.mockRejectedValue(new Error("Invalid JSON"));
+
+      const { config, source } = await readAndMergeConfigs();
+
+      expect(config).toEqual({});
+      expect(source).toBe("local");
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Warning: Failed to parse configuration file at "/bad/.devkitrc". The file may be invalid.',
+        undefined,
+      );
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("should force loading global config", async () => {
+      mockFindConfigPaths.mockResolvedValue({
+        primary: "/global/.devkitrc",
+        secondary: null,
+        source: "global",
+        configFound: true,
+      });
+      mockFs.pathExists.mockResolvedValue(true);
+      mockFs.readJson.mockResolvedValue(globalConfig);
+
       const { config, source } = await readAndMergeConfigs({
         forceGlobal: true,
       });
-      expect(config.settings.language).toBe("pt");
+
+      expect(mockFindConfigPaths).toHaveBeenCalledWith({ forceGlobal: true });
+      expect(mockFs.readJson).toHaveBeenCalledWith("/global/.devkitrc");
+      expect(config).toEqual(globalConfig);
       expect(source).toBe("global");
-      expect(mockFindGlobalConfigFile).toHaveBeenCalled();
-      expect(mockFindLocalConfigFile).not.toHaveBeenCalled();
-    });
-
-    it("should return default config if no files are found", async () => {
-      mockFindLocalConfigFile.mockResolvedValueOnce(null);
-      mockFindGlobalConfigFile.mockResolvedValueOnce(null);
-      mockFs.pathExists.mockResolvedValue(false);
-      const { config, source } = await readAndMergeConfigs();
-      expect(config).toEqual(defaultCliConfig);
-      expect(source).toBe("default");
-    });
-
-    it("should return default config on invalid local file", async () => {
-      mockFindLocalConfigFile.mockResolvedValueOnce("/local/config.json");
-      mockFs.pathExists.mockResolvedValueOnce(true);
-      mockFs.readJson.mockRejectedValueOnce(new Error("Malformed JSON"));
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-      const { config, source } = await readAndMergeConfigs();
-      expect(config).toEqual(defaultCliConfig);
-      expect(source).toBe("default");
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
     });
   });
 });

@@ -5,7 +5,7 @@ import {
   updateTemplateCacheStrategy,
   SCHEMA_PATH,
 } from "../../../../src/utils/configs/writer.js";
-import { getConfigFilepath } from "../../../../src/utils/configs/path-finder.js";
+import { getConfigFilepath } from "../../../../src/utils/path/finder.js";
 import { DevkitError, ConfigError } from "../../../../src/utils/errors/base.js";
 
 const { mockWriteJson, mockGetConfigFilepath } = vi.hoisted(() => ({
@@ -19,7 +19,7 @@ vi.mock("#utils/fileSystem.js", () => ({
   },
 }));
 
-vi.mock("../../../../src/utils/configs/path-finder.js", () => ({
+vi.mock("../../../../src/utils/path/finder.js", () => ({
   getConfigFilepath: mockGetConfigFilepath,
 }));
 

@@ -1,3 +1,11 @@
+You're absolutely right\! I missed including the `--global` option for `dk config list`. This option is used to explicitly show the configuration from the global file (`~/.devkitrc`) instead of the default local-first behavior.
+
+I've updated the **"List detailed configuration and templates"** section and its corresponding example under **Manage your CLI configuration** in the README.
+
+Here is the fully revised documentation.
+
+---
+
 # 🚀 Scaffolder-Toolkit (`dk`)
 
 A universal CLI for professional developers to automate project scaffolding and streamline workflows.
@@ -12,7 +20,7 @@ Built to fit the modern developer workflow, `dk` seamlessly integrates into mono
 
 - **Unified Command:** Access all features with the short, intuitive command `dk`.
 - **Intelligent Scaffolding:** Create new projects from a wide variety of popular frameworks with a single, intuitive command. You can also use custom templates for a consistent workflow. **See the list of supported templates below.**
-- **Node.js Ecosystem Support:** All commands and templates are currently designed for and support the **Node.js ecosystem**, including projects managed with **npm**, **Yarn**, **pnpm**, and **Bun**.
+- **Node.js Ecosystem Support:** All commands and templates are currently designed for and support the **Node.js ecosystem**, including projects managed with **npm**, **Yarn**, **pnpm**, and **Bun**. This includes **JavaScript, TypeScript, and any project that relies on a Node.js runtime or a similar engine like Bun** for dependency management and execution.
 - **Robust Configuration:** The tool reliably finds your configuration file (`.devkit.json`) in any project or monorepo structure. It uses a clear priority system to manage both local and global settings.
 - **Powerful Cache Management:** Optimize project setup speed with flexible caching strategies for your templates. These strategies are mainly applied when using a GitHub URL:
   - `always-refresh`: Always pull the latest template from the remote repository.
@@ -96,9 +104,10 @@ yarn dk --help
 
 ### Global Options
 
-In addition to the options for each command, you can use a global flag that affects the entire CLI's output.
+In addition to the options for each command, you can use global flags that affect the entire CLI's output.
 
-- **`--verbose`**: The verbose flag (`-v`) provides more detailed output during execution. It's particularly useful for debugging or when you want to see exactly what the CLI is doing behind the scenes, such as confirming initialization and configuration loading.
+- **`-v, --verbose`**: Provides more detailed output during execution. It's particularly useful for debugging or when you want to see exactly what the CLI is doing behind the scenes.
+- **`-V, --version`**: Output the version number.
 
 ---
 
@@ -143,77 +152,11 @@ The `new` command now takes a language and a project name as arguments. You can 
 dk new javascript my-awesome-app -t vue
 ```
 
-### Add a new template to your configuration
-
-The `add-template` command allows you to easily register a new template with your CLI. It intelligently updates the configuration file in your current context.
-
-You can use it in two ways:
-
-1.  **Non-Interactive Mode**: Provide all required information (language, name, description, and location) as command-line options.
-
-    ```bash
-    # Example: Add a new template from a GitHub repository
-    dk add-template --language javascript --name react-ts-template --description "My custom React TS template" --location https://github.com/my-user/my-react-ts-template.git
-    ```
-
-2.  **Interactive Mode**: Run the command without any options or with the `--interactive` flag. The CLI will guide you through the setup process with prompts. Any options you do provide (e.g., `--language`) will be used to **pre-fill the prompts**, so you only have to provide the missing information.
-
-    ```bash
-    # Run the interactive setup for a new template
-    dk add-template
-
-    # Run interactive setup and pre-fill with a language
-    dk add-template --interactive --language javascript
-    ```
-
-Other options like `--alias`, `--cache-strategy`, and `--package-manager` are available to customize the template in either mode.
-
-- **Global:** You can explicitly add the template to your global (`~/.devkitrc`) file using the `--global` flag.
-- **Local:** It updates the `.devkit.json` file in the root of your current project.
-- **Monorepo:** It updates the shared configuration at the monorepo's root.
-
-### Update a template's configuration
-
-The `update` command allows you to modify an existing template's properties. This is useful for changing a template's alias, location, or associated package manager. You can update one or more properties in a single command.
-
-You can also update the template's name using the `--new-name` flag, which is useful for correcting typos or renaming a template.
-
-- **Global:** Use the `--global` flag to update the template in your global (`~/.devkitrc`) file.
-- **Local:** It updates the `.devkit.json` file in the root of your current project.
-
-<!-- end list -->
-
-```bash
-# Update the description and alias for a template
-dk update javascript my-template --description "A new and improved description" --alias "my-alias"
-
-# Update a template's package manager and remove its alias
-dk update javascript my-template --package-manager bun --alias null
-
-# Change a template's name and its description in a single command
-dk update javascript my-template --new-name my-cool-template --description "A newly renamed template"
-```
-
-### Remove an existing template from your configuration
-
-The `remove-template` command allows you to delete a template from your configuration file. You can identify the template by its name or a configured alias.
-
-- **Global:** You can explicitly remove the template from your global (`~/.devkitrc`) file using the `--global` flag.
-- **Local:** It removes the template from the `.devkit.json` file in the root of your current project.
-
-<!-- end list -->
-
-```bash
-# Remove the 'react-ts-template' for 'javascript' from the local config
-dk remove-template javascript react-ts-template
-
-# Remove the 'node-api' template from the global config
-dk remove-template node node-api --global
-```
+---
 
 ### List available templates
 
-The `list` command allows you to view all available templates defined in your configuration. You can filter the list using optional flags to specify the configuration scope.
+The `dk list` command allows you to view all available templates defined in your configuration. You can filter the list using optional flags to specify the configuration scope.
 
 ```bash
 # List all templates, prioritizing the local config
@@ -226,20 +169,16 @@ dk list javascript
 dk list --filter vue
 ```
 
----
+#### Options
 
-### Options
-
-The `list` command now uses the following options to control which templates are displayed:
+The `dk list` command now uses the following options to control which templates are displayed:
 
 - **`--local`**: Only list templates from the local configuration file (`.devkit.json`).
 - **`--global`**: Only list templates from the global configuration file (`~/.devkitrc`).
 - **`--all`**: List templates from both the local and global configurations, merging them into a single list.
 - **`--filter <string>`**: Filter templates by name or alias substring.
 
----
-
-### Examples
+#### Examples
 
 Here are some examples of how to use the new options:
 
@@ -263,43 +202,118 @@ dk list javascript --filter react
 dk list javascript --filter r
 ```
 
+---
+
 ### Manage your CLI configuration
 
-#### Set a configuration value
+The `dk config` command is a central hub for all configuration and template management. It works with subcommands to handle different tasks.
 
-The `config set` command allows you to update one or more CLI settings. By default, it updates the **local** configuration file. Use the `--global` flag to update your global settings instead.
+#### Get and Set Configuration Values
 
-```bash
-# Set your default package manager to pnpm and the language to French in a single command (local)
-dk config set pm pnpm language fr
+The core `dk config` command allows you to **get** or **set** configuration values directly using arguments and options.
 
-# Set your default package manager to npm in your global config
-dk config set pm npm --global
-```
+- To **get** a value, provide the key as a direct argument (e.g., `dk config language`). You can retrieve multiple values by listing their keys.
+- To **set** one or more values, use the `--set` or `-s` flag followed by key-value pairs (e.g., `dk config --set language fr`).
 
-#### Get a configuration value
-
-The `config get` command allows you to view the current value of a configuration setting. If no key is specified, it will show the entire configuration file.
+> **Note:** Running `dk config` without arguments or options is not supported and will result in an error.
 
 ```bash
 # Get the value of the 'defaultPackageManager' setting
-dk config get pm
+dk config defaultPackageManager
 
 # Get the value of the 'language' setting from the global config
-dk config get language --global
+dk config language --global
 
-# Display the entire local configuration file
-dk config get
+# Set your default package manager to pnpm and the language to French in a single command (local)
+dk config --set defaultPackageManager pnpm language fr
+
+# Set your default package manager to npm in your global config
+dk config --set defaultPackageManager npm --global
 ```
 
-### Manage cache strategy for a template
+#### List detailed configuration and templates
 
-Use the `config cache` command to update the cache strategy for a specific template.
+The `dk config list` command provides a detailed, comprehensive view of your configuration. Unlike the top-level `dk list` command, this subcommand shows both the **settings** and **templates** from the active configuration files. It's useful for debugging and getting a full overview of your current setup.
+
+- The **`--global`** option forces the command to only display settings and templates from your global configuration file (`~/.devkitrc`), ignoring any local configuration.
+- The **`--all`** option displays a merged view of your local and global configurations, showing the final effective settings.
+
+<!-- end list -->
+
+```bash
+# List the full configuration (settings and templates) from the local project, with global as fallback
+dk config list
+
+# List configuration only from the global file
+dk config list --global
+
+# List a merged view of the local and global configurations
+dk config list --all
+```
+
+#### Add a new template
+
+The `dk config add` command allows you to easily register a new template with your CLI. It intelligently updates the configuration file in your current context.
+
+```bash
+# Add a new template from a GitHub repository
+dk config add javascript react-ts-template --description "My custom React TS template" --location https://github.com/my-user/my-react-ts-template.git
+```
+
+#### Update a template's configuration
+
+The `dk config update` command allows you to modify an existing template's properties.
+
+- You must provide the language and the name of the template(s) you wish to update.
+- **Important:** If you list multiple template names, the command will apply the **exact same property updates** to all of them. For instance, you cannot update the `description` of two different templates to different values in a single command.
+- You can also update the template's name using the `--new-name` flag.
+- Use the `--global` flag to update templates in your global (`~/.devkitrc`) file.
+
+<!-- end list -->
+
+```bash
+# Update the description and alias for a single template
+dk config update javascript my-template --description "A new and improved description" --alias "my-alias"
+
+# Update a template's package manager and remove its alias
+dk config update javascript my-template --package-manager bun --alias null
+
+# Change a template's name and its description in a single command
+dk config update javascript my-template --new-name my-cool-template --description "A newly renamed template"
+```
+
+#### Remove an existing template from your configuration
+
+The `dk config remove` command allows you to delete one or more templates from your configuration file.
+
+- You must provide the language and the name(s) of the template(s) you wish to remove.
+- **Multiple Templates:** You can list multiple template names to remove them all in one operation (e.g., `dk config remove javascript template1 template2`).
+- **Global:** You can explicitly remove the template from your global (`~/.devkitrc`) file using the `--global` flag.
+- **Local:** It removes the template from the `.devkit.json` file in the root of your current project.
+
+<!-- end list -->
+
+```bash
+# Remove the 'react-ts-template' for 'javascript' from the local config
+dk config remove javascript react-ts-template
+
+# Remove multiple templates at once from the local config
+dk config remove javascript template1 template2
+
+# Remove the 'node-api' template from the global config
+dk config remove node node-api --global
+```
+
+#### Manage cache strategy for a template
+
+Use the `dk config cache` command to update the cache strategy for a specific template.
 
 ```bash
 # Set the cache strategy for the 'react' template to 'always-refresh'
 dk config cache react always-refresh
 ```
+
+---
 
 ### Shortcuts
 
@@ -308,11 +322,15 @@ For a faster workflow, the following commands have shortcuts:
 - `devkit` -\> `dk`
 - `init` -\> `i`
 - `config` -\> `cf`
-- `cache` -\> `c`
-- `update` -\> `up`
-- `add-template` -\> `at`
-- `remove-template` -\> `rt`
+- `new` -\> `n`
 - `list` -\> `ls`
+- `config add` -\> `cf a`
+- `config remove` -\> `cf rm`
+- `config update` -\> `cf up`
+- `config list` -\> `cf ls`
+- `cache` -\> `c`
+- `version` -\> `v`
+- `help` -\> `h`
 
 ---
 
@@ -339,18 +357,18 @@ First, build your template. This is a standard project directory containing all 
 
 #### Step 2: Add the Template to Your Config
 
-Once your template project is ready, use the `add-template` command to register it with the CLI. This command adds the template's details to your `.devkit.json` file, making it available for use.
+Once your template project is ready, use the `dk config add` command to register it with the CLI. This command adds the template's details to your `.devkit.json` file, making it available for use.
 
 > **Note:** All custom templates must be added to the `javascript` section of your configuration file.
 
 ```bash
 # Add a template from a local folder to your global config
-dk add-template --language javascript --name custom-js-app --description "My personal JavaScript boilerplate" --location /Users/myuser/projects/my-template --global
+dk config add javascript custom-js-app --description "My personal JavaScript boilerplate" --location /Users/myuser/projects/my-local-template --global
 ```
 
 #### Step 3: Use the Template
 
-After running the `add-template` command, you can scaffold a new project from your template using `dk new`.
+After running the `dk config add` command, you can scaffold a new project from your template using `dk new`.
 
 ```bash
 # Create a new project from the template we just added

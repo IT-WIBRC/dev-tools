@@ -1,6 +1,6 @@
 import fs from "#utils/fileSystem.js";
 import { type CliConfig } from "#utils/configs/schema.js";
-import { getConfigFilepath } from "#utils/configs/path-finder.js";
+import { getConfigFilepath } from "#utils/path/finder.js";
 
 const { existsSync } = fs;
 

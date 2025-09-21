@@ -4,15 +4,15 @@ import {
   ProgrammingLanguage,
   TextLanguages,
   VALID_CACHE_STRATEGIES,
-} from "../../../integrations/common";
+} from "../../../integrations/common.js";
 import {
   validateCacheStrategy,
   validateLanguage,
   validatePackageManager,
   validateProgrammingLanguage,
-} from "../../../../src/utils/validations/config";
-import { DevkitError } from "../../../../src/utils/errors/base";
-import { mocktFn } from "../../../../vitest.setup";
+} from "../../../../src/utils/validations/config.js";
+import { DevkitError } from "../../../../src/utils/errors/base.js";
+import { mocktFn } from "../../../../vitest.setup.js";
 
 describe("validatePackageManager", () => {
   it("should not throw an error for a valid package manager", () => {
@@ -78,7 +78,7 @@ describe("validateProgrammingLanguage", () => {
     const invalidLang = "invalid-prog-lang";
     expect(() => validateProgrammingLanguage(invalidLang)).toThrow(DevkitError);
     expect(() => validateProgrammingLanguage(invalidLang)).toThrow(
-      mocktFn("error.language_config_not_found", {
+      mocktFn("error.invalid.value", {
         key: "language",
         options: Object.values(ProgrammingLanguage)
           .map((value) => value.toLowerCase())

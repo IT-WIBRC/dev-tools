@@ -22,3 +22,7 @@ runs:
     - name: 📥 Install dependencies
       run: bun install --frozen-lockfile
       shell: bash
+
+    - name: 🛡️ Audit dependencies
+      run: bun audit
+      shell: bash

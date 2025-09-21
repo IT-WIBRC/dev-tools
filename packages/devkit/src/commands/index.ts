@@ -1,8 +1,5 @@
 import { Command } from "commander";
-import {
-  getLocaleFromConfigMinimal,
-  loadUserConfig,
-} from "#utils/configs/loader.js";
+import { readAndMergeConfigs } from "#utils/configs/loader.js";
 import { loadTranslations, t } from "#utils/internationalization/i18n.js";
 import ora from "ora";
 import chalk from "chalk";
@@ -11,10 +8,8 @@ import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { setupNewCommand } from "#commands/new.js";
 import { setupConfigCommand } from "#commands/config/index.js";
 import { setupListCommand } from "#commands/list.js";
-import { setupRemoveTemplateCommand } from "#commands/removeTemplate.js";
-import { setupAddTemplateCommand } from "#commands/add-template/index.js";
 import { setupInitCommand } from "#commands/init.js";
-import { setupConfigUpdateCommand } from "#commands/update.js";
+import { defaultCliConfig, SUPPORTED_LANGUAGES } from "#utils/configs/schema";
 
 export async function setupAndParse() {
   const program = new Command();
@@ -30,10 +25,18 @@ export async function setupAndParse() {
 
   try {
     const VERSION = await getProjectVersion();
-    const locale = await getLocaleFromConfigMinimal();
+    const { config, source } = await readAndMergeConfigs({
+      useFallback: true,
+    });
+
+    const locale =
+      config?.settings?.language &&
+      SUPPORTED_LANGUAGES.includes(config?.settings?.language)
+        ? config?.settings?.language || "en"
+        : defaultCliConfig.settings.language;
+
     await loadTranslations(locale);
 
-    const { config, source } = await loadUserConfig(spinner);
     isVerbose && spinner.succeed(chalk.bold.green(t("program.initialized")));
 
     if (source === "default") {
@@ -53,11 +56,8 @@ export async function setupAndParse() {
 
     setupInitCommand({ program, config });
     setupNewCommand({ program, config });
-    setupConfigCommand({ program, config, source });
+    setupConfigCommand(program);
     setupListCommand({ program, config });
-    setupRemoveTemplateCommand({ program, config, source });
-    setupAddTemplateCommand({ program, config, source });
-    setupConfigUpdateCommand({ program, config, source });
 
     program.parse(process.argv);
     spinner.stop();

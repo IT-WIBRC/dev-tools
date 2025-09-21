@@ -76,7 +76,7 @@ export interface CliConfig {
   };
 }
 
-export type ConfigurationSource = "local" | "global" | "default";
+export type ConfigurationSource = "local" | "global" | "default" | "merged";
 
 export interface UpdateCommandOptions {
   global: boolean;
@@ -91,8 +91,13 @@ export interface UpdateCommandOptions {
 export interface SetupCommandOptions {
   program: Command;
   config: CliConfig;
-  configPath?: string;
-  source?: ConfigurationSource;
+}
+
+export interface ReadConfigOptions {
+  forceGlobal?: boolean;
+  forceLocal?: boolean;
+  mergeAll?: boolean;
+  useFallback?: boolean;
 }
 
 export const defaultCliConfig: CliConfig = {

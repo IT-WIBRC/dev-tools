@@ -3,7 +3,7 @@ import { execa } from "execa";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { t } from "#utils/internationalization/i18n.js";
-import { normalizePath } from "#utils/path/pathNormalizer.js";
+import { normalizePath } from "#utils/path/normalizer.js";
 import type { Ora } from "ora";
 
 const checkGitHubRepoExists = async (url: string): Promise<boolean> => {
@@ -12,6 +12,7 @@ const checkGitHubRepoExists = async (url: string): Promise<boolean> => {
       reject: false,
     });
     return exitCode === 0;
+    // oxlint-disable-next-line no-unused-vars
   } catch (error) {
     return false;
   }

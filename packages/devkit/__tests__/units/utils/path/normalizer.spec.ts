@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import path from "path";
-import { normalizePath } from "../../../../src/utils/path/pathNormalizer";
+import { normalizePath } from "../../../../src/utils/path/normalizer.js";
 
 vi.spyOn(process, "cwd").mockReturnValue("/user/home/project");
 

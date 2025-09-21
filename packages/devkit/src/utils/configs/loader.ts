@@ -1,141 +1,56 @@
 import deepmerge from "deepmerge";
-import type { Ora } from "ora";
 import fs from "#utils/fileSystem.js";
 import {
   type CliConfig,
   defaultCliConfig,
-  SUPPORTED_LANGUAGES,
-  type TextLanguageValues,
   type ConfigurationSource,
+  type ReadConfigOptions,
 } from "./schema.js";
-import { t } from "#utils/internationalization/i18n.js";
-import { ConfigError } from "../errors/base.js";
-import { getConfigFilepath } from "./path-finder.js";
-import { readConfigAtPath } from "./reader.js";
-import {
-  findGlobalConfigFile,
-  findLocalConfigFile,
-} from "../configs/search.js";
+import { findConfigPaths } from "#utils/path/finder.js";
 
-export async function getLocaleFromConfigMinimal(): Promise<TextLanguageValues> {
-  const localConfigPath = await findLocalConfigFile();
-
-  if (localConfigPath) {
+async function readAndMergeSingleConfig(
+  currentConfig: CliConfig,
+  path: string,
+): Promise<CliConfig> {
+  if (path && (await fs.pathExists(path))) {
     try {
-      const config = await readConfigAtPath(localConfigPath);
-      if (
-        config?.settings?.language &&
-        SUPPORTED_LANGUAGES.includes(config.settings.language)
-      ) {
-        return config.settings.language;
-      }
-    } catch (error: any) {
-      if (error.code !== "ENOENT") {
-        throw new ConfigError(
-          "Failed to read local config for locale.",
-          localConfigPath,
-          { cause: error },
-        );
-      }
-    }
-  }
-
-  const globalConfigPath = await getConfigFilepath(true);
-  try {
-    const config = await readConfigAtPath(globalConfigPath);
-    if (
-      config?.settings?.language &&
-      SUPPORTED_LANGUAGES.includes(config.settings.language)
-    ) {
-      return config.settings.language;
-    }
-  } catch (error: any) {
-    if (error.code !== "ENOENT") {
-      throw new ConfigError(
-        "Failed to read global config for locale.",
-        globalConfigPath,
-        { cause: error },
+      const foundConfig = await fs.readJson(path);
+      return deepmerge(currentConfig, foundConfig, {
+        arrayMerge: (_, sourceArray) => sourceArray,
+      });
+    } catch (e: unknown) {
+      console.error(
+        `Warning: Failed to parse configuration file at "${path}". The file may be invalid.`,
+        (e as Error).cause,
       );
     }
   }
-  return defaultCliConfig.settings.language;
-}
-
-export async function loadUserConfig(spinner?: Ora): Promise<{
-  config: CliConfig;
-  source: ConfigurationSource;
-}> {
-  let finalConfig = { ...defaultCliConfig };
-  let source: ConfigurationSource = "default";
-
-  if (spinner) {
-    spinner.text = t("config.check.global");
-  }
-
-  const globalConfigPath = await getConfigFilepath(true);
-  const globalConfig = await readConfigAtPath(globalConfigPath);
-
-  if (globalConfig) {
-    if (source === "default") {
-      source = "global";
-    }
-    finalConfig = deepmerge(finalConfig, globalConfig);
-  }
-
-  if (spinner) {
-    spinner.text = t("config.check.local");
-  }
-
-  const localConfigPath = await getConfigFilepath();
-  const localConfig = await readConfigAtPath(localConfigPath);
-
-  if (localConfig) {
-    finalConfig = deepmerge(finalConfig, localConfig);
-    source = "local";
-  }
-
-  return { config: finalConfig, source };
-}
-
-interface ReadConfigOptions {
-  forceGlobal?: boolean;
-  forceLocal?: boolean;
+  return currentConfig;
 }
 
 export async function readAndMergeConfigs(
   options: ReadConfigOptions = {},
 ): Promise<{ config: CliConfig; source: ConfigurationSource }> {
-  let finalConfig: CliConfig = JSON.parse(JSON.stringify(defaultCliConfig));
-  let source: "local" | "global" | "default" = "default";
-  let configPath: string | null = null;
+  const { primary, secondary, source, configFound } =
+    await findConfigPaths(options);
 
-  if (!options.forceGlobal) {
-    configPath = await findLocalConfigFile();
-    if (configPath) {
-      source = "local";
-    }
-  }
+  let finalConfig: CliConfig = {} as CliConfig;
 
-  if (source === "default") {
-    configPath = await findGlobalConfigFile();
-    if (configPath && (await fs.pathExists(configPath))) {
-      source = "global";
-    }
-  }
-
-  if (configPath && (await fs.pathExists(configPath))) {
-    try {
-      const foundConfig = await fs.readJson(configPath);
-      finalConfig = deepmerge(finalConfig, foundConfig, {
-        arrayMerge: (_, sourceArray) => sourceArray,
-      });
-      // oxlint-disable-next-line no-unused-vars
-    } catch (e) {
-      console.error(
-        `Warning: Invalid configuration file found at ${configPath}. Using default settings.`,
+  if (configFound) {
+    finalConfig = await readAndMergeSingleConfig(
+      structuredClone(finalConfig),
+      primary || "",
+    );
+    if (secondary) {
+      finalConfig = await readAndMergeSingleConfig(
+        structuredClone(finalConfig),
+        secondary,
       );
-      source = "default";
     }
+  }
+
+  if (!configFound && options.useFallback) {
+    finalConfig = deepmerge(structuredClone(defaultCliConfig), finalConfig);
   }
 
   return { config: finalConfig, source };

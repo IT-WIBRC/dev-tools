@@ -5,10 +5,10 @@ import {
   VALID_CACHE_STRATEGIES,
   type CliConfig,
 } from "../../../integrations/common.js";
-import { validateAndSaveTemplate } from "../../../../src/commands/add-template/validate-and-save.js";
+import { validateAndSaveTemplate } from "../../../../src/commands/config/validate-and-save.js";
 import { mockSpinner, mocktFn } from "../../../../vitest.setup.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
-import type { AddTemplateSchema } from "../../../../src/commands/add-template/types.js";
+import type { AddTemplateSchema } from "../../../../src/commands/config/types.js";
 
 const {
   mockSaveCliConfig,
