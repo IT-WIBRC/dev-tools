@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { getConfigFilepath } from "../../../../src/utils/configs/path-finder.js";
+import { getConfigFilepath } from "../../../../src/utils/path/finder.js";
 import { CONFIG_FILE_NAMES } from "../../../../src/utils/configs/schema.js";
 
 const { mockFindUp, mockFindGlobalConfigFile } = vi.hoisted(() => ({

@@ -10,7 +10,7 @@ import {
 } from "./schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { ConfigError } from "../errors/base.js";
-import { getConfigFilepath } from "./path-finder.js";
+import { getConfigFilepath } from "#utils/path/finder.js";
 import { readConfigAtPath } from "./reader.js";
 import {
   findGlobalConfigFile,

@@ -27,7 +27,7 @@ vi.mock("../../../../src/utils/fileSystem.js", () => ({
   default: mockFs,
 }));
 
-vi.mock("../../../../src/utils/path/pathNormalizer.js", () => ({
+vi.mock("#utils/path/normalizer.js", () => ({
   normalizePath: mockNormalizePath,
 }));
 

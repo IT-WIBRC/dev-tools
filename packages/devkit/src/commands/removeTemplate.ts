@@ -3,7 +3,7 @@ import { t } from "#utils/internationalization/i18n.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";
-import { getConfigFilepath } from "#utils/configs/path-finder.js";
+import { getConfigFilepath } from "#utils/path/finder.js";
 import { readConfigAtPath } from "#utils/configs/reader.js";
 import { saveGlobalConfig, saveLocalConfig } from "#utils/configs/writer.js";
 

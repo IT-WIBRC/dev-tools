@@ -14,7 +14,6 @@ const {
   mockGetProjectVersion,
   mockGetLocaleFromConfigMinimal,
   mockLoadUserConfig,
-  mockSetupConfigUpdateCommand,
 } = vi.hoisted(() => ({
   mockSetupInitCommand: vi.fn(),
   mockSetupNewCommand: vi.fn(),
@@ -26,7 +25,6 @@ const {
   mockGetProjectVersion: vi.fn(),
   mockLoadUserConfig: vi.fn(),
   mockGetLocaleFromConfigMinimal: vi.fn(),
-  mockSetupConfigUpdateCommand: vi.fn(),
 }));
 
 vi.mock("#commands/init.js", () => ({
@@ -55,10 +53,6 @@ vi.mock("#commands/removeTemplate.js", () => ({
 
 vi.mock("#commands/add-template/index.js", () => ({
   setupAddTemplateCommand: mockSetupAddTemplateCommand,
-}));
-
-vi.mock("#commands/update.js", () => ({
-  setupConfigUpdateCommand: mockSetupConfigUpdateCommand,
 }));
 
 vi.mock("#utils/errors/handler.js", () => ({
@@ -207,13 +201,6 @@ describe("index.ts (Entry point)", () => {
 
       expect(mockSetupAddTemplateCommand).toHaveBeenCalledOnce();
       expect(mockSetupAddTemplateCommand).toHaveBeenCalledWith({
-        config: mockedConfig,
-        program: mockProgram,
-        source: "local",
-      });
-
-      expect(mockSetupConfigUpdateCommand).toHaveBeenCalledOnce();
-      expect(mockSetupConfigUpdateCommand).toHaveBeenCalledWith({
         config: mockedConfig,
         program: mockProgram,
         source: "local",

@@ -22,7 +22,7 @@ vi.mock("deepmerge", () => ({
   default: mockDeepmerge,
 }));
 
-vi.mock("#utils/configs/path-finder.js", () => ({
+vi.mock("#utils/path/finder.js", () => ({
   getConfigFilepath: mockGetConfigFilepath,
 }));
 

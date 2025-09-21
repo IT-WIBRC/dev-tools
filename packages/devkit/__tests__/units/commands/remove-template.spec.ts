@@ -24,15 +24,15 @@ vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
 
-vi.mock("#utils/configs/path-finder", () => ({
+vi.mock("#utils/path/finder.js", () => ({
   getConfigFilepath: mockGetConfigFilepath,
 }));
 
-vi.mock("#utils/configs/reader", () => ({
+vi.mock("#utils/configs/reader.js", () => ({
   readConfigAtPath: mockReadConfigAtPath,
 }));
 
-vi.mock("#utils/configs/writer", () => ({
+vi.mock("#utils/configs/writer.js", () => ({
   saveGlobalConfig: mockSaveGlobalConfig,
   saveLocalConfig: mockSaveLocalConfig,
 }));

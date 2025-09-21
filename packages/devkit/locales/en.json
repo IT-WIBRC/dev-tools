@@ -2,7 +2,7 @@
   "program": {
     "description": "A powerful devkit for scaffolding new projects.",
     "initialized": "CLI initialized successfully.",
-    "initializing": "Initializing CLI ...",
+    "initializing": "Initializing CLI...",
     "verbose_option": "Enable verbose logging for detailed output"
   },
   "new": {
@@ -83,7 +83,7 @@
       "fail": "❌ Failed to scaffold {language} project: {error}"
     },
     "copy": {
-      "start": "📂 Coping local template files...",
+      "start": "📂 Copying local template files...",
       "success": "✔ Local template copied successfully!",
       "fail": "❌ Failed to copy local template."
     },
@@ -105,6 +105,19 @@
   "config": {
     "command": {
       "description": "Manage DevKit settings"
+    },
+    "interactive": {
+      "prompt_action": "What would you like to configure?",
+      "action": {
+        "settings": "Settings",
+        "templates": "Templates"
+      },
+      "prompt_setting_key": "Choose a setting to modify:",
+      "prompt_template_name": "Choose a template to update:",
+      "prompt_language": "Choose a language:",
+      "prompt_template_property": "Choose a property to update:",
+      "prompt_new_value": "Enter new value for {key}:",
+      "success": "Configuration session complete."
     },
     "set": {
       "command": {
@@ -215,6 +228,9 @@
       "found": {
         "default": "No configuration file found. Using default settings."
       }
+    },
+    "template": {
+      "description": "Update a template directly. Use with specific options below."
     }
   },
   "error": {
@@ -300,7 +316,8 @@
         }
       },
       "set": {
-        "invalid_arguments_count": "Invalid number of arguments. Please provide key-value pairs."
+        "invalid_arguments_count": "Invalid number of arguments. Please provide key-value pairs.",
+        "description": "Set a configuration value directly using dot-notation."
       },
       "update": {
         "no_options": "No update options were provided. Please specify at least one option to update (e.g., --new-name, --description, etc.)."
@@ -342,7 +359,7 @@
       "info": "🚀 Using cached template for {repoName}."
     },
     "copy": {
-      "start": "📂 Coping cached template to project directory...",
+      "start": "📂 Copying cached template to project directory...",
       "success": "✔ Files copied successfully!",
       "fail": "❌ Failed to copy files from cache."
     }

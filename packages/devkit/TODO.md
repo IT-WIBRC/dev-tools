@@ -47,8 +47,10 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 #### Core CLI & Configuration
 
-- [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself.
+- [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself. `dk upgrade`
+- [ ] `dk info`: A command to display system and environment information that could be useful for debugging issues.
 - [ ] **Unified `config` Command**: Refactor `config set` and `config get` into a single, interactive command that guides the user through modifying all configuration settings.
+- [ ] **Improvement**: Improve the `list` command to display templates in a tree structure, showing categories and subcategories. Display All Configuration Data.
 - [x] **Template Validation**: Add validation to the `add-template` command to check if a repository or local path exists before saving the template to the configuration.
 - [ ] **Dynamic Error Messages**: Update error handling to dynamically generate lists of valid options (e.g., package managers, cache strategies) in error messages.
 - [ ] **Centralize Utilities**: Move `chalk` and `ora` to a single, centralized file for better code organization.
@@ -57,6 +59,8 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [ ] **Language Abstraction**: Investigate how to infer a template's language from its contents, removing the need for explicit language sections in the configuration.
 - [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
 - [ ] **Testing**: Stabilize the integration test of the `new` command
+- [ ] Refactor `add-template` Integration Test for GitHub to be Consistent and reliable
+- [ ] Refactor and restructure the utilities
 
 #### Multi-Language Support
 
@@ -67,3 +71,51 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 - [ ] **Security Documentation**: Add a new section to the documentation outlining the security measures taken to prevent supply chain attacks.
 - [ ] **Package Updates**: Ensure the root `package.json` includes all new packages and that any corrupted packages are replaced.
+
+---
+# **New**
+## **`dk` Command Patterns**
+
+The CLI follows the `git` model, using a consistent syntax across all commands.
+
+| Command | Purpose | Syntax | Scope Options |
+| :--- | :--- | :--- | :--- |
+| **`dk new`** | Creates a new project from a template. | `dk new <template-name> <project-directory> [options]` | **None** (always local) |
+| **`dk init`** | Initializes a project with a configuration file. | `dk init [--global]` | `--global` forces creation of a global config file. |
+| **`dk list`** | Lists available templates. | `dk list [--all]` | `--all` lists templates from both local and global configs. |
+
+\<br\>
+
+-----
+
+\<br\>
+
+## **`dk config` Command Hub**
+
+This command is the central hub for managing all configuration settings and templates. By default, it operates on the **local** scope. Add the **`--global`** flag to target the global configuration file.
+
+### **Core Operations (Set/Get)**
+
+This pattern is for managing direct key-value pairs.
+
+  * **Set a single value**: `dk config <key> <value> [--global]`
+      * **Example**: `dk config pm bun --global`
+  * **Get a single value**: `dk config <key> [--global]`
+      * **Example**: `dk config pm`
+  * **Bulk Set**: `dk config set <key1> <value1> <key2> <value2> ...`
+  * **Bulk Remove**: `dk config remove <key1> <key2> ...`
+
+### **Template Management**
+
+These are specialized subcommands for handling templates.
+
+  * **Add**: `dk config add <language> <template-name> [options] [--global]`
+  * **Update**: `dk config update <language> <template-name> [options] [--global]`
+  * **Remove**: `dk config remove <language> <template1> <template2> ... [--global]`
+
+### **Listing Configurations**
+
+  * **List all configs**: `dk config --list [--all] [--global]`
+      * `--list`: Displays the configurations from the current scope.
+      * `--all`: Displays both local and global configurations.
+      * `--global`: Explicitly displays only the global configurations.

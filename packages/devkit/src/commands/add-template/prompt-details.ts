@@ -1,13 +1,10 @@
 import chalk from "chalk";
-import { input, select } from "@inquirer/prompts";
+import { input } from "@inquirer/prompts";
 import {
   type CliConfig,
-  ProgrammingLanguage,
   type SupportedProgrammingLanguageValues,
   type SupportedPackageManager,
   type CacheStrategy,
-  VALID_CACHE_STRATEGIES,
-  VALID_PACKAGE_MANAGERS,
 } from "#utils/configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
 import {
@@ -16,6 +13,11 @@ import {
   validateLocation,
 } from "#utils/validations/templates.js";
 import type { AddTemplateCommandOptions, AddTemplateSchema } from "./types.js";
+import {
+  promptForCacheStrategy,
+  promptForLanguage,
+  promptForPackageManager,
+} from "#utils/prompts.js";
 
 export async function promptForTemplateDetails(
   targetConfig: CliConfig,
@@ -31,16 +33,10 @@ export async function promptForTemplateDetails(
     packageManager: cmdOptions.packageManager,
   };
 
-  const languagePrompt = (await select({
-    message: t("cli.add_template.prompts.language") + chalk.red(" (required)"),
-    choices: Object.values(ProgrammingLanguage).map((lang) => ({
-      name: lang,
-      value: lang.toLowerCase(),
-    })),
-    default: providedAnswers.language,
-  })) as SupportedProgrammingLanguageValues;
-
-  providedAnswers.language = languagePrompt;
+  providedAnswers.language = await promptForLanguage(
+    true,
+    providedAnswers.language as SupportedProgrammingLanguageValues,
+  );
 
   const namePrompt = await input({
     message:
@@ -112,41 +108,23 @@ export async function promptForTemplateDetails(
 
   providedAnswers.alias = aliasPrompt;
 
-  const cacheStrategyPrompt = (await select({
-    message:
-      t("cli.add_template.prompts.cache_strategy") + chalk.gray(" (optional)"),
-    choices: [
-      ...VALID_CACHE_STRATEGIES.map((strategy) => ({
-        name: strategy,
-        value: strategy,
-      })),
-      { name: t("common.none"), value: null },
-    ],
-    default: providedAnswers.cacheStrategy,
-  })) as CacheStrategy | null;
+  providedAnswers.cacheStrategy =
+    (await promptForCacheStrategy(
+      false,
+      providedAnswers.cacheStrategy as CacheStrategy,
+    )) || undefined;
 
-  providedAnswers.cacheStrategy = cacheStrategyPrompt || undefined;
-
-  const packageManagerPrompt = (await select({
-    message:
-      t("cli.add_template.prompts.package_manager") + chalk.gray(" (optional)"),
-    choices: [
-      ...VALID_PACKAGE_MANAGERS.map((pm) => ({
-        name: pm,
-        value: pm,
-      })),
-      { name: t("common.none"), value: null },
-    ],
-    default: providedAnswers.packageManager,
-  })) as SupportedPackageManager | null;
-
-  providedAnswers.packageManager = packageManagerPrompt || undefined;
+  providedAnswers.packageManager =
+    (await promptForPackageManager(
+      false,
+      providedAnswers.packageManager as SupportedPackageManager,
+    )) || undefined;
 
   return {
     description: providedAnswers.description!,
     alias: providedAnswers.alias,
-    cacheStrategy: providedAnswers.cacheStrategy,
-    packageManager: providedAnswers.packageManager,
+    cacheStrategy: providedAnswers.cacheStrategy || undefined,
+    packageManager: providedAnswers.packageManager || undefined,
     language: providedAnswers.language!,
     templateName: providedAnswers.templateName!,
     location: providedAnswers.location!,

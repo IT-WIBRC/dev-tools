@@ -1,5 +1,5 @@
 import path from "path";
-import { CONFIG_FILE_NAMES } from "./schema.js";
+import { CONFIG_FILE_NAMES } from "../configs/schema.js";
 import { findUp } from "../files/find-up.js";
 import { findGlobalConfigFile } from "../configs/search.js";
 
