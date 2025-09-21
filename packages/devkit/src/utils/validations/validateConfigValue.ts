@@ -7,7 +7,7 @@ import {
 import { DevkitError } from "#utils/errors/base.js";
 import { t } from "#utils/internationalization/i18n.js";
 
-export function validateConfigValue(key: string, value: unknown): void {
+export function validateConfigValue(key: string, value: string): void {
   const resolvedKey = configAliases[key];
 
   if (!resolvedKey) {

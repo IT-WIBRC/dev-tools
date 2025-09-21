@@ -57,7 +57,7 @@ describe("dk init", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✔ Configuration file created successfully!");
+    expect(all).toContain("Configuration file created successfully!");
     const configPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
 
     const fileExists = await fs.pathExists(configPath);
@@ -83,7 +83,7 @@ describe("dk init", () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✔ Configuration file created successfully!");
+    expect(all).toContain("Configuration file created successfully!");
     const fileExists = await fs.pathExists(globalConfigPath);
     expect(fileExists).toBe(true);
 
@@ -152,7 +152,7 @@ describe("dk init with existing file", () => {
       `Config file already exists at ${globalConfigPath}. Do you want to overwrite it?`,
     );
 
-    expect(all).toContain("✔ Configuration file created successfully!");
+    expect(all).toContain("Configuration file created successfully!");
     const fileExists = await fs.pathExists(globalConfigPath);
     expect(fileExists).toBe(true);
 
@@ -189,7 +189,7 @@ describe("dk init with existing file", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✔ Configuration file created successfully!");
+    expect(all).toContain("Configuration file created successfully!");
     const newContent = await fs.readJson(
       path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
     );
@@ -213,7 +213,7 @@ describe("dk init with existing file", () => {
       expect(exitCode).toBe(0);
       expect(all).toContain(`Config file already exists at ${rootConfigPath}`);
 
-      expect(all).toContain("✔ Configuration file created successfully!");
+      expect(all).toContain("Configuration file created successfully!");
       const newContent = await fs.readJson(rootConfigPath);
 
       expect(newContent).not.toEqual(basicConfig);
@@ -261,7 +261,7 @@ describe("dk init in a monorepo", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✔ Configuration file created successfully!");
+    expect(all).toContain("Configuration file created successfully!");
     const rootConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
     const fileExists = await fs.pathExists(rootConfigPath);
     expect(fileExists).toBe(true);
@@ -286,7 +286,7 @@ describe("dk init in a monorepo", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("✔ Configuration file created successfully!");
+    expect(all).toContain("Configuration file created successfully!");
 
     const newContent = await fs.readJson(rootConfigPath);
     expect(newContent).toEqual(defaultCliConfig);
@@ -324,7 +324,7 @@ describe("dk init in a monorepo", () => {
       });
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("✔ Configuration file created successfully!");
+      expect(all).toContain("Configuration file created successfully!");
       const rootConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
       const fileExists = await fs.pathExists(rootConfigPath);
       expect(fileExists).toBe(true);

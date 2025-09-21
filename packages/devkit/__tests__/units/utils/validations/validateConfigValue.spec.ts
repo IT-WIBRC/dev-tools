@@ -1,7 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import {
   PackageManagers,
-  TextLanguages,
   VALID_CACHE_STRATEGIES,
 } from "../../../integrations/common.js";
 import { validateConfigValue } from "../../../../src/utils/validations/validateConfigValue.js";

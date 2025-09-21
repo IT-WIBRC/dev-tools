@@ -1,7 +1,7 @@
 import fs from "#utils/fileSystem.js";
 import { DevkitError, ConfigError } from "../errors/base.js";
 import { t } from "#utils/internationalization/i18n.js";
-import { getConfigFilepath } from "./path-finder.js";
+import { getConfigFilepath } from "#utils/path/finder.js";
 import { type CliConfig, type CacheStrategy } from "./schema.js";
 
 export const SCHEMA_PATH =

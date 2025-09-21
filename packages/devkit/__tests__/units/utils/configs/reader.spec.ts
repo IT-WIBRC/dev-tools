@@ -4,7 +4,7 @@ import {
   readLocalConfig,
   readGlobalConfig,
 } from "../../../../src/utils/configs/reader.js";
-import { getConfigFilepath } from "../../../../src/utils/configs/path-finder.js";
+import { getConfigFilepath } from "../../../../src/utils/path/finder.js";
 
 const { mockExistsSync, mockGetConfigFilePath, mockReadJson } = vi.hoisted(
   () => ({
@@ -27,7 +27,7 @@ vi.mock("#utils/fileSystem.js", () => ({
   },
 }));
 
-vi.mock("../../../../src/utils/configs/path-finder.js", () => ({
+vi.mock("../../../../src/utils/path/finder.js", () => ({
   getConfigFilepath: mockGetConfigFilePath,
 }));
 

@@ -2,7 +2,7 @@
   "program": {
     "description": "A powerful devkit for scaffolding new projects.",
     "initialized": "CLI initialized successfully.",
-    "initializing": "Initializing CLI ...",
+    "initializing": "Initializing CLI...",
     "verbose_option": "Enable verbose logging for detailed output"
   },
   "new": {
@@ -48,18 +48,26 @@
     "templates": {
       "loading": "Loading templates...",
       "not_found": "No templates found in the configuration file.",
-      "header": "Available Templates:",
+      "no_local_config": "No local configuration found.",
+      "no_global_config": "No global configuration found.",
+      "using_local_and_global": "Using templates from both local and global configurations.",
+      "using_local_only": "Using templates from local configuration only, as no global configuration was found.",
+      "using_global_only": "Using templates from global configuration only, as no local configuration was found.",
       "using_global": "Using templates from global configuration.",
       "using_local": "Using templates from local configuration.",
-      "using_global_fallback": "No local configuration found. Using templates from global configuration."
+      "using_global_fallback": "No local configuration found. Using templates from global configuration.",
+      "header": "Available Templates:"
+    },
+    "config": {
+      "settings_header": "Configuration Settings:"
     }
   },
   "remove_template": {
     "command": {
       "description": "Remove a template from the configuration."
     },
-    "start": "Removing template from configuration...",
-    "success": "✔ Template '{templateName}' for '{language}' removed successfully!",
+    "start": "Removing template(s) from configuration...",
+    "success": "Successfully removed {count} template(s) ({templateName}) from {language}.",
     "language": {
       "argument": "The programming language of the template to remove."
     },
@@ -68,7 +76,8 @@
     },
     "option": {
       "global": "Remove the template from the global configuration instead of the local one."
-    }
+    },
+    "not_found_warning": "⚠️ Warning: The following templates were not found: {template}"
   },
   "version": {
     "description": "Output the current version of the CLI."
@@ -83,7 +92,7 @@
       "fail": "❌ Failed to scaffold {language} project: {error}"
     },
     "copy": {
-      "start": "📂 Coping local template files...",
+      "start": "📂 Copying local template files...",
       "success": "✔ Local template copied successfully!",
       "fail": "❌ Failed to copy local template."
     },
@@ -106,6 +115,19 @@
     "command": {
       "description": "Manage DevKit settings"
     },
+    "interactive": {
+      "prompt_action": "What would you like to configure?",
+      "action": {
+        "settings": "Settings",
+        "templates": "Templates"
+      },
+      "prompt_setting_key": "Choose a setting to modify:",
+      "prompt_template_name": "Choose a template to update:",
+      "prompt_language": "Choose a language:",
+      "prompt_template_property": "Choose a property to update:",
+      "prompt_new_value": "Enter new value for {key}:",
+      "success": "Configuration session complete."
+    },
     "set": {
       "command": {
         "description": "Set one or more configuration values. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Sets the language of the CLI. Possible values: 'en', 'fr'\n"
@@ -114,11 +136,13 @@
         "description": "A list of key-value pairs to set (e.g., 'pm npm language fr')"
       },
       "option": {
-        "global": "Update the global configuration instead of the local one."
+        "global": "Update the global configuration instead of the local one.",
+        "bulk": "Sets multiple configuration properties."
       },
       "updating": "Updating configuration...",
       "success": "Configuration updated successfully!"
     },
+    "loading": "Loading configuration...",
     "get": {
       "command": {
         "description": "Get one or more configuration values."
@@ -139,7 +163,8 @@
       },
       "source": {
         "local": "Using local configuration.",
-        "global": "Using global configuration."
+        "global": "Using global configuration.",
+        "local_and_global": "Using local and global configurations."
       }
     },
     "init": {
@@ -181,9 +206,11 @@
         "package_manager": "A new package manager for the template.",
         "global": "Update the template in the global configuration instead of the local one."
       },
-      "updating": "Updating template '{templateName}' in configuration...",
+      "updating": "Updating template(s) '{templateName}' in configuration...",
       "success": "✔ Template '{templateName}' updated successfully!",
-      "success_name": "✔ Template '{oldName}' updated to '{newName}' successfully!"
+      "success_name": "✔ Template '{oldName}' updated to '{newName}' successfully!",
+      "single_fail": "❌ Failed to update '{templateName}': {error}",
+      "success_summary": "Successfully updated {count} ({templateName}) template(s) from {language}!"
     },
     "cache": {
       "command": {
@@ -215,6 +242,9 @@
       "found": {
         "default": "No configuration file found. Using default settings."
       }
+    },
+    "template": {
+      "description": "Update a template directly. Use with specific options below."
     }
   },
   "error": {
@@ -279,6 +309,7 @@
     },
     "template": {
       "not_found": "Template '{template}' not found in configuration.",
+      "language_not_found": "Template not found for the '{language}' language.",
       "exists": "Template '{template}' already exists in the configuration. Use 'devkit config set' to update it."
     },
     "alias": {
@@ -300,11 +331,14 @@
         }
       },
       "set": {
-        "invalid_arguments_count": "Invalid number of arguments. Please provide key-value pairs."
+        "invalid_arguments_count": "Invalid number of arguments. Please provide key-value pairs.",
+        "description": "Set a configuration value directly using dot-notation.",
+        "invalid_format": "The values for the '--set' option must be a series of key-value pairs (e.g., --set key1 value1 key2 value2)."
       },
       "update": {
         "no_options": "No update options were provided. Please specify at least one option to update (e.g., --new-name, --description, etc.)."
-      }
+      },
+      "mutually_exclusive_options": "You can't use the `{options}` options together. They are mutually exclusive."
     },
     "save": {
       "local": {
@@ -316,9 +350,12 @@
     "git": {
       "generic": "Git error"
     },
+    "list": {
+      "global_and_all": "Cannot use both global and "
+    },
     "unexpected": "An unexpected error occurred",
     "unknown": "An unknown error occurred",
-    "language_config_not_found": "Programming language not found in configuration: '{language}'",
+    "language_config_not_found": "Programming language '{language}' not found in configuration",
     "language_required": "Language is required.",
     "template_name_required": "Template name is required.",
     "location_required": "Location is required.",
@@ -342,7 +379,7 @@
       "info": "🚀 Using cached template for {repoName}."
     },
     "copy": {
-      "start": "📂 Coping cached template to project directory...",
+      "start": "📂 Copying cached template to project directory...",
       "success": "✔ Files copied successfully!",
       "fail": "❌ Failed to copy files from cache."
     }
@@ -360,7 +397,8 @@
         }
       }
     },
-    "no_config_found": "⚠️ No configuration file found. Using default settings."
+    "no_config_found": "⚠️ No configuration file found. Using default settings.",
+    "no_command_or_option_provided": "Warning: No command or option provided. Use `dk config --help` to see available commands."
   },
   "cli": {
     "add_template": {

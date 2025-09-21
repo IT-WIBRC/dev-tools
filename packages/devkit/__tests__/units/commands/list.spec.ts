@@ -1,90 +1,101 @@
-import { vi, describe, it, expect, beforeEach } from "vitest";
-import { setupListCommand } from "../../../src/commands/list.js";
-import { mockSpinner, mockChalk } from "../../../vitest.setup.js";
-import { DevkitError } from "../../../src/utils/errors/base.js";
-import { t } from "../../../src/utils/internationalization/i18n.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { setupListCommand } from "../../../src/commands/list";
+import { DevkitError } from "../../../src/utils/errors/base";
+import type { CliConfig } from "../../../src/utils/configs/schema";
+import { mockChalk, mockSpinner } from "../../../vitest.setup";
 
-const { mockHandleErrorAndExit, mockReadGlobalConfig, mockReadLocalConfig } =
-  vi.hoisted(() => ({
+const sampleLocalConfig: CliConfig = {
+  settings: {
+    defaultPackageManager: "npm",
+    cacheStrategy: "daily",
+    language: "en",
+  },
+  templates: {
+    javascript: {
+      templates: {
+        "javascript-node": {
+          description: "Node.js project template",
+          location: "/path/to/local/templates/javascript-node",
+        },
+      },
+    },
+  },
+};
+
+const sampleGlobalConfig: CliConfig = {
+  ...sampleLocalConfig,
+  templates: {
+    typescript: {
+      templates: {
+        "typescript-express": {
+          description: "Express.js project template with TypeScript",
+          location: "/path/to/global/templates/typescript-express",
+        },
+      },
+    },
+  },
+};
+
+const {
+  mockReadAndMergeConfigs,
+  mockPrintTemplates,
+  mockValidateProgrammingLanguage,
+  mockHandleErrorAndExit,
+  mockProgram,
+  consoleLogSpy,
+} = vi.hoisted(() => {
+  return {
+    mockReadAndMergeConfigs: vi.fn(),
+    mockPrintTemplates: vi.fn(),
+    mockValidateProgrammingLanguage: vi.fn(),
     mockHandleErrorAndExit: vi.fn(),
-    mockReadLocalConfig: vi.fn(),
-    mockReadGlobalConfig: vi.fn(),
-  }));
+    mockProgram: {
+      command: vi.fn().mockReturnThis(),
+      alias: vi.fn().mockReturnThis(),
+      description: vi.fn().mockReturnThis(),
+      argument: vi.fn().mockReturnThis(),
+      option: vi.fn().mockReturnThis(),
+      action: vi.fn().mockReturnThis(),
+    },
+    consoleLogSpy: vi.spyOn(console, "log").mockImplementation(() => {}),
+  };
+});
 
-let actionFn: any;
+vi.mock("#utils/configs/loader.js", () => ({
+  readAndMergeConfigs: mockReadAndMergeConfigs,
+}));
+
+vi.mock("#utils/templates/printer.js", () => ({
+  printTemplates: mockPrintTemplates,
+}));
+
+vi.mock("#utils/validations/config.js", () => ({
+  validateProgrammingLanguage: mockValidateProgrammingLanguage,
+}));
 
 vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
 
-vi.mock("#utils/configs/reader.js", () => ({
-  readLocalConfig: mockReadLocalConfig,
-  readGlobalConfig: mockReadGlobalConfig,
-}));
-
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-
-describe("setupListCommand", () => {
-  let mockProgram: any;
-
-  const sampleLocalConfig = {
-    templates: {
-      javascript: {
-        templates: {
-          "vue-basic": {
-            description: "A basic Vue template",
-            location: "https://github.com/vuejs/vue",
-            alias: "vb",
-            cacheStrategy: "daily",
-          },
-          "react-basic": {
-            description: "A basic React template",
-            location: "https://github.com/facebook/react",
-          },
-        },
-      },
-      typescript: {
-        templates: {
-          "ts-node": {
-            description: "A simple TS project",
-            location: "https://github.com/microsoft/TypeScript-Node-Starter",
-          },
-        },
-      },
-    },
-  };
-
-  const sampleGlobalConfig = {
-    templates: {
-      python: {
-        templates: {
-          "python-flask": {
-            description: "A Python Flask API",
-            location: "https://github.com/pallets/flask",
-          },
-        },
-      },
-    },
-  };
+describe("list command", () => {
+  let actionFn: Function;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    actionFn = vi.fn();
-    mockProgram = {
-      command: vi.fn(() => mockProgram),
-      alias: vi.fn(() => mockProgram),
-      description: vi.fn(() => mockProgram),
-      argument: vi.fn(() => mockProgram),
-      option: vi.fn(() => mockProgram),
-      action: vi.fn((fn) => {
-        actionFn = fn;
-        return mockProgram;
-      }),
-    };
+    mockProgram.command.mockReturnThis();
+    mockProgram.alias.mockReturnThis();
+    mockProgram.description.mockReturnThis();
+    mockProgram.argument.mockReturnThis();
+    mockProgram.option.mockReturnThis();
+    mockProgram.action.mockImplementation((fn) => {
+      actionFn = fn;
+    });
+    consoleLogSpy.mockClear();
   });
 
-  it("should set up the list command with correct options and arguments", () => {
+  it("should define the list command correctly", () => {
     setupListCommand({ program: mockProgram });
+
     expect(mockProgram.command).toHaveBeenCalledWith("list");
     expect(mockProgram.alias).toHaveBeenCalledWith("ls");
     expect(mockProgram.description).toHaveBeenCalledWith(
@@ -92,16 +103,12 @@ describe("setupListCommand", () => {
     );
     expect(mockProgram.argument).toHaveBeenCalledWith(
       "[language]",
-      expect.any(String),
+      "list.command.language.argument",
       "",
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-g, --global",
       "list.command.global.option",
-    );
-    expect(mockProgram.option).toHaveBeenCalledWith(
-      "-l, --local",
-      "list.command.local.option",
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-a, --all",
@@ -111,263 +118,273 @@ describe("setupListCommand", () => {
       "-f, --filter <string>",
       "list.command.filter.option",
     );
+    expect(mockProgram.option).not.toHaveBeenCalledWith(
+      "-l, --local",
+      expect.any(String),
+    );
   });
 
   describe("display modes", () => {
     it("should display both local and global templates with --all flag", async () => {
-      mockReadLocalConfig.mockResolvedValue({
-        config: sampleLocalConfig,
-        filePath: "/path/to/local",
-        source: "local",
+      mockReadAndMergeConfigs.mockResolvedValueOnce({
+        config: structuredClone({
+          templates: {
+            ...sampleLocalConfig.templates,
+            ...sampleGlobalConfig.templates,
+          },
+        }),
+        source: "merged",
       });
-      mockReadGlobalConfig.mockResolvedValue({
-        config: sampleGlobalConfig,
-        filePath: "/path/to/global",
-        source: "global",
-      });
+      mockValidateProgrammingLanguage.mockReturnValueOnce(true);
 
       setupListCommand({ program: mockProgram });
       await actionFn("", { all: true });
 
+      expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        "\n" + mockChalk.magenta.bold("list.templates.using_local"),
+      expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
+      expect(mockSpinner.info).toHaveBeenCalledWith(
+        "list.templates.using_local_and_global",
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        "\n" + mockChalk.cyan.bold("list.templates.using_global"),
+      expect(mockPrintTemplates).toHaveBeenCalledWith(
+        "javascript",
+        {
+          "javascript-node": {
+            description: "Node.js project template",
+            location: "/path/to/local/templates/javascript-node",
+          },
+        },
+        undefined,
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("TYPESCRIPT")}:`,
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("PYTHON")}:`,
+      expect(mockPrintTemplates).toHaveBeenCalledWith(
+        "typescript",
+        {
+          "typescript-express": {
+            description: "Express.js project template with TypeScript",
+            location: "/path/to/global/templates/typescript-express",
+          },
+        },
+        undefined,
       );
     });
 
     it("should display only global templates with --global flag", async () => {
-      mockReadLocalConfig.mockResolvedValue({
-        config: sampleLocalConfig,
-        filePath: "/path/to/local",
-        source: "local",
-      });
-      mockReadGlobalConfig.mockResolvedValue({
-        config: sampleGlobalConfig,
-        filePath: "/path/to/global",
+      mockReadAndMergeConfigs.mockResolvedValueOnce({
+        config: structuredClone(sampleGlobalConfig),
         source: "global",
       });
+      mockValidateProgrammingLanguage.mockReturnValueOnce(true);
 
       setupListCommand({ program: mockProgram });
       await actionFn("", { global: true });
 
+      expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
+      expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
       expect(mockSpinner.info).toHaveBeenCalledWith(
         "list.templates.using_global",
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        "\n" + mockChalk.cyan.bold("list.templates.using_global"),
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("PYTHON")}:`,
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
+      expect(mockPrintTemplates).toHaveBeenCalledWith(
+        "typescript",
+        {
+          "typescript-express": {
+            description: "Express.js project template with TypeScript",
+            location: "/path/to/global/templates/typescript-express",
+          },
+        },
+        undefined,
       );
     });
 
-    it("should display only local templates with --local flag", async () => {
-      mockReadLocalConfig.mockResolvedValue({
-        config: sampleLocalConfig,
-        filePath: "/path/to/local",
+    it("should display only local templates by default when local config exists", async () => {
+      mockReadAndMergeConfigs.mockResolvedValueOnce({
+        config: structuredClone(sampleLocalConfig),
         source: "local",
       });
-      mockReadGlobalConfig.mockResolvedValue({
-        config: sampleGlobalConfig,
-        filePath: "/path/to/global",
-        source: "global",
-      });
+      mockValidateProgrammingLanguage.mockReturnValueOnce(true);
 
-      setupListCommand({ program: mockProgram });
-      await actionFn("", { local: true });
+      setupListCommand({ program: mockProgram, config: sampleLocalConfig });
+      await actionFn("", {});
 
+      expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
+      expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
       expect(mockSpinner.info).toHaveBeenCalledWith(
         "list.templates.using_local",
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        "\n" + mockChalk.magenta.bold("list.templates.using_local"),
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("TYPESCRIPT")}:`,
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("PYTHON")}:`,
+      expect(mockPrintTemplates).toHaveBeenCalledWith(
+        "javascript",
+        {
+          "javascript-node": {
+            description: "Node.js project template",
+            location: "/path/to/local/templates/javascript-node",
+          },
+        },
+        undefined,
       );
     });
 
-    it("should display templates for a specific language with language argument", async () => {
-      mockReadLocalConfig.mockResolvedValue({
-        config: sampleLocalConfig,
-        filePath: "/path/to/local",
+    it("should display templates for a specific language (e.g., javascript)", async () => {
+      mockReadAndMergeConfigs.mockResolvedValueOnce({
+        config: structuredClone({
+          templates: {
+            ...sampleLocalConfig.templates,
+            ...sampleGlobalConfig.templates,
+          },
+        }),
         source: "local",
       });
-      mockReadGlobalConfig.mockResolvedValue({
-        config: sampleGlobalConfig,
-        filePath: "/path/to/global",
-        source: "global",
-      });
+      mockValidateProgrammingLanguage.mockReturnValueOnce(true);
 
       setupListCommand({ program: mockProgram });
-      await actionFn("javascript", {});
+      await actionFn("javascript", {
+        all: false,
+        global: false,
+        filter: "",
+      });
 
+      expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
+        "javascript",
+      );
       expect(mockSpinner.start).toHaveBeenCalled();
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
+      expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
+      expect(mockSpinner.info).toHaveBeenCalledWith(
+        "list.templates.using_local",
       );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("TYPESCRIPT")}:`,
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("PYTHON")}:`,
+      expect(consoleLogSpy).toHaveBeenCalledTimes(1);
+      expect(consoleLogSpy).toHaveBeenCalledWith("\nlist.templates.header");
+
+      expect(mockPrintTemplates).toHaveBeenCalledOnce();
+      expect(mockPrintTemplates).toHaveBeenCalledWith(
+        "javascript",
+        {
+          "javascript-node": {
+            description: "Node.js project template",
+            location: "/path/to/local/templates/javascript-node",
+          },
+        },
+        "",
       );
     });
 
-    it("should display all templates if no flags or language are provided (default)", async () => {
-      mockReadLocalConfig.mockResolvedValue({
-        config: sampleLocalConfig,
-        filePath: "/path/to/local",
-        source: "local",
-      });
-      mockReadGlobalConfig.mockResolvedValue({
-        config: sampleGlobalConfig,
-        filePath: "/path/to/global",
+    it("should display global templates if no local templates are found for a language", async () => {
+      mockReadAndMergeConfigs.mockResolvedValue({
+        config: structuredClone({
+          templates: {
+            ...sampleLocalConfig.templates,
+          },
+        }),
         source: "global",
       });
+      mockValidateProgrammingLanguage.mockReturnValue(true);
 
       setupListCommand({ program: mockProgram });
-      await actionFn("", {});
+      await actionFn("javascript", {
+        all: false,
+        global: false,
+        filter: "javascript",
+      });
 
+      expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
+        "javascript",
+      );
       expect(mockSpinner.start).toHaveBeenCalled();
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
+      expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
+      expect(mockSpinner.info).toHaveBeenCalledWith(
+        "list.templates.using_global_fallback",
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("TYPESCRIPT")}:`,
+      expect(mockPrintTemplates).toHaveBeenCalledOnce();
+      expect(mockPrintTemplates).toHaveBeenCalledWith(
+        "javascript",
+        {
+          "javascript-node": {
+            description: "Node.js project template",
+            location: "/path/to/local/templates/javascript-node",
+          },
+        },
+        "javascript",
       );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("PYTHON")}:`,
+    });
+
+    it("should display a message if no templates are found", async () => {
+      mockReadAndMergeConfigs.mockResolvedValue({
+        config: structuredClone({ templates: {} }),
+        source: "empty",
+      });
+      mockValidateProgrammingLanguage.mockReturnValue(true);
+
+      setupListCommand({ program: mockProgram });
+      await actionFn("nonexistent", {
+        all: false,
+        global: false,
+        filter: "",
+      });
+
+      expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
+        "nonexistent",
       );
+      expect(mockSpinner.start).toHaveBeenCalled();
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(
+        mockChalk.yellow("list.templates.not_found- options template:"),
+      );
+      expect(consoleLogSpy).not.toHaveBeenCalled();
+      expect(mockPrintTemplates).not.toHaveBeenCalled();
     });
   });
 
   describe("filter option", () => {
     beforeEach(() => {
-      mockReadLocalConfig.mockResolvedValue({
-        config: sampleLocalConfig,
-        filePath: "/path/to/local",
-        source: "local",
+      mockReadAndMergeConfigs.mockResolvedValue({
+        config: structuredClone({
+          templates: {
+            ...sampleLocalConfig.templates,
+            ...sampleGlobalConfig.templates,
+          },
+        }),
+        source: "merged",
       });
-      mockReadGlobalConfig.mockResolvedValue({
-        config: sampleGlobalConfig,
-        filePath: "/path/to/global",
-        source: "global",
-      });
+      mockValidateProgrammingLanguage.mockReturnValue(true);
     });
 
-    it("should filter templates by name", async () => {
+    it("should pass the filter string to printTemplates", async () => {
       setupListCommand({ program: mockProgram });
-      await actionFn("", { filter: "vue" });
+      await actionFn("", { all: true, global: false, filter: "vue" });
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining(" - vue-basic "),
+      expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
+      expect(mockPrintTemplates).toHaveBeenCalledWith(
+        "javascript",
+        {
+          "javascript-node": {
+            description: "Node.js project template",
+            location: "/path/to/local/templates/javascript-node",
+          },
+        },
+        "vue",
       );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        expect.stringContaining(" - react-basic "),
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        expect.stringContaining(" - ts-node "),
-      );
-    });
-
-    it("should filter templates by alias", async () => {
-      setupListCommand({ program: mockProgram });
-      await actionFn("", { filter: "vb" });
-
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining(" - vue-basic "),
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        expect.stringContaining(" - react-basic "),
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        expect.stringContaining(" - ts-node "),
-      );
-    });
-
-    it("should show nothing if filter does not match any template", async () => {
-      setupListCommand({ program: mockProgram });
-      await actionFn("", { filter: "nomatch" });
-
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        `\n${mockChalk.blue.bold("JAVASCRIPT")}:`,
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        expect.stringContaining(" - vue-basic "),
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        expect.stringContaining(" - react-basic "),
-      );
-      expect(consoleLogSpy).not.toHaveBeenCalledWith(
-        expect.stringContaining(" - ts-node "),
+      expect(mockPrintTemplates).toHaveBeenCalledWith(
+        "typescript",
+        {
+          "typescript-express": {
+            description: "Express.js project template with TypeScript",
+            location: "/path/to/global/templates/typescript-express",
+          },
+        },
+        "vue",
       );
     });
   });
 
   describe("error handling", () => {
-    beforeEach(() => {
-      mockReadLocalConfig.mockResolvedValue({
-        config: sampleLocalConfig,
-        filePath: "/path/to/local",
-        source: "local",
-      });
-      mockReadGlobalConfig.mockResolvedValue({
-        config: sampleGlobalConfig,
-        filePath: "/path/to/global",
-        source: "global",
-      });
-    });
-
-    it("should throw a DevkitError if the specified language is not found", async () => {
+    it("should throw a DevkitError if both --global and --all flags are used", async () => {
       setupListCommand({ program: mockProgram });
-      await actionFn("go", {});
+      await actionFn("", { global: true, all: true });
 
+      expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
-      expect(mockSpinner.stop).toHaveBeenCalled();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         new DevkitError(
-          t("error.language_config_not_found", { language: "go" }),
+          "error.command.mutually_exclusive_options- options options:global, all",
         ),
-        mockSpinner,
-      );
-    });
-
-    it("should handle unexpected errors gracefully", async () => {
-      const mockError = new Error("Unexpected error");
-      vi.spyOn(Object, "entries").mockImplementationOnce(() => {
-        throw mockError;
-      });
-
-      setupListCommand({ program: mockProgram });
-      await actionFn("", {});
-
-      expect(mockSpinner.start).toHaveBeenCalled();
-      expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-        mockError,
         mockSpinner,
       );
     });
