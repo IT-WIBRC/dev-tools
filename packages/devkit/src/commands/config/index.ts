@@ -59,7 +59,7 @@ async function handleConfigAction(
 export function setupConfigCommand(program: Command): void {
   const configCommand = program
     .command("config [keys...]")
-    .alias("cf")
+    .alias("conf")
     .description(t("config.command.description"))
     .option("-g, --global", t("config.update.option.global"), false)
     .option("-s, --set <value...>", t("config.set.option.bulk"), false)
