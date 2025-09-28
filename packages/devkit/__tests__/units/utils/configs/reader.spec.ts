@@ -14,13 +14,13 @@ const { mockExistsSync, mockGetConfigFilePath, mockReadJson } = vi.hoisted(
   }),
 );
 
-vi.mock("#utils/fileSystem.js", () => ({
+vi.mock("#utils/system/file.js", () => ({
   default: {
     existsSync: mockExistsSync,
   },
 }));
 
-vi.mock("#utils/fileSystem.js", () => ({
+vi.mock("#utils/system/file.js", () => ({
   default: {
     readJson: mockReadJson,
     existsSync: mockExistsSync,

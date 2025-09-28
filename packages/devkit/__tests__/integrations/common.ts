@@ -1,5 +1,5 @@
 import path from "path";
-import fileSystem from "../../src/utils/fileSystem.js";
+import fileSystem from "../../src/utils/system/file.js";
 
 export * from "../../src/utils/configs/schema.js";
 import { SCHEMA_PATH } from "../../src/utils/configs/writer.js";

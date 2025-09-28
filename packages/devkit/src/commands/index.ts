@@ -10,6 +10,7 @@ import { setupConfigCommand } from "#commands/config/index.js";
 import { setupListCommand } from "#commands/list.js";
 import { setupInitCommand } from "#commands/init.js";
 import { defaultCliConfig, SUPPORTED_LANGUAGES } from "#utils/configs/schema";
+import { setupInfoCommand } from "#commands/info.js";
 
 export async function setupAndParse() {
   const program = new Command();
@@ -58,6 +59,7 @@ export async function setupAndParse() {
     setupNewCommand({ program, config });
     setupConfigCommand(program);
     setupListCommand({ program, config });
+    setupInfoCommand({ program, config });
 
     program.parse(process.argv);
     spinner.stop();

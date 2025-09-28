@@ -3,7 +3,7 @@ import { vi, describe, it, expect } from "vitest";
 const { mockFsCopy } = vi.hoisted(() => ({
   mockFsCopy: vi.fn(),
 }));
-vi.mock("#utils/fileSystem.js", () => ({ default: { copy: mockFsCopy } }));
+vi.mock("#utils/system/file.js", () => ({ default: { copy: mockFsCopy } }));
 
 import {
   copyJavascriptTemplate,

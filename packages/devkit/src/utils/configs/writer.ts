@@ -1,4 +1,4 @@
-import fs from "#utils/fileSystem.js";
+import fs from "#utils/system/file.js";
 import { DevkitError, ConfigError } from "../errors/base.js";
 import { t } from "#utils/internationalization/i18n.js";
 import { getConfigFilepath } from "#utils/path/finder.js";

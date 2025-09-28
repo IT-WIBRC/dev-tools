@@ -11,6 +11,7 @@ const {
   mockHandleErrorAndExit,
   mockGetProjectVersion,
   mockReadAndMergeConfigs,
+  mockSetupInfoCommand,
 } = vi.hoisted(() => ({
   mockSetupInitCommand: vi.fn(),
   mockSetupNewCommand: vi.fn(),
@@ -19,6 +20,7 @@ const {
   mockHandleErrorAndExit: vi.fn(),
   mockGetProjectVersion: vi.fn(),
   mockReadAndMergeConfigs: vi.fn(),
+  mockSetupInfoCommand: vi.fn(),
 }));
 
 vi.mock("#commands/init.js", () => ({
@@ -35,6 +37,10 @@ vi.mock("#commands/config/index.js", () => ({
 
 vi.mock("#commands/list.js", () => ({
   setupListCommand: mockSetupListCommand,
+}));
+
+vi.mock("#commands/info.js", () => ({
+  setupInfoCommand: mockSetupInfoCommand,
 }));
 
 vi.mock("#utils/errors/handler.js", () => ({
@@ -161,6 +167,12 @@ describe("index.ts (Entry point)", () => {
 
       expect(mockSetupListCommand).toHaveBeenCalledOnce();
       expect(mockSetupListCommand).toHaveBeenCalledWith({
+        config: mockedConfig,
+        program: mockProgram,
+      });
+
+      expect(mockSetupInfoCommand).toHaveBeenCalledOnce();
+      expect(mockSetupInfoCommand).toHaveBeenCalledWith({
         config: mockedConfig,
         program: mockProgram,
       });

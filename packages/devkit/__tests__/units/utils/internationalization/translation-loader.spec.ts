@@ -14,7 +14,7 @@ const { mockFs, mockOsLocale, mockFindLocalesDir } = vi.hoisted(() => ({
   mockFindLocalesDir: vi.fn(),
 }));
 
-vi.mock("#utils/fileSystem.js", () => ({
+vi.mock("#utils/system/file.js", () => ({
   default: mockFs,
 }));
 

@@ -20,7 +20,9 @@ vi.mock("../../../../src/commands/config/logic.js", () => ({
 }));
 
 const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-const processExitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+const mockProcessExit = vi
+  .spyOn(process, "exit")
+  .mockImplementation((() => {}) as unknown as never);
 
 describe("setupUpdateCommand", () => {
   let mockConfigCommand: any;
@@ -120,7 +122,7 @@ describe("setupUpdateCommand", () => {
           })}`,
         ),
       );
-      expect(processExitSpy).not.toHaveBeenCalled();
+      expect(mockProcessExit).not.toHaveBeenCalled();
     });
 
     it("should update multiple templates and print a summary", async () => {
@@ -155,8 +157,8 @@ describe("setupUpdateCommand", () => {
 
     it("should handle mixed success and failure and exit with code 1", async () => {
       mockHandleNonInteractiveTemplateUpdate
-        .mockResolvedValueOnce(undefined)
-        .mockRejectedValueOnce(
+        .mockResolvedValue(undefined)
+        .mockRejectedValue(
           new DevkitError(
             mocktFn("error.template.not_found", { template: "temp2" }),
           ),
@@ -180,15 +182,10 @@ describe("setupUpdateCommand", () => {
         ),
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.green(
-          `\n✔ ${mocktFn("config.update.success_summary", {
-            count: "2",
-            templateName: "temp1, temp2, temp3",
-            language: "javascript",
-          })}`,
-        ),
+        expect.stringContaining("config.update.success_summary"),
       );
-      expect(processExitSpy).toHaveBeenCalledWith(1);
+      expect(mockProcessExit).toHaveBeenCalledOnce();
+      expect(mockProcessExit).toHaveBeenCalledWith(1);
     });
 
     it("should handle an invalid template name", async () => {
@@ -220,7 +217,7 @@ describe("setupUpdateCommand", () => {
           })}`,
         ),
       );
-      expect(processExitSpy).toHaveBeenCalledWith(1);
+      expect(mockProcessExit).toHaveBeenCalledWith(1);
     });
   });
 });

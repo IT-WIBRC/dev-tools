@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import fileSystem from "../../../src/utils/fileSystem.js";
+import fileSystem from "../../../../src/utils/system/file.js";
 
 const {
   mockWriteFile,

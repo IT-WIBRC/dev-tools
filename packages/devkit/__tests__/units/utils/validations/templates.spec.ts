@@ -23,7 +23,7 @@ vi.mock("execa", () => ({
   execa: mockExeca,
 }));
 
-vi.mock("../../../../src/utils/fileSystem.js", () => ({
+vi.mock("../../../../src/utils/system/file.js", () => ({
   default: mockFs,
 }));
 

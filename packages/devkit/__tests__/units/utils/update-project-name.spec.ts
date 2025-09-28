@@ -6,7 +6,7 @@ const { mockExistsSync, mockReadJson, mockWriteJson } = vi.hoisted(() => ({
   mockWriteJson: vi.fn(),
 }));
 
-vi.mock("#utils/fileSystem.js", () => ({
+vi.mock("#utils/system/file.js", () => ({
   default: {
     existsSync: mockExistsSync,
     readJson: mockReadJson,

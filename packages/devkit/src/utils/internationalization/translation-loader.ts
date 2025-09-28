@@ -1,4 +1,4 @@
-import fs from "#utils/fileSystem.js";
+import fs from "#utils/system/file.js";
 import path from "path";
 import { osLocale } from "os-locale";
 import {

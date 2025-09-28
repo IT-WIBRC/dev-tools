@@ -9,7 +9,7 @@ import {
   findGlobalConfigFile,
   findLocalConfigFile,
 } from "#utils/configs/search.js";
-import fs from "#utils/fileSystem.js";
+import fs from "#utils/system/file.js";
 
 export async function getConfigFilepath(isGlobal = false): Promise<string> {
   const allConfigFiles = [...CONFIG_FILE_NAMES];

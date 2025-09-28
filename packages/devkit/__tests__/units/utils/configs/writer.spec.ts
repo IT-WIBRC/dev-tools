@@ -13,7 +13,7 @@ const { mockWriteJson, mockGetConfigFilepath } = vi.hoisted(() => ({
   mockGetConfigFilepath: vi.fn(),
 }));
 
-vi.mock("#utils/fileSystem.js", () => ({
+vi.mock("#utils/system/file.js", () => ({
   default: {
     writeJson: mockWriteJson,
   },

@@ -1,4 +1,4 @@
-import fs from "#utils/fileSystem.js";
+import fs from "#utils/system/file.js";
 import { type CliConfig } from "#utils/configs/schema.js";
 import { getConfigFilepath } from "#utils/path/finder.js";
 
