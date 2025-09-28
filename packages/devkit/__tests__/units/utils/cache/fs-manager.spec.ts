@@ -7,7 +7,7 @@ import {
 const mockStat = vi.hoisted(() => vi.fn());
 const mockCopy = vi.hoisted(() => vi.fn());
 
-vi.mock("#utils/fileSystem.js", () => ({
+vi.mock("#utils/system/file.js", () => ({
   default: {
     stat: mockStat,
     copy: mockCopy,

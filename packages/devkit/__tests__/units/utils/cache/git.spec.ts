@@ -16,7 +16,7 @@ vi.mock("execa", () => ({
   execa: mockExeca,
 }));
 
-vi.mock("#utils/fileSystem.js", () => ({
+vi.mock("#utils/system/file.js", () => ({
   default: {
     ensureDir: mockEnsureDir,
     stat: mockStat,

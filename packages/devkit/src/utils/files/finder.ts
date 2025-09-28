@@ -1,7 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import fs from "#utils/fileSystem.js";
+import fs from "#utils/system/file.js";
 import { FILE_NAMES } from "#utils/configs/schema.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { findUp } from "./find-up.js";

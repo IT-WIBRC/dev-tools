@@ -44,7 +44,7 @@ const { mockFsStat, mockFsReadJson, mockFindUpLogic } = vi.hoisted(() => {
   return { mockFsStat, mockFsReadJson, mockFindUpLogic };
 });
 
-vi.mock("#utils/fileSystem.js", () => ({
+vi.mock("#utils/system/file.js", () => ({
   default: {
     stat: mockFsStat,
     readJson: mockFsReadJson,

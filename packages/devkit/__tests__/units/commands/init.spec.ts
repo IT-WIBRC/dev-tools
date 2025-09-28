@@ -48,7 +48,7 @@ vi.mock("process", () => ({
   },
 }));
 
-vi.mock("#utils/fileSystem.js", () => ({
+vi.mock("#utils/system/file.js", () => ({
   default: {
     pathExists: mockFs.pathExists,
   },

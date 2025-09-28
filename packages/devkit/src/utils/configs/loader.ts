@@ -1,5 +1,5 @@
 import deepmerge from "deepmerge";
-import fs from "#utils/fileSystem.js";
+import fs from "#utils/system/file.js";
 import {
   type CliConfig,
   defaultCliConfig,

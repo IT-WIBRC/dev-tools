@@ -1,11 +1,3 @@
-You're absolutely right\! I missed including the `--global` option for `dk config list`. This option is used to explicitly show the configuration from the global file (`~/.devkitrc`) instead of the default local-first behavior.
-
-I've updated the **"List detailed configuration and templates"** section and its corresponding example under **Manage your CLI configuration** in the README.
-
-Here is the fully revised documentation.
-
----
-
 # 🚀 Scaffolder-Toolkit (`dk`)
 
 A universal CLI for professional developers to automate project scaffolding and streamline workflows.
@@ -142,6 +134,17 @@ Scaffolder comes with a set of pre-configured templates for popular frameworks a
 ## ⚙️ Usage
 
 Here's how to get started with the Scaffolder CLI.
+
+### View System and Configuration Info
+
+The `dk info` command displays detailed information about your system environment and the Scaffolder CLI's current configuration status. This is extremely useful for debugging and understanding why configuration files are or are not being loaded.
+
+```bash
+# Display CLI version, runtime, OS, package manager, and config file status
+dk info
+```
+
+---
 
 ### Create a new project from a template
 
@@ -319,18 +322,21 @@ dk config cache react always-refresh
 
 For a faster workflow, the following commands have shortcuts:
 
-- `devkit` -\> `dk`
-- `init` -\> `i`
-- `config` -\> `cf`
-- `new` -\> `n`
-- `list` -\> `ls`
-- `config add` -\> `cf a`
-- `config remove` -\> `cf rm`
-- `config update` -\> `cf up`
-- `config list` -\> `cf ls`
-- `cache` -\> `c`
-- `version` -\> `v`
-- `help` -\> `h`
+| Command         | Alias    |
+| :-------------- | :------- |
+| `devkit`        | `dk`     |
+| **`info`**      | **`in`** |
+| `init`          | `i`      |
+| `config`        | `cf`     |
+| `new`           | `n`      |
+| `list`          | `ls`     |
+| `config add`    | `cf a`   |
+| `config remove` | `cf rm`  |
+| `config update` | `cf up`  |
+| `config list`   | `cf ls`  |
+| `cache`         | `c`      |
+| `version`       | `v`      |
+| `help`          | `h`      |
 
 ---
 

@@ -426,5 +426,46 @@
     "yes": "Yes",
     "no": "No",
     "none": "None"
+  },
+  "info": {
+    "command": {
+      "description": "Display system and environment information for debugging."
+    },
+    "loading": "Collecting system and environment details...",
+    "success_message": "System information collected.",
+    "header": {
+      "cli": "Scaffolder CLI",
+      "runtime": "Runtime Environment",
+      "os_details": "Operating System Details",
+      "config_files": "Configuration Files"
+    },
+    "cli": {
+      "version": "Version"
+    },
+    "runtime": {
+      "runtime_name": "Runtime",
+      "runtime_version": "Runtime Version",
+      "package_manager": "Package Manager"
+    },
+    "os": {
+      "type_version": "OS Type/Release",
+      "architecture": "Architecture",
+      "shell": "Active Shell",
+      "home_dir": "Home Directory"
+    },
+    "shell": {
+      "unknown": "Unknown"
+    },
+    "config": {
+      "global_path": "Global Config Path",
+      "local_path": "Local Config Path",
+      "found": "[FOUND]",
+      "not_found": "[NOT FOUND]",
+      "global_expected_location": "in your home directory",
+      "local_expected_location": "in the current working directory"
+    },
+    "error": {
+      "package_manager_not_found": "{manager} version not found. Is it installed?"
+    }
   }
 }

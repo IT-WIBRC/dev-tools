@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "#utils/fileSystem.js";
+import fs from "#utils/system/file.js";
 import { homedir } from "os";
 
 interface FindUpOptions {

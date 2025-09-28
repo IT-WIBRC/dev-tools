@@ -1,7 +1,7 @@
 import { execa } from "execa";
 import { t } from "#utils/internationalization/i18n.js";
 import { GitError } from "#utils/errors/base.js";
-import fs from "#utils/fileSystem.js";
+import fs from "#utils/system/file.js";
 import path from "path";
 
 export function getRepoNameFromUrl(url: string): string {

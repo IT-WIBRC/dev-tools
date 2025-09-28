@@ -1,4 +1,4 @@
-import fs from "../fileSystem.js";
+import fs from "../system/file.js";
 import { execa } from "execa";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";

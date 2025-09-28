@@ -1,4 +1,4 @@
-import fs from "#utils/fileSystem.js";
+import fs from "#utils/system/file.js";
 import path from "path";
 import { FILE_NAMES } from "./configs/schema.js";
 import { t } from "#utils/internationalization/i18n.js";
