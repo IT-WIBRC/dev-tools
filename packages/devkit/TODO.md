@@ -49,7 +49,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 - [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself. `dk upgrade`
 - [x] `dk info`: A command to display system and environment information that could be useful for debugging issues.
-- [ ] change the `config` alias from `cf` to `conf`
+- [x] change the `config` alias from `cf` to `conf`
 - [x] **Unified `config` Command**: Complete the refactoring of all configuration-related commands into the new `git`-like pattern under `dk config`. This includes implementing:
   - **Core Operations**: `dk config <key> [value]` for set and get.
   - **Subcommands**: `dk config add`, `dk config update`, and `dk config remove` to manage templates.
@@ -68,6 +68,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [ ] **Language Abstraction**: Investigate how to infer a template's language from its contents, removing the need for explicit language sections in the configuration.
 - [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
 - [ ] **Testing**: Stabilize the integration test of the `new` command
+- [x] Enable GitHub discussions
 - [ ] Refactor and restructure the utilities
 - [ ] Better json structure for languages
 

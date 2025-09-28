@@ -1,35 +1,49 @@
 ---
 name: Bug Report
-about: Report a bug to help us improve
+about: Report a bug to help us improve the Scaffolder CLI.
 title: "[Bug]: "
 labels: bug
 assignees: ""
 ---
 
-## Describe the bug
+## Describe the Bug 🐛
 
-A clear and concise description of what the bug is.
+A clear and concise description of the bug, including the exact command you ran and the unexpected outcome.
 
-## To Reproduce
+## To Reproduce 🛠️
 
 Steps to reproduce the behavior:
 
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+1.  Run command/Action: `dk [command] [args]`
+2.  Describe observed action (e.g., "The CLI stops responding," or "It prompts for '...'")
+3.  Describe the error or unexpected result.
 
-## Expected behavior
+## Expected Behavior ✨
 
-A clear and concise description of what you expected to happen.
+A clear and concise description of what you expected to happen when the command was run.
 
-## Screenshots
+## Screenshots / CLI Output 📸
 
-If applicable, add screenshots to help explain your problem.
+Please paste the **full CLI output**, including any error trace, below.
 
-## Environment:
+```text
+# PASTE FULL CLI OUTPUT HERE
+```
 
-- OS: [e.g., macOS, Windows, Linux]
-- Node.js version: [e.g., 18.0.0]
-- Package manager: [e.g., npm, yarn, bun]
-- DevKit version: [e.g., 1.0.0]
+## Diagnostic Information (`dk info` output) ℹ️
+
+**CRITICAL:** Please run the **`dk info`** command and paste the complete, unedited output below. This provides essential context about your CLI, runtime, and configuration file status.
+
+```text
+# PASTE dk info OUTPUT HERE
+```
+
+## Environment Details 💻
+
+Please provide the following environment specifics:
+
+- **OS:** [e.g., macOS Sonoma, Windows 11, Ubuntu 22.04]
+- **Node.js/Bun Runtime:** [e.g., Node.js v20.19.0, Bun v1.3.1]
+- **Active Shell:** [e.g., zsh, PowerShell, Git Bash]
+- **Package Manager Version:** [e.g., npm v10.5.0, yarn v4.1.0]
+- **DevKit CLI Version:** [e.g., 1.0.0]
