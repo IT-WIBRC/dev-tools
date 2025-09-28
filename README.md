@@ -18,6 +18,15 @@ All packages are written in TypeScript and managed with Bun Workspaces.
 
 ---
 
+## 💬 Community & Feedback
+
+We love hearing from you! Whether you have **ideas for new features** or general questions, join the conversation:
+
+- **💡 Feature Suggestions:** [Start a Discussion](https://github.com/IT-WIBRC/dev-tools/discussions/83)
+- **🗣️ General Q&A:** [Start a Discussion](https://github.com/IT-WIBRC/dev-tools/discussions/84)
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions\! Please see our [Contributing Guide](../../CONTRIBUTING.md) for details on how to get started.

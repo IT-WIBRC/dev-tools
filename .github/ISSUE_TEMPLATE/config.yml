@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💡 Suggest a New Feature or Enhancement
+    url: https://github.com/IT-WIBRC/dev-tools/discussions/83
+    about: Please share your ideas and feature requests in our dedicated Discussions forum.
+
+  - name: 🗣️ Ask a Question or Start a General Discussion
+    url: https://github.com/IT-WIBRC/dev-tools/discussions/84
+    about: Use this space for general help, questions, tips, or non-bug-related conversations.
