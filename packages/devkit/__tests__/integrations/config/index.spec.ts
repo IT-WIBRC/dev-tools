@@ -222,7 +222,7 @@ describe("dk config", () => {
   it("should throw an error if no config file is found for setting", async () => {
     const { all, exitCode } = await execa(
       "bun",
-      [CLI_PATH, "config", "--set", "language", "en"],
+      [CLI_PATH, "conf", "--set", "language", "en"],
       { all: true, reject: false },
     );
 

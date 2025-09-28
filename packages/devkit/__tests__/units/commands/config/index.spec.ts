@@ -72,7 +72,7 @@ describe("setupConfigCommand", () => {
     setupConfigCommand(mockProgram);
 
     expect(mockProgram.command).toHaveBeenCalledWith("config [keys...]");
-    expect(mockProgram.alias).toHaveBeenCalledWith("cf");
+    expect(mockProgram.alias).toHaveBeenCalledWith("conf");
     expect(mockProgram.description).toHaveBeenCalledWith(
       mocktFn("config.command.description"),
     );

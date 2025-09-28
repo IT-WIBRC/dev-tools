@@ -322,21 +322,21 @@ dk config cache react always-refresh
 
 For a faster workflow, the following commands have shortcuts:
 
-| Command         | Alias    |
-| :-------------- | :------- |
-| `devkit`        | `dk`     |
-| **`info`**      | **`in`** |
-| `init`          | `i`      |
-| `config`        | `cf`     |
-| `new`           | `n`      |
-| `list`          | `ls`     |
-| `config add`    | `cf a`   |
-| `config remove` | `cf rm`  |
-| `config update` | `cf up`  |
-| `config list`   | `cf ls`  |
-| `cache`         | `c`      |
-| `version`       | `v`      |
-| `help`          | `h`      |
+| Command         | Alias     |
+| :-------------- | :-------- |
+| `devkit`        | `dk`      |
+| **`info`**      | **`in`**  |
+| `init`          | `i`       |
+| `config`        | `conf`    |
+| `new`           | `n`       |
+| `list`          | `ls`      |
+| `config add`    | `conf a`  |
+| `config remove` | `conf rm` |
+| `config update` | `conf up` |
+| `config list`   | `conf ls` |
+| `cache`         | `c`       |
+| `version`       | `v`       |
+| `help`          | `h`       |
 
 ---
 
