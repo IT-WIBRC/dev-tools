@@ -1,7 +1,7 @@
 import ora from "ora";
 import chalk from "chalk";
-import { t } from "#utils/internationalization/i18n.js";
-import { getTemplateFromCache } from "#utils/cache/index.js";
+import { t } from "#utils/i18n/translator.js";
+import { getTemplateFromCache } from "#core/cache/index.js";
 import { runCliCommand } from "#scaffolding/cli-runner.js";
 import { copyLocalTemplate } from "#scaffolding/local-template.js";
 import { installDependencies } from "#scaffolding/dependencies.js";
@@ -9,7 +9,7 @@ import type {
   TemplateConfig,
   CacheStrategy,
   SupportedJavascriptPackageManager,
-} from "#utils/configs/schema.js";
+} from "#utils/schema/schema.js";
 
 interface ScaffoldJavascriptProjectOptions {
   projectName: string;

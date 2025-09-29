@@ -7,7 +7,6 @@ import {
   afterEach,
   beforeAll,
 } from "vitest";
-import { execa } from "execa";
 import path from "path";
 import os from "os";
 import {
@@ -16,6 +15,7 @@ import {
   CONFIG_FILE_NAMES,
   type CliConfig,
   defaultCliConfig,
+  execute,
 } from "../common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
@@ -49,7 +49,7 @@ const createGlobalTemplateFiles = async () => {
 
 describe("dk config add", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   beforeEach(async () => {
@@ -124,7 +124,7 @@ describe("dk config add", () => {
     );
     await fs.ensureDir(vueTemplatePath);
 
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -164,7 +164,7 @@ describe("dk config add", () => {
     );
     await fs.ensureDir(vueTemplatePath);
 
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -194,7 +194,7 @@ describe("dk config add", () => {
   });
 
   it("should fail to add a template if required options are missing", async () => {
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "add", "javascript", "vue-basic"],
       { all: true, reject: false },
@@ -208,7 +208,7 @@ describe("dk config add", () => {
 
   it("should fail to add a template if a language is not found", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -232,7 +232,7 @@ describe("dk config add", () => {
 
   it("should fail to add a template if it already exists", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -263,7 +263,7 @@ describe("dk config add", () => {
     );
     await fs.ensureDir(location);
 
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,

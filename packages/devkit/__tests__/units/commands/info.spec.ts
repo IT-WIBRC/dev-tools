@@ -1,14 +1,14 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { setupInfoCommand } from "../../../src/commands/info.js";
 import { mockSpinner, mocktFn } from "../../../vitest.setup.js";
-import { type SystemInfo } from "../../../src/utils/system/info.js";
+import { type SystemInfo } from "../../../src/core/info/info.js";
 
 const { mockCollectSystemInfo, mockHandleErrorAndExit } = vi.hoisted(() => ({
   mockCollectSystemInfo: vi.fn(),
   mockHandleErrorAndExit: vi.fn(),
 }));
 
-vi.mock("#utils/system/info.js", () => ({
+vi.mock("#core/info/info.js", () => ({
   collectSystemInfo: mockCollectSystemInfo,
 }));
 

@@ -8,9 +8,9 @@ import {
   ProgrammingLanguage,
   type SupportedProgrammingLanguageValues,
   type SupportedPackageManager,
-} from "#utils/configs/schema.js";
+} from "#utils/schema/schema.js";
 import { DevkitError } from "#utils/errors/base.js";
-import { t } from "#utils/internationalization/i18n.js";
+import { t } from "#utils/i18n/translator.js";
 
 export function validatePackageManager(
   value: string,

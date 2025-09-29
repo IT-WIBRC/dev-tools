@@ -3,7 +3,7 @@ import {
   handleNonInteractiveSettingsUpdate,
   handleNonInteractiveTemplateUpdate,
 } from "../../../../src/commands/config/logic.js";
-import { VALID_CACHE_STRATEGIES } from "../../../../src/utils/configs/schema.js";
+import { VALID_CACHE_STRATEGIES } from "../../../../src/utils/schema/schema.js";
 import deepmerge from "deepmerge";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 import { mocktFn } from "../../../../vitest.setup.js";
@@ -20,11 +20,11 @@ const {
   mockValidateConfigValue: vi.fn(),
 }));
 
-vi.mock("#utils/configs/loader.js", () => ({
+vi.mock("#core/config/loader.js", () => ({
   readAndMergeConfigs: mockReadAndMergeConfigs,
 }));
 
-vi.mock("#utils/configs/writer.js", () => ({
+vi.mock("#core/config/writer.js", () => ({
   saveGlobalConfig: mockSaveGlobalConfig,
   saveLocalConfig: mockSaveLocalConfig,
 }));

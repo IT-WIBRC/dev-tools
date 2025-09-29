@@ -1,11 +1,5 @@
 import { describe, it, expect } from "vitest";
 import {
-  PackageManagers,
-  ProgrammingLanguage,
-  TextLanguages,
-  VALID_CACHE_STRATEGIES,
-} from "../../../integrations/common.js";
-import {
   validateCacheStrategy,
   validateLanguage,
   validatePackageManager,
@@ -13,6 +7,12 @@ import {
 } from "../../../../src/utils/validations/config.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 import { mocktFn } from "../../../../vitest.setup.js";
+import {
+  PackageManagers,
+  ProgrammingLanguage,
+  TextLanguages,
+  VALID_CACHE_STRATEGIES,
+} from "../../../../src/utils/schema/schema.js";
 
 describe("validatePackageManager", () => {
   it("should not throw an error for a valid package manager", () => {

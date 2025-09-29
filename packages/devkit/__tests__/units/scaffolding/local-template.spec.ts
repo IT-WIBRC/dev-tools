@@ -10,11 +10,11 @@ const { mockCopyJavascriptTemplate, mockUpdateJavascriptProjectName } =
     mockUpdateJavascriptProjectName: vi.fn(),
   }));
 
-vi.mock("#utils/template-utils.js", () => ({
+vi.mock("#core/template/template-utils.js", () => ({
   copyJavascriptTemplate: mockCopyJavascriptTemplate,
 }));
 
-vi.mock("#utils/update-project-name.js", () => ({
+vi.mock("#core/template/update-project-name.js", () => ({
   updateJavascriptProjectName: mockUpdateJavascriptProjectName,
 }));
 

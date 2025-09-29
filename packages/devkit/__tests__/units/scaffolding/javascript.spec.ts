@@ -19,7 +19,7 @@ vi.mock("#scaffolding/cli-runner.js", () => ({
   runCliCommand: mockRunCliCommand,
 }));
 
-vi.mock("#utils/cache/index.js", () => ({
+vi.mock("#core/cache/index.js", () => ({
   getTemplateFromCache: mockGetTemplateFromCache,
 }));
 

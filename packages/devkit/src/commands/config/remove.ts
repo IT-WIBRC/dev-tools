@@ -1,12 +1,12 @@
-import { t } from "#utils/internationalization/i18n.js";
+import { t } from "#utils/i18n/translator.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";
-import { readAndMergeConfigs } from "#utils/configs/loader.js";
-import { saveGlobalConfig, saveLocalConfig } from "#utils/configs/writer.js";
+import { readAndMergeConfigs } from "#core/config/loader.js";
+import { saveGlobalConfig, saveLocalConfig } from "#core/config/writer.js";
 import chalk from "chalk";
 import { type Command } from "commander";
-import { type CliConfig } from "#utils/configs/schema.js";
+import { type CliConfig } from "#utils/schema/schema.js";
 import { type RemoveCommandOptions } from "./types.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
 

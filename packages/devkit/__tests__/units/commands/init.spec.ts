@@ -3,7 +3,7 @@ import { setupInitCommand } from "../../../src/commands/init.js";
 import {
   CONFIG_FILE_NAMES,
   defaultCliConfig,
-} from "../../../src/utils/configs/schema.js";
+} from "../../../src/utils/schema/schema.js";
 import { mockSpinner } from "../../../vitest.setup.js";
 import { ConfigError } from "../../../src/utils/errors/base.js";
 import path from "path";
@@ -48,13 +48,13 @@ vi.mock("process", () => ({
   },
 }));
 
-vi.mock("#utils/system/file.js", () => ({
+vi.mock("#utils/fs/file.js", () => ({
   default: {
     pathExists: mockFs.pathExists,
   },
 }));
 
-vi.mock("#utils/files/package-manager.js", () => ({
+vi.mock("#utils/package-manager/index.js", () => ({
   getPackageManager: mockGetPackageManager,
 }));
 
@@ -64,20 +64,20 @@ vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
 
-vi.mock("#utils/configs/writer.js", () => ({
+vi.mock("#core/config/writer.js", () => ({
   saveConfig: mockSaveConfig,
 }));
 
-vi.mock("#utils/files/find-up.js", () => ({
+vi.mock("#utils/fs/find-up.js", () => ({
   findUp: mockFindUp,
 }));
 
-vi.mock("#utils/files/finder.js", () => ({
+vi.mock("#utils/fs/finder.js", () => ({
   findMonorepoRoot: mockFindMonorepoRoot,
   findProjectRoot: mockFindProjectRoot,
 }));
 
-vi.mock("#utils/configs/search.js", () => ({
+vi.mock("#core/config/search.js", () => ({
   findGlobalConfigFile: mockFindGlobalConfigFile,
 }));
 

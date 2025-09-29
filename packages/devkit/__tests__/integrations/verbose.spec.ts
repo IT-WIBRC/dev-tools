@@ -7,10 +7,9 @@ import {
   afterEach,
   beforeAll,
 } from "vitest";
-import { execa } from "execa";
 import path from "path";
 import os from "os";
-import { CLI_PATH, fs } from "./common.js";
+import { CLI_PATH, fs, execute } from "./common.js";
 
 let tempDir: string;
 let originalCwd: string;
@@ -18,7 +17,7 @@ let globalConfigDir: string;
 
 describe("dk --verbose", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
     globalConfigDir = path.join(os.tmpdir(), "devkit-global-config-dir");
   });
 
@@ -37,7 +36,7 @@ describe("dk --verbose", () => {
   });
 
   const runTestCommand = (args: string[]) => {
-    return execa("bun", [CLI_PATH, "list", ...args], {
+    return execute("bun", [CLI_PATH, "list", ...args], {
       all: true,
       env: { HOME: globalConfigDir },
     });

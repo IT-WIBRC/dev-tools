@@ -20,7 +20,8 @@
       "#locales/*": ["./locales/*"],
       "#scaffolding/*": ["./src/scaffolding/*"],
       "#utils/*": ["./src/utils/*"],
-      "#commands/*": ["./src/commands/*"]
+      "#commands/*": ["./src/commands/*"],
+      "#core/*": ["./src/core/*"]
     }
   },
   "include": ["src/**/*"],

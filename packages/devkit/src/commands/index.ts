@@ -1,16 +1,17 @@
 import { Command } from "commander";
-import { readAndMergeConfigs } from "#utils/configs/loader.js";
-import { loadTranslations, t } from "#utils/internationalization/i18n.js";
+import { readAndMergeConfigs } from "#core/config/loader.js";
+import { t } from "#utils/i18n/translator.js";
 import ora from "ora";
 import chalk from "chalk";
-import { getProjectVersion } from "#utils/project.js";
+import { getProjectVersion } from "#core/info/project.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { setupNewCommand } from "#commands/new.js";
 import { setupConfigCommand } from "#commands/config/index.js";
 import { setupListCommand } from "#commands/list.js";
 import { setupInitCommand } from "#commands/init.js";
-import { defaultCliConfig, SUPPORTED_LANGUAGES } from "#utils/configs/schema";
+import { defaultCliConfig, SUPPORTED_LANGUAGES } from "#utils/schema/schema.js";
 import { setupInfoCommand } from "#commands/info.js";
+import { loadTranslations } from "#utils/i18n/translation-loader.js";
 
 export async function setupAndParse() {
   const program = new Command();
@@ -25,7 +26,6 @@ export async function setupAndParse() {
   );
 
   try {
-    const VERSION = await getProjectVersion();
     const { config, source } = await readAndMergeConfigs({
       useFallback: true,
     });
@@ -52,7 +52,11 @@ export async function setupAndParse() {
       .name("devkit")
       .alias("dk")
       .description(t("program.description"))
-      .version(VERSION, "-V, --version", t("version.description"))
+      .version(
+        await getProjectVersion(),
+        "-V, --version",
+        t("version.description"),
+      )
       .helpOption("-h, --help", t("help.description"));
 
     setupInitCommand({ program, config });

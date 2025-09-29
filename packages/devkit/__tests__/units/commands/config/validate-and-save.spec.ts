@@ -4,7 +4,7 @@ import {
   ProgrammingLanguage,
   VALID_CACHE_STRATEGIES,
   type CliConfig,
-} from "../../../integrations/common.js";
+} from "../../../../src/utils/schema/schema.js";
 import { validateAndSaveTemplate } from "../../../../src/commands/config/validate-and-save.js";
 import { mockSpinner, mocktFn } from "../../../../vitest.setup.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
@@ -28,7 +28,7 @@ const {
   mockValidateProgrammingLanguage: vi.fn(),
 }));
 
-vi.mock("#utils/configs/writer.js", () => ({
+vi.mock("#core/config/writer.js", () => ({
   saveCliConfig: mockSaveCliConfig,
 }));
 

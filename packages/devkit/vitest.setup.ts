@@ -82,19 +82,31 @@ vi.mock("commander", () => ({ Command: vi.fn(() => mockProgram) }));
 vi.mock("ora", () => ({ default: () => mockSpinner }));
 vi.mock("chalk", () => ({ default: mockChalk }));
 
-vi.mock("#utils/internationalization/i18n.js", () => ({
+vi.mock("#utils/i18n/translator.js", () => ({
   loadTranslations: mockLoadTranslations,
   t: mocktFn,
 }));
 
-const { mockExeca, mockExecaCommand } = vi.hoisted(() => ({
+const { mockExeca, mockExecuteCommand } = vi.hoisted(() => ({
   mockExeca: vi.fn(),
-  mockExecaCommand: vi.fn(),
+  mockExecuteCommand: vi.fn(),
 }));
 
-vi.mock("execa", () => ({
-  execa: mockExeca,
-  execaCommand: mockExecaCommand,
+vi.mock("#utils/shell.js", () => ({
+  execute: mockExeca,
+  executeCommand: mockExecuteCommand,
+}));
+
+const { mockLogger } = vi.hoisted(() => ({
+  mockLogger: {
+    error: vi.fn(),
+    info: vi.fn(),
+    success: vi.fn(),
+  },
+}));
+
+vi.mock("#utils/logger.js", () => ({
+  logger: mockLogger,
 }));
 
 export {
@@ -104,5 +116,6 @@ export {
   mockLoadTranslations,
   mocktFn,
   mockExeca,
-  mockExecaCommand,
+  mockExecuteCommand,
+  mockLogger,
 };

@@ -1,14 +1,14 @@
-import fs from "../system/file.js";
-import { execa } from "execa";
+import fs from "../fs/file.js";
+import { execute } from "#utils/shell.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import { t } from "#utils/internationalization/i18n.js";
-import { normalizePath } from "#utils/path/normalizer.js";
+import { t } from "#utils/i18n/translator.js";
+import { normalizePath } from "#utils/fs/path-normalizer.js";
 import type { Ora } from "ora";
 
 const checkGitHubRepoExists = async (url: string): Promise<boolean> => {
   try {
-    const { exitCode } = await execa("git", ["ls-remote", url, "HEAD"], {
+    const { exitCode } = await execute("git", ["ls-remote", url, "HEAD"], {
       reject: false,
     });
     return exitCode === 0;

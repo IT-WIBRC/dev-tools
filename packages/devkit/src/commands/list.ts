@@ -1,11 +1,11 @@
-import { t } from "#utils/internationalization/i18n.js";
+import { t } from "#utils/i18n/translator.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { DevkitError } from "#utils/errors/base.js";
 import ora from "ora";
 import chalk from "chalk";
-import { readAndMergeConfigs } from "#utils/configs/loader.js";
-import { printTemplates } from "#utils/templates/printer.js";
-import type { SetupCommandOptions } from "#utils/configs/schema.js";
+import { readAndMergeConfigs } from "#core/config/loader.js";
+import { printTemplates } from "#core/template/printer.js";
+import type { SetupCommandOptions } from "#utils/schema/schema.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
 
 type ListCommandOptions = {

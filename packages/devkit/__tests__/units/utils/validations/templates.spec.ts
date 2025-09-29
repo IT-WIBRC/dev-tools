@@ -4,30 +4,24 @@ import {
   validateDescription,
   validateLocation,
 } from "../../../../src/utils/validations/templates.js";
-import { mockSpinner, mocktFn } from "../../../../vitest.setup.js";
+import { mockSpinner, mocktFn, mockExeca } from "../../../../vitest.setup.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 
-const { mockExeca, mockFs, mockNormalizePath, mockHandleErrorAndExit } =
-  vi.hoisted(() => {
-    return {
-      mockExeca: vi.fn(),
-      mockFs: {
-        existsSync: vi.fn(),
-      },
-      mockNormalizePath: vi.fn(),
-      mockHandleErrorAndExit: vi.fn(),
-    };
-  });
+const { mockFs, mockNormalizePath, mockHandleErrorAndExit } = vi.hoisted(() => {
+  return {
+    mockFs: {
+      existsSync: vi.fn(),
+    },
+    mockNormalizePath: vi.fn(),
+    mockHandleErrorAndExit: vi.fn(),
+  };
+});
 
-vi.mock("execa", () => ({
-  execa: mockExeca,
-}));
-
-vi.mock("../../../../src/utils/system/file.js", () => ({
+vi.mock("../../../../src/utils/fs/file.js", () => ({
   default: mockFs,
 }));
 
-vi.mock("#utils/path/normalizer.js", () => ({
+vi.mock("#utils/fs/path-normalizer.js", () => ({
   normalizePath: mockNormalizePath,
 }));
 
