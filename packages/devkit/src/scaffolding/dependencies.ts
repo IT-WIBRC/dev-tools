@@ -1,9 +1,9 @@
 import path from "path";
-import { execa } from "execa";
+import { execute } from "#utils/shell.js";
 import type { Ora } from "ora";
 import { DevkitError } from "#utils/errors/base.js";
-import { t } from "#utils/internationalization/i18n.js";
-import type { SupportedJavascriptPackageManager } from "#utils/configs/schema.js";
+import { t } from "#utils/i18n/translator.js";
+import type { SupportedJavascriptPackageManager } from "#utils/schema/schema.js";
 
 interface InstallDependenciesOptions {
   projectName: string;
@@ -16,7 +16,7 @@ export async function installDependencies(options: InstallDependenciesOptions) {
   const projectPath = path.join(process.cwd(), projectName);
 
   try {
-    await execa(packageManager, ["install"], {
+    await execute(packageManager, ["install"], {
       cwd: projectPath,
       stdio: "inherit",
     });

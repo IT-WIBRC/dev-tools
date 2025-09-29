@@ -2,7 +2,7 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import { setupNewCommand } from "../../../src/commands/new.js";
 import { DevkitError } from "../../../src/utils/errors/base.js";
 import { mockSpinner } from "../../../vitest.setup.js";
-import type { CliConfig } from "../../../src/utils/configs/schema.js";
+import type { CliConfig } from "../../../src/utils/schema/schema.js";
 
 const { mockHandleErrorAndExit, mockScaffoldProject } = vi.hoisted(() => ({
   mockHandleErrorAndExit: vi.fn(),

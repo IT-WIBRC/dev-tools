@@ -8,10 +8,9 @@ import {
   beforeAll,
   afterAll,
 } from "vitest";
-import { execa } from "execa";
 import path from "path";
 import os from "os";
-import { CLI_PATH, fs, CONFIG_FILE_NAMES } from "./common.js";
+import { CLI_PATH, fs, CONFIG_FILE_NAMES, execute } from "./common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
 const GLOBAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[0];
@@ -39,7 +38,7 @@ let globalConfigPath: string;
 const MOCKED_SHELL_PATH = "/bin/bash";
 describe("dk info", () => {
   beforeAll(async () => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
     await fs.ensureDir(MOCKED_GLOBAL_HOME_DIR);
     globalConfigPath = path.join(
       MOCKED_GLOBAL_HOME_DIR,
@@ -68,7 +67,7 @@ describe("dk info", () => {
   });
 
   it("should display system info and report no config files found (default case)", async () => {
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "info"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "info"], {
       all: true,
       env: {
         HOME: MOCKED_GLOBAL_HOME_DIR,
@@ -107,7 +106,7 @@ describe("dk info", () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
     await fs.writeJson(localConfigPath, {});
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "info"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "info"], {
       all: true,
       env: { HOME: MOCKED_GLOBAL_HOME_DIR },
     });
@@ -132,7 +131,7 @@ describe("dk info", () => {
     const localConfigPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
     await fs.writeJson(localConfigPath, {});
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "in"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "in"], {
       all: true,
       env: { HOME: MOCKED_GLOBAL_HOME_DIR },
     });

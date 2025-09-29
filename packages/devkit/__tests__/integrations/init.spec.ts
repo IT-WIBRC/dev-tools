@@ -7,7 +7,6 @@ import {
   afterEach,
   beforeAll,
 } from "vitest";
-import { execa } from "execa";
 import path from "path";
 import os from "os";
 import {
@@ -17,6 +16,7 @@ import {
   defaultCliConfig as schemaDefaultCliConfig,
   type CliConfig,
   SCHEMA_PATH,
+  execute,
 } from "./common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
@@ -30,7 +30,7 @@ let originalCwd: string;
 
 describe("dk init", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   beforeEach(async () => {
@@ -51,7 +51,7 @@ describe("dk init", () => {
 
   it("should create a local config file in a bare directory", async () => {
     process.env.HOME = tempDir;
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
       all: true,
       env: { HOME: tempDir },
     });
@@ -76,7 +76,7 @@ describe("dk init", () => {
       await fs.remove(globalConfigPath);
     }
 
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "init", "--global"],
       { all: true },
@@ -93,7 +93,7 @@ describe("dk init", () => {
 
 describe("dk init with existing file", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   const basicConfig: CliConfig = {
@@ -138,7 +138,7 @@ describe("dk init with existing file", () => {
       });
     }
 
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "init", "--global"],
       {
@@ -166,7 +166,7 @@ describe("dk init with existing file", () => {
     const initialContent = await fs.readJson(rootConfigPath);
     expect(initialContent).toEqual(basicConfig);
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
       all: true,
       input: "\u001b[B\n",
     });
@@ -183,7 +183,7 @@ describe("dk init with existing file", () => {
     const initialContent = await fs.readJson(rootConfigPath);
     expect(initialContent).toEqual(basicConfig);
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
       all: true,
       input: "\n",
     });
@@ -205,7 +205,7 @@ describe("dk init with existing file", () => {
       const subDirectory = path.join(tempDir, "src", "utils");
       await fs.ensureDir(subDirectory);
 
-      const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+      const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
         all: true,
         input: "\n",
       });
@@ -224,7 +224,7 @@ describe("dk init with existing file", () => {
 
 describe("dk init in a monorepo", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   beforeEach(async () => {
@@ -255,7 +255,7 @@ describe("dk init in a monorepo", () => {
   });
 
   it("should create a config in the monorepo root", async () => {
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
       all: true,
       cwd: tempDir,
     });
@@ -279,7 +279,7 @@ describe("dk init in a monorepo", () => {
     const initialContent = await fs.readJson(rootConfigPath);
     expect(initialContent).toEqual(rootConfigContent);
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
       all: true,
       cwd: tempDir,
       input: "\n",
@@ -302,7 +302,7 @@ describe("dk init in a monorepo", () => {
     const initialContent = await fs.readJson(rootConfigPath);
     expect(initialContent).toEqual(rootConfigContent);
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
       all: true,
       cwd: tempDir,
       input: "\u001b[B\n",
@@ -318,7 +318,7 @@ describe("dk init in a monorepo", () => {
   describe("In a package", () => {
     it("should ask to override at the root even if inside a package and if `yes`, override", async () => {
       const nestedPackagePath = path.join(tempDir, "packages", "my-app");
-      const { all, exitCode } = await execa("bun", [CLI_PATH, "init"], {
+      const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
         all: true,
         cwd: nestedPackagePath,
       });

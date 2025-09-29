@@ -7,7 +7,6 @@ import {
   afterEach,
   beforeAll,
 } from "vitest";
-import { execa } from "execa";
 import path from "path";
 import os from "os";
 import {
@@ -16,6 +15,7 @@ import {
   CONFIG_FILE_NAMES,
   type CliConfig,
   defaultCliConfig,
+  execute,
 } from "../common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
@@ -53,7 +53,7 @@ const createGlobalTemplateFiles = async () => {
 
 describe("dk config update", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   beforeEach(async () => {
@@ -130,7 +130,7 @@ describe("dk config update", () => {
 
   it("should update a single template in the local config", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -167,7 +167,7 @@ describe("dk config update", () => {
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
       globalConfig,
     );
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -202,7 +202,7 @@ describe("dk config update", () => {
 
   it("should update multiple templates in the local config", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -235,7 +235,7 @@ describe("dk config update", () => {
 
   it("should handle partial updates with some failures", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -268,7 +268,7 @@ describe("dk config update", () => {
 
   it("should fail gracefully if a template is not found", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -290,7 +290,7 @@ describe("dk config update", () => {
 
   it("should fail gracefully if a language is not found", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -311,7 +311,7 @@ describe("dk config update", () => {
   });
 
   it("should fail if no template name is provided", async () => {
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "update", "javascript"],
       { all: true, reject: false },

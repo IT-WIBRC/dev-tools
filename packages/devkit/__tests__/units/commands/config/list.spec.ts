@@ -24,11 +24,11 @@ vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
 
-vi.mock("#utils/configs/loader.js", () => ({
+vi.mock("#core/config/loader.js", () => ({
   readAndMergeConfigs: mockReadAndMergeConfigs,
 }));
 
-vi.mock("#utils/templates/printer.js", () => ({
+vi.mock("#core/template/printer.js", () => ({
   printSettings: mockPrintSettings,
   printTemplates: mockPrintTemplates,
 }));

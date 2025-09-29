@@ -72,7 +72,7 @@ const globalConfig: CliConfig = {
 
 describe("dk list", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   beforeEach(async () => {

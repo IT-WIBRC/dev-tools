@@ -1,9 +1,9 @@
 import chalk from "chalk";
 import type { Ora } from "ora";
-import { saveCliConfig } from "#utils/configs/writer.js";
-import { t } from "#utils/internationalization/i18n.js";
+import { saveCliConfig } from "#core/config/writer.js";
+import { t } from "#utils/i18n/translator.js";
 import { DevkitError } from "#utils/errors/base.js";
-import type { CliConfig, TemplateConfig } from "#utils/configs/schema.js";
+import type { CliConfig, TemplateConfig } from "#utils/schema/schema.js";
 import {
   validateLocation,
   validateAlias,

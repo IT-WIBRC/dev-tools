@@ -2,7 +2,7 @@ import {
   type CacheStrategy,
   type SupportedPackageManager,
   type SupportedProgrammingLanguageValues,
-} from "#utils/configs/schema.js";
+} from "#utils/schema/schema.js";
 
 export type ConfigCommandOptions = {
   global?: boolean;

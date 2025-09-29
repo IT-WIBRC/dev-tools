@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setupListCommand } from "../../../src/commands/list";
 import { DevkitError } from "../../../src/utils/errors/base";
-import type { CliConfig } from "../../../src/utils/configs/schema";
+import type { CliConfig } from "../../../src/utils/schema/schema";
 import { mockChalk, mockSpinner } from "../../../vitest.setup";
 
 const sampleLocalConfig: CliConfig = {
@@ -61,11 +61,11 @@ const {
   };
 });
 
-vi.mock("#utils/configs/loader.js", () => ({
+vi.mock("#core/config/loader.js", () => ({
   readAndMergeConfigs: mockReadAndMergeConfigs,
 }));
 
-vi.mock("#utils/templates/printer.js", () => ({
+vi.mock("#core/template/printer.js", () => ({
   printTemplates: mockPrintTemplates,
 }));
 

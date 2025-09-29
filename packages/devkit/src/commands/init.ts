@@ -3,21 +3,21 @@ import {
   defaultCliConfig,
   type CliConfig,
   type SetupCommandOptions,
-} from "#utils/configs/schema.js";
-import { t } from "#utils/internationalization/i18n.js";
+} from "#utils/schema/schema.js";
+import { t } from "#utils/i18n/translator.js";
 import { ConfigError } from "#utils/errors/base.js";
-import fs from "#utils/system/file.js";
+import fs from "#utils/fs/file.js";
 import path from "path";
 import os from "os";
 import ora, { type Ora } from "ora";
 import chalk from "chalk";
 import { select } from "@inquirer/prompts";
-import { findGlobalConfigFile } from "#utils/configs/search.js";
-import { findMonorepoRoot, findProjectRoot } from "#utils/files/finder.js";
-import { findUp } from "#utils/files/find-up.js";
-import { saveConfig } from "#utils/configs/writer.js";
+import { findGlobalConfigFile } from "#core/config/search.js";
+import { findMonorepoRoot, findProjectRoot } from "#utils/fs/finder.js";
+import { findUp } from "#utils/fs/find-up.js";
+import { saveConfig } from "#core/config/writer.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import { getPackageManager } from "#utils/files/package-manager.js";
+import { getPackageManager } from "#utils/package-manager/index.js";
 
 async function promptForStandardOverwrite(filePath: string): Promise<boolean> {
   const response = await select({

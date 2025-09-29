@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mockProgram, mockSpinner } from "../../../vitest.setup.js";
 import { setupAndParse } from "../../../src/commands/index.js";
-import type { CliConfig } from "../../../src/utils/configs/schema.js";
+import type { CliConfig } from "../../../src/utils/schema/schema.js";
 
 const {
   mockSetupInitCommand,
@@ -9,7 +9,6 @@ const {
   mockSetupConfigCommand,
   mockSetupListCommand,
   mockHandleErrorAndExit,
-  mockGetProjectVersion,
   mockReadAndMergeConfigs,
   mockSetupInfoCommand,
 } = vi.hoisted(() => ({
@@ -18,7 +17,6 @@ const {
   mockSetupConfigCommand: vi.fn(),
   mockSetupListCommand: vi.fn(),
   mockHandleErrorAndExit: vi.fn(),
-  mockGetProjectVersion: vi.fn(),
   mockReadAndMergeConfigs: vi.fn(),
   mockSetupInfoCommand: vi.fn(),
 }));
@@ -47,15 +45,11 @@ vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
 
-vi.mock("#utils/project.js", () => ({
+vi.mock("#core/info/project.js", () => ({
   getProjectVersion: vi.fn().mockResolvedValue("1.0.0"),
 }));
 
-vi.mock("#utils/project.js", () => ({
-  getProjectVersion: mockGetProjectVersion,
-}));
-
-vi.mock("#utils/configs/loader.js", () => ({
+vi.mock("#core/config/loader.js", () => ({
   readAndMergeConfigs: mockReadAndMergeConfigs,
 }));
 

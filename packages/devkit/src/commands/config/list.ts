@@ -1,10 +1,10 @@
-import { t } from "#utils/internationalization/i18n.js";
+import { t } from "#utils/i18n/translator.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { DevkitError } from "#utils/errors/base.js";
 import ora from "ora";
 import chalk from "chalk";
-import { readAndMergeConfigs } from "#utils/configs/loader.js";
-import { printSettings, printTemplates } from "#utils/templates/printer.js";
+import { readAndMergeConfigs } from "#core/config/loader.js";
+import { printSettings, printTemplates } from "#core/template/printer.js";
 import { type Command } from "commander";
 
 type ListCommandOptions = {

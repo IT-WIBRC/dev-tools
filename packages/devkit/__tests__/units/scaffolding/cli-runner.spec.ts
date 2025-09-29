@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { runCliCommand } from "../../../src/scaffolding/cli-runner.js";
 import { DevkitError } from "../../../src/utils/errors/base.js";
-import { mockExecaCommand, mocktFn } from "../../../vitest.setup.js";
+import { mockExecuteCommand, mocktFn } from "../../../vitest.setup.js";
 
 describe("runCliCommand", () => {
   const options = {
@@ -28,7 +28,7 @@ describe("runCliCommand", () => {
     const [exec, ...args] = finalCommand.split(" ");
     const expectedArgs = [...args, options.projectName];
 
-    expect(mockExecaCommand).toHaveBeenCalledWith(
+    expect(mockExecuteCommand).toHaveBeenCalledWith(
       `${exec} ${expectedArgs.join(" ")}`,
       {
         stdio: "inherit",
@@ -49,7 +49,7 @@ describe("runCliCommand", () => {
   it("should throw a DevkitError if the command execution fails", async () => {
     const command = "invalid-command-that-will-fail";
     const error = new Error("execa failed");
-    mockExecaCommand.mockRejectedValueOnce(error);
+    mockExecuteCommand.mockRejectedValueOnce(error);
 
     await expect(runCliCommand({ ...options, command })).rejects.toThrow(
       DevkitError,

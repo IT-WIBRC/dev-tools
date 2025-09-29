@@ -1,9 +1,9 @@
-import { t } from "#utils/internationalization/i18n.js";
+import { t } from "#utils/i18n/translator.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";
 import chalk from "chalk";
-import type { SetupCommandOptions } from "#utils/configs/schema.js";
-import { collectSystemInfo, type SystemInfo } from "#utils/system/info.js";
+import type { SetupCommandOptions } from "#utils/schema/schema.js";
+import { collectSystemInfo, type SystemInfo } from "#core/info/info.js";
 
 const printInfo = (info: SystemInfo): void => {
   const sections: {

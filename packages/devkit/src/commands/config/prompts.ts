@@ -1,5 +1,5 @@
-import { type CliConfig } from "#utils/configs/schema.js";
-import { t } from "#utils/internationalization/i18n.js";
+import { type CliConfig } from "#utils/schema/schema.js";
+import { t } from "#utils/i18n/translator.js";
 import {
   handleNonInteractiveSettingsUpdate,
   handleNonInteractiveTemplateUpdate,
@@ -9,7 +9,7 @@ import {
   promptForCacheStrategy,
   promptForLanguage,
   promptForPackageManager,
-} from "#utils/prompts.js";
+} from "#core/prompts/prompts.js";
 import chalk from "chalk";
 
 const SETTINGS_CHOICES = [
@@ -28,7 +28,7 @@ const SETTINGS_CHOICES = [
 ];
 
 async function handleInteractiveSettings(
-  config: CliConfig,
+  _: CliConfig,
   isGlobal: boolean,
 ): Promise<void> {
   const settingKey = await select({

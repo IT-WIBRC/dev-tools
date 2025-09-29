@@ -2,7 +2,7 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import {
   PackageManagers,
   VALID_CACHE_STRATEGIES,
-} from "../../../integrations/common.js";
+} from "../../../../src/utils/schema/schema.js";
 import { validateConfigValue } from "../../../../src/utils/validations/validateConfigValue.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 import { mocktFn } from "../../../../vitest.setup.js";

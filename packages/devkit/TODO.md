@@ -62,14 +62,13 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [ ] Add wildcard support for template name in the `dk config update` and `dk config remove` commands.
 - [ ] Use the interactive approach for the `dk config add` command (code already there)
 - [ ] **Dynamic Error Messages**: Update error handling to dynamically generate lists of valid options (e.g., package managers, cache strategies) in error messages.
-- [ ] **Centralize Utilities**: Move `chalk` and `ora` to a single, centralized file for better code organization.
 - [ ] **Skip Confirmation**: Add a global `-y` or `--yes` option to skip confirmation prompts in commands like `dk init`.
 - [ ] **Color Configuration**: Add a feature to allow users to configure the colors for templates.
-- [ ] **Language Abstraction**: Investigate how to infer a template's language from its contents, removing the need for explicit language sections in the configuration.
 - [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
 - [ ] **Testing**: Stabilize the integration test of the `new` command
+- [ ] **Centralize Utilities**: Move `chalk` and `ora` to a single, centralized file for better code organization.
 - [x] Enable GitHub discussions
-- [ ] Refactor and restructure the utilities
+- [x] Refactor and restructure the utilities
 - [ ] Better json structure for languages
 
 #### Multi-Language Support

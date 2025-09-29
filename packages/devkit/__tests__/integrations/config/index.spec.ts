@@ -7,7 +7,6 @@ import {
   afterEach,
   beforeAll,
 } from "vitest";
-import { execa } from "execa";
 import path from "path";
 import os from "os";
 import {
@@ -16,6 +15,7 @@ import {
   CONFIG_FILE_NAMES,
   type CliConfig,
   defaultCliConfig,
+  execute,
 } from "../common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
@@ -56,7 +56,7 @@ const createGlobalConfig = async () => {
 
 describe("dk config", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   beforeEach(async () => {
@@ -79,7 +79,7 @@ describe("dk config", () => {
   });
 
   it("should warn the user when no command or option is provided", async () => {
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "config"], {
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "config"], {
       all: true,
       reject: false,
     });
@@ -92,7 +92,7 @@ describe("dk config", () => {
 
   it("should get a single setting from the local config", async () => {
     await createLocalConfig();
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "language"],
       { all: true },
@@ -105,7 +105,7 @@ describe("dk config", () => {
 
   it("should get multiple settings from the local config", async () => {
     await createLocalConfig();
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "language", "cacheStrategy"],
       { all: true },
@@ -120,7 +120,7 @@ describe("dk config", () => {
   it("should get a setting from the global config with --global flag", async () => {
     await createGlobalConfig();
     await createLocalConfig();
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "language", "--global"],
       { all: true, env: { HOME: globalConfigDir } },
@@ -133,7 +133,7 @@ describe("dk config", () => {
 
   it("should set a single setting in the local config", async () => {
     await createLocalConfig();
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "--set", "language", "en"],
       { all: true },
@@ -150,7 +150,7 @@ describe("dk config", () => {
 
   it("should set a single setting in the global config with --global flag", async () => {
     await createGlobalConfig();
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "--global", "--set", "language", "fr"],
       { all: true, env: { HOME: globalConfigDir } },
@@ -167,7 +167,7 @@ describe("dk config", () => {
 
   it("should set multiple settings in the local config", async () => {
     await createLocalConfig();
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -193,7 +193,7 @@ describe("dk config", () => {
 
   it("should fail if --set has an odd number of arguments", async () => {
     await createLocalConfig();
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "--set", "language", "en", "invalid"],
       { all: true, reject: false },
@@ -207,7 +207,7 @@ describe("dk config", () => {
 
   it("should fail gracefully if a key to get is not found", async () => {
     await createLocalConfig();
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "non_existent_key"],
       { all: true },
@@ -220,7 +220,7 @@ describe("dk config", () => {
   });
 
   it("should throw an error if no config file is found for setting", async () => {
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "conf", "--set", "language", "en"],
       { all: true, reject: false },

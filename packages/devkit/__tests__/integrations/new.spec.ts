@@ -7,7 +7,6 @@ import {
   beforeAll,
   vi,
 } from "vitest";
-import { execa } from "execa";
 import path from "path";
 import os from "os";
 import {
@@ -16,6 +15,7 @@ import {
   CONFIG_FILE_NAMES,
   defaultCliConfig,
   type CliConfig,
+  execute,
 } from "./common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
@@ -68,7 +68,7 @@ const createConfigWithUserTemplates = (templateLocation: string): CliConfig =>
 
 describe("dk new", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   afterEach(async () => {
@@ -136,7 +136,7 @@ describe("dk new", () => {
     });
 
     it("should successfully scaffold a new project from a different directory", async () => {
-      const { exitCode } = await execa(
+      const { exitCode } = await execute(
         "bun",
         [CLI_PATH, "new", "javascript", "my-vue-app", "-t", "vuejs"],
         { cwd: mockProjectDir, all: true },
@@ -154,7 +154,7 @@ describe("dk new", () => {
         ),
       ).toBe(true);
     });
-  });
+  }, 10000);
 
   describe("dk new (Monorepo Usage)", () => {
     let tempDir: string;
@@ -211,7 +211,7 @@ describe("dk new", () => {
     });
 
     it("should successfully scaffold a new project within the monorepo", async () => {
-      const { exitCode } = await execa(
+      const { exitCode } = await execute(
         "bun",
         [CLI_PATH, "new", "javascript", "my-vue-app", "-t", "vuejs"],
         { all: true, cwd: tempDir },

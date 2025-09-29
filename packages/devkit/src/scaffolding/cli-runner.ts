@@ -1,8 +1,8 @@
-import { execaCommand } from "execa";
+import { executeCommand } from "#utils/shell.js";
 import type { Ora } from "ora";
 import { DevkitError } from "#utils/errors/base.js";
-import { t } from "#utils/internationalization/i18n.js";
-import type { SupportedJavascriptPackageManager } from "#utils/configs/schema.js";
+import { t } from "#utils/i18n/translator.js";
+import type { SupportedJavascriptPackageManager } from "#utils/schema/schema.js";
 
 interface RunCliCommandOptions {
   command: string;
@@ -21,7 +21,7 @@ export async function runCliCommand(options: RunCliCommandOptions) {
         t("error.invalid.command", { command: finalCommand }),
       );
     }
-    await execaCommand(`${finalCommand} ${projectName}`, {
+    await executeCommand(`${finalCommand} ${projectName}`, {
       stdio: "inherit",
     });
   } catch (error: any) {

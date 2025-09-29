@@ -1,5 +1,5 @@
-import { t } from "#utils/internationalization/i18n.js";
-import { readAndMergeConfigs } from "#utils/configs/loader.js";
+import { t } from "#utils/i18n/translator.js";
+import { readAndMergeConfigs } from "#core/config/loader.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { handleNonInteractiveSettingsUpdate } from "./logic.js";
 import { type Command } from "commander";

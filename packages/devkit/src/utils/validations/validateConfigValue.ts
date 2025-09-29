@@ -5,7 +5,7 @@ import {
   validateLanguage,
 } from "./config.js";
 import { DevkitError } from "#utils/errors/base.js";
-import { t } from "#utils/internationalization/i18n.js";
+import { t } from "#utils/i18n/translator.js";
 
 export function validateConfigValue(key: string, value: string): void {
   const resolvedKey = configAliases[key];

@@ -7,7 +7,6 @@ import {
   afterEach,
   beforeAll,
 } from "vitest";
-import { execa } from "execa";
 import path from "path";
 import os from "os";
 import {
@@ -16,6 +15,7 @@ import {
   CONFIG_FILE_NAMES,
   defaultCliConfig,
   type CliConfig,
+  execute,
 } from "../common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
@@ -72,7 +72,7 @@ const globalConfig: CliConfig = {
 
 describe("dk config list", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   beforeEach(async () => {
@@ -100,10 +100,14 @@ describe("dk config list", () => {
       globalConfig,
     );
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "config", "list"], {
-      all: true,
-      env: { HOME: globalConfigDir },
-    });
+    const { all, exitCode } = await execute(
+      "bun",
+      [CLI_PATH, "config", "list"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
 
     expect(exitCode).toBe(0);
     expect(all).toContain("Using local configuration.");
@@ -118,10 +122,14 @@ describe("dk config list", () => {
       globalConfig,
     );
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "config", "list"], {
-      all: true,
-      env: { HOME: globalConfigDir },
-    });
+    const { all, exitCode } = await execute(
+      "bun",
+      [CLI_PATH, "config", "list"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
 
     expect(exitCode).toBe(0);
     expect(all).toContain(
@@ -137,7 +145,7 @@ describe("dk config list", () => {
       globalConfig,
     );
 
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "list", "--all"],
       {
@@ -160,7 +168,7 @@ describe("dk config list", () => {
       globalConfig,
     );
 
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "list", "--global"],
       {
@@ -179,7 +187,7 @@ describe("dk config list", () => {
   it("should show an error when --global is used and no global config exists", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
 
-    const { all, exitCode } = await execa(
+    const { all, exitCode } = await execute(
       "bun",
       [CLI_PATH, "config", "list", "--global"],
       {
@@ -198,10 +206,14 @@ describe("dk config list", () => {
   it("should handle a config file with an empty templates section", async () => {
     const emptyConfig = { ...localConfig, templates: {} };
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), emptyConfig);
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "config", "list"], {
-      all: true,
-      env: { HOME: globalConfigDir },
-    });
+    const { all, exitCode } = await execute(
+      "bun",
+      [CLI_PATH, "config", "list"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
 
     expect(exitCode).toBe(0);
     expect(all).toContain("No templates found in the configuration file.");
@@ -218,10 +230,14 @@ describe("dk config list", () => {
       templates: {},
     });
 
-    const { all, exitCode } = await execa("bun", [CLI_PATH, "config", "list"], {
-      all: true,
-      env: { HOME: globalConfigDir },
-    });
+    const { all, exitCode } = await execute(
+      "bun",
+      [CLI_PATH, "config", "list"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
 
     expect(exitCode).toBe(0);
     expect(all).toContain("No templates found in the configuration file.");

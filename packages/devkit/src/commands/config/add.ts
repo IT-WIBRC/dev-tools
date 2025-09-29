@@ -1,8 +1,8 @@
 import ora from "ora";
 import chalk from "chalk";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import { t } from "#utils/internationalization/i18n.js";
-import { readAndMergeConfigs } from "#utils/configs/loader.js";
+import { t } from "#utils/i18n/translator.js";
+import { readAndMergeConfigs } from "#core/config/loader.js";
 import { validateAndSaveTemplate } from "./validate-and-save.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { type Command } from "commander";

@@ -1,9 +1,9 @@
 import path from "path";
 import type { Ora } from "ora";
 import { DevkitError } from "#utils/errors/base.js";
-import { t } from "#utils/internationalization/i18n.js";
-import { copyJavascriptTemplate } from "#utils/template-utils.js";
-import { updateJavascriptProjectName } from "#utils/update-project-name.js";
+import { t } from "#utils/i18n/translator.js";
+import { copyJavascriptTemplate } from "#core/template/template-utils.js";
+import { updateJavascriptProjectName } from "#core/template/update-project-name.js";
 
 interface CopyLocalTemplateOptions {
   sourcePath: string;

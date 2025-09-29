@@ -1,5 +1,5 @@
-import { type SetupCommandOptions } from "#utils/configs/schema.js";
-import { t } from "#utils/internationalization/i18n.js";
+import { type SetupCommandOptions } from "#utils/schema/schema.js";
+import { t } from "#utils/i18n/translator.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import ora from "ora";

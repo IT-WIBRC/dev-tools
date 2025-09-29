@@ -7,7 +7,6 @@ import {
   afterEach,
   beforeAll,
 } from "vitest";
-import { execa } from "execa";
 import path from "path";
 import os from "os";
 import {
@@ -16,6 +15,7 @@ import {
   CONFIG_FILE_NAMES,
   defaultCliConfig,
   type CliConfig,
+  execute,
 } from "../common.js";
 
 const LOCAL_CONFIG_FILE_NAME = CONFIG_FILE_NAMES[1];
@@ -63,7 +63,7 @@ const globalConfig: CliConfig = {
 
 describe("dk config remove", () => {
   beforeAll(() => {
-    vi.unmock("execa");
+    vi.unmock("#utils/shell.js");
   });
 
   beforeEach(async () => {
@@ -86,7 +86,7 @@ describe("dk config remove", () => {
 
   it("should remove a template from the local config", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "remove", "javascript", "vue-basic"],
       { all: true },
@@ -113,7 +113,7 @@ describe("dk config remove", () => {
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
       globalConfig,
     );
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "--global", "rm", "javascript", "react-ts"],
       { all: true, env: { HOME: globalConfigDir } },
@@ -134,7 +134,7 @@ describe("dk config remove", () => {
 
   it("should remove multiple templates at once", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "remove", "javascript", "vue-basic", "react-ts"],
       { all: true },
@@ -155,7 +155,7 @@ describe("dk config remove", () => {
 
   it("should remove templates by alias", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "remove", "javascript", "rt"],
       { all: true },
@@ -176,7 +176,7 @@ describe("dk config remove", () => {
 
   it("should show a warning for templates not found while removing others", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "remove", "javascript", "vue-basic", "not-found"],
       { all: true },
@@ -200,7 +200,7 @@ describe("dk config remove", () => {
 
   it("should show an error if no templates are found to remove", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
@@ -221,7 +221,7 @@ describe("dk config remove", () => {
 
   it("should throw an error if the specified language is not found", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "remove", "rust", "my-template"],
       { all: true, reject: false },
@@ -234,7 +234,7 @@ describe("dk config remove", () => {
   });
 
   it("should throw an error if no config file exists to remove from", async () => {
-    const { exitCode, all } = await execa(
+    const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "remove", "javascript", "vue-basic"],
       { all: true, reject: false },

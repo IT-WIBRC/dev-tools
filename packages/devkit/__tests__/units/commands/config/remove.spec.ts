@@ -23,11 +23,11 @@ vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
 
-vi.mock("#utils/configs/loader.js", () => ({
+vi.mock("#core/config/loader.js", () => ({
   readAndMergeConfigs: mockReadAndMergeConfigs,
 }));
 
-vi.mock("#utils/configs/writer.js", () => ({
+vi.mock("#core/config/writer.js", () => ({
   saveGlobalConfig: mockSaveGlobalConfig,
   saveLocalConfig: mockSaveLocalConfig,
 }));

@@ -1,4 +1,4 @@
-import { t } from "#utils/internationalization/i18n.js";
+import { t } from "#utils/i18n/translator.js";
 import ora from "ora";
 import chalk from "chalk";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
