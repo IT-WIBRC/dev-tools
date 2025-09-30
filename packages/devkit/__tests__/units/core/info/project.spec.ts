@@ -25,6 +25,9 @@ vi.mock("#utils/schema/schema.js", () => ({
   FILE_NAMES: { packageJson: "package.json" },
 }));
 
+const PACKAGE_ROOT_NOT_FOUND_KEY = "errors.system.package_root_not_found";
+const VERSION_READ_FAIL_KEY = "errors.system.version_read_fail";
+
 describe("getProjectVersion", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -47,8 +50,8 @@ describe("getProjectVersion", () => {
   });
 
   it("should return '0.0.0' and log an error if package root is not found", async () => {
-    const rootNotFoundErrorMessage = mocktFn("error.package.root.not_found");
-    const expectedErrorMessage = `error.version.read_fail: ${rootNotFoundErrorMessage}`;
+    const rootNotFoundErrorMessage = mocktFn(PACKAGE_ROOT_NOT_FOUND_KEY);
+    const expectedErrorMessage = `${VERSION_READ_FAIL_KEY}: ${rootNotFoundErrorMessage}`;
 
     mockFindPackageRoot.mockResolvedValue(null);
 
@@ -65,7 +68,7 @@ describe("getProjectVersion", () => {
   it("should return '0.0.0', log an error, and log stack if reading package.json fails", async () => {
     const readError = new Error("Failed to read file");
     readError.stack = "Mock stack trace";
-    const expectedErrorMessage = `error.version.read_fail: Failed to read file`;
+    const expectedErrorMessage = `${VERSION_READ_FAIL_KEY}: Failed to read file`;
 
     mockFindPackageRoot.mockResolvedValue("/mock/project/root");
     mockFsReadJson.mockRejectedValue(readError);
@@ -85,7 +88,7 @@ describe("getProjectVersion", () => {
 
   it("should return '0.0.0' and log a generic error if non-Error is thrown", async () => {
     const genericError = 12345;
-    const expectedErrorMessage = "error.version.read_fail";
+    const expectedErrorMessage = VERSION_READ_FAIL_KEY;
 
     mockFindPackageRoot.mockResolvedValue("/mock/project/root");
     mockFsReadJson.mockRejectedValue(genericError);

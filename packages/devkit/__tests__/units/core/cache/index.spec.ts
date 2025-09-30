@@ -20,6 +20,13 @@ vi.mock("os", () => ({
   },
 }));
 
+const REFRESH_SUCCESS_KEY = "messages.success.template_updated";
+const CLONE_SUCCESS_KEY = "messages.success.template_added";
+const USE_INFO_KEY = "messages.status.cache_use_info";
+const COPY_START_KEY = "messages.status.cache_copy_start";
+const COPY_SUCCESS_KEY = "messages.success.new_project";
+const COPY_FAIL_KEY = "errors.cache.copy_fail";
+
 describe("getTemplateFromCache", () => {
   const options = {
     url: "https://github.com/test-org/test-repo.git",
@@ -49,12 +56,13 @@ describe("getTemplateFromCache", () => {
     await getTemplateFromCache(options);
 
     expect(mockSpinner.start).toHaveBeenCalled();
-    expect(mockSpinner.text).toBe("cache.copy.start");
+    expect(mockSpinner.text).toBe(COPY_START_KEY);
     expect(git.cloneRepo).toHaveBeenCalledWith(
       options.url,
       `${os.homedir()}/.devkit/cache/test-repo`,
     );
-    expect(mockSpinner.succeed).toHaveBeenCalledWith("cache.copy.success");
+    expect(mockSpinner.succeed).toHaveBeenCalledWith(CLONE_SUCCESS_KEY);
+    expect(mockSpinner.succeed).toHaveBeenCalledWith(COPY_SUCCESS_KEY);
     expect(templateUtils.copyJavascriptTemplate).toHaveBeenCalledWith(
       `${os.homedir()}/.devkit/cache/test-repo`,
       `/current/dir/${options.projectName}`,
@@ -76,7 +84,7 @@ describe("getTemplateFromCache", () => {
     expect(git.pullRepo).toHaveBeenCalledWith(
       `${os.homedir()}/.devkit/cache/test-repo`,
     );
-    expect(mockSpinner.succeed).toHaveBeenCalledWith("cache.refresh.success");
+    expect(mockSpinner.succeed).toHaveBeenCalledWith(REFRESH_SUCCESS_KEY);
   });
 
   it("should use a template directly if it exists and is fresh", async () => {
@@ -87,7 +95,7 @@ describe("getTemplateFromCache", () => {
 
     expect(mockSpinner.start).toHaveBeenCalled();
     expect(mockSpinner.info).toHaveBeenCalledWith(
-      "cache.use.info- options repoName:test-repo",
+      `${USE_INFO_KEY}- options repoName:test-repo`,
     );
     expect(git.pullRepo).not.toHaveBeenCalled();
   });
@@ -101,6 +109,6 @@ describe("getTemplateFromCache", () => {
     await expect(getTemplateFromCache(options)).rejects.toThrow(
       "Git clone failed",
     );
-    expect(mockSpinner.fail).toHaveBeenCalledWith("cache.copy.fail");
+    expect(mockSpinner.fail).toHaveBeenCalledWith(COPY_FAIL_KEY);
   });
 });

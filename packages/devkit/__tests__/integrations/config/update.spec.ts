@@ -306,7 +306,7 @@ describe("dk config update", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "Failed to update 'ts-template': Programming language 'typescript' not found in configuration",
+      "Failed to update 'ts-template': Invalid value for Programming Language. Valid options are: javascript",
     );
   });
 

@@ -43,6 +43,6 @@ describe("installDependencies", () => {
     mockExeca.mockRejectedValueOnce(error);
 
     await expect(installDependencies(options)).rejects.toThrow(DevkitError);
-    expect(mocktFn).toHaveBeenCalledWith("scaffolding.install.fail");
+    expect(mocktFn).toHaveBeenCalledWith("errors.scaffolding.install_fail");
   });
 });

@@ -21,6 +21,8 @@ export async function installDependencies(options: InstallDependenciesOptions) {
       stdio: "inherit",
     });
   } catch (error) {
-    throw new DevkitError(t("scaffolding.install.fail"), { cause: error });
+    throw new DevkitError(t("errors.scaffolding.install_fail"), {
+      cause: error,
+    });
   }
 }

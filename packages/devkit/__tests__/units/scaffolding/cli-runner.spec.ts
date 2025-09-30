@@ -41,7 +41,7 @@ describe("runCliCommand", () => {
     await expect(runCliCommand({ ...options, command })).rejects.toThrow(
       DevkitError,
     );
-    expect(mocktFn).toHaveBeenCalledWith("error.invalid.command", {
+    expect(mocktFn).toHaveBeenCalledWith("errors.validation.invalid_command", {
       command: command,
     });
   });
@@ -54,6 +54,6 @@ describe("runCliCommand", () => {
     await expect(runCliCommand({ ...options, command })).rejects.toThrow(
       DevkitError,
     );
-    expect(mocktFn).toHaveBeenCalledWith("scaffolding.run.fail");
+    expect(mocktFn).toHaveBeenCalledWith("errors.scaffolding.run_fail");
   });
 });

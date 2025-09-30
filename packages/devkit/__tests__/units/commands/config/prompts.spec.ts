@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { handleInteractiveConfig } from "../../../../src/commands/config/prompts.ts";
+import { handleInteractiveConfig } from "../../../../src/commands/config/prompts.js";
 import {
   handleNonInteractiveSettingsUpdate,
   handleNonInteractiveTemplateUpdate,
-} from "../../../../src/commands/config/logic.ts";
-import { mockLogger, mocktFn } from "../../../../vitest.setup.ts";
+} from "../../../../src/commands/config/logic.js";
+import { mockLogger, mocktFn } from "../../../../vitest.setup.js";
 
 const {
   mockSelect,
@@ -35,6 +35,10 @@ vi.mock("#core/prompts/prompts.js", () => ({
   promptForLanguage: mockPtForLanguage,
   promptForPackageManager: mockPForPackageManager,
 }));
+
+const SUCCESS_CONFIG_UPDATED_KEY = "messages.success.config_updated";
+const SUCCESS_TEMPLATE_UPDATED_KEY = "messages.success.template_updated";
+const INTERACTIVE_SUCCESS_KEY = "commands.config.interactive.success";
 
 describe("Interactive Config Prompts", () => {
   const baseConfig = {
@@ -69,7 +73,7 @@ describe("Interactive Config Prompts", () => {
     vi.restoreAllMocks();
   });
 
-  it("should handle a full settings update flow correctly (language)", async () => {
+  it("should handle a full settings update flow correctly (language) and log success messages", async () => {
     mockSelect.mockResolvedValueOnce("settings");
     mockSelect.mockResolvedValueOnce("language");
     mockPtForLanguage.mockResolvedValueOnce("fr");
@@ -83,10 +87,15 @@ describe("Interactive Config Prompts", () => {
       "fr",
       false,
     );
-    expect(mockLogger.log).toHaveBeenCalledWith(mocktFn("config.set.success"));
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      mocktFn(SUCCESS_CONFIG_UPDATED_KEY),
+    );
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      mocktFn(INTERACTIVE_SUCCESS_KEY),
+    );
   });
 
-  it("should handle a full template update flow correctly (description)", async () => {
+  it("should handle a full template update flow correctly (description) and log success messages", async () => {
     mockSelect.mockResolvedValueOnce("templates");
     mockPtForLanguage.mockResolvedValueOnce("typescript");
     mockSelect.mockResolvedValueOnce("web");
@@ -105,7 +114,10 @@ describe("Interactive Config Prompts", () => {
       false,
     );
     expect(mockLogger.log).toHaveBeenCalledWith(
-      mocktFn("config.update.success", { templateName: "web" }),
+      mocktFn(SUCCESS_TEMPLATE_UPDATED_KEY, { templateName: "web" }),
+    );
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      mocktFn(INTERACTIVE_SUCCESS_KEY),
     );
   });
 
@@ -124,6 +136,33 @@ describe("Interactive Config Prompts", () => {
       "web",
       { packageManager: "bun" },
       false,
+    );
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      mocktFn(SUCCESS_TEMPLATE_UPDATED_KEY, { templateName: "web" }),
+    );
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      mocktFn(INTERACTIVE_SUCCESS_KEY),
+    );
+  });
+
+  it("should handle a settings update with a special prompt (cacheStrategy)", async () => {
+    mockSelect.mockResolvedValueOnce("settings");
+    mockSelect.mockResolvedValueOnce("cacheStrategy");
+    mockPromptForCacheStrategy.mockResolvedValueOnce("daily");
+
+    await handleInteractiveConfig(baseConfig, true);
+
+    expect(mockPromptForCacheStrategy).toHaveBeenCalledWith(true);
+    expect(vi.mocked(handleNonInteractiveSettingsUpdate)).toHaveBeenCalledWith(
+      "cacheStrategy",
+      "daily",
+      true,
+    );
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      mocktFn(SUCCESS_CONFIG_UPDATED_KEY),
+    );
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      mocktFn(INTERACTIVE_SUCCESS_KEY),
     );
   });
 });

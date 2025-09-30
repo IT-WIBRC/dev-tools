@@ -151,11 +151,13 @@ describe("logger utility", () => {
     logger.error(message, errorType);
 
     expect(timestampDimMock).toHaveBeenCalledWith(`[${MOCK_TIME}]`);
-    expect(mockChalk.bold.red).toHaveBeenCalledWith(`[${errorType}]`);
+    expect(mockChalk.bold.red).toHaveBeenCalledWith(
+      `❌${MOCK_TIMESTAMP}::[${errorType}]`,
+    );
 
-    expect(mockChalk.redBright).toHaveBeenCalledWith(`❌ ${message}`);
+    expect(mockChalk.redBright).toHaveBeenCalledWith(`${message}`);
 
-    const expectedOutput = `${MOCK_TIMESTAMP} [bold_red] [${errorType}] [redBright] ❌ ${message}`;
+    const expectedOutput = `[bold_red] ❌${MOCK_TIMESTAMP}::[${errorType}]>> [redBright] ${message}`;
     expect(mockConsoleError).toHaveBeenCalledWith(expectedOutput);
   });
 
@@ -163,7 +165,9 @@ describe("logger utility", () => {
     const message = "Generic error";
     logger.error(message);
 
-    expect(mockChalk.bold.red).toHaveBeenCalledWith(`[UNKNOWN]`);
+    expect(mockChalk.bold.red).toHaveBeenCalledWith(
+      `❌[dim] [10:00:00]::[UNKNOWN]`,
+    );
   });
 
   it("dimmed() should call console.log with dim chalk and trim the message", () => {

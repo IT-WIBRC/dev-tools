@@ -20,16 +20,18 @@ export async function cloneRepo(url: string, repoPath: string) {
       cwd: repoPath,
       stdio: "ignore",
     });
-  } catch (error) {
-    throw new GitError(t("cache.clone.fail"), url, { cause: error });
+  } catch (error: unknown) {
+    throw new GitError(t("errors.cache.clone_fail"), url, { cause: error });
   }
 }
 
 export async function pullRepo(repoPath: string) {
   try {
     await execute("git", ["pull"], { cwd: repoPath, stdio: "ignore" });
-  } catch (error) {
-    throw new GitError(t("cache.refresh.fail"), undefined, { cause: error });
+  } catch (error: unknown) {
+    throw new GitError(t("errors.cache.refresh_fail"), undefined, {
+      cause: error,
+    });
   }
 }
 

@@ -96,6 +96,8 @@ describe("scaffoldProject", () => {
     const templateConfig = { location: "http://example.com" };
     await scaffoldProject({ ...options, templateConfig });
     expect(mockInstallDependencies).toHaveBeenCalled();
-    expect(mockLogger.log).toHaveBeenCalledWith("scaffolding.complete.success");
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      expect.stringContaining("messages.success.scaffolding_complete"),
+    );
   });
 });

@@ -19,7 +19,7 @@ export async function promptForLanguage(
   required = true,
   defaultValue?: SupportedProgrammingLanguageValues,
 ): Promise<SupportedProgrammingLanguageValues> {
-  const message = `${t("cli.add_template.prompts.language")} ${
+  const message = `${t("commands.template.add.prompts.language")} ${
     required ? logger.colors.red("(required)") : logger.colors.dim("(optional)")
   }`;
   const choices = Object.values(ProgrammingLanguage).map((lang) => ({
@@ -43,7 +43,7 @@ export async function promptForPackageManager(
   defaultValue?: SupportedPackageManager,
 ): Promise<SupportedPackageManager | null> {
   const message = `${t(
-    "cli.add_template.prompts.package_manager",
+    "commands.template.add.prompts.package_manager",
   )} ${required ? logger.colors.red("(required)") : logger.colors.dim("(optional)")}`;
   return (await select({
     message,
@@ -65,7 +65,7 @@ export async function promptForCacheStrategy(
   defaultValue?: CacheStrategy,
 ): Promise<CacheStrategy | null> {
   const message = `${t(
-    "cli.add_template.prompts.cache_strategy",
+    "commands.template.add.prompts.cache_strategy",
   )} ${required ? logger.colors.red("(required)") : logger.colors.dim("(optional)")}`;
   return (await select({
     message,

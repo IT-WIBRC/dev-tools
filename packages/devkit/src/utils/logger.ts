@@ -9,10 +9,10 @@ function getTimestamp(): string {
 
 function formatError(message: string, errorType: ErrorType): string {
   const timestamp = getTimestamp();
-  const typeTag = chalk.bold.red(`[${errorType}]`);
-  const coloredMessage = chalk.redBright(`❌ ${message}`);
+  const typeTag = chalk.bold.red(`❌${timestamp}::[${errorType}]`);
+  const coloredMessage = chalk.redBright(`${message}`);
 
-  return `${timestamp} ${typeTag} ${coloredMessage}`;
+  return `${typeTag}>> ${coloredMessage}`;
 }
 
 export type ErrorType =

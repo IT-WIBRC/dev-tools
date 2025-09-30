@@ -12,26 +12,30 @@ export function setupAddCommand(configCommand: Command): void {
   configCommand
     .command("add <language> <templateName>")
     .alias("a")
-    .description(t("cli.add_template.description"))
+    .description(t("commands.template.add.description"))
     .option(
       "-d, --description <string>",
-      t("cli.add_template.options.description"),
+      t("commands.template.add.options.description"),
       "",
     )
     .option(
       "-o, --location <string>",
-      t("new.project.template.option.description"),
+      t("commands.template.add.prompts.location"),
       "",
     )
-    .option("-a, --alias <string>", t("cli.add_template.options.alias"), "")
+    .option(
+      "-a, --alias <string>",
+      t("commands.template.add.options.alias"),
+      "",
+    )
     .option(
       "-c, --cache-strategy <string>",
-      t("cli.add_template.options.cache"),
+      t("commands.template.add.options.cache"),
       "",
     )
     .option(
       "-p, --package-manager <string>",
-      t("cli.add_template.options.package_manager"),
+      t("commands.template.add.options.package_manager"),
       "",
     )
     .action(
@@ -48,14 +52,16 @@ export function setupAddCommand(configCommand: Command): void {
 
         const spinner: TSpinner = logger
           .spinner(
-            logger.colors.cyan(t("cli.add_template.adding", { templateName })),
+            logger.colors.cyan(
+              t("messages.status.template_adding", { templateName }),
+            ),
           )
           .start();
 
         try {
           if (!description || !location) {
             throw new DevkitError(
-              t("error.missing_required_options.add_template", {
+              t("errors.command.missing_required_options", {
                 fields: "--description, --location",
               }),
             );

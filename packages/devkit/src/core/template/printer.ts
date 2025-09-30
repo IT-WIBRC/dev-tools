@@ -33,21 +33,21 @@ export function printTemplates(
 
     const alias = templateConfig?.alias
       ? cyanDim(
-          `(${t("cli.add_template.options.alias")}: ${templateConfig.alias})`,
+          `(${t("commands.template.add.options.alias")}: ${templateConfig.alias})`,
         )
       : "";
 
     const description = templateConfig?.description
-      ? `\n    ${dim(t("cli.add_template.options.description"))}: ${templateConfig.description}`
+      ? `\n    ${dim(t("commands.template.add.options.description"))}: ${templateConfig.description}`
       : "";
     const location = templateConfig?.location
       ? `\n    ${dim("Location")}: ${templateConfig.location}`
       : "";
     const cacheStrategy = templateConfig?.cacheStrategy
-      ? `\n    ${dim(t("cli.add_template.options.cache"))}: ${templateConfig.cacheStrategy}`
+      ? `\n    ${dim(t("commands.template.add.options.cache"))}: ${templateConfig.cacheStrategy}`
       : "";
     const packageManager = templateConfig?.packageManager
-      ? `\n    ${dim(t("cli.add_template.options.package_manager"))}: ${templateConfig.packageManager}`
+      ? `\n    ${dim(t("commands.template.add.options.package_manager"))}: ${templateConfig.packageManager}`
       : "";
 
     const coloredName = logger.colors.green(templateName);

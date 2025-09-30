@@ -65,7 +65,7 @@ describe("update-project-name.ts", () => {
 
       expect(mockLogger.error).toHaveBeenCalledOnce();
       expect(mockLogger.error).toHaveBeenCalledWith(
-        "error.package.file_not_found",
+        "errors.system.package_file_not_found",
         "TEMPL",
       );
     });
@@ -90,7 +90,7 @@ describe("update-project-name.ts", () => {
         name: newProjectName,
       });
       expect(mockLogger.error).toHaveBeenCalledWith(
-        "error.package.failed_to_update_project_name: Permission denied",
+        "errors.system.package_name_update_fail: Permission denied",
         "TEMPL",
       );
     });

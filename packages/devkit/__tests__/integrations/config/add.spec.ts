@@ -206,7 +206,7 @@ describe("dk config add", () => {
     );
   });
 
-  it("should fail to add a template if a language is not found", async () => {
+  it("should fail to add a template if the programming language language is not found", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -226,7 +226,7 @@ describe("dk config add", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "❌ Devkit encountered an unexpected internal issue: Invalid value for language. Valid options are: javascript",
+      "[DEV]>> Devkit encountered an unexpected internal issue: Invalid value for Programming Language. Valid options are: javascript",
     );
   });
 
@@ -250,7 +250,7 @@ describe("dk config add", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "❌ Devkit encountered an unexpected internal issue: Template 'react-ts' already exists in the configuration. Use 'devkit config set' to update it.",
+      "::[DEV]>> Devkit encountered an unexpected internal issue: Template 'react-ts' already exists in the configuration. Use 'devkit config set' to update it.",
     );
   });
 
@@ -283,7 +283,7 @@ describe("dk config add", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "❌ Devkit encountered an unexpected internal issue: Alias 'rt' already exists for another template in this language. Please choose a different alias.",
+      "::[DEV]>> Devkit encountered an unexpected internal issue: Alias 'rt' already exists for another template in this language. Please choose a different alias.",
     );
   });
 });

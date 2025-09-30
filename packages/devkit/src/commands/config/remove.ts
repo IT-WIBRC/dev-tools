@@ -24,7 +24,7 @@ export function setupRemoveCommand(configCommand: Command): void {
   configCommand
     .command("remove <language> <templateName...>")
     .alias("rm")
-    .description(t("remove_template.command.description"))
+    .description(t("commands.template.remove.command.description"))
     .action(
       async (
         language: string,
@@ -37,7 +37,7 @@ export function setupRemoveCommand(configCommand: Command): void {
 
         const spinner: TSpinner = logger
           .spinner()
-          .start(logger.colors.cyan(t("remove_template.start")));
+          .start(logger.colors.cyan(t("messages.status.template_removing")));
 
         try {
           validateProgrammingLanguage(language);
@@ -47,9 +47,9 @@ export function setupRemoveCommand(configCommand: Command): void {
           });
 
           const languageTemplates = targetConfig?.templates?.[language];
-          if (!languageTemplates.templates) {
+          if (!languageTemplates?.templates) {
             throw new DevkitError(
-              t("error.template.language_not_found", { language: language }),
+              t("errors.template.language_not_found", { language: language }),
             );
           }
 
@@ -80,7 +80,7 @@ export function setupRemoveCommand(configCommand: Command): void {
 
           if (templatesToRemove.length === 0) {
             throw new DevkitError(
-              t("error.template.not_found", { template: notFound.join(", ") }),
+              t("errors.template.not_found", { template: notFound.join(", ") }),
             );
           }
 
@@ -95,7 +95,7 @@ export function setupRemoveCommand(configCommand: Command): void {
           await saveConfig(targetConfig, !!isGlobal);
 
           spinner.succeed(
-            t("remove_template.success", {
+            t("messages.success.template_removed", {
               count: templatesToRemove.length.toString(),
               templateName: templatesToRemove.join(", "),
               language,
@@ -103,10 +103,10 @@ export function setupRemoveCommand(configCommand: Command): void {
           );
 
           if (notFound.length > 0) {
-            logger.log(
+            logger.warning(
               logger.colors.yellow(
-                t("remove_template.not_found_warning", {
-                  template: notFound.join(", "),
+                t("warnings.templates_not_found", {
+                  templates: notFound.join(", "),
                 }),
               ),
             );

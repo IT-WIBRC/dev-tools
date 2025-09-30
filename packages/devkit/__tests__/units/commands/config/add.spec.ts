@@ -15,7 +15,7 @@ const {
   mockValidateProgrammingLanguage: vi.fn(),
 }));
 
-let actionFn: any;
+let actionFn: (...options: unknown[]) => Promise<void>;
 
 vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
@@ -35,6 +35,14 @@ vi.mock("../../../../src/commands/config/validate-and-save.js", () => ({
 
 describe("setupAddCommand", () => {
   let mockConfigCommand: any;
+
+  const ADD_DESC_KEY = "commands.template.add.description";
+  const DESC_OPT_KEY = "commands.template.add.options.description";
+  const LOC_OPT_KEY = "commands.template.add.prompts.location";
+  const ALIAS_OPT_KEY = "commands.template.add.options.alias";
+  const CACHE_OPT_KEY = "commands.template.add.options.cache";
+  const PM_OPT_KEY = "commands.template.add.options.package_manager";
+  const MISSING_REQUIRED_KEY = "errors.command.missing_required_options";
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -59,31 +67,33 @@ describe("setupAddCommand", () => {
 
     expect(mockConfigCommand.alias).toHaveBeenCalledWith("a");
     expect(mockConfigCommand.description).toHaveBeenCalledWith(
-      mocktFn("cli.add_template.description"),
+      mocktFn(ADD_DESC_KEY),
     );
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "-d, --description <string>",
-      mocktFn("cli.add_template.options.description"),
+      mocktFn(DESC_OPT_KEY),
       "",
     );
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "-o, --location <string>",
-      mocktFn("new.project.template.option.description"),
+      mocktFn(LOC_OPT_KEY),
       "",
     );
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "-a, --alias <string>",
-      mocktFn("cli.add_template.options.alias"),
+      mocktFn(ALIAS_OPT_KEY),
       "",
     );
+
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "-c, --cache-strategy <string>",
-      mocktFn("cli.add_template.options.cache"),
+      mocktFn(CACHE_OPT_KEY),
       "",
     );
+
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "-p, --package-manager <string>",
-      mocktFn("cli.add_template.options.package_manager"),
+      mocktFn(PM_OPT_KEY),
       "",
     );
   });
@@ -141,7 +151,7 @@ describe("setupAddCommand", () => {
       expect(mockHandleErrorAndExit).toHaveBeenCalledOnce();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         new DevkitError(
-          mocktFn("error.missing_required_options.add_template", {
+          mocktFn(MISSING_REQUIRED_KEY, {
             fields: "--description, --location",
           }),
         ),
@@ -157,7 +167,7 @@ describe("setupAddCommand", () => {
 
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         new DevkitError(
-          mocktFn("error.missing_required_options.add_template", {
+          mocktFn(MISSING_REQUIRED_KEY, {
             fields: "--description, --location",
           }),
         ),

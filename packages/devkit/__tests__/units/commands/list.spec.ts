@@ -75,6 +75,20 @@ vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
 
+const CMD_DESCRIPTION_KEY = "commands.list.command.description";
+const LANG_ARGUMENT_KEY = "commands.list.command.language.argument";
+const GLOBAL_OPTION_KEY = "commands.list.options.global";
+const ALL_OPTION_KEY = "commands.list.options.all";
+const FILTER_OPTION_KEY = "commands.list.command.filter.option";
+
+const USING_LOCAL_GLOBAL_KEY = "messages.config_source.using_local_and_global";
+const USING_GLOBAL_KEY = "messages.config_source.global";
+const USING_LOCAL_KEY = "messages.config_source.local";
+const GLOBAL_FALLBACK_KEY = "messages.config_source.global_fallback";
+const TEMPLATE_NOT_FOUND_KEY = "warnings.template_not_found";
+const HEADER_KEY = "commands.list.output.header";
+const MUTUALLY_EXCLUSIVE_KEY = "errors.command.mutually_exclusive_options";
+
 describe("list command", () => {
   let actionFn: Function;
 
@@ -95,25 +109,23 @@ describe("list command", () => {
 
     expect(mockProgram.command).toHaveBeenCalledWith("list");
     expect(mockProgram.alias).toHaveBeenCalledWith("ls");
-    expect(mockProgram.description).toHaveBeenCalledWith(
-      "list.command.description",
-    );
+    expect(mockProgram.description).toHaveBeenCalledWith(CMD_DESCRIPTION_KEY);
     expect(mockProgram.argument).toHaveBeenCalledWith(
       "[language]",
-      "list.command.language.argument",
+      LANG_ARGUMENT_KEY,
       "",
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-g, --global",
-      "list.command.global.option",
+      GLOBAL_OPTION_KEY,
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-a, --all",
-      "list.command.all.option",
+      ALL_OPTION_KEY,
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-f, --filter <string>",
-      "list.command.filter.option",
+      FILTER_OPTION_KEY,
     );
     expect(mockProgram.option).not.toHaveBeenCalledWith(
       "-l, --local",
@@ -140,9 +152,7 @@ describe("list command", () => {
       expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
-      expect(mockSpinner.info).toHaveBeenCalledWith(
-        "list.templates.using_local_and_global",
-      );
+      expect(mockSpinner.info).toHaveBeenCalledWith(USING_LOCAL_GLOBAL_KEY);
       expect(mockPrintTemplates).toHaveBeenCalledWith(
         "javascript",
         {
@@ -178,9 +188,7 @@ describe("list command", () => {
       expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
-      expect(mockSpinner.info).toHaveBeenCalledWith(
-        "list.templates.using_global",
-      );
+      expect(mockSpinner.info).toHaveBeenCalledWith(USING_GLOBAL_KEY);
       expect(mockPrintTemplates).toHaveBeenCalledWith(
         "typescript",
         {
@@ -206,9 +214,7 @@ describe("list command", () => {
       expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
-      expect(mockSpinner.info).toHaveBeenCalledWith(
-        "list.templates.using_local",
-      );
+      expect(mockSpinner.info).toHaveBeenCalledWith(USING_LOCAL_KEY);
       expect(mockPrintTemplates).toHaveBeenCalledWith(
         "javascript",
         {
@@ -245,11 +251,9 @@ describe("list command", () => {
       );
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
-      expect(mockSpinner.info).toHaveBeenCalledWith(
-        "list.templates.using_local",
-      );
+      expect(mockSpinner.info).toHaveBeenCalledWith(USING_LOCAL_KEY);
       expect(mockLogger.log).toHaveBeenCalledTimes(1);
-      expect(mockLogger.log).toHaveBeenCalledWith("\nlist.templates.header");
+      expect(mockLogger.log).toHaveBeenCalledWith(`\n${HEADER_KEY}`);
 
       expect(mockPrintTemplates).toHaveBeenCalledOnce();
       expect(mockPrintTemplates).toHaveBeenCalledWith(
@@ -287,9 +291,7 @@ describe("list command", () => {
       );
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
-      expect(mockSpinner.info).toHaveBeenCalledWith(
-        "list.templates.using_global_fallback",
-      );
+      expect(mockSpinner.info).toHaveBeenCalledWith(GLOBAL_FALLBACK_KEY);
       expect(mockPrintTemplates).toHaveBeenCalledOnce();
       expect(mockPrintTemplates).toHaveBeenCalledWith(
         "javascript",
@@ -322,8 +324,8 @@ describe("list command", () => {
       );
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        (mockLogger.colors as { yellow: Mock }).yellow(
-          "list.templates.not_found- options template:",
+        mockLogger.colors.yellow(
+          `${TEMPLATE_NOT_FOUND_KEY}- options template:`,
         ),
       );
       expect(mockLogger.log).not.toHaveBeenCalled();
@@ -382,7 +384,7 @@ describe("list command", () => {
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         new DevkitError(
-          "error.command.mutually_exclusive_options- options options:global, all",
+          `${MUTUALLY_EXCLUSIVE_KEY}- options options:global, all`,
         ),
         mockSpinner,
       );

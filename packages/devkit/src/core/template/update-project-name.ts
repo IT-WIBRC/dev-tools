@@ -11,7 +11,7 @@ export async function updateJavascriptProjectName(
   const packageJsonPath = path.join(projectPath, FILE_NAMES.packageJson);
 
   if (!fs.existsSync(packageJsonPath)) {
-    logger.error(t("error.package.file_not_found"), "TEMPL");
+    logger.error(t("errors.system.package_file_not_found"), "TEMPL");
     return;
   }
 
@@ -21,7 +21,7 @@ export async function updateJavascriptProjectName(
 
     await fs.writeJson(packageJsonPath, packageJson);
   } catch (error) {
-    const errorMessage = t("error.package.failed_to_update_project_name");
+    const errorMessage = t("errors.system.package_name_update_fail");
 
     if (error instanceof Error) {
       logger.error(`${errorMessage}: ${error.message}`, "TEMPL");

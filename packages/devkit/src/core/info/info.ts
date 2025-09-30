@@ -28,7 +28,7 @@ const getPackageManagerVersion = async (
     return `${managerToQuery} v${(stdout as string)?.trim?.()}`;
     // oxlint-disable-next-line no-unused-vars
   } catch (error) {
-    return t("info.error.package_manager_not_found", {
+    return t("errors.system.info_package_manager_not_found", {
       manager: managerToQuery,
     });
   }
@@ -64,11 +64,11 @@ export const collectSystemInfo = async (
 
   const globalConfigPath = foundGlobalPath
     ? foundGlobalPath
-    : t("info.config.global_expected_location");
+    : t("commands.info.config.global_expected_location");
 
   const localConfigPath = foundLocalPath
     ? foundLocalPath
-    : t("info.config.local_expected_location");
+    : t("commands.info.config.local_expected_location");
 
   let runtimeName: string;
   let runtimeVersion: string;
@@ -86,7 +86,10 @@ export const collectSystemInfo = async (
     cliVersion,
     os: `${os.type()} ${os.release()}`,
     arch: os.arch(),
-    shell: process.env.SHELL || process.env.COMSPEC || t("info.shell.unknown"),
+    shell:
+      process.env.SHELL ||
+      process.env.COMSPEC ||
+      t("commands.info.shell.unknown"),
     runtimeName,
     runtimeVersion,
     packageManagerVersion: packageManagerVersion,

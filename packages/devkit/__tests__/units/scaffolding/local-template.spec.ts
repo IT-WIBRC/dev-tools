@@ -71,6 +71,6 @@ describe("copyLocalTemplate", () => {
     await expect(copyLocalTemplate({ ...options, sourcePath })).rejects.toThrow(
       DevkitError,
     );
-    expect(mocktFn).toHaveBeenCalledWith("scaffolding.copy.fail");
+    expect(mocktFn).toHaveBeenCalledWith("errors.scaffolding.copy_fail");
   });
 });

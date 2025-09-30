@@ -123,7 +123,7 @@ describe("index.ts (Entry point)", () => {
       await vi.runAllTimersAsync();
 
       expect(warnSpy).toHaveBeenCalledOnce();
-      expect(warnSpy).toHaveBeenCalledWith("\nwarning.no_config_found\n");
+      expect(warnSpy).toHaveBeenCalledWith("\nwarnings.not_found\n");
     });
   });
 

@@ -32,7 +32,7 @@ async function handleInteractiveSettings(
   isGlobal: boolean,
 ): Promise<void> {
   const settingKey = await select({
-    message: t("config.interactive.prompt_setting_key"),
+    message: t("commands.config.interactive.prompt_setting_key"),
     choices: SETTINGS_CHOICES,
   });
 
@@ -49,7 +49,7 @@ async function handleInteractiveSettings(
       break;
     default:
       newValue = await input({
-        message: t("config.interactive.prompt_new_value", {
+        message: t("commands.config.interactive.prompt_new_value", {
           key: settingKey,
         }),
       });
@@ -57,7 +57,7 @@ async function handleInteractiveSettings(
   }
 
   await handleNonInteractiveSettingsUpdate(settingKey, newValue!, isGlobal);
-  logger.log(t("config.set.success"));
+  logger.log(t("messages.success.config_updated"));
 }
 
 async function handleInteractiveTemplates(
@@ -68,12 +68,12 @@ async function handleInteractiveTemplates(
 
   const templates = Object.keys(config.templates[language]?.templates || {});
   const templateName = await select({
-    message: t("config.interactive.prompt_template_name"),
+    message: t("commands.config.interactive.prompt_template_name"),
     choices: templates.map((key) => ({ name: key, value: key })),
   });
 
   const property = await select({
-    message: t("config.interactive.prompt_template_property"),
+    message: t("commands.config.interactive.prompt_template_property"),
     choices: [
       { name: "description", value: "description" },
       { name: "location", value: "location" },
@@ -93,7 +93,7 @@ async function handleInteractiveTemplates(
       break;
     default:
       newValue = await input({
-        message: t("config.interactive.prompt_new_value", {
+        message: t("commands.config.interactive.prompt_new_value", {
           key: property,
         }),
       });
@@ -107,7 +107,7 @@ async function handleInteractiveTemplates(
     updates,
     isGlobal,
   );
-  logger.log(t("config.update.success", { templateName }));
+  logger.log(t("messages.success.template_updated", { templateName }));
 }
 
 export async function handleInteractiveConfig(
@@ -115,16 +115,24 @@ export async function handleInteractiveConfig(
   isGlobal: boolean,
 ): Promise<void> {
   const action = await select({
-    message: t("config.interactive.prompt_action"),
+    message: t("commands.config.interactive.prompt_action"),
     choices: [
-      { name: t("config.interactive.action.settings"), value: "settings" },
-      { name: t("config.interactive.action.templates"), value: "templates" },
+      {
+        name: t("commands.config.interactive.action.settings"),
+        value: "settings",
+      },
+      {
+        name: t("commands.config.interactive.action.templates"),
+        value: "templates",
+      },
     ],
   });
 
   if (action === "settings") {
     await handleInteractiveSettings(config, isGlobal);
+    logger.log(t("commands.config.interactive.success"));
   } else if (action === "templates") {
     await handleInteractiveTemplates(config, isGlobal);
+    logger.log(t("commands.config.interactive.success"));
   }
 }

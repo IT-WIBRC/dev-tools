@@ -23,6 +23,9 @@ vi.mock("#utils/i18n/translator.js", () => ({
   t: mockT,
 }));
 
+const CLONE_FAIL_KEY = "errors.cache.clone_fail";
+const REFRESH_FAIL_KEY = "errors.cache.refresh_fail";
+
 describe("Git Functions", () => {
   const repoPath = "/temp/repo";
   const url = "https://github.com/test-org/test-repo.git";
@@ -51,7 +54,7 @@ describe("Git Functions", () => {
   it("cloneRepo should throw a GitError on failure", async () => {
     mockExeca.mockRejectedValueOnce(new Error("Clone failed"));
     await expect(cloneRepo(url, repoPath)).rejects.toThrow(GitError);
-    expect(mockT).toHaveBeenCalledWith("cache.clone.fail");
+    expect(mockT).toHaveBeenCalledWith(CLONE_FAIL_KEY);
   });
 
   it("pullRepo should successfully pull a repository", async () => {
@@ -66,7 +69,7 @@ describe("Git Functions", () => {
   it("pullRepo should throw a GitError on failure", async () => {
     mockExeca.mockRejectedValueOnce(new Error("Pull failed"));
     await expect(pullRepo(repoPath)).rejects.toThrow(GitError);
-    expect(mockT).toHaveBeenCalledWith("cache.refresh.fail");
+    expect(mockT).toHaveBeenCalledWith(REFRESH_FAIL_KEY);
   });
 
   describe("isRepoFresh", () => {

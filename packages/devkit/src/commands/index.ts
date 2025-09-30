@@ -43,25 +43,27 @@ export async function setupAndParse() {
 
     isVerbose &&
       spinner.succeed(
-        logger.colors.green(logger.colors.bold(t("program.initialized"))),
+        logger.colors.green(
+          logger.colors.bold(t("messages.success.program_initialized")),
+        ),
       );
 
     if (source === "default") {
       logger.warning(
-        `\n${logger.colors.yellowBold(logger.colors.italic(t("warning.no_config_found")))}\n`,
+        `\n${logger.colors.yellowBold(logger.colors.italic(t("warnings.not_found")))}\n`,
       );
     }
 
     program
       .name("devkit")
       .alias("dk")
-      .description(t("program.description"))
+      .description(t("program.program.description"))
       .version(
         await getProjectVersion(),
         "-V, --version",
-        t("version.description"),
+        t("program.version.description"),
       )
-      .helpOption("-h, --help", t("help.description"));
+      .helpOption("-h, --help", t("program.help.description"));
 
     setupInitCommand({ program, config });
     setupNewCommand({ program, config });

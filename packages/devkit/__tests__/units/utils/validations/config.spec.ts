@@ -14,6 +14,8 @@ import {
   VALID_CACHE_STRATEGIES,
 } from "../../../../src/utils/schema/schema.js";
 
+const NEW_ERROR_KEY = "errors.validation.invalid_value";
+
 describe("validatePackageManager", () => {
   it("should not throw an error for a valid package manager", () => {
     const validPm = PackageManagers.Npm;
@@ -24,7 +26,7 @@ describe("validatePackageManager", () => {
     const invalidPm = "invalid-pm";
     expect(() => validatePackageManager(invalidPm)).toThrow(DevkitError);
     expect(() => validatePackageManager(invalidPm)).toThrow(
-      mocktFn("error.invalid.value", {
+      mocktFn(NEW_ERROR_KEY, {
         key: "defaultPackageManager",
         options: Object.values(PackageManagers).join(", "),
       }),
@@ -42,7 +44,7 @@ describe("validateCacheStrategy", () => {
     const invalidStrategy = "invalid-strategy";
     expect(() => validateCacheStrategy(invalidStrategy)).toThrow(DevkitError);
     expect(() => validateCacheStrategy(invalidStrategy)).toThrow(
-      mocktFn("error.invalid.value", {
+      mocktFn(NEW_ERROR_KEY, {
         key: "cacheStrategy",
         options: VALID_CACHE_STRATEGIES.join(", "),
       }),
@@ -60,7 +62,7 @@ describe("validateLanguage", () => {
     const invalidLang = "invalid-lang";
     expect(() => validateLanguage(invalidLang)).toThrow(DevkitError);
     expect(() => validateLanguage(invalidLang)).toThrow(
-      mocktFn("error.invalid.value", {
+      mocktFn(NEW_ERROR_KEY, {
         key: "language",
         options: Object.values(TextLanguages).join(", "),
       }),
@@ -78,8 +80,8 @@ describe("validateProgrammingLanguage", () => {
     const invalidLang = "invalid-prog-lang";
     expect(() => validateProgrammingLanguage(invalidLang)).toThrow(DevkitError);
     expect(() => validateProgrammingLanguage(invalidLang)).toThrow(
-      mocktFn("error.invalid.value", {
-        key: "language",
+      mocktFn(NEW_ERROR_KEY, {
+        key: "Programming Language",
         options: Object.values(ProgrammingLanguage)
           .map((value) => value.toLowerCase())
           .join(", "),

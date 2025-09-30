@@ -51,7 +51,7 @@ export async function validateAndSaveTemplate(
 
   if (languageConfig.templates[templateName]) {
     throw new DevkitError(
-      t("error.template.exists", { template: templateName }),
+      t("errors.template.exists", { template: templateName }),
     );
   }
 
@@ -61,7 +61,9 @@ export async function validateAndSaveTemplate(
       (t) => t.alias === alias,
     );
     if (aliasExists) {
-      throw new DevkitError(t("error.alias.exists", { alias: alias }));
+      throw new DevkitError(
+        t("errors.validation.alias_exists", { alias: alias }),
+      );
     }
   }
 
@@ -78,6 +80,6 @@ export async function validateAndSaveTemplate(
   await saveCliConfig(targetConfig, isGlobal);
 
   addSpinner.succeed(
-    logger.colors.green(t("cli.add_template.success", { templateName })),
+    logger.colors.green(t("messages.success.template_added", { templateName })),
   );
 }

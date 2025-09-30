@@ -18,7 +18,7 @@ export function validatePackageManager(
   const validPackageManagers = Object.values(PackageManagers);
   if (!validPackageManagers.includes(value as PackageManager)) {
     throw new DevkitError(
-      t("error.invalid.value", {
+      t("errors.validation.invalid_value", {
         key: "defaultPackageManager",
         options: validPackageManagers.join(", "),
       }),
@@ -32,7 +32,7 @@ export function validateCacheStrategy(
   const validStrategies = VALID_CACHE_STRATEGIES;
   if (!validStrategies.includes(value as CacheStrategy)) {
     throw new DevkitError(
-      t("error.invalid.value", {
+      t("errors.validation.invalid_value", {
         key: "cacheStrategy",
         options: validStrategies.join(", "),
       }),
@@ -46,7 +46,7 @@ export function validateLanguage(
   const validLanguages = Object.values(TextLanguages);
   if (!validLanguages.includes(value as TextLanguageValues)) {
     throw new DevkitError(
-      t("error.invalid.value", {
+      t("errors.validation.invalid_value", {
         key: "language",
         options: validLanguages.join(", "),
       }),
@@ -62,8 +62,8 @@ export function validateProgrammingLanguage(
   );
   if (!validLanguages.includes(value as SupportedProgrammingLanguageValues)) {
     throw new DevkitError(
-      t("error.invalid.value", {
-        key: "language",
+      t("errors.validation.invalid_value", {
+        key: "Programming Language",
         options: validLanguages.join(", "),
       }),
     );
