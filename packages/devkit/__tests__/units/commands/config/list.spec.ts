@@ -15,7 +15,7 @@ const {
   mockPrintTemplates: vi.fn(),
 }));
 
-let actionFn: any;
+let actionFn: (...options: unknown[]) => Promise<void>;
 const mockParent = {
   opts: vi.fn(() => ({ global: false })),
 };
@@ -37,6 +37,17 @@ const consoleLogSpy = mockLogger.log;
 
 describe("setupListCommand", () => {
   let mockConfigCommand: any;
+
+  const CONFIG_LIST_DESC = "commands.config.list.command.description";
+  const CONFIG_LIST_ALL_OPT = "commands.config.list.options.all";
+  const CONFIG_SOURCE_LOCAL = "messages.status.config_source_local";
+  const CONFIG_SOURCE_GLOBAL = "messages.status.config_source_global";
+  const CONFIG_SOURCE_MERGED = "messages.status.config_source_local_and_global";
+  const TEMPLATES_NOT_FOUND = "warnings.template_not_found";
+  const ERR_GLOBAL_NOT_FOUND = "errors.config.global_not_found";
+  const ERR_MUTUALLY_EXCLUSIVE = "errors.command.mutually_exclusive_options";
+  const SETTINGS_HEADER = "commands.config.list.settings_header";
+  const TEMPLATES_HEADER = "commands.config.list.templates_header";
 
   const sampleConfig = {
     settings: {
@@ -83,12 +94,13 @@ describe("setupListCommand", () => {
     setupListCommand(mockConfigCommand);
     expect(mockConfigCommand.command).toHaveBeenCalledWith("list");
     expect(mockConfigCommand.alias).toHaveBeenCalledWith("ls");
+
     expect(mockConfigCommand.description).toHaveBeenCalledWith(
-      mocktFn("list.command.description"),
+      mocktFn(CONFIG_LIST_DESC),
     );
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "-a, --all",
-      mocktFn("list.command.all.option"),
+      mocktFn(CONFIG_LIST_ALL_OPT),
     );
   });
 
@@ -103,13 +115,20 @@ describe("setupListCommand", () => {
       await actionFn({}, { parent: mockParent });
 
       expect(mockSpinner.start).toHaveBeenCalled();
-      expect(mockSpinner.info).toHaveBeenCalledWith(
-        mocktFn("config.get.source.local"),
-      );
-      expect(mockLogger.log).toHaveBeenCalled();
 
+      expect(mockSpinner.info).toHaveBeenCalledWith(
+        mocktFn(CONFIG_SOURCE_LOCAL),
+      );
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        mockLogger.colors.bold("\n" + mocktFn(SETTINGS_HEADER)),
+      );
       expect(mockPrintSettings).toHaveBeenCalledOnce();
       expect(mockPrintSettings).toHaveBeenCalledWith(sampleConfig.settings);
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        mockLogger.colors.bold("\n" + mocktFn(TEMPLATES_HEADER)),
+      );
       expect(mockPrintTemplates).toHaveBeenCalledWith(
         "javascript",
         sampleConfig.templates.javascript.templates,
@@ -118,6 +137,7 @@ describe("setupListCommand", () => {
         "typescript",
         sampleConfig.templates.typescript.templates,
       );
+      expect(mockSpinner.stop).toHaveBeenCalled();
     });
 
     it("should display a global configuration with --global flag", async () => {
@@ -131,8 +151,9 @@ describe("setupListCommand", () => {
       await actionFn({}, { parent: mockParent });
 
       expect(mockSpinner.start).toHaveBeenCalled();
+
       expect(mockSpinner.info).toHaveBeenCalledWith(
-        mocktFn("config.get.source.global"),
+        mocktFn(CONFIG_SOURCE_GLOBAL),
       );
       expect(mockPrintSettings).toHaveBeenCalledWith(sampleConfig.settings);
       expect(mockPrintTemplates).toHaveBeenCalledWith(
@@ -151,8 +172,9 @@ describe("setupListCommand", () => {
       await actionFn({ all: true }, { parent: mockParent });
 
       expect(mockSpinner.start).toHaveBeenCalled();
+
       expect(mockSpinner.info).toHaveBeenCalledWith(
-        mocktFn("config.get.source.local_and_global"),
+        mocktFn(CONFIG_SOURCE_MERGED),
       );
       expect(mockPrintSettings).toHaveBeenCalledWith(sampleConfig.settings);
       expect(mockPrintTemplates).toHaveBeenCalledWith(
@@ -176,11 +198,11 @@ describe("setupListCommand", () => {
 
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.info).toHaveBeenCalledWith(
-        mocktFn("config.get.source.local"),
+        mocktFn(CONFIG_SOURCE_LOCAL),
       );
       expect(mockPrintSettings).toHaveBeenCalledWith({});
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockLogger.colors.yellow(mocktFn("list.templates.not_found")),
+        mockLogger.colors.yellow(mocktFn(TEMPLATES_NOT_FOUND)),
       );
       expect(mockPrintTemplates).not.toHaveBeenCalled();
     });
@@ -197,7 +219,7 @@ describe("setupListCommand", () => {
 
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-        new DevkitError(mocktFn("error.config.global.not.found")),
+        new DevkitError(mocktFn(ERR_GLOBAL_NOT_FOUND)),
         mockSpinner,
       );
     });
@@ -212,7 +234,7 @@ describe("setupListCommand", () => {
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         new DevkitError(
-          mocktFn("error.command.mutually_exclusive_options", {
+          mocktFn(ERR_MUTUALLY_EXCLUSIVE, {
             options: "global, all",
           }),
         ),

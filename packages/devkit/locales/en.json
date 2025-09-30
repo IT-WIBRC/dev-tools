@@ -1,472 +1,377 @@
 {
-  "program": {
-    "description": "A powerful devkit for scaffolding new projects.",
-    "initialized": "CLI initialized successfully.",
-    "initializing": "Initializing CLI...",
-    "verbose_option": "Enable verbose logging for detailed output"
-  },
-  "new": {
-    "command": {
-      "description": "Create a new project from a template"
-    },
-    "project": {
-      "language": {
-        "argument": "The programming language of the template (e.g., 'react', 'node')"
-      },
-      "name": {
-        "argument": "The name of your new project"
-      },
-      "template": {
-        "option": {
-          "description": "The name of the template to use (e.g., 'ts', 'simple-api')"
-        }
-      },
-      "scaffolding": "Scaffolding project '{projectName}' with the '{template}' template...",
-      "success": "✔ Project '{projectName}' created successfully!",
-      "fail": "❌ Failed to scaffold project: {error}"
-    }
-  },
-  "list": {
-    "command": {
-      "description": "List all available templates in the configuration.",
-      "language": {
-        "argument": "The language to filter templates by"
-      },
-      "global": {
-        "option": "List templates from the global configuration."
-      },
-      "local": {
-        "option": "List templates from the local configuration."
-      },
-      "all": {
-        "option": "List templates from both local and global configurations."
-      },
-      "filter": {
-        "option": "Filter templates by name or substring."
-      }
-    },
-    "templates": {
-      "loading": "Loading templates...",
-      "not_found": "No templates found in the configuration file.",
-      "no_local_config": "No local configuration found.",
-      "no_global_config": "No global configuration found.",
-      "using_local_and_global": "Using templates from both local and global configurations.",
-      "using_local_only": "Using templates from local configuration only, as no global configuration was found.",
-      "using_global_only": "Using templates from global configuration only, as no local configuration was found.",
-      "using_global": "Using templates from global configuration.",
-      "using_local": "Using templates from local configuration.",
-      "using_global_fallback": "No local configuration found. Using templates from global configuration.",
-      "header": "Available Templates:"
-    },
-    "config": {
-      "settings_header": "Configuration Settings:"
-    }
-  },
-  "remove_template": {
-    "command": {
-      "description": "Remove a template from the configuration."
-    },
-    "start": "Removing template(s) from configuration...",
-    "success": "Successfully removed {count} template(s) ({templateName}) from {language}.",
-    "language": {
-      "argument": "The programming language of the template to remove."
-    },
-    "name": {
-      "argument": "The name or alias of the template to remove."
-    },
-    "option": {
-      "global": "Remove the template from the global configuration instead of the local one."
-    },
-    "not_found_warning": "⚠️ Warning: The following templates were not found: {template}"
-  },
-  "version": {
-    "description": "Output the current version of the CLI."
-  },
-  "help": {
-    "description": "Display help for a command."
-  },
-  "scaffolding": {
-    "project": {
-      "start": "Scaffolding {language} project: {project}",
-      "success": "✔ {language} project '{project}' created successfully!",
-      "fail": "❌ Failed to scaffold {language} project: {error}"
-    },
-    "copy": {
-      "start": "📂 Copying local template files...",
-      "success": "✔ Local template copied successfully!",
-      "fail": "❌ Failed to copy local template."
-    },
-    "run": {
-      "start": "📦 Running official CLI command: {command}...",
-      "success": "✔ Official CLI command ran successfully!",
-      "fail": "❌ Failed to run official CLI command."
-    },
-    "install": {
-      "start": "📦 Installing dependencies with {pm}...",
-      "success": "✔ Dependencies installed successfully!",
-      "fail": "❌ Failed to install dependencies."
-    },
-    "complete": {
-      "success": "\n🚀 Project created successfully! 🎉",
-      "next_steps": "\n| Next steps:\n"
-    }
-  },
-  "config": {
-    "command": {
-      "description": "Manage DevKit settings"
-    },
-    "interactive": {
-      "prompt_action": "What would you like to configure?",
-      "action": {
-        "settings": "Settings",
-        "templates": "Templates"
-      },
-      "prompt_setting_key": "Choose a setting to modify:",
-      "prompt_template_name": "Choose a template to update:",
-      "prompt_language": "Choose a language:",
-      "prompt_template_property": "Choose a property to update:",
-      "prompt_new_value": "Enter new value for {key}:",
-      "success": "Configuration session complete."
-    },
-    "set": {
-      "command": {
-        "description": "Set one or more configuration values. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Sets the language of the CLI. Possible values: 'en', 'fr'\n"
-      },
-      "argument": {
-        "description": "A list of key-value pairs to set (e.g., 'pm npm language fr')"
-      },
-      "option": {
-        "global": "Update the global configuration instead of the local one.",
-        "bulk": "Sets multiple configuration properties."
-      },
-      "updating": "Updating configuration...",
-      "success": "Configuration updated successfully!"
-    },
-    "loading": "Loading configuration...",
-    "get": {
-      "command": {
-        "description": "Get one or more configuration values."
-      },
-      "argument": {
-        "description": "The key of the configuration value to get (e.g., 'pm', 'language')."
-      },
-      "option": {
-        "global": "Get the global configuration instead of the local one."
-      },
-      "loading": "Loading configuration...",
-      "success": "Configuration loaded successfully!",
-      "not_found": "Configuration key '{key}' not found.",
-      "fallback": {
-        "global": "No global configuration file found. Displaying default settings instead.",
-        "local": "No local configuration file found. Displaying default settings instead.",
-        "local_to_global": "No local configuration file found. Displaying global settings instead."
-      },
-      "source": {
-        "local": "Using local configuration.",
-        "global": "Using global configuration.",
-        "local_and_global": "Using local and global configurations."
-      }
-    },
-    "init": {
-      "command": {
-        "description": "Initializes a configuration file with default settings."
-      },
-      "start": "Initializing config...",
-      "success": "Configuration file created successfully!",
-      "fail": "Failed to initialize config.",
-      "initializing": "Initializing configuration...",
-      "option": {
-        "local": "Initialize a local configuration file instead of a global one.",
-        "global": "Initialize a global configuration file instead of a local one."
-      },
-      "confirm_overwrite": "Config file already exists at {path}. Do you want to overwrite it?",
-      "confirm_monorepo_overwrite": "A config file exists in the monorepo root at {path}. Do you want to create a new one in the current package?",
-      "found_existing": "Configuration file already exists at {path}. Skipping initialization.",
-      "monorepo_location": "A monorepo root was found, but no config file exists there. Where do you want to create the new config file?",
-      "location_current": "Create it in the current package.",
-      "location_root": "Create it in the monorepo root.",
-      "aborted": "Operation aborted. No changes were made."
-    },
-    "update": {
-      "command": {
-        "description": "Update properties of a template, such as its alias, description, or location."
-      },
-      "language": {
-        "argument": "The programming language of the template to update."
-      },
-      "template": {
-        "argument": "The name or alias of the template to update."
-      },
-      "option": {
-        "new_name": "A new name for the template.",
-        "description": "A new brief description for the template.",
-        "alias": "A new alias for the template.",
-        "location": "A new location for the template.",
-        "cache_strategy": "A new cache strategy for the template.",
-        "package_manager": "A new package manager for the template.",
-        "global": "Update the template in the global configuration instead of the local one."
-      },
-      "updating": "Updating template(s) '{templateName}' in configuration...",
-      "success": "✔ Template '{templateName}' updated successfully!",
-      "success_name": "✔ Template '{oldName}' updated to '{newName}' successfully!",
-      "single_fail": "❌ Failed to update '{templateName}': {error}",
-      "success_summary": "Successfully updated {count} ({templateName}) template(s) from {language}!"
-    },
-    "cache": {
-      "command": {
-        "description": "Update the cache strategy for a specific template.",
-        "start": "Updating cache strategy for template '{template}'...",
-        "fail": "❌ Failed to update cache strategy for template '{template}'.",
-        "success": "✨ Cache strategy for template '{template}' updated to '{strategy}'."
-      },
-      "template": {
-        "argument": "The name of the template to update"
-      },
-      "strategy": {
-        "argument": "The new cache strategy"
-      },
-      "start": "Updating cache strategy for template '{template}'...",
-      "success": "Cache strategy for template '{template}' updated to '{strategy}'",
-      "fail": "Failed to update cache strategy for template '{template}'",
-      "updating": "Updating cache..."
-    },
-    "check": {
-      "local": "Checking for local or monorepo configuration...",
-      "global": "Local config not found. Checking for global configuration..."
-    },
-    "found": {
-      "local": "Found and using local configuration at {path}.",
-      "global": "No local config found. Using global configuration at {path}."
-    },
-    "not": {
-      "found": {
-        "default": "No configuration file found. Using default settings."
-      }
-    },
-    "template": {
-      "description": "Update a template directly. Use with specific options below."
-    }
-  },
-  "error": {
-    "invalid": {
-      "key": "Invalid key: '{key}'. Valid keys are: {keys}",
-      "value": "Invalid value for {key}. Valid options are: {options}",
-      "command": "Invalid command in configuration: '{command}'",
-      "cache_strategy": "Invalid cache strategy: '{value}'. Valid options are: {options}",
-      "package_manager": "Invalid package manager: '{value}'. Valid options are: {options}",
-      "remove_required": "Cannot remove a required property: '{key}'.",
-      "github-repo": "Invalid or inaccessible GitHub repository URL: {url}",
-      "local-path": "Local path not found: {path}",
-      "location": "Invalid template location. Please provide a valid GitHub URL or local path.",
-      "alias": {
-        "exists": "Alias '{alias}' already exists for another template in this language. Please choose a different alias.",
-        "empty": "Template alias cannot be empty.",
-        "too-short": "Template alias must be at least 10 letters long."
-      },
-      "description": {
-        "empty": "Template description cannot be empty.",
-        "too-short": "Template description must be at least 6 words long."
-      }
-    },
-    "config": {
-      "parse": "Failed to parse {file}. Using default configuration.",
-      "save": "❌ Failed to save configuration file: {file}",
-      "exists": "File already exists at {path}. Use 'config set' to update it.",
-      "not": {
-        "found": "Configuration file not found."
-      },
-      "global": {
-        "not": {
-          "found": "Global configuration file not found. Run 'devkit config init --global' to create one."
-        }
-      },
-      "local": {
-        "not": {
-          "found": "No local configuration file found. Run 'devkit config init --local' to create one."
-        }
-      },
-      "generic": "Configuration error",
-      "init": {
-        "fail": "Failed to initialize configuration.",
-        "local_and_global": "Cannot use both --local and --global flags at the same time."
-      },
-      "read": "Failed to read configuration at {path}.",
-      "no_file_found": "No configuration file found. Run 'devkit config init' to create a global one, or 'devkit config init --local' to create a local one.",
-      "no_file_found_local": "No local configuration file found. Run 'devkit config init --local' to create one."
-    },
-    "file": {
-      "not_found": "Could not find file '{fileName}'."
-    },
-    "package": {
-      "root": {
-        "not_found": "Could not find project root containing package.json."
-      },
-      "file_not_found": "{file} not found at {path}",
-      "failed_to_update_project_name": "Failed to update project name:"
-    },
-    "version": {
-      "read_fail": "Failed to read package.json version."
-    },
-    "template": {
-      "not_found": "Template '{template}' not found in configuration.",
-      "language_not_found": "Template not found for the '{language}' language.",
-      "exists": "Template '{template}' already exists in the configuration. Use 'devkit config set' to update it."
-    },
-    "alias": {
-      "exists": "Alias '{alias}' already exists for another template in this language. Please choose a different alias."
-    },
-    "install": {
-      "message": "Installation error:"
-    },
-    "scaffolding": {
-      "unexpected": "An unexpected error occurred during scaffolding.",
-      "language": {
-        "not_found": "Scaffolding language not found in configuration: '{language}'"
-      }
-    },
-    "command": {
-      "config": {
-        "cache": {
-          "fail": "Failed to update cache strategy for template '{template}'"
-        }
-      },
-      "set": {
-        "invalid_arguments_count": "Invalid number of arguments. Please provide key-value pairs.",
-        "description": "Set a configuration value directly using dot-notation.",
-        "invalid_format": "The values for the '--set' option must be a series of key-value pairs (e.g., --set key1 value1 key2 value2)."
-      },
-      "update": {
-        "no_options": "No update options were provided. Please specify at least one option to update (e.g., --new-name, --description, etc.)."
-      },
-      "mutually_exclusive_options": "You can't use the `{options}` options together. They are mutually exclusive."
-    },
-    "save": {
-      "local": {
-        "config": {
-          "not_found": "Failed to save local configuration. File not found at '{path}'."
-        }
-      }
-    },
-    "git": {
-      "generic": "Git error"
-    },
-    "list": {
-      "global_and_all": "Cannot use both global and "
-    },
-    "unexpected": "An unexpected error occurred",
-    "unknown": "An unknown error occurred",
-    "language_config_not_found": "Programming language '{language}' not found in configuration",
-    "language_required": "Language is required.",
-    "template_name_required": "Template name is required.",
-    "location_required": "Location is required.",
-    "description_required": "Description is required.",
-    "missing_required_options": {
-      "add_template": "Missing required options. Please provide all of the following: {fields}.\nAlternatively, run with the '-i' or '--interactive' flag for guided setup."
-    },
-    "devkit_specific": "Devkit encountered an unexpected internal issue"
-  },
-  "cache": {
-    "clone": {
-      "start": "✨ Cloning new template from {url}...",
-      "success": "✔ Template cloned successfully!",
-      "fail": "❌ Failed to clone repository."
-    },
-    "refresh": {
-      "start": "🔄 Refreshing cached template...",
-      "success": "✔ Template refreshed successfully!",
-      "fail": "❌ Failed to refresh template."
-    },
-    "use": {
-      "info": "🚀 Using cached template for {repoName}."
-    },
-    "copy": {
-      "start": "📂 Copying cached template to project directory...",
-      "success": "✔ Files copied successfully!",
-      "fail": "❌ Failed to copy files from cache."
-    }
-  },
-  "warning": {
-    "no": {
-      "local": {
-        "config": "No local project configuration found. Using global or default settings."
-      }
-    },
-    "global": {
-      "config": {
-        "not": {
-          "initialized": "Global configuration not initialized. Run 'devkit config init' to create one."
-        }
-      }
-    },
-    "no_config_found": "⚠️ No configuration file found. Using default settings.",
-    "no_command_or_option_provided": "Warning: No command or option provided. Use `dk config --help` to see available commands."
-  },
-  "cli": {
-    "add_template": {
-      "description": "Add a new template to the configuration",
-      "options": {
-        "description": "A brief description of the template",
-        "alias": "A short alias for the template",
-        "cache": "The cache strategy for the template",
-        "package_manager": "The package manager to use for the template"
-      },
-      "adding": "Adding template '{templateName}' to configuration...",
-      "success": "Template '{templateName}' added successfully!",
-      "prompts": {
-        "language": "Enter the programming language for the template",
-        "template_name": "Enter the template name",
-        "location": "Enter the template location",
-        "description": "Enter the template description",
-        "alias": "Enter a short alias for the template",
-        "cache_strategy": "Select a cache strategy for the template",
-        "package_manager": "Select a package manager for the template"
-      }
-    }
-  },
   "common": {
     "yes": "Yes",
     "no": "No",
     "none": "None"
   },
-  "info": {
-    "command": {
-      "description": "Display system and environment information for debugging."
+  "program": {
+    "program": {
+      "description": "A powerful devkit for scaffolding new projects.",
+      "verbose_option": "Enable verbose logging for detailed output"
     },
-    "loading": "Collecting system and environment details...",
-    "success_message": "System information collected.",
-    "header": {
-      "cli": "Scaffolder CLI",
-      "runtime": "Runtime Environment",
-      "os_details": "Operating System Details",
-      "config_files": "Configuration Files"
+    "version": {
+      "description": "Output the current version of the CLI."
     },
-    "cli": {
-      "version": "Version"
+    "help": {
+      "description": "Display help for a command."
     },
-    "runtime": {
-      "runtime_name": "Runtime",
-      "runtime_version": "Runtime Version",
-      "package_manager": "Package Manager"
+    "status": {
+      "initializing": "Initializing CLI..."
+    }
+  },
+  "commands": {
+    "new": {
+      "command": {
+        "description": "Create a new project from a template"
+      },
+      "project": {
+        "language": {
+          "argument": "The programming language of the template (e.g., 'react', 'node')"
+        },
+        "name": {
+          "argument": "The name of your new project"
+        },
+        "template": {
+          "option": {
+            "description": "The name of the template to use (e.g., 'ts', 'simple-api')"
+          }
+        }
+      }
     },
-    "os": {
-      "type_version": "OS Type/Release",
-      "architecture": "Architecture",
-      "shell": "Active Shell",
-      "home_dir": "Home Directory"
-    },
-    "shell": {
-      "unknown": "Unknown"
+    "list": {
+      "command": {
+        "description": "List all available templates in the configuration.",
+        "language": {
+          "argument": "The language to filter templates by"
+        },
+        "filter": {
+          "option": "Filter templates by name or substring."
+        }
+      },
+      "options": {
+        "global": "List templates from the global configuration.",
+        "local": "List templates from the local configuration.",
+        "all": "List templates from both local and global configurations."
+      },
+      "output": {
+        "header": "Available Templates:",
+        "settings_header": "Configuration Settings:"
+      }
     },
     "config": {
-      "global_path": "Global Config Path",
-      "local_path": "Local Config Path",
-      "found": "[FOUND]",
-      "not_found": "[NOT FOUND]",
-      "global_expected_location": "in your home directory",
-      "local_expected_location": "in the current working directory"
+      "command": {
+        "description": "Manage DevKit settings"
+      },
+      "interactive": {
+        "prompt_action": "What would you like to configure?",
+        "action": {
+          "settings": "Settings",
+          "templates": "Templates"
+        },
+        "prompt_setting_key": "Choose a setting to modify:",
+        "prompt_template_name": "Choose a template to update:",
+        "prompt_language": "Choose a language:",
+        "prompt_template_property": "Choose a property to update:",
+        "prompt_new_value": "Enter new value for {key}:",
+        "success": "Configuration session complete."
+      },
+      "set": {
+        "command": {
+          "description": "Set one or more configuration values. \n\nAvailable keys:\n  pm, packageManager      - Sets the default package manager to use for new projects.\n                          Possible values: {pmValues}\n  cache, cacheStrategy    - Sets the global caching behavior for remote templates.\n                          Possible values: 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Sets the language of the CLI. Possible values: 'en', 'fr'\n"
+        },
+        "argument": {
+          "description": "A list of key-value pairs to set (e.g., 'pm npm language fr')"
+        },
+        "option": {
+          "global": "Update the global configuration instead of the local one.",
+          "bulk": "Sets multiple configuration properties."
+        }
+      },
+      "get": {
+        "command": {
+          "description": "Get one or more configuration values."
+        },
+        "argument": {
+          "description": "The key of the configuration value to get (e.g., 'pm', 'language')."
+        },
+        "option": {
+          "global": "Get the global configuration instead of the local one."
+        }
+      },
+      "cache": {
+        "command": {
+          "description": "Update the cache strategy for a specific template."
+        },
+        "template": {
+          "argument": "The name of the template to update"
+        },
+        "strategy": {
+          "argument": "The new cache strategy"
+        },
+        "success": "Cache strategy for template '{template}' updated to '{strategy}'"
+      },
+      "update_template": {
+        "command": {
+          "description": "Update properties of a template, such as its alias, description, or location."
+        },
+        "language": {
+          "argument": "The programming language of the template to update."
+        },
+        "template": {
+          "argument": "The name or alias of the template to update."
+        },
+        "options": {
+          "new_name": "A new name for the template.",
+          "description": "A new brief description for the template.",
+          "alias": "A new alias for the template.",
+          "location": "A new location for the template.",
+          "cache_strategy": "A new cache strategy for the template.",
+          "package_manager": "A new package manager for the template.",
+          "global": "Update the template in the global configuration instead of the local one."
+        }
+      },
+      "init": {
+        "command": {
+          "description": "Initializes a configuration file with default settings."
+        },
+        "option": {
+          "local": "Initialize a local configuration file instead of a global one.",
+          "global": "Initialize a global configuration file instead of a local one."
+        },
+        "confirm_overwrite": "Config file already exists at {path}. Do you want to overwrite it?",
+        "confirm_monorepo_overwrite": "A config file exists in the monorepo root at {path}. Do you want to create a new one in the current package?",
+        "monorepo_location": "A monorepo root was found, but no config file exists there. Where do you want to create the new config file?",
+        "location_current": "Create it in the current package.",
+        "location_root": "Create it in the monorepo root.",
+        "aborted": "Operation aborted. No changes were made."
+      },
+      "list": {
+        "command": {
+          "description": "List available settings and templates."
+        },
+        "options": {
+          "all": "List templates from both local and global configurations (merged)."
+        },
+        "settings_header": "Configuration Settings:",
+        "templates_header": "Available Templates:"
+      }
     },
-    "error": {
-      "package_manager_not_found": "{manager} version not found. Is it installed?"
+    "template": {
+      "add": {
+        "description": "Add a new template to the configuration",
+        "options": {
+          "description": "A brief description of the template",
+          "alias": "A short alias for the template",
+          "cache": "The cache strategy for the template",
+          "package_manager": "The package manager to use for the template"
+        },
+        "prompts": {
+          "language": "Template Language",
+          "template_name": "Enter the template name",
+          "location": "Enter the template location",
+          "description": "Enter the template description",
+          "alias": "Enter a short alias for the template",
+          "cache_strategy": "Cache Strategy",
+          "package_manager": "Package Manager"
+        }
+      },
+      "remove": {
+        "command": {
+          "description": "Remove a template from the configuration."
+        },
+        "language": {
+          "argument": "The programming language of the template to remove."
+        },
+        "name": {
+          "argument": "The name or alias of the template to remove."
+        },
+        "option": {
+          "global": "Remove the template from the global configuration instead of the local one."
+        }
+      }
+    },
+    "info": {
+      "command": {
+        "description": "Display system and environment information for debugging."
+      },
+      "header": {
+        "cli": "Scaffolder CLI",
+        "runtime": "Runtime Environment",
+        "os_details": "Operating System Details",
+        "config_files": "Configuration Files"
+      },
+      "cli": {
+        "version": "Version"
+      },
+      "runtime": {
+        "runtime_name": "Runtime",
+        "runtime_version": "Runtime Version",
+        "package_manager": "Package Manager"
+      },
+      "os": {
+        "type_version": "OS Type/Release",
+        "architecture": "Architecture",
+        "shell": "Active Shell",
+        "home_dir": "Home Directory"
+      },
+      "shell": {
+        "unknown": "Unknown"
+      },
+      "config": {
+        "global_path": "Global Config Path",
+        "local_path": "Local Config Path",
+        "found": "[FOUND]",
+        "not_found": "[NOT FOUND]",
+        "global_expected_location": "in your home directory",
+        "local_expected_location": "in the current working directory"
+      }
     }
+  },
+  "messages": {
+    "success": {
+      "program_initialized": "CLI initialized successfully.",
+      "new_project": "✔ Project '{projectName}' created successfully!",
+      "template_cloned_or_cache": "Template cloned and cached successfully.",
+      "template_added": "Template '{templateName}' added successfully!",
+      "template_removed": "Successfully removed {count} template(s) ({templateName}) from {language}.",
+      "template_updated": "✔ Template '{templateName}' updated successfully!",
+      "template_name_updated": "✔ Template '{oldName}' updated to '{newName}' successfully!",
+      "template_summary_updated": "Successfully updated {count} ({templateName}) template(s) from {language}!",
+      "config_updated": "Configuration updated successfully!",
+      "config_initialized": "Configuration file created successfully!",
+      "info_collected": "System information collected.",
+      "scaffolding_complete": "\n🚀 Project created successfully! 🎉",
+      "next_steps": "\n| Next steps:\n"
+    },
+    "status": {
+      "scaffolding_project": "Scaffolding project '{projectName}' with the '{template}' template...",
+      "config_loading": "Loading configuration...",
+      "config_updating": "Updating configuration...",
+      "config_init_start": "Initializing config...",
+      "template_adding": "Adding template '{templateName}' to configuration...",
+      "template_removing": "Removing template(s) from configuration...",
+      "template_updating": "Updating template(s) '{templateName}' in configuration...",
+      "cache_updating": "Updating cache...",
+      "cache_clone_start": "✨ Cloning new template from {url}...",
+      "cache_refresh_start": "🔄 Refreshing cached template...",
+      "cache_use_info": "🚀 Using cached template for {repoName}.",
+      "cache_copy_start": "📂 Copying cached template to project directory...",
+      "info_loading": "Collecting system and environment details...",
+      "config_source_local_and_global": "Using local and global configurations.",
+      "config_source_local": "Using local configuration.",
+      "config_source_global": "Using global configuration.",
+      "templates_using_global_fallback": "No local configuration found. Using templates from global configuration."
+    },
+    "scaffolding": {
+      "start": "Scaffolding {language} project: {project}",
+      "copy_start": "📂 Copying local template files...",
+      "copy_success": "✔ Local template copied successfully!",
+      "run_start": "📦 Running official CLI command: {command}...",
+      "run_success": "✔ Official CLI command ran successfully!",
+      "install_start": "📦 Installing dependencies with {pm}...",
+      "install_success": "✔ Dependencies installed successfully!"
+    },
+    "config_source": {
+      "local_and_global": "Using local and global configurations.",
+      "local": "Using local configuration.",
+      "global": "Using global configuration.",
+      "local_only": "Using templates from local configuration only, as no global configuration was found.",
+      "global_only": "Using templates from global configuration only, as no local configuration was found.",
+      "global_fallback": "No local configuration found. Using templates from global configuration.",
+      "using_local_and_global": "Using templates from both local and global configurations."
+    },
+    "config_check": {
+      "check_local": "Checking for local or monorepo configuration...",
+      "check_global": "Local config not found. Checking for global configuration...",
+      "found_local": "Found and using local configuration at {path}.",
+      "found_global": "No local config found. Using global configuration at {path}.",
+      "found_existing": "Configuration file already exists at {path}. Skipping initialization."
+    }
+  },
+  "errors": {
+    "generic": {
+      "unexpected": "An unexpected error occurred",
+      "unknown": "An unknown error occurred",
+      "devkit_specific": "Devkit encountered an unexpected internal issue",
+      "aborted": "Operation aborted. No changes were made."
+    },
+    "validation": {
+      "invalid_key": "Invalid key: '{key}'. Valid keys are: {keys}",
+      "invalid_value": "Invalid value for {key}. Valid options are: {options}",
+      "invalid_command": "Invalid command in configuration: '{command}'",
+      "invalid_cache_strategy": "Invalid cache strategy: '{value}'. Valid options are: {options}",
+      "invalid_package_manager": "Invalid package manager: '{value}'. Valid options are: {options}",
+      "remove_required": "Cannot remove a required property: '{key}'.",
+      "alias_exists": "Alias '{alias}' already exists for another template in this language. Please choose a different alias.",
+      "alias_empty": "Template alias cannot be empty.",
+      "alias_too_short": "Template alias must be at least 10 letters long.",
+      "description_empty": "Template description cannot be empty.",
+      "description_too_short": "Template description must be at least 6 words long.",
+      "github_repo": "Invalid or inaccessible GitHub repository URL: {url}",
+      "local_path": "Local path not found: {path}",
+      "location": "Invalid template location. Please provide a valid GitHub URL or local path.",
+      "language_required": "Language is required.",
+      "template_name_required": "Template name is required.",
+      "location_required": "Location is required.",
+      "description_required": "Description is required."
+    },
+    "config": {
+      "parse_fail": "Failed to parse {file}. Using default configuration.",
+      "save_fail": "❌ Failed to save configuration file: {file}",
+      "exists": "File already exists at {path}. Use 'config set' to update it.",
+      "not_found": "Configuration file not found.",
+      "read_fail": "Failed to read configuration at {path}.",
+      "no_file_found": "No configuration file found. Run 'devkit config init' to create a global one, or 'devkit config init --local' to create a local one.",
+      "no_file_found_local": "No local configuration file found. Run 'devkit config init --local' to create one.",
+      "init_fail": "Failed to initialize configuration.",
+      "init_local_and_global": "Cannot use both --local and --global flags at the same time.",
+      "global_not_found": "Global configuration file not found. Run 'devkit config init --global' to create one.",
+      "local_not_found": "No local configuration file found. Run 'devkit config init --local' to create one.",
+      "get_key_not_found": "Configuration key '{key}' not found."
+    },
+    "template": {
+      "not_found": "Template '{template}' not found in configuration.",
+      "language_not_found": "Template not found for the '{language}' language.",
+      "exists": "Template '{template}' already exists in the configuration. Use 'devkit config set' to update it.",
+      "single_fail": "❌ Failed to update '{templateName}': {error}"
+    },
+    "scaffolding": {
+      "fail": "❌ Failed to scaffold project: {error}",
+      "copy_fail": "❌ Failed to copy local template.",
+      "run_fail": "❌ Failed to run official CLI command.",
+      "install_fail": "❌ Failed to install dependencies.",
+      "unexpected": "An unexpected error occurred during scaffolding.",
+      "language_not_found": "Scaffolding language not found in configuration: '{language}'"
+    },
+    "command": {
+      "set_invalid_arguments_count": "Invalid number of arguments. Please provide key-value pairs.",
+      "set_invalid_format": "The values for the '--set' option must be a series of key-value pairs (e.g., --set key1 value1 key2 value2).",
+      "update_no_options": "No update options were provided. Please specify at least one option to update (e.g., --new-name, --description, etc.).",
+      "mutually_exclusive_options": "You can't use the `{options}` options together. They are mutually exclusive.",
+      "missing_required_options": "Missing required options. Please provide all of the following: {fields}.\nAlternatively, run with the '-i' or '--interactive' flag for guided setup."
+    },
+    "system": {
+      "file_not_found": "Could not find file '{fileName}'.",
+      "package_root_not_found": "Could not find project root containing package.json.",
+      "package_file_not_found": "{file} not found at {path}",
+      "package_name_update_fail": "Failed to update project name:",
+      "version_read_fail": "Failed to read package.json version.",
+      "git_generic": "Git error",
+      "info_package_manager_not_found": "{manager} version not found. Is it installed?"
+    },
+    "cache": {
+      "clone_fail": "❌ Failed to clone repository.",
+      "refresh_fail": "❌ Failed to refresh template.",
+      "copy_fail": "❌ Failed to copy files from cache."
+    }
+  },
+  "warnings": {
+    "not_found": "⚠️ No configuration file found. Using default settings.",
+    "no_local_config": "No local project configuration found. Using global or default settings.",
+    "global_not_initialized": "Global configuration not initialized. Run 'devkit config init' to create one.",
+    "template_not_found": "No templates found in the configuration file.",
+    "templates_not_found": "The following templates were not found: {templates}.",
+    "no_command_provided": "Warning: No command or option provided. Use `dk config --help` to see available commands.",
+    "no_config_found": "⚠️ No configuration file found. Using default configuration."
   }
 }

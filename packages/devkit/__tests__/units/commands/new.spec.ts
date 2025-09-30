@@ -14,7 +14,7 @@ const {
   mockValidateProgrammingLanguage: vi.fn(),
 }));
 
-let actionFn: any;
+let actionFn: (...options: unknown[]) => Promise<void>;
 vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
@@ -26,6 +26,15 @@ vi.mock("#scaffolding/javascript.js", () => ({
 vi.mock("#utils/validations/config.js", () => ({
   validateProgrammingLanguage: mockValidateProgrammingLanguage,
 }));
+
+const LANGUAGE_NOT_FOUND_KEY = "errors.scaffolding.language_not_found";
+const TEMPLATE_NOT_FOUND_KEY = "errors.template.not_found";
+const NEW_PROJECT_SUCCESS_KEY = "messages.success.new_project";
+
+const CMD_DESCRIPTION_KEY = "commands.new.command.description";
+const LANG_ARGUMENT_KEY = "commands.new.project.language.argument";
+const NAME_ARGUMENT_KEY = "commands.new.project.name.argument";
+const TEMPLATE_OPTION_KEY = "commands.new.project.template.option.description";
 
 describe("setupNewCommand", () => {
   let mockProgram: any;
@@ -89,20 +98,18 @@ describe("setupNewCommand", () => {
     });
     expect(mockProgram.command).toHaveBeenCalledWith("new");
     expect(mockProgram.alias).toHaveBeenCalledWith("nw");
-    expect(mockProgram.description).toHaveBeenCalledWith(
-      "new.command.description",
-    );
+    expect(mockProgram.description).toHaveBeenCalledWith(CMD_DESCRIPTION_KEY);
     expect(mockProgram.argument).toHaveBeenCalledWith(
       "<language>",
-      "new.project.language.argument",
+      LANG_ARGUMENT_KEY,
     );
     expect(mockProgram.argument).toHaveBeenCalledWith(
       "<projectName>",
-      "new.project.name.argument",
+      NAME_ARGUMENT_KEY,
     );
     expect(mockProgram.requiredOption).toHaveBeenCalledWith(
       "-t, --template <string>",
-      "new.project.template.option.description",
+      TEMPLATE_OPTION_KEY,
     );
   });
 
@@ -130,7 +137,7 @@ describe("setupNewCommand", () => {
       cacheStrategy: "always-refresh",
     });
     expect(mockSpinner.succeed).toHaveBeenCalledWith(
-      "new.project.success- options projectName:react-project",
+      `${NEW_PROJECT_SUCCESS_KEY}- options projectName:react-project`,
     );
     expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
   });
@@ -158,7 +165,7 @@ describe("setupNewCommand", () => {
       cacheStrategy: "daily",
     });
     expect(mockSpinner.succeed).toHaveBeenCalledWith(
-      "new.project.success- options projectName:vue-project",
+      `${NEW_PROJECT_SUCCESS_KEY}- options projectName:vue-project`,
     );
     expect(mockSpinner.stop).toHaveBeenCalledOnce();
     expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
@@ -174,17 +181,13 @@ describe("setupNewCommand", () => {
     const projectName = "my-python-project";
     const cmdOptions = { template: "my-template" };
 
-    const programmingLanguageError = new DevkitError(
-      "error.language_config_not_found- options language:python",
-    );
-    mockValidateProgrammingLanguage.mockRejectedValueOnce(
-      programmingLanguageError,
-    );
+    const expectedErrorMessage = `${LANGUAGE_NOT_FOUND_KEY}- options language:python`;
+    const languageError = new DevkitError(expectedErrorMessage);
 
     await actionFn(language, projectName, cmdOptions);
 
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      programmingLanguageError,
+      languageError,
       mockSpinner,
     );
   });
@@ -203,7 +206,7 @@ describe("setupNewCommand", () => {
 
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
       new DevkitError(
-        "error.template.not_found- options template:non-existent-template",
+        `${TEMPLATE_NOT_FOUND_KEY}- options template:non-existent-template`,
       ),
       mockSpinner,
     );

@@ -28,7 +28,7 @@ async function handleConfigAction(
   if (bulkSetValues && bulkSetValues.length > 0) {
     if (bulkSetValues.length % 2 !== 0) {
       spinner.fail(
-        logger.colors.redBright(t("error.command.set.invalid_format")),
+        logger.colors.redBright(t("errors.command.set_invalid_format")),
       );
       return;
     }
@@ -37,7 +37,7 @@ async function handleConfigAction(
       const bulkValue = bulkSetValues[i + 1];
       await handleNonInteractiveSettingsUpdate(bulkKey, bulkValue, !!isGlobal);
     }
-    spinner.succeed(logger.colors.green(t("config.set.success")));
+    spinner.succeed(logger.colors.green(t("messages.success.config_updated")));
     return;
   }
 
@@ -47,27 +47,31 @@ async function handleConfigAction(
       if (configValue !== undefined) {
         logger.log(logger.colors.yellowBold(key) + ": " + configValue);
       } else {
-        logger.log(logger.colors.redBright(t("config.get.not_found", { key })));
+        logger.log(
+          logger.colors.redBright(
+            t("errors.config.get_key_not_found", { key }),
+          ),
+        );
       }
     });
-    spinner.succeed(logger.colors.green(t("config.get.success")));
+    spinner.succeed(logger.colors.green(t("messages.success.config_updated")));
     return;
   }
 
-  spinner.warn(t("warning.no_command_or_option_provided"));
+  spinner.warn(t("warnings.no_command_provided"));
 }
 
 export function setupConfigCommand(program: Command): void {
   const configCommand = program
     .command("config [keys...]")
     .alias("conf")
-    .description(t("config.command.description"))
-    .option("-g, --global", t("config.update.option.global"), false)
-    .option("-s, --set <value...>", t("config.set.option.bulk"), false)
+    .description(t("commands.config.command.description"))
+    .option("-g, --global", t("commands.config.set.option.global"), false)
+    .option("-s, --set <value...>", t("commands.config.set.option.bulk"), false)
     .action(async (keys: string[], cmdOptions: ConfigOptions) => {
       const spinner: TSpinner = logger
         .spinner()
-        .start(logger.colors.cyan(t("config.get.loading")));
+        .start(logger.colors.cyan(t("messages.status.config_loading")));
       try {
         await handleConfigAction(keys, cmdOptions, spinner);
       } catch (error: unknown) {

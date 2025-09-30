@@ -191,7 +191,7 @@ describe("dk config remove", () => {
       "Successfully removed 1 template(s) (vue-basic) from javascript.",
     );
     expect(all).toContain(
-      "⚠️ Warning: The following templates were not found: not-found",
+      "⚠️ The following templates were not found: not-found",
     );
     expect(
       updatedConfig.templates.javascript.templates["vue-basic"],
@@ -215,7 +215,7 @@ describe("dk config remove", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "❌ Devkit encountered an unexpected internal issue: Template 'not-found-1, not-found-2' not found in configuration.",
+      "::[DEV]>> Devkit encountered an unexpected internal issue: Template 'not-found-1, not-found-2' not found in configuration.",
     );
   });
 
@@ -229,7 +229,7 @@ describe("dk config remove", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "❌ Devkit encountered an unexpected internal issue: Invalid value for language. Valid options are: javascript",
+      "::[DEV]>> Devkit encountered an unexpected internal issue: Invalid value for Programming Language. Valid options are: javascript",
     );
   });
 

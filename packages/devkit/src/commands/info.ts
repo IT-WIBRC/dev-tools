@@ -10,31 +10,34 @@ const printInfo = (info: SystemInfo): void => {
     items: [string, string | { path: string; exists: boolean }][];
   }[] = [
     {
-      titleKey: "info.header.cli",
-      items: [[t("info.cli.version"), info.cliVersion]],
+      titleKey: "commands.info.header.cli",
+      items: [[t("commands.info.cli.version"), info.cliVersion]],
     },
     {
-      titleKey: "info.header.runtime",
+      titleKey: "commands.info.header.runtime",
       items: [
-        [t("info.runtime.runtime_name"), info.runtimeName],
-        [t("info.runtime.runtime_version"), info.runtimeVersion],
-        [t("info.runtime.package_manager"), info.packageManagerVersion],
+        [t("commands.info.runtime.runtime_name"), info.runtimeName],
+        [t("commands.info.runtime.runtime_version"), info.runtimeVersion],
+        [
+          t("commands.info.runtime.package_manager"),
+          info.packageManagerVersion,
+        ],
       ],
     },
     {
-      titleKey: "info.header.os_details",
+      titleKey: "commands.info.header.os_details",
       items: [
-        [t("info.os.type_version"), info.os],
-        [t("info.os.architecture"), info.arch],
-        [t("info.os.shell"), info.shell],
-        [t("info.os.home_dir"), info.homeDir],
+        [t("commands.info.os.type_version"), info.os],
+        [t("commands.info.os.architecture"), info.arch],
+        [t("commands.info.os.shell"), info.shell],
+        [t("commands.info.os.home_dir"), info.homeDir],
       ],
     },
     {
-      titleKey: "info.header.config_files",
+      titleKey: "commands.info.header.config_files",
       items: [
-        [t("info.config.global_path"), info.globalConfig],
-        [t("info.config.local_path"), info.localConfig],
+        [t("commands.info.config.global_path"), info.globalConfig],
+        [t("commands.info.config.local_path"), info.localConfig],
       ],
     },
   ];
@@ -54,8 +57,8 @@ const printInfo = (info: SystemInfo): void => {
         displayValue = value;
       } else {
         const status = value.exists
-          ? logger.colors.green(t("info.config.found"))
-          : logger.colors.red(t("info.config.not_found"));
+          ? logger.colors.green(t("commands.info.config.found"))
+          : logger.colors.red(t("commands.info.config.not_found"));
         displayValue = `${value.path} ${status}`;
       }
 
@@ -72,14 +75,16 @@ export function setupInfoCommand(options: SetupCommandOptions): void {
   program
     .command("info")
     .alias("in")
-    .description(t("info.command.description"))
+    .description(t("commands.info.command.description"))
     .action(async () => {
-      const spinner: TSpinner = logger.spinner(t("info.loading")).start();
+      const spinner: TSpinner = logger
+        .spinner(t("messages.status.info_loading"))
+        .start();
       try {
         const info = await collectSystemInfo(cliVersion);
 
         spinner.stop();
-        spinner.succeed(t("info.success_message"));
+        spinner.succeed(t("messages.success.info_collected"));
 
         printInfo(info);
       } catch (error: unknown) {

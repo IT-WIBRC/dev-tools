@@ -54,6 +54,16 @@ describe("setupConfigCommand", () => {
   let mockProgram: any;
   let mockAction: (keys: string[], cmdOptions: any) => Promise<void>;
 
+  const DESC_KEY = "commands.config.command.description";
+  const GLOBAL_OPT_KEY = "commands.config.set.option.global";
+  const SET_BULK_OPT_KEY = "commands.config.set.option.bulk";
+  const NO_COMMAND_WARN_KEY = "warnings.no_command_provided";
+  const SET_SUCCESS_KEY = "messages.success.config_updated";
+  const GET_SUCCESS_KEY = "messages.success.config_updated";
+  const INVALID_FORMAT_KEY = "errors.command.set_invalid_format";
+  const GET_NOT_FOUND_KEY = "errors.config.get_key_not_found";
+  const CONFIG_LOADING_KEY = "messages.status.config_loading";
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockProgram = {
@@ -73,17 +83,16 @@ describe("setupConfigCommand", () => {
 
     expect(mockProgram.command).toHaveBeenCalledWith("config [keys...]");
     expect(mockProgram.alias).toHaveBeenCalledWith("conf");
-    expect(mockProgram.description).toHaveBeenCalledWith(
-      mocktFn("config.command.description"),
-    );
+    // Updated translation key
+    expect(mockProgram.description).toHaveBeenCalledWith(mocktFn(DESC_KEY));
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-g, --global",
-      mocktFn("config.update.option.global"),
+      mocktFn(GLOBAL_OPT_KEY),
       false,
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-s, --set <value...>",
-      mocktFn("config.set.option.bulk"),
+      mocktFn(SET_BULK_OPT_KEY),
       false,
     );
     expect(mockSetupAddCommand).toHaveBeenCalledWith(mockProgram);
@@ -93,7 +102,7 @@ describe("setupConfigCommand", () => {
   });
 
   describe("action handler", () => {
-    it("should call handleInteractiveConfig in interactive mode", async () => {
+    it("should default to warning if no keys or options are provided (non-interactive mode)", async () => {
       const mockConfig = { settings: {}, templates: {} };
       mockReadAndMergeConfigs.mockResolvedValue({
         config: mockConfig,
@@ -103,14 +112,17 @@ describe("setupConfigCommand", () => {
       setupConfigCommand(mockProgram);
       await mockAction([], { global: false });
 
+      expect(mockSpinner.start).toHaveBeenCalledWith(
+        mockLogger.colors.cyan(mocktFn(CONFIG_LOADING_KEY)),
+      );
       expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
         forceGlobal: false,
       });
-      expect(mockSpinner.start).toHaveBeenCalledOnce();
 
       expect(mockSpinner.warn).toHaveBeenCalledOnce();
+
       expect(mockSpinner.warn).toHaveBeenCalledWith(
-        mockLogger.colors.green("warning.no_command_or_option_provided"),
+        mocktFn(NO_COMMAND_WARN_KEY),
       );
     });
 
@@ -122,7 +134,10 @@ describe("setupConfigCommand", () => {
 
       setupConfigCommand(mockProgram);
 
-      const cmdOptions = { set: ["language", "typescript"], global: false };
+      const cmdOptions = {
+        set: ["language", "typescript", "pm", "bun"],
+        global: false,
+      };
       await mockAction([], cmdOptions);
 
       expect(mockHandleNonInteractiveSettingsUpdate).toHaveBeenCalledWith(
@@ -130,8 +145,15 @@ describe("setupConfigCommand", () => {
         "typescript",
         false,
       );
+
+      expect(mockHandleNonInteractiveSettingsUpdate).toHaveBeenCalledWith(
+        "pm",
+        "bun",
+        false,
+      );
+
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockLogger.colors.green("config.set.success"),
+        mockLogger.colors.green(mocktFn(SET_SUCCESS_KEY)),
       );
     });
 
@@ -147,12 +169,13 @@ describe("setupConfigCommand", () => {
       await mockAction([], cmdOptions);
 
       expect(mockHandleNonInteractiveSettingsUpdate).not.toHaveBeenCalled();
+
       expect(mockSpinner.fail).toHaveBeenCalledWith(
-        mockLogger.colors.redBright("error.command.set.invalid_format"),
+        mockLogger.colors.redBright(mocktFn(INVALID_FORMAT_KEY)),
       );
     });
 
-    it("should print a single config value when a key is provided", async () => {
+    it("should print a single config value when a key is provided (GET functionality)", async () => {
       const mockConfig = {
         settings: { language: "typescript" },
         templates: {},
@@ -168,12 +191,13 @@ describe("setupConfigCommand", () => {
       expect(mockLogger.log).toHaveBeenCalledWith(
         mockLogger.colors.yellowBold("language") + ": " + "typescript",
       );
+
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockLogger.colors.green("config.get.success"),
+        mockLogger.colors.green(mocktFn(GET_SUCCESS_KEY)),
       );
     });
 
-    it("should print multiple config values when multiple keys are provided", async () => {
+    it("should print multiple config values when multiple keys are provided (GET functionality)", async () => {
       const mockConfig = {
         settings: {
           language: "typescript",
@@ -195,12 +219,13 @@ describe("setupConfigCommand", () => {
       expect(mockLogger.log).toHaveBeenCalledWith(
         mockLogger.colors.yellowBold("packageManager") + ": " + "bun",
       );
+
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockLogger.colors.green("config.get.success"),
+        mockLogger.colors.green(mocktFn(GET_SUCCESS_KEY)),
       );
     });
 
-    it("should handle a non-existent key gracefully", async () => {
+    it("should handle a non-existent key gracefully (GET functionality)", async () => {
       const mockConfig = { settings: {}, templates: {} };
       mockReadAndMergeConfigs.mockResolvedValue({
         config: mockConfig,
@@ -212,13 +237,13 @@ describe("setupConfigCommand", () => {
 
       expect(mockLogger.log).toHaveBeenCalledWith(
         mockLogger.colors.redBright(
-          mocktFn("config.get.not_found", {
+          mocktFn(GET_NOT_FOUND_KEY, {
             key: "nonexistent_key",
           }),
         ),
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockLogger.colors.green("config.get.success"),
+        mockLogger.colors.green(mocktFn(GET_SUCCESS_KEY)),
       );
     });
 

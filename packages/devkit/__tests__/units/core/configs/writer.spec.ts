@@ -33,6 +33,10 @@ const mockConfig = {
   },
 };
 
+const CONFIG_SAVE_FAIL_KEY = "errors.config.save_fail";
+const CONFIG_NOT_FOUND_KEY = "errors.config.not_found";
+const TEMPLATE_NOT_FOUND_KEY = "errors.template.not_found";
+
 describe("Configuration Writer Functions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -56,7 +60,7 @@ describe("Configuration Writer Functions", () => {
       DevkitError,
     );
     await expect(saveConfig({} as any, "file.json")).rejects.toThrow(
-      "error.config.save",
+      CONFIG_SAVE_FAIL_KEY,
     );
   });
 
@@ -100,7 +104,7 @@ describe("Configuration Writer Functions", () => {
         "never-refresh",
         mockConfig as any,
       ),
-    ).rejects.toThrow("error.config.not.found");
+    ).rejects.toThrow(CONFIG_NOT_FOUND_KEY);
   });
 
   it("updateTemplateCacheStrategy should throw a ConfigError if the template is not found", async () => {
@@ -118,6 +122,6 @@ describe("Configuration Writer Functions", () => {
         "never-refresh",
         mockConfig as any,
       ),
-    ).rejects.toThrow("error.template.not_found");
+    ).rejects.toThrow(TEMPLATE_NOT_FOUND_KEY);
   });
 });

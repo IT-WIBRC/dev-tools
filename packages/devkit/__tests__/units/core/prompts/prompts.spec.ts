@@ -18,6 +18,11 @@ vi.mock("@inquirer/prompts", () => ({
   select: mockSelect,
 }));
 
+const NEW_LANGUAGE_KEY = "commands.template.add.prompts.language";
+const NEW_PM_KEY = "commands.template.add.prompts.package_manager";
+const NEW_CACHE_KEY = "commands.template.add.prompts.cache_strategy";
+const NEW_NONE_KEY = "common.none";
+
 describe("prompts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -31,7 +36,7 @@ describe("prompts", () => {
       const result = await promptForLanguage();
 
       expect(mockSelect).toHaveBeenCalledWith({
-        message: "cli.add_template.prompts.language (required)",
+        message: `${NEW_LANGUAGE_KEY} (required)`,
         choices: Object.values(ProgrammingLanguage).map((lang) => ({
           name: lang,
           value: lang.toLowerCase(),
@@ -48,7 +53,7 @@ describe("prompts", () => {
       const result = await promptForLanguage(false, "javascript");
 
       expect(mockSelect).toHaveBeenCalledWith({
-        message: "cli.add_template.prompts.language (optional)",
+        message: `${NEW_LANGUAGE_KEY} (optional)`,
         choices: Object.values(ProgrammingLanguage).map((lang) => ({
           name: lang,
           value: lang.toLowerCase(),
@@ -67,7 +72,7 @@ describe("prompts", () => {
       const result = await promptForPackageManager();
 
       expect(mockSelect).toHaveBeenCalledWith({
-        message: "cli.add_template.prompts.package_manager (required)",
+        message: `${NEW_PM_KEY} (required)`,
         choices: VALID_PACKAGE_MANAGERS.map((pm) => ({ name: pm, value: pm })),
         default: undefined,
       });
@@ -81,10 +86,10 @@ describe("prompts", () => {
       const result = await promptForPackageManager(false);
 
       expect(mockSelect).toHaveBeenCalledWith({
-        message: "cli.add_template.prompts.package_manager (optional)",
+        message: `${NEW_PM_KEY} (optional)`,
         choices: [
           ...VALID_PACKAGE_MANAGERS.map((pm) => ({ name: pm, value: pm })),
-          { name: "common.none", value: null },
+          { name: NEW_NONE_KEY, value: null },
         ],
         default: undefined,
       });
@@ -100,7 +105,7 @@ describe("prompts", () => {
       const result = await promptForCacheStrategy();
 
       expect(mockSelect).toHaveBeenCalledWith({
-        message: "cli.add_template.prompts.cache_strategy (required)",
+        message: `${NEW_CACHE_KEY} (required)`,
         choices: VALID_CACHE_STRATEGIES.map((strategy) => ({
           name: strategy,
           value: strategy,
@@ -117,13 +122,13 @@ describe("prompts", () => {
       const result = await promptForCacheStrategy(false);
 
       expect(mockSelect).toHaveBeenCalledWith({
-        message: "cli.add_template.prompts.cache_strategy (optional)",
+        message: `${NEW_CACHE_KEY} (optional)`,
         choices: [
           ...VALID_CACHE_STRATEGIES.map((strategy) => ({
             name: strategy,
             value: strategy,
           })),
-          { name: "common.none", value: null },
+          { name: NEW_NONE_KEY, value: null },
         ],
         default: undefined,
       });

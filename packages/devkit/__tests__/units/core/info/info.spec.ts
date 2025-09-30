@@ -84,6 +84,11 @@ const mockGlobalBun = (version: string | undefined) => {
   }
 };
 
+const NEW_GLOBAL_CONFIG_KEY = "commands.info.config.global_expected_location";
+const NEW_LOCAL_CONFIG_KEY = "commands.info.config.local_expected_location";
+const NEW_SHELL_UNKNOWN_KEY = "commands.info.shell.unknown";
+const NEW_PM_NOT_FOUND_KEY = "errors.system.info_package_manager_not_found";
+
 describe("collectSystemInfo", () => {
   beforeEach(() => {
     mockReadAndMergeConfigs.mockResolvedValue({
@@ -109,10 +114,8 @@ describe("collectSystemInfo", () => {
       expect(info.globalConfig.exists).toBe(false);
       expect(info.localConfig.exists).toBe(false);
 
-      expect(info.globalConfig.path).toBe(
-        "info.config.global_expected_location",
-      );
-      expect(info.localConfig.path).toBe("info.config.local_expected_location");
+      expect(info.globalConfig.path).toBe(NEW_GLOBAL_CONFIG_KEY);
+      expect(info.localConfig.path).toBe(NEW_LOCAL_CONFIG_KEY);
 
       expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
         mergeAll: false,
@@ -169,12 +172,12 @@ describe("collectSystemInfo", () => {
       expect(info.shell).toBe(MOCKED_SHELL);
     });
 
-    it("should fall back to 'info.shell.unknown' if shell environment variables are missing", async () => {
+    it("should fall back to 'commands.info.shell.unknown' if shell environment variables are missing", async () => {
       vi.spyOn(process, "env", "get").mockReturnValueOnce({});
 
       const info = await collectSystemInfo(MOCKED_CLI_VERSION);
 
-      expect(info.shell).toBe("info.shell.unknown");
+      expect(info.shell).toBe(NEW_SHELL_UNKNOWN_KEY);
     });
   });
 
@@ -221,7 +224,13 @@ describe("collectSystemInfo", () => {
 
     it("Priority 3: Should use 'bun' default when config is missing and nothing is detected", async () => {
       vi.restoreAllMocks();
-      mockReadAndMergeConfigs.mockResolvedValueOnce({ config: undefined });
+      vi.spyOn(process, "version", "get").mockReturnValue(MOCKED_NODE_VERSION);
+      vi.spyOn(process, "env", "get").mockReturnValue({ SHELL: MOCKED_SHELL });
+      vi.mock("os", () => ({ default: mockOs }));
+
+      mockReadAndMergeConfigs.mockResolvedValueOnce({
+        config: defaultCliConfig,
+      });
       mockGetPackageManager.mockResolvedValueOnce(null);
       mockExeca.mockImplementationOnce((cmd) =>
         cmd === "bun"
@@ -249,7 +258,7 @@ describe("collectSystemInfo", () => {
       const info = await collectSystemInfo(MOCKED_CLI_VERSION);
 
       expect(info.packageManagerVersion).toBe(
-        mocktFn("info.error.package_manager_not_found", { manager: "bun" }),
+        mocktFn(NEW_PM_NOT_FOUND_KEY, { manager: "bun" }),
       );
     });
   });

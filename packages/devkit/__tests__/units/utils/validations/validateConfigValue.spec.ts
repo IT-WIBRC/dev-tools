@@ -42,7 +42,7 @@ describe("validateConfigValue", () => {
 
     expect(() => validateConfigValue(invalidKey, value)).toThrow(DevkitError);
     expect(() => validateConfigValue(invalidKey, value)).toThrow(
-      mocktFn("error.invalid.key", {
+      mocktFn("errors.validation.invalid_key", {
         key: invalidKey,
         keys: Object.keys(configAliases).join(", "),
       }),
@@ -81,7 +81,7 @@ describe("validateConfigValue", () => {
     const value = "someValue";
     expect(() => validateConfigValue(key, value)).not.toThrowError(
       new DevkitError(
-        mocktFn("error.invalid.key", {
+        mocktFn("errors.validation.invalid_key", {
           key,
           keys: Object.keys(mockAliasesWithDummy).join(", "),
         }),

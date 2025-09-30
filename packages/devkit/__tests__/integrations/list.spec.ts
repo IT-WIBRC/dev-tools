@@ -106,7 +106,7 @@ describe("dk list", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("Using templates from local configuration.");
+    expect(all).toContain("Using local configuration.");
     expect(all).toContain("Available Templates:");
     expect(all).toContain("JAVASCRIPT");
     expect(all).toContain("NODE");
@@ -172,7 +172,7 @@ describe("dk list", () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("Using templates from local configuration.");
+    expect(all).toContain("Using local configuration.");
     expect(all).toContain("JAVASCRIPT");
     expect(all).toContain("react-ts");
     expect(all).toContain("vue-basic");
@@ -196,7 +196,7 @@ describe("dk list", () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("Using templates from local configuration.");
+    expect(all).toContain("Using local configuration.");
     expect(all).toContain("JAVASCRIPT");
     expect(all).toContain("vue-basic");
     expect(all).not.toContain("react-ts");
@@ -221,7 +221,7 @@ describe("dk list", () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("Using templates from local configuration.");
+    expect(all).toContain("Using local configuration.");
     expect(all).toContain("JAVASCRIPT");
     expect(all).toContain("react-ts");
     expect(all).not.toContain("vue-basic");
@@ -239,7 +239,7 @@ describe("dk list", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "Invalid value for language. Valid options are: javascript",
+      "::[DEV]>> Devkit encountered an unexpected internal issue: Invalid value for Programming Language. Valid options are: javascript",
     );
   });
 

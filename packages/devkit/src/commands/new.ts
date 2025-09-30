@@ -10,7 +10,9 @@ const getScaffolder = async (language: string) => {
     const { scaffoldProject } = await import("#scaffolding/javascript.js");
     return scaffoldProject;
   }
-  throw new DevkitError(t("error.language_config_not_found", { language }));
+  throw new DevkitError(
+    t("errors.scaffolding.language_not_found", { language }),
+  );
 };
 
 export function setupNewCommand(options: SetupCommandOptions) {
@@ -18,12 +20,12 @@ export function setupNewCommand(options: SetupCommandOptions) {
   program
     .command("new")
     .alias("nw")
-    .description(t("new.command.description"))
-    .argument("<language>", t("new.project.language.argument"))
-    .argument("<projectName>", t("new.project.name.argument"))
+    .description(t("commands.new.command.description"))
+    .argument("<language>", t("commands.new.project.language.argument"))
+    .argument("<projectName>", t("commands.new.project.name.argument"))
     .requiredOption(
       "-t, --template <string>",
-      t("new.project.template.option.description"),
+      t("commands.new.project.template.option.description"),
     )
     .action(async (language, projectName, cmdOptions) => {
       const { template } = cmdOptions;
@@ -31,7 +33,7 @@ export function setupNewCommand(options: SetupCommandOptions) {
       const scaffoldSpinner: TSpinner = logger
         .spinner(
           logger.colors.cyan(
-            t("new.project.scaffolding", {
+            t("messages.status.scaffolding_project", {
               projectName,
               template: template,
             }),
@@ -45,7 +47,7 @@ export function setupNewCommand(options: SetupCommandOptions) {
         const languageTemplates = config.templates[language];
         if (!languageTemplates) {
           throw new DevkitError(
-            t("error.language_config_not_found", { language }),
+            t("errors.scaffolding.language_not_found", { language }),
           );
         }
 
@@ -56,7 +58,7 @@ export function setupNewCommand(options: SetupCommandOptions) {
           );
 
         if (!templateConfig) {
-          throw new DevkitError(t("error.template.not_found", { template }));
+          throw new DevkitError(t("errors.template.not_found", { template }));
         }
 
         const scaffoldAppropriateProject = await getScaffolder(language);
@@ -75,7 +77,9 @@ export function setupNewCommand(options: SetupCommandOptions) {
         });
 
         scaffoldSpinner.succeed(
-          logger.colors.green(t("new.project.success", { projectName })),
+          logger.colors.green(
+            t("messages.success.new_project", { projectName }),
+          ),
         );
       } catch (error) {
         handleErrorAndExit(error, scaffoldSpinner);

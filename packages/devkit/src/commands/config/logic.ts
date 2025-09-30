@@ -19,6 +19,7 @@ import {
 import {
   validatePackageManager,
   validateCacheStrategy,
+  validateProgrammingLanguage,
 } from "#utils/validations/config.js";
 
 async function saveConfig(
@@ -42,7 +43,7 @@ export async function handleNonInteractiveSettingsUpdate(
   });
 
   if (source === "default" && !isGlobal) {
-    throw new DevkitError(t("error.config.local.not.found"));
+    throw new DevkitError(t("errors.config.local_not_found"));
   }
 
   const canonicalKey = (
@@ -74,12 +75,16 @@ export async function handleNonInteractiveTemplateUpdate(
   });
 
   if (source === "default" && !isGlobal) {
-    throw new DevkitError(t("error.config.local.not.found"));
+    throw new DevkitError(t("errors.config.local_not_found"));
   }
+
+  validateProgrammingLanguage(language);
 
   const languageTemplates = config.templates[language];
   if (!languageTemplates) {
-    throw new DevkitError(t("error.language_config_not_found", { language }));
+    throw new DevkitError(
+      t("errors.template.language_not_found", { language }),
+    );
   }
 
   const templateKey = Object.keys(languageTemplates.templates).find(
@@ -90,7 +95,7 @@ export async function handleNonInteractiveTemplateUpdate(
 
   if (!templateKey) {
     throw new DevkitError(
-      t("error.template.not_found", { template: templateName }),
+      t("errors.template.not_found", { template: templateName }),
     );
   }
 
@@ -141,7 +146,7 @@ export async function handleNonInteractiveTemplateUpdate(
   if (cmdOptions.newName && cmdOptions.newName !== templateKey) {
     if (languageTemplates.templates[cmdOptions.newName]) {
       throw new DevkitError(
-        t("error.template.exists", { template: cmdOptions.newName }),
+        t("errors.template.exists", { template: cmdOptions.newName }),
       );
     }
     languageTemplates.templates[cmdOptions.newName] = finalTemplate;

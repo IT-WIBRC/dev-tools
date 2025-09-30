@@ -29,6 +29,6 @@ export async function copyLocalTemplate(options: CopyLocalTemplateOptions) {
     await copyJavascriptTemplate(finalSourcePath, projectPath);
     await updateJavascriptProjectName(projectPath, projectName);
   } catch (error) {
-    throw new DevkitError(t("scaffolding.copy.fail"), { cause: error });
+    throw new DevkitError(t("errors.scaffolding.copy_fail"), { cause: error });
   }
 }

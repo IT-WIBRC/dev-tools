@@ -12,7 +12,7 @@ export function validateConfigValue(key: string, value: string): void {
 
   if (!resolvedKey) {
     throw new DevkitError(
-      t("error.invalid.key", {
+      t("errors.validation.invalid_key", {
         key,
         keys: Object.keys(configAliases).join(", "),
       }),

@@ -100,7 +100,7 @@ describe("dk config", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("language: fr");
-    expect(all).toContain("Configuration chargée avec succès !");
+    expect(all).toContain("Configuration mise à jour avec succès !");
   });
 
   it("should get multiple settings from the local config", async () => {
@@ -114,7 +114,7 @@ describe("dk config", () => {
     expect(exitCode).toBe(0);
     expect(all).toContain("language: fr");
     expect(all).toContain("cacheStrategy: always-refresh");
-    expect(all).toContain("Configuration chargée avec succès !");
+    expect(all).toContain("Configuration mise à jour avec succès !");
   });
 
   it("should get a setting from the global config with --global flag", async () => {
@@ -128,7 +128,7 @@ describe("dk config", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("language: en");
-    expect(all).toContain("Configuration chargée avec succès !");
+    expect(all).toContain("Configuration mise à jour avec succès !");
   });
 
   it("should set a single setting in the local config", async () => {
@@ -201,7 +201,7 @@ describe("dk config", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain(
-      "Les valeurs pour l'option '--set' doivent être une série de paires clé-valeur (par ex. --set key1 value1 key2 value2).",
+      "Les valeurs pour l'option '--set' doivent être une série de paires clé-valeur (par ex., --set key1 value1 key2 value2).",
     );
   });
 
@@ -228,7 +228,7 @@ describe("dk config", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "❌ Devkit encountered an unexpected internal issue: No local configuration file found. Run 'devkit config init --local' to create one.",
+      "::[DEV]>> Devkit encountered an unexpected internal issue: No local configuration file found. Run 'devkit config init --local' to create one.",
     );
   });
 });

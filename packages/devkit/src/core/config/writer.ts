@@ -14,7 +14,7 @@ export async function saveConfig(config: CliConfig, filePath: string) {
       ...config,
     });
   } catch (error) {
-    throw new DevkitError(t("error.config.save", { file: filePath }), {
+    throw new DevkitError(t("errors.config.save_fail", { file: filePath }), {
       cause: error,
     });
   }
@@ -42,7 +42,7 @@ export async function updateTemplateCacheStrategy(
 ): Promise<void> {
   const targetPath = await getConfigFilepath();
   if (!targetPath) {
-    throw new ConfigError(t("error.config.not.found"), "");
+    throw new ConfigError(t("errors.config.not_found"), "");
   }
 
   let foundTemplate = false;
@@ -57,7 +57,7 @@ export async function updateTemplateCacheStrategy(
 
   if (!foundTemplate) {
     throw new ConfigError(
-      t("error.template.not_found", { template: templateName }),
+      t("errors.template.not_found", { template: templateName }),
       "",
     );
   }

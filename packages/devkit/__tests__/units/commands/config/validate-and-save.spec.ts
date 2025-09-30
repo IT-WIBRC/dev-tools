@@ -70,6 +70,11 @@ const mockTemplateDetails: AddTemplateSchema = {
   packageManager: "npm",
 };
 
+const TEMPLATE_EXISTS_KEY = "errors.template.exists";
+const ALIAS_EXISTS_KEY = "errors.validation.alias_exists";
+const INVALID_CACHE_STRATEGY_KEY = "errors.validation.invalid_cache_strategy";
+const INVALID_PACKAGE_MANAGER_KEY = "errors.validation.invalid_package_manager";
+
 describe("validateAndSaveTemplate", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -227,7 +232,7 @@ describe("validateAndSaveTemplate", () => {
       validateAndSaveTemplate(duplicateDetails, mockConfig, false, mockSpinner),
     ).rejects.toThrowError(
       new DevkitError(
-        mocktFn("error.template.exists", {
+        mocktFn(TEMPLATE_EXISTS_KEY, {
           template: duplicateDetails.templateName,
         }),
       ),
@@ -243,7 +248,7 @@ describe("validateAndSaveTemplate", () => {
       validateAndSaveTemplate(duplicateDetails, mockConfig, false, mockSpinner),
     ).rejects.toThrowError(
       new DevkitError(
-        mocktFn("error.alias.exists", { alias: duplicateDetails.alias }),
+        mocktFn(ALIAS_EXISTS_KEY, { alias: duplicateDetails.alias }),
       ),
     );
 
@@ -256,7 +261,7 @@ describe("validateAndSaveTemplate", () => {
       cacheStrategy: "invalid-cache",
     };
     const error = new DevkitError(
-      mocktFn("error.invalid.cache_strategy", {
+      mocktFn(INVALID_CACHE_STRATEGY_KEY, {
         value: "invalid-cache",
         options: VALID_CACHE_STRATEGIES.join(", "),
       }),
@@ -279,7 +284,7 @@ describe("validateAndSaveTemplate", () => {
       packageManager: "invalid-pm",
     };
     const error = new DevkitError(
-      mocktFn("error.invalid.package_manager", {
+      mocktFn(INVALID_PACKAGE_MANAGER_KEY, {
         value: "invalid-pm",
         options: Object.values(PackageManagers).join(", "),
       }),

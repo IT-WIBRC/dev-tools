@@ -46,9 +46,28 @@ const MOCKED_SYSTEM_INFO: SystemInfo = {
   },
 };
 
+const CMD_DESCRIPTION_KEY = "commands.info.command.description";
+const SUCCESS_MESSAGE_KEY = "messages.success.info_collected";
+const CLI_HEADER_KEY = "commands.info.header.cli";
+const CLI_VERSION_KEY = "commands.info.cli.version";
+const RUNTIME_HEADER_KEY = "commands.info.header.runtime";
+const RUNTIME_NAME_KEY = "commands.info.runtime.runtime_name";
+const RUNTIME_VERSION_KEY = "commands.info.runtime.runtime_version";
+const PACKAGE_MANAGER_KEY = "commands.info.runtime.package_manager";
+const OS_HEADER_KEY = "commands.info.header.os_details";
+const OS_TYPE_VERSION_KEY = "commands.info.os.type_version";
+const OS_ARCHITECTURE_KEY = "commands.info.os.architecture";
+const OS_SHELL_KEY = "commands.info.os.shell";
+const OS_HOME_DIR_KEY = "commands.info.os.home_dir";
+const CONFIG_HEADER_KEY = "commands.info.header.config_files";
+const CONFIG_GLOBAL_PATH_KEY = "commands.info.config.global_path";
+const CONFIG_LOCAL_PATH_KEY = "commands.info.config.local_path";
+const CONFIG_FOUND_KEY = "commands.info.config.found";
+const CONFIG_NOT_FOUND_KEY = "commands.info.config.not_found";
+
 describe("setupInfoCommand", () => {
   let mockProgram: any;
-  let actionFn: (options: any) => Promise<void>;
+  let actionFn: (options: unknown) => Promise<void>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -80,9 +99,7 @@ describe("setupInfoCommand", () => {
     setupInfoCommand({ program: mockProgram });
     expect(mockProgram.command).toHaveBeenCalledWith("info");
     expect(mockProgram.alias).toHaveBeenCalledWith("in");
-    expect(mockProgram.description).toHaveBeenCalledWith(
-      "info.command.description",
-    );
+    expect(mockProgram.description).toHaveBeenCalledWith(CMD_DESCRIPTION_KEY);
   });
 
   describe("Command Action and printInfo Output", () => {
@@ -95,30 +112,30 @@ describe("setupInfoCommand", () => {
 
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.stop).toHaveBeenCalled();
-      expect(mockSpinner.succeed).toHaveBeenCalledWith("info.success_message");
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(SUCCESS_MESSAGE_KEY);
       expect(mockCollectSystemInfo).toHaveBeenCalledWith(MOCKED_CLI_VERSION);
 
       const pad = (label: string) => label.padEnd(27, " ");
 
       expect(consoleOutput).toEqual([
         "\n",
-        `--- info.header.cli ---`,
-        `${pad("info.cli.version")}: ${MOCKED_CLI_VERSION}`,
+        `--- ${CLI_HEADER_KEY} ---`,
+        `${pad(CLI_VERSION_KEY)}: ${MOCKED_CLI_VERSION}`,
         "\n",
-        `--- info.header.runtime ---`,
-        `${pad("info.runtime.runtime_name")}: ${MOCKED_SYSTEM_INFO.runtimeName}`,
-        `${pad("info.runtime.runtime_version")}: ${MOCKED_SYSTEM_INFO.runtimeVersion}`,
-        `${pad("info.runtime.package_manager")}: ${MOCKED_SYSTEM_INFO.packageManagerVersion}`,
+        `--- ${RUNTIME_HEADER_KEY} ---`,
+        `${pad(RUNTIME_NAME_KEY)}: ${MOCKED_SYSTEM_INFO.runtimeName}`,
+        `${pad(RUNTIME_VERSION_KEY)}: ${MOCKED_SYSTEM_INFO.runtimeVersion}`,
+        `${pad(PACKAGE_MANAGER_KEY)}: ${MOCKED_SYSTEM_INFO.packageManagerVersion}`,
         "\n",
-        `--- info.header.os_details ---`,
-        `${pad("info.os.type_version")}: ${MOCKED_SYSTEM_INFO.os}`,
-        `${pad("info.os.architecture")}: ${MOCKED_SYSTEM_INFO.arch}`,
-        `${pad("info.os.shell")}: ${MOCKED_SYSTEM_INFO.shell}`,
-        `${pad("info.os.home_dir")}: ${MOCKED_SYSTEM_INFO.homeDir}`,
+        `--- ${OS_HEADER_KEY} ---`,
+        `${pad(OS_TYPE_VERSION_KEY)}: ${MOCKED_SYSTEM_INFO.os}`,
+        `${pad(OS_ARCHITECTURE_KEY)}: ${MOCKED_SYSTEM_INFO.arch}`,
+        `${pad(OS_SHELL_KEY)}: ${MOCKED_SYSTEM_INFO.shell}`,
+        `${pad(OS_HOME_DIR_KEY)}: ${MOCKED_SYSTEM_INFO.homeDir}`,
         "\n",
-        `--- info.header.config_files ---`,
-        `${pad("info.config.global_path")}: ${GLOBAL_PATH} info.config.found`,
-        `${pad("info.config.local_path")}: ${LOCAL_EXPECTED} info.config.not_found`,
+        `--- ${CONFIG_HEADER_KEY} ---`,
+        `${pad(CONFIG_GLOBAL_PATH_KEY)}: ${GLOBAL_PATH} ${CONFIG_FOUND_KEY}`,
+        `${pad(CONFIG_LOCAL_PATH_KEY)}: ${LOCAL_EXPECTED} ${CONFIG_NOT_FOUND_KEY}`,
         "\n",
       ]);
     });

@@ -5,7 +5,7 @@ import {
   GitError,
   DevkitError,
 } from "../../../../src/utils/errors/base.js";
-import { mockLogger, mocktFn } from "../../../../vitest.setup.js";
+import { mockLogger } from "../../../../vitest.setup.js";
 import type { ErrorType } from "../../../../src/utils/logger.js";
 
 mockLogger.dimmed = vi.fn();
@@ -52,7 +52,7 @@ describe("handleErrorAndExit", () => {
   it("should handle ConfigError with filePath correctly", async () => {
     const error = new ConfigError("Invalid config", "/path/to/config.json");
     const expectedErrorCall = {
-      message: `error.config.generic: Invalid config`,
+      message: `errors.config.read_fail: Invalid config`,
       type: "CONFIG" as ErrorType,
     };
     const expectedDimmedCalls = ["File path: /path/to/config.json"];
@@ -63,7 +63,7 @@ describe("handleErrorAndExit", () => {
   it("should handle GitError with url correctly", async () => {
     const error = new GitError("Clone failed", "https://github.com/repo.git");
     const expectedErrorCall = {
-      message: `error.git.generic: Clone failed`,
+      message: `errors.system.git_generic: Clone failed`,
       type: "GIT" as ErrorType,
     };
     const expectedDimmedCalls = ["Repository URL: https://github.com/repo.git"];
@@ -74,7 +74,7 @@ describe("handleErrorAndExit", () => {
   it("should handle DevkitError correctly", async () => {
     const error = new DevkitError("CLI specific issue");
     const expectedErrorCall = {
-      message: `error.devkit_specific: CLI specific issue`,
+      message: `errors.generic.devkit_specific: CLI specific issue`,
       type: "DEV" as ErrorType,
     };
 
@@ -84,7 +84,7 @@ describe("handleErrorAndExit", () => {
   it("should handle a generic Error correctly", async () => {
     const error = new Error("Something went wrong");
     const expectedErrorCall = {
-      message: `error.unexpected: Something went wrong`,
+      message: `errors.generic.unexpected: Something went wrong`,
       type: "ERR" as ErrorType,
     };
 
@@ -94,7 +94,7 @@ describe("handleErrorAndExit", () => {
   it("should handle an unknown error correctly", async () => {
     const error = "A string error";
     const expectedErrorCall = {
-      message: "error.unknown",
+      message: "errors.generic.unknown",
       type: "UNKNOWN" as ErrorType,
     };
 
@@ -107,7 +107,7 @@ describe("handleErrorAndExit", () => {
       cause: causeError,
     });
     const expectedErrorCall = {
-      message: `error.config.generic: Invalid config`,
+      message: `errors.config.read_fail: Invalid config`,
       type: "CONFIG" as ErrorType,
     };
     const expectedDimmedCalls = [

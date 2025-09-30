@@ -69,7 +69,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [x] **Centralize Utilities**: Move `chalk` and `ora` to a single, centralized file for better code organization.
 - [x] Enable GitHub discussions
 - [x] Refactor and restructure the utilities
-- [ ] Better json structure for languages
+- [x] Better json structure for languages translation
 
 #### Multi-Language Support
 

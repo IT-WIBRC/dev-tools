@@ -18,7 +18,7 @@ export async function runCliCommand(options: RunCliCommandOptions) {
   try {
     if (!finalCommand.trim()) {
       throw new DevkitError(
-        t("error.invalid.command", { command: finalCommand }),
+        t("errors.validation.invalid_command", { command: finalCommand }),
       );
     }
     await executeCommand(`${finalCommand} ${projectName}`, {
@@ -26,6 +26,6 @@ export async function runCliCommand(options: RunCliCommandOptions) {
     });
   } catch (error: any) {
     const cause = error.stderr || error.message;
-    throw new DevkitError(t("scaffolding.run.fail"), { cause });
+    throw new DevkitError(t("errors.scaffolding.run_fail"), { cause });
   }
 }

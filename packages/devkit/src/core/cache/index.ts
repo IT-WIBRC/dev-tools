@@ -40,35 +40,47 @@ export async function getTemplateFromCache(
 
     if (!repoExists) {
       spinner.text = logger.colors.cyan(
-        logger.colors.italic(t("cache.clone.start", { url })),
+        logger.colors.italic(t("messages.status.cache_clone_start", { url })),
       );
       await cloneRepo(url, repoPath);
       spinner.succeed(
-        logger.colors.green(logger.colors.bold(t("cache.clone.success"))),
+        logger.colors.green(
+          logger.colors.bold(t("messages.success.template_added")),
+        ),
       );
     } else {
       const fresh = await isRepoFresh(repoPath, strategy);
       if (!fresh) {
-        spinner.text = logger.colors.cyan(t("cache.refresh.start"));
+        spinner.text = logger.colors.cyan(
+          t("messages.status.cache_refresh_start"),
+        );
         await pullRepo(repoPath);
-        spinner.succeed(logger.colors.green(t("cache.refresh.success")));
+        spinner.succeed(
+          logger.colors.green(t("messages.success.template_updated")),
+        );
       } else {
-        spinner.info(logger.colors.yellow(t("cache.use.info", { repoName })));
+        spinner.info(
+          logger.colors.yellow(
+            t("messages.status.cache_use_info", { repoName }),
+          ),
+        );
       }
     }
 
-    spinner.text = logger.colors.cyan(t("cache.copy.start"));
+    spinner.text = logger.colors.cyan(t("messages.status.cache_copy_start"));
 
     await copyJavascriptTemplate(repoPath, destination);
     await updateJavascriptProjectName(destination, projectName);
 
     spinner.succeed(
-      logger.colors.green(logger.colors.bold(t("cache.copy.success"))),
+      logger.colors.green(
+        logger.colors.bold(t("messages.success.new_project")),
+      ),
     );
-  } catch (error: any) {
-    spinner.fail(logger.colors.red(t("cache.copy.fail")));
+  } catch (error: unknown) {
+    spinner.fail(logger.colors.red(t("errors.cache.copy_fail")));
 
-    const message = t("cache.copy.fail");
+    const message = t("errors.cache.copy_fail");
     if (error instanceof Error) {
       logger.error(`${message}: ${error.message}`, "CACHE");
     } else {

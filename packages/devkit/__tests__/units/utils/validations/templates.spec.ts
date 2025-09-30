@@ -69,7 +69,7 @@ describe("Templates Validation", () => {
         expect(mockSpinner.succeed).not.toHaveBeenCalled();
         expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
           new DevkitError(
-            mocktFn("error.invalid.github-repo", { url: githubUrl }),
+            mocktFn("errors.validation.github_repo", { url: githubUrl }),
           ),
           mockSpinner,
         );
@@ -104,7 +104,7 @@ describe("Templates Validation", () => {
         expect(mockFs.existsSync).toHaveBeenCalledWith(normalizedPath);
         expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
           new DevkitError(
-            mocktFn("error.invalid.local-path", { path: normalizedPath }),
+            mocktFn("errors.validation.local_path", { path: normalizedPath }),
           ),
           mockSpinner,
         );
@@ -121,14 +121,14 @@ describe("Templates Validation", () => {
     it("should throw a DevkitError for an empty alias", () => {
       expect(() => validateAlias("")).toThrow(DevkitError);
       expect(() => validateAlias("")).toThrow(
-        mocktFn("error.invalid.alias.empty"),
+        mocktFn("errors.validation.alias_empty"),
       );
     });
 
     it("should throw a DevkitError for an alias that is too short (< 2 chars)", () => {
       expect(() => validateAlias("a")).toThrow(DevkitError);
       expect(() => validateAlias("a")).toThrow(
-        mocktFn("error.invalid.alias.too-short"),
+        mocktFn("errors.validation.alias_too_short"),
       );
     });
   });
@@ -143,7 +143,7 @@ describe("Templates Validation", () => {
     it("should throw a DevkitError for an empty description", () => {
       expect(() => validateDescription("")).toThrow(DevkitError);
       expect(() => validateDescription("")).toThrow(
-        mocktFn("error.invalid.description.empty"),
+        mocktFn("errors.validation.description_empty"),
       );
     });
 
@@ -151,7 +151,7 @@ describe("Templates Validation", () => {
       const shortDescription = "This short";
       expect(() => validateDescription(shortDescription)).toThrow(DevkitError);
       expect(() => validateDescription(shortDescription)).toThrow(
-        mocktFn("error.invalid.description.too-short"),
+        mocktFn("errors.validation.description_too_short"),
       );
     });
   });

@@ -18,35 +18,38 @@ const getStartMessage = (
   showAll: boolean,
   source: string,
 ): Parameters<typeof t>[0] => {
+  const TEMPLATE_NOT_FOUND_KEY = "errors.template.not_found";
+  const GLOBAL_NOT_FOUND_KEY = "errors.config.global_not_found";
+
   if (showAll) {
     if (source === "merged") {
-      return "list.templates.using_local_and_global";
+      return "messages.config_source.using_local_and_global";
     }
     if (source === "global") {
-      return "list.templates.using_global_only";
+      return "messages.config_source.global_only";
     }
     if (source === "local") {
-      return "list.templates.using_local_only";
+      return "messages.config_source.local_only";
     }
-    return "list.templates.not_found";
+    return TEMPLATE_NOT_FOUND_KEY;
   }
 
   if (isGlobal) {
     if (source !== "global") {
-      return "list.templates.no_global_config";
+      return GLOBAL_NOT_FOUND_KEY;
     }
-    return "list.templates.using_global";
+    return "messages.config_source.global";
   }
 
   if (source === "local") {
-    return "list.templates.using_local";
+    return "messages.config_source.local";
   }
 
   if (source === "global") {
-    return "list.templates.using_global_fallback";
+    return "messages.config_source.global_fallback";
   }
 
-  return "list.templates.not_found";
+  return TEMPLATE_NOT_FOUND_KEY;
 };
 
 export function setupListCommand(options: SetupCommandOptions): void {
@@ -55,22 +58,22 @@ export function setupListCommand(options: SetupCommandOptions): void {
   program
     .command("list")
     .alias("ls")
-    .description(t("list.command.description"))
-    .argument("[language]", t("list.command.language.argument"), "")
-    .option("-g, --global", t("list.command.global.option"))
-    .option("-a, --all", t("list.command.all.option"))
-    .option("-f, --filter <string>", t("list.command.filter.option"))
+    .description(t("commands.list.command.description"))
+    .argument("[language]", t("commands.list.command.language.argument"), "")
+    .option("-g, --global", t("commands.list.options.global"))
+    .option("-a, --all", t("commands.list.options.all"))
+    .option("-f, --filter <string>", t("commands.list.command.filter.option"))
     .action(async (language, cmdOptions: ListCommandOptions) => {
       const { global: isGlobal, all: showAll, filter } = cmdOptions;
 
       const spinner: TSpinner = logger
-        .spinner(t("list.templates.loading"))
+        .spinner(t("messages.status.config_loading"))
         .start();
 
       try {
         if (isGlobal && showAll) {
           throw new DevkitError(
-            t("error.command.mutually_exclusive_options", {
+            t("errors.command.mutually_exclusive_options", {
               options: "global, all",
             }),
           );
@@ -87,7 +90,7 @@ export function setupListCommand(options: SetupCommandOptions): void {
 
         const startMessageKey = getStartMessage(!!isGlobal, !!showAll, source);
 
-        if (startMessageKey.startsWith("list.templates.no_")) {
+        if (startMessageKey === "errors.config.global_not_found") {
           spinner.succeed(logger.colors.yellow(t(startMessageKey)));
           return;
         }
@@ -97,7 +100,7 @@ export function setupListCommand(options: SetupCommandOptions): void {
         if (Object.keys(config?.templates || {}).length === 0) {
           spinner.succeed(
             logger.colors.yellow(
-              t("list.templates.not_found", {
+              t("warnings.template_not_found", {
                 template: "",
               }),
             ),
@@ -105,7 +108,7 @@ export function setupListCommand(options: SetupCommandOptions): void {
           return;
         }
 
-        logger.log(logger.colors.bold("\n" + t("list.templates.header")));
+        logger.log(logger.colors.bold("\n" + t("commands.list.output.header")));
 
         Object.entries(config?.templates || {}).forEach(
           ([lang, langTemplates]) => {

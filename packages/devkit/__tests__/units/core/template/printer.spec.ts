@@ -5,6 +5,11 @@ import {
 } from "../../../../src/core/template/printer.js";
 import { mockLogger, mocktFn } from "../../../../vitest.setup.js";
 
+const NEW_ALIAS_KEY = "commands.template.add.options.alias";
+const NEW_DESCRIPTION_KEY = "commands.template.add.options.description";
+const NEW_CACHE_KEY = "commands.template.add.options.cache";
+const NEW_PM_KEY = "commands.template.add.options.package_manager";
+
 describe("print-utils", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -51,15 +56,15 @@ describe("print-utils", () => {
       );
 
       expect(mockLogger.log).toHaveBeenCalledWith(
-        ` - ${c.green("node-ts-api")} ${c.cyanDim(`(${t("cli.add_template.options.alias")}: nta)`)}${c.dim(`\n    ${t("cli.add_template.options.description")}`)}: A simple Node.js API with TypeScript${c.dim("\n    Location")}: https://github.com/devkit/node-ts-api${c.dim(`\n    ${t("cli.add_template.options.cache")}`)}: daily${c.dim(`\n    ${t("cli.add_template.options.package_manager")}`)}: npm\n`,
+        ` - ${c.green("node-ts-api")} ${c.cyanDim(`(${t(NEW_ALIAS_KEY)}: nta)`)}${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A simple Node.js API with TypeScript${c.dim("\n    Location")}: https://github.com/devkit/node-ts-api${c.dim(`\n    ${t(NEW_CACHE_KEY)}`)}: daily${c.dim(`\n    ${t(NEW_PM_KEY)}`)}: npm\n`,
       );
 
       expect(mockLogger.log).toHaveBeenCalledWith(
-        ` - ${c.green("react-component")} ${c.dim(`\n    ${t("cli.add_template.options.description")}`)}: A reusable React component${c.dim("\n    Location")}: /local/path/to/template\n`,
+        ` - ${c.green("react-component")} ${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A reusable React component${c.dim("\n    Location")}: /local/path/to/template\n`,
       );
 
       expect(mockLogger.log).toHaveBeenCalledWith(
-        ` - ${c.green("next-app")} ${c.cyanDim(`(${t("cli.add_template.options.alias")}: nextjs)`)}${c.dim(`\n    ${t("cli.add_template.options.description")}`)}: A Next.js application template\n`,
+        ` - ${c.green("next-app")} ${c.cyanDim(`(${t(NEW_ALIAS_KEY)}: nextjs)`)}${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A Next.js application template\n`,
       );
 
       expect(mockLogger.log).toHaveBeenCalledWith(
@@ -79,7 +84,7 @@ describe("print-utils", () => {
       );
       expect(mockLogger.log).toHaveBeenCalledTimes(4);
       expect(mockLogger.log).toHaveBeenCalledWith(
-        ` - ${c.green("react-component")} ${c.dim(`\n    ${t("cli.add_template.options.description")}`)}: A reusable React component${c.dim("\n    Location")}: /local/path/to/template\n`,
+        ` - ${c.green("react-component")} ${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A reusable React component${c.dim("\n    Location")}: /local/path/to/template\n`,
       );
 
       mockLogger.log.mockRestore();
@@ -94,7 +99,7 @@ describe("print-utils", () => {
       );
       expect(mockLogger.log).toHaveBeenCalledTimes(4);
       expect(mockLogger.log).toHaveBeenCalledWith(
-        ` - ${c.green("node-ts-api")} ${c.cyanDim(`(${t("cli.add_template.options.alias")}: nta)`)}${c.dim(`\n    ${t("cli.add_template.options.description")}`)}: A simple Node.js API with TypeScript${c.dim("\n    Location")}: https://github.com/devkit/node-ts-api${c.dim(`\n    ${t("cli.add_template.options.cache")}`)}: daily${c.dim(`\n    ${t("cli.add_template.options.package_manager")}`)}: npm\n`,
+        ` - ${c.green("node-ts-api")} ${c.cyanDim(`(${t(NEW_ALIAS_KEY)}: nta)`)}${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A simple Node.js API with TypeScript${c.dim("\n    Location")}: https://github.com/devkit/node-ts-api${c.dim(`\n    ${t(NEW_CACHE_KEY)}`)}: daily${c.dim(`\n    ${t(NEW_PM_KEY)}`)}: npm\n`,
       );
 
       mockLogger.log.mockRestore();

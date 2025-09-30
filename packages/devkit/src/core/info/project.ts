@@ -9,7 +9,7 @@ export async function getProjectVersion(): Promise<string> {
   try {
     const packageRoot = await findPackageRoot();
     if (!packageRoot) {
-      throw new Error(t("error.package.root.not_found"));
+      throw new Error(t("errors.system.package_root_not_found"));
     }
 
     const packageJsonPath = path.join(packageRoot, FILE_NAMES.packageJson);
@@ -17,7 +17,7 @@ export async function getProjectVersion(): Promise<string> {
 
     return packageJson.version;
   } catch (error) {
-    const errorMessage = t("error.version.read_fail");
+    const errorMessage = t("errors.system.version_read_fail");
 
     if (error instanceof Error) {
       logger.error(`${errorMessage}: ${error.message}`, "INFO");

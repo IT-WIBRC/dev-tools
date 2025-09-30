@@ -10,20 +10,36 @@ export function setupUpdateCommand(configCommand: Command): void {
   configCommand
     .command("update <language> <templateName...>")
     .alias("up")
-    .description(t("config.update.command.description"))
-    .option("-n, --new-name <string>", t("config.update.option.new_name"))
-    .option("-d, --description <string>", t("config.update.option.description"))
-    .option("-a, --alias <string>", t("config.update.option.alias"))
-    .option("-l, --location <string>", t("config.update.option.location"))
+    .description(t("commands.config.update_template.command.description"))
+    .option(
+      "-n, --new-name <string>",
+      t("commands.config.update_template.options.new_name"),
+    )
+    .option(
+      "-d, --description <string>",
+      t("commands.config.update_template.options.description"),
+    )
+    .option(
+      "-a, --alias <string>",
+      t("commands.config.update_template.options.alias"),
+    )
+    .option(
+      "-l, --location <string>",
+      t("commands.config.update_template.options.location"),
+    )
     .option(
       "--cache-strategy <string>",
-      t("config.update.option.cache_strategy"),
+      t("commands.config.update_template.options.cache_strategy"),
     )
     .option(
       "--package-manager <string>",
-      t("config.update.option.package_manager"),
+      t("commands.config.update_template.options.package_manager"),
     )
-    .option("-g, --global", t("config.update.option.global"), false)
+    .option(
+      "-g, --global",
+      t("commands.config.update_template.options.global"),
+      false,
+    )
     .action(
       async (
         language: string,
@@ -33,7 +49,7 @@ export function setupUpdateCommand(configCommand: Command): void {
       ) => {
         const spinner: TSpinner = logger.spinner().start(
           logger.colors.cyan(
-            t("config.update.updating", {
+            t("messages.status.template_updating", {
               templateName: templateNames.join(", "),
             }),
           ),
@@ -48,7 +64,9 @@ export function setupUpdateCommand(configCommand: Command): void {
 
         try {
           if (templateNames.length === 0) {
-            throw new DevkitError(t("error.template_name_required"));
+            throw new DevkitError(
+              t("errors.validation.template_name_required"),
+            );
           }
 
           for (const templateName of templateNames) {
@@ -66,13 +84,13 @@ export function setupUpdateCommand(configCommand: Command): void {
               if (error instanceof DevkitError) {
                 logger.log(
                   logger.colors.yellow(
-                    `\n${t("config.update.single_fail", { templateName, error: error.message })}`,
+                    `\n${t("errors.template.single_fail", { templateName, error: error.message })}`,
                   ),
                 );
               } else {
                 logger.log(
                   logger.colors.yellow(
-                    `\n${t("config.update.single_fail", { templateName, error: "unknown error" })}`,
+                    `\n${t("errors.template.single_fail", { templateName, error: "unknown error" })}`,
                   ),
                 );
               }
@@ -84,7 +102,7 @@ export function setupUpdateCommand(configCommand: Command): void {
           if (successfullyUpdatedCount > 0) {
             logger.log(
               logger.colors.green(
-                `\n✔ ${t("config.update.success_summary", {
+                `\n✔ ${t("messages.success.template_summary_updated", {
                   count: successfullyUpdatedCount.toString(),
                   templateName: templateNames.join(", "),
                   language,

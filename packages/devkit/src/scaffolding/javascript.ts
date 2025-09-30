@@ -22,7 +22,7 @@ export async function scaffoldProject(
 ): Promise<void> {
   const { projectName, templateConfig, packageManager, cacheStrategy } =
     options;
-  const spinner = logger.spinner(t("scaffolding.run.start"));
+  const spinner = logger.spinner(t("messages.status.scaffolding_project"));
   let isOfficialCli = false;
 
   try {
@@ -30,7 +30,9 @@ export async function scaffoldProject(
       isOfficialCli = true;
       spinner.text = logger.colors.cyan(
         logger.colors.bold(
-          t("scaffolding.run.start", { command: templateConfig.location }),
+          t("messages.scaffolding.run_start", {
+            command: templateConfig.location,
+          }),
         ),
       );
       spinner.stop();
@@ -51,20 +53,22 @@ export async function scaffoldProject(
         strategy: cacheStrategy,
       });
     } else {
-      spinner.text = logger.colors.cyan(t("scaffolding.copy.start"));
+      spinner.text = logger.colors.cyan(t("messages.scaffolding.copy_start"));
       spinner.start();
       await copyLocalTemplate({
         sourcePath: templateConfig.location,
         projectName,
         spinner,
       });
-      spinner.succeed(logger.colors.green(t("scaffolding.copy.success")));
+      spinner.succeed(
+        logger.colors.green(t("messages.scaffolding.copy_success")),
+      );
     }
 
     if (!isOfficialCli) {
       spinner.text = logger.colors.cyan(
         logger.colors.bold(
-          `${t("scaffolding.install.start", { pm: packageManager })}\n`,
+          `${t("messages.scaffolding.install_start", { pm: packageManager })}\n`,
         ),
       );
       spinner.stop();
@@ -74,13 +78,13 @@ export async function scaffoldProject(
     if (!isOfficialCli) {
       logger.log(
         logger.colors.green(
-          logger.colors.bold(t("scaffolding.complete.success")),
+          logger.colors.bold(t("messages.success.scaffolding_complete")),
         ),
       );
       logger.log(
         logger.colors.white(
           logger.colors.bold(
-            logger.colors.italic(t("scaffolding.complete.next_steps")),
+            logger.colors.italic(t("messages.success.next_steps")),
           ),
         ),
       );
@@ -92,10 +96,10 @@ export async function scaffoldProject(
         ),
       );
     }
-  } catch (err: any) {
-    spinner.fail(logger.colors.red(t("error.scaffolding.unexpected")));
+  } catch (err: unknown) {
+    spinner.fail(logger.colors.red(t("errors.scaffolding.unexpected")));
 
-    const message = t("error.scaffolding.unexpected");
+    const message = t("errors.scaffolding.unexpected");
     if (err instanceof Error) {
       logger.error(`${message}: ${err.message}`, "UNKNOWN");
     } else {

@@ -30,12 +30,12 @@ export const validateLocation = async (location: string, spinner?: Ora) => {
   const isGithubUrl = isFromGitHub(location);
 
   if (isGithubUrl) {
-    spinner?.start(t("cli.add_template.adding"));
+    spinner?.start(t("messages.status.template_adding"));
     const isValid = await checkGitHubRepoExists(location);
     if (!isValid) {
       spinner?.fail();
       handleErrorAndExit(
-        new DevkitError(t("error.invalid.github-repo", { url: location })),
+        new DevkitError(t("errors.validation.github_repo", { url: location })),
         spinner,
       );
       return;
@@ -45,7 +45,7 @@ export const validateLocation = async (location: string, spinner?: Ora) => {
     const filePath = normalizePath(location);
     if (!fs.existsSync(filePath)) {
       handleErrorAndExit(
-        new DevkitError(t("error.invalid.local-path", { path: filePath })),
+        new DevkitError(t("errors.validation.local_path", { path: filePath })),
         spinner,
       );
     }
@@ -54,19 +54,19 @@ export const validateLocation = async (location: string, spinner?: Ora) => {
 
 export function validateAlias(alias: string): void {
   if (!alias.trim()) {
-    throw new DevkitError(t("error.invalid.alias.empty"));
+    throw new DevkitError(t("errors.validation.alias_empty"));
   }
   if (alias.trim().length < 2) {
-    throw new DevkitError(t("error.invalid.alias.too-short"));
+    throw new DevkitError(t("errors.validation.alias_too_short"));
   }
 }
 
 export function validateDescription(description: string): void {
   if (!description.trim()) {
-    throw new DevkitError(t("error.invalid.description.empty"));
+    throw new DevkitError(t("errors.validation.description_empty"));
   }
   const wordCount = description.replaceAll(" ", "").length;
   if (wordCount < 10) {
-    throw new DevkitError(t("error.invalid.description.too-short"));
+    throw new DevkitError(t("errors.validation.description_too_short"));
   }
 }

@@ -33,7 +33,7 @@ const {
   mockGetPackageManager: vi.fn(),
 }));
 
-let actionFn: any;
+let actionFn: (...options: unknown[]) => Promise<void>;
 vi.mock("os", async () => {
   const actual = await vi.importActual("os");
   return {
@@ -81,6 +81,15 @@ vi.mock("#core/config/search.js", () => ({
   findGlobalConfigFile: mockFindGlobalConfigFile,
 }));
 
+const LOCAL_OPTION_KEY = "commands.config.init.option.local";
+const GLOBAL_OPTION_KEY = "commands.config.init.option.global";
+const CONFIRM_OVERWRITE_KEY = "commands.config.init.confirm_overwrite";
+const SUCCESS_KEY = "messages.success.config_initialized";
+const ABORTED_KEY = "commands.config.init.aborted";
+const YES_KEY = "common.yes";
+const NO_KEY = "common.no";
+const LOCAL_GLOBAL_ERROR_KEY = "errors.config.init_local_and_global";
+
 describe("setupInitCommand", () => {
   let mockProgram: any;
   const localConfigFile = CONFIG_FILE_NAMES[1];
@@ -121,12 +130,12 @@ describe("setupInitCommand", () => {
     expect(mockProgram.alias).toHaveBeenCalledWith("i");
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-l, --local",
-      "config.init.option.local",
+      LOCAL_OPTION_KEY,
       false,
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-g, --global",
-      "config.init.option.global",
+      GLOBAL_OPTION_KEY,
       false,
     );
   });
@@ -146,7 +155,7 @@ describe("setupInitCommand", () => {
         mockDetectedConfig,
         globalConfigPath,
       );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(SUCCESS_KEY);
     });
 
     it("should default to homedir if findGlobalConfigFile returns null", async () => {
@@ -163,7 +172,7 @@ describe("setupInitCommand", () => {
         mockDetectedConfig,
         globalConfigPath,
       );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(SUCCESS_KEY);
     });
 
     it("should overwrite a global config file when --global flag is set and user confirms", async () => {
@@ -176,10 +185,10 @@ describe("setupInitCommand", () => {
 
       expect(mockFs.pathExists).toHaveBeenCalledWith(globalConfigPath);
       expect(mockInquirerSelect).toHaveBeenCalledWith({
-        message: `config.init.confirm_overwrite- options path:${globalConfigPath}`,
+        message: `${CONFIRM_OVERWRITE_KEY}- options path:${globalConfigPath}`,
         choices: [
-          { name: "common.yes", value: true },
-          { name: "common.no", value: false },
+          { name: YES_KEY, value: true },
+          { name: NO_KEY, value: false },
         ],
         default: true,
       });
@@ -188,7 +197,7 @@ describe("setupInitCommand", () => {
         mockDetectedConfig,
         globalConfigPath,
       );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(SUCCESS_KEY);
     });
 
     it("should not overwrite a global config file when user cancels", async () => {
@@ -202,7 +211,7 @@ describe("setupInitCommand", () => {
       expect(mockFs.pathExists).toHaveBeenCalledWith(globalConfigPath);
       expect(mockGetPackageManager).not.toHaveBeenCalled();
       expect(mockSaveConfig).not.toHaveBeenCalled();
-      expect(mockSpinner.info).toHaveBeenCalledWith("config.init.aborted");
+      expect(mockSpinner.info).toHaveBeenCalledWith(ABORTED_KEY);
     });
   });
 
@@ -227,7 +236,7 @@ describe("setupInitCommand", () => {
         mockDetectedConfig,
         localConfigPath,
       );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(SUCCESS_KEY);
     });
 
     it("should ask to overwrite a local config file if it already exists", async () => {
@@ -247,10 +256,10 @@ describe("setupInitCommand", () => {
         limit: "/current/directory",
       });
       expect(mockInquirerSelect).toHaveBeenCalledWith({
-        message: `config.init.confirm_overwrite- options path:${localConfigPath}`,
+        message: `${CONFIRM_OVERWRITE_KEY}- options path:${localConfigPath}`,
         choices: [
-          { name: "common.yes", value: true },
-          { name: "common.no", value: false },
+          { name: YES_KEY, value: true },
+          { name: NO_KEY, value: false },
         ],
         default: true,
       });
@@ -259,7 +268,7 @@ describe("setupInitCommand", () => {
         mockDetectedConfig,
         localConfigPath,
       );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(SUCCESS_KEY);
     });
 
     it("should use the monorepo root as the limit and overwrite an existing config there", async () => {
@@ -279,10 +288,10 @@ describe("setupInitCommand", () => {
         limit: monorepoRootPath,
       });
       expect(mockInquirerSelect).toHaveBeenCalledWith({
-        message: `config.init.confirm_overwrite- options path:${monorepoRootConfigPath}`,
+        message: `${CONFIRM_OVERWRITE_KEY}- options path:${monorepoRootConfigPath}`,
         choices: [
-          { name: "common.yes", value: true },
-          { name: "common.no", value: false },
+          { name: YES_KEY, value: true },
+          { name: NO_KEY, value: false },
         ],
         default: true,
       });
@@ -291,7 +300,7 @@ describe("setupInitCommand", () => {
         mockDetectedConfig,
         monorepoRootConfigPath,
       );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(SUCCESS_KEY);
     });
 
     it("should use the project root as the limit and overwrite an existing config there", async () => {
@@ -311,10 +320,10 @@ describe("setupInitCommand", () => {
         limit: projectRootPath,
       });
       expect(mockInquirerSelect).toHaveBeenCalledWith({
-        message: `config.init.confirm_overwrite- options path:${projectRootConfigPath}`,
+        message: `${CONFIRM_OVERWRITE_KEY}- options path:${projectRootConfigPath}`,
         choices: [
-          { name: "common.yes", value: true },
-          { name: "common.no", value: false },
+          { name: YES_KEY, value: true },
+          { name: NO_KEY, value: false },
         ],
         default: true,
       });
@@ -323,7 +332,7 @@ describe("setupInitCommand", () => {
         mockDetectedConfig,
         projectRootConfigPath,
       );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith("config.init.success");
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(SUCCESS_KEY);
     });
   });
 
@@ -331,7 +340,7 @@ describe("setupInitCommand", () => {
     setupInitCommand({ program: mockProgram });
     await actionFn({ local: true, global: true });
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      new ConfigError("error.config.init.local_and_global"),
+      new ConfigError(LOCAL_GLOBAL_ERROR_KEY),
       mockSpinner,
     );
     expect(mockSaveConfig).not.toHaveBeenCalled();

@@ -21,7 +21,7 @@ import { getPackageManager } from "#utils/package-manager/index.js";
 async function promptForStandardOverwrite(filePath: string): Promise<boolean> {
   const response = await select({
     message: logger.colors.yellow(
-      t("config.init.confirm_overwrite", { path: filePath }),
+      t("commands.config.init.confirm_overwrite", { path: filePath }),
     ),
     choices: [
       { name: t("common.yes"), value: true },
@@ -58,12 +58,16 @@ async function handleGlobalInit(spinner: TSpinner): Promise<void> {
   if (shouldOverwrite) {
     const configToSave = await getUpdatedConfig();
     spinner.start(
-      logger.colors.cyan(t("config.init.initializing", { path: finalPath })),
+      logger.colors.cyan(
+        t("messages.status.config_init_start", { path: finalPath }),
+      ),
     );
     await saveConfig(configToSave, finalPath);
-    spinner.succeed(logger.colors.green(t("config.init.success")));
+    spinner.succeed(
+      logger.colors.green(t("messages.success.config_initialized")),
+    );
   } else {
-    spinner.info(logger.colors.yellow(t("config.init.aborted")));
+    spinner.info(logger.colors.yellow(t("commands.config.init.aborted")));
   }
 }
 
@@ -93,12 +97,16 @@ async function handleLocalInit(spinner: TSpinner): Promise<void> {
   if (shouldOverwrite && finalPath) {
     const configToSave = await getUpdatedConfig();
     spinner.start(
-      logger.colors.cyan(t("config.init.initializing", { path: finalPath })),
+      logger.colors.cyan(
+        t("messages.status.config_init_start", { path: finalPath }),
+      ),
     );
     await saveConfig(configToSave, finalPath);
-    spinner.succeed(logger.colors.green(t("config.init.success")));
+    spinner.succeed(
+      logger.colors.green(t("messages.success.config_initialized")),
+    );
   } else {
-    spinner.info(logger.colors.yellow(t("config.init.aborted")));
+    spinner.info(logger.colors.yellow(t("commands.config.init.aborted")));
   }
 }
 
@@ -107,9 +115,9 @@ export function setupInitCommand(options: SetupCommandOptions): void {
   program
     .command("init")
     .alias("i")
-    .description(t("config.init.command.description"))
-    .option("-l, --local", t("config.init.option.local"), false)
-    .option("-g, --global", t("config.init.option.global"), false)
+    .description(t("commands.config.init.command.description"))
+    .option("-l, --local", t("commands.config.init.option.local"), false)
+    .option("-g, --global", t("commands.config.init.option.global"), false)
     .action(async (cmdOptions: { local: boolean; global: boolean }) => {
       const isLocal: boolean = cmdOptions.local;
       const isGlobal: boolean = cmdOptions.global;
@@ -117,7 +125,7 @@ export function setupInitCommand(options: SetupCommandOptions): void {
 
       try {
         if (isLocal && isGlobal) {
-          throw new ConfigError(t("error.config.init.local_and_global"));
+          throw new ConfigError(t("errors.config.init_local_and_global"));
         }
 
         if (isGlobal) {
