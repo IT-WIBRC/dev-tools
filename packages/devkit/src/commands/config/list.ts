@@ -1,8 +1,7 @@
 import { t } from "#utils/i18n/translator.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { DevkitError } from "#utils/errors/base.js";
-import ora from "ora";
-import chalk from "chalk";
+import { logger, type TSpinner } from "#utils/logger.js";
 import { readAndMergeConfigs } from "#core/config/loader.js";
 import { printSettings, printTemplates } from "#core/template/printer.js";
 import { type Command } from "commander";
@@ -58,7 +57,7 @@ export function setupListCommand(configCommand: Command): void {
       const parentOpts = childCommand?.parent?.opts();
       const isGlobal = !!parentOpts?.global;
 
-      const spinner = ora(t("config.loading")).start();
+      const spinner: TSpinner = logger.spinner(t("config.loading")).start();
       try {
         if (isGlobal && showAll) {
           throw new DevkitError(
@@ -87,12 +86,12 @@ export function setupListCommand(configCommand: Command): void {
 
         spinner.info(t(startMessageKey)).start();
 
-        console.log(chalk.bold("\n" + t("list.config.settings_header")));
+        logger.log(logger.colors.bold("\n" + t("list.config.settings_header")));
         printSettings(config?.settings || {});
 
-        console.log(chalk.bold("\n" + t("list.templates.header")));
+        logger.log(logger.colors.bold("\n" + t("list.templates.header")));
         if (Object.keys(config?.templates || {}).length === 0) {
-          console.log(chalk.yellow(t("list.templates.not_found")));
+          logger.log(logger.colors.yellow(t("list.templates.not_found")));
         } else {
           Object.entries(config?.templates || {}).forEach(
             ([lang, langTemplates]) => {

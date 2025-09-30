@@ -4,7 +4,7 @@ import {
   handleNonInteractiveSettingsUpdate,
   handleNonInteractiveTemplateUpdate,
 } from "../../../../src/commands/config/logic.ts";
-import { mocktFn } from "../../../../vitest.setup.ts";
+import { mockLogger, mocktFn } from "../../../../vitest.setup.ts";
 
 const {
   mockSelect,
@@ -63,7 +63,6 @@ describe("Interactive Config Prompts", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -84,7 +83,7 @@ describe("Interactive Config Prompts", () => {
       "fr",
       false,
     );
-    expect(console.log).toHaveBeenCalledWith(mocktFn("config.set.success"));
+    expect(mockLogger.log).toHaveBeenCalledWith(mocktFn("config.set.success"));
   });
 
   it("should handle a full template update flow correctly (description)", async () => {
@@ -105,7 +104,7 @@ describe("Interactive Config Prompts", () => {
       { description: "A cool new description" },
       false,
     );
-    expect(console.log).toHaveBeenCalledWith(
+    expect(mockLogger.log).toHaveBeenCalledWith(
       mocktFn("config.update.success", { templateName: "web" }),
     );
   });

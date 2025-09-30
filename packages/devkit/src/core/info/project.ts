@@ -2,7 +2,7 @@ import fs from "#utils/fs/file.js";
 import path from "path";
 import { findPackageRoot } from "#utils/fs/finder.js";
 import { t } from "#utils/i18n/translator.js";
-import chalk from "chalk";
+import { logger } from "#utils/logger.js";
 import { FILE_NAMES } from "#utils/schema/schema.js";
 
 export async function getProjectVersion(): Promise<string> {
@@ -17,7 +17,18 @@ export async function getProjectVersion(): Promise<string> {
 
     return packageJson.version;
   } catch (error) {
-    console.error(chalk.red(t("error.version.read_fail")), error);
+    const errorMessage = t("error.version.read_fail");
+
+    if (error instanceof Error) {
+      logger.error(`${errorMessage}: ${error.message}`, "INFO");
+    } else {
+      logger.error(errorMessage, "INFO");
+    }
+
+    if (error instanceof Error && error.stack) {
+      logger.dimmed(error.stack);
+    }
+
     return "0.0.0";
   }
 }

@@ -1,10 +1,9 @@
 import { t } from "#utils/i18n/translator.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import ora from "ora";
+import { logger, type TSpinner } from "#utils/logger.js";
 import { readAndMergeConfigs } from "#core/config/loader.js";
 import { saveGlobalConfig, saveLocalConfig } from "#core/config/writer.js";
-import chalk from "chalk";
 import { type Command } from "commander";
 import { type CliConfig } from "#utils/schema/schema.js";
 import { type RemoveCommandOptions } from "./types.js";
@@ -36,7 +35,9 @@ export function setupRemoveCommand(configCommand: Command): void {
         const parentOpts = childCommand?.parent?.opts();
         const isGlobal = !!parentOpts?.global;
 
-        const spinner = ora().start(chalk.cyan(t("remove_template.start")));
+        const spinner: TSpinner = logger
+          .spinner()
+          .start(logger.colors.cyan(t("remove_template.start")));
 
         try {
           validateProgrammingLanguage(language);
@@ -92,6 +93,7 @@ export function setupRemoveCommand(configCommand: Command): void {
           languageTemplates.templates = templatesToKeep;
 
           await saveConfig(targetConfig, !!isGlobal);
+
           spinner.succeed(
             t("remove_template.success", {
               count: templatesToRemove.length.toString(),
@@ -101,8 +103,8 @@ export function setupRemoveCommand(configCommand: Command): void {
           );
 
           if (notFound.length > 0) {
-            console.log(
-              chalk.yellow(
+            logger.log(
+              logger.colors.yellow(
                 t("remove_template.not_found_warning", {
                   template: notFound.join(", "),
                 }),

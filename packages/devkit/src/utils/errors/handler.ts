@@ -1,25 +1,32 @@
-import { logger } from "#utils/logger.js";
-import { ConfigError, GitError } from "./base.js";
+import { logger, type TSpinner } from "../logger.js";
+import { ConfigError, GitError, DevkitError } from "./base.js";
 import { t } from "../i18n/translator.js";
-import type { Ora } from "ora";
 
-export function handleErrorAndExit(error: unknown, spinner?: Ora): void {
+export function handleErrorAndExit(error: unknown, spinner?: TSpinner): void {
   spinner?.stop();
 
   if (error instanceof ConfigError) {
-    logger.error(`${t("error.config.generic")}: ${error.message}`);
+    logger.error(`${t("error.config.generic")}: ${error.message}`, "CONFIG");
+
     if (error.filePath) {
-      logger.error(`File path: ${error.filePath}`);
+      logger.dimmed(`File path: ${error.filePath}`);
     }
   } else if (error instanceof GitError) {
-    logger.error(`${t("error.git.generic")}: ${error.message}`);
+    logger.error(`${t("error.git.generic")}: ${error.message}`, "GIT");
     if (error.url) {
-      logger.error(`Repository URL: ${error.url}`);
+      logger.dimmed(`Repository URL: ${error.url}`);
     }
+  } else if (error instanceof DevkitError) {
+    logger.error(`${t("error.devkit_specific")}: ${error.message}`, "DEV");
   } else if (error instanceof Error) {
-    logger.error(`${t("error.unexpected")}: ${error.message}`);
+    logger.error(`${t("error.unexpected")}: ${error.message}`, "ERR");
   } else {
-    logger.error(t("error.unknown"));
+    logger.error(t("error.unknown"), "UNKNOWN");
+  }
+
+  const cause = error instanceof Error ? error.cause : undefined;
+  if (cause instanceof Error) {
+    logger.dimmed(`Cause: ${cause.message}`);
   }
 
   process.exit(1);

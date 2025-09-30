@@ -362,7 +362,8 @@
     "description_required": "Description is required.",
     "missing_required_options": {
       "add_template": "Missing required options. Please provide all of the following: {fields}.\nAlternatively, run with the '-i' or '--interactive' flag for guided setup."
-    }
+    },
+    "devkit_specific": "Devkit encountered an unexpected internal issue"
   },
   "cache": {
     "clone": {

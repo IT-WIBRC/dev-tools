@@ -2,7 +2,7 @@ import fs from "#utils/fs/file.js";
 import path from "path";
 import { FILE_NAMES } from "#utils/schema/schema.js";
 import { t } from "#utils/i18n/translator.js";
-import chalk from "chalk";
+import { logger } from "#utils/logger.js";
 
 export async function updateJavascriptProjectName(
   projectPath: string,
@@ -11,7 +11,7 @@ export async function updateJavascriptProjectName(
   const packageJsonPath = path.join(projectPath, FILE_NAMES.packageJson);
 
   if (!fs.existsSync(packageJsonPath)) {
-    console.error(chalk.redBright(t("error.package.file_not_found")));
+    logger.error(t("error.package.file_not_found"), "TEMPL");
     return;
   }
 
@@ -21,9 +21,16 @@ export async function updateJavascriptProjectName(
 
     await fs.writeJson(packageJsonPath, packageJson);
   } catch (error) {
-    console.error(
-      chalk.red(t("error.package.failed_to_update_project_name")),
-      error,
-    );
+    const errorMessage = t("error.package.failed_to_update_project_name");
+
+    if (error instanceof Error) {
+      logger.error(`${errorMessage}: ${error.message}`, "TEMPL");
+    } else {
+      logger.error(errorMessage, "TEMPL");
+    }
+
+    if (error instanceof Error && error.stack) {
+      logger.dimmed(error.stack);
+    }
   }
 }

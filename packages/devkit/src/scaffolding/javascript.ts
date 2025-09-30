@@ -1,17 +1,16 @@
-import ora from "ora";
-import chalk from "chalk";
 import { t } from "#utils/i18n/translator.js";
 import { getTemplateFromCache } from "#core/cache/index.js";
 import { runCliCommand } from "#scaffolding/cli-runner.js";
 import { copyLocalTemplate } from "#scaffolding/local-template.js";
 import { installDependencies } from "#scaffolding/dependencies.js";
+import { logger } from "#utils/logger.js";
 import type {
   TemplateConfig,
   CacheStrategy,
   SupportedJavascriptPackageManager,
 } from "#utils/schema/schema.js";
 
-interface ScaffoldJavascriptProjectOptions {
+export interface ScaffoldJavascriptProjectOptions {
   projectName: string;
   templateConfig: TemplateConfig;
   packageManager: SupportedJavascriptPackageManager;
@@ -23,14 +22,16 @@ export async function scaffoldProject(
 ): Promise<void> {
   const { projectName, templateConfig, packageManager, cacheStrategy } =
     options;
-  const spinner = ora();
+  const spinner = logger.spinner(t("scaffolding.run.start"));
   let isOfficialCli = false;
 
   try {
     if (templateConfig.location.includes("{pm}")) {
       isOfficialCli = true;
-      spinner.text = chalk.bold.cyan(
-        t("scaffolding.run.start", { command: templateConfig.location }),
+      spinner.text = logger.colors.cyan(
+        logger.colors.bold(
+          t("scaffolding.run.start", { command: templateConfig.location }),
+        ),
       );
       spinner.stop();
       await runCliCommand({
@@ -50,38 +51,55 @@ export async function scaffoldProject(
         strategy: cacheStrategy,
       });
     } else {
-      spinner.text = chalk.cyan(t("scaffolding.copy.start"));
+      spinner.text = logger.colors.cyan(t("scaffolding.copy.start"));
       spinner.start();
       await copyLocalTemplate({
         sourcePath: templateConfig.location,
         projectName,
         spinner,
       });
-      spinner.succeed(chalk.green(t("scaffolding.copy.success")));
+      spinner.succeed(logger.colors.green(t("scaffolding.copy.success")));
     }
 
     if (!isOfficialCli) {
-      spinner.text = chalk.bold.cyan(
-        t("scaffolding.install.start", { pm: packageManager }),
-        "\n",
+      spinner.text = logger.colors.cyan(
+        logger.colors.bold(
+          `${t("scaffolding.install.start", { pm: packageManager })}\n`,
+        ),
       );
       spinner.stop();
       await installDependencies({ projectName, packageManager, spinner });
     }
 
     if (!isOfficialCli) {
-      console.log(chalk.bold.green(t("scaffolding.complete.success")));
-      console.log(
-        chalk.italic.bold.white(t("scaffolding.complete.next_steps")),
+      logger.log(
+        logger.colors.green(
+          logger.colors.bold(t("scaffolding.complete.success")),
+        ),
       );
-      console.log(
-        chalk.bold.green(
-          ` cd ${projectName}\n git init && git add -A && git commit -m "Initial commit"\n`,
+      logger.log(
+        logger.colors.white(
+          logger.colors.bold(
+            logger.colors.italic(t("scaffolding.complete.next_steps")),
+          ),
+        ),
+      );
+      logger.log(
+        logger.colors.green(
+          logger.colors.bold(
+            ` cd ${projectName}\n git init && git add -A && git commit -m "Initial commit"\n`,
+          ),
         ),
       );
     }
-  } catch (err) {
-    spinner.fail(chalk.red(t("error.scaffolding.unexpected")));
-    console.error(err);
+  } catch (err: any) {
+    spinner.fail(logger.colors.red(t("error.scaffolding.unexpected")));
+
+    const message = t("error.scaffolding.unexpected");
+    if (err instanceof Error) {
+      logger.error(`${message}: ${err.message}`, "UNKNOWN");
+    } else {
+      logger.error(message, "UNKNOWN");
+    }
   }
 }

@@ -1,5 +1,4 @@
-import ora from "ora";
-import chalk from "chalk";
+import { logger, type TSpinner } from "#utils/logger.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { t } from "#utils/i18n/translator.js";
 import { readAndMergeConfigs } from "#core/config/loader.js";
@@ -47,9 +46,11 @@ export function setupAddCommand(configCommand: Command): void {
         const parentOpts = childCommand?.parent?.opts();
         const isGlobal = !!parentOpts?.global;
 
-        const spinner = ora(
-          chalk.cyan(t("cli.add_template.adding", { templateName })),
-        ).start();
+        const spinner: TSpinner = logger
+          .spinner(
+            logger.colors.cyan(t("cli.add_template.adding", { templateName })),
+          )
+          .start();
 
         try {
           if (!description || !location) {

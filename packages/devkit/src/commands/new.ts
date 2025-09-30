@@ -2,8 +2,8 @@ import { type SetupCommandOptions } from "#utils/schema/schema.js";
 import { t } from "#utils/i18n/translator.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import ora from "ora";
-import chalk from "chalk";
+import { logger, type TSpinner } from "#utils/logger.js";
+import { validateProgrammingLanguage } from "#utils/validations/config.js";
 
 const getScaffolder = async (language: string) => {
   if (language === "javascript") {
@@ -27,16 +27,21 @@ export function setupNewCommand(options: SetupCommandOptions) {
     )
     .action(async (language, projectName, cmdOptions) => {
       const { template } = cmdOptions;
-      const scaffoldSpinner = ora(
-        chalk.cyan(
-          t("new.project.scaffolding", {
-            projectName,
-            template: template,
-          }),
-        ),
-      ).start();
+
+      const scaffoldSpinner: TSpinner = logger
+        .spinner(
+          logger.colors.cyan(
+            t("new.project.scaffolding", {
+              projectName,
+              template: template,
+            }),
+          ),
+        )
+        .start();
 
       try {
+        validateProgrammingLanguage(language);
+
         const languageTemplates = config.templates[language];
         if (!languageTemplates) {
           throw new DevkitError(
@@ -56,6 +61,7 @@ export function setupNewCommand(options: SetupCommandOptions) {
 
         const scaffoldAppropriateProject = await getScaffolder(language);
         scaffoldSpinner.stop();
+
         await scaffoldAppropriateProject({
           projectName,
           templateConfig,
@@ -69,7 +75,7 @@ export function setupNewCommand(options: SetupCommandOptions) {
         });
 
         scaffoldSpinner.succeed(
-          chalk.green(t("new.project.success", { projectName })),
+          logger.colors.green(t("new.project.success", { projectName })),
         );
       } catch (error) {
         handleErrorAndExit(error, scaffoldSpinner);

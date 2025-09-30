@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { setupListCommand } from "../../../../src/commands/config/list.js";
-import { mockSpinner, mockChalk, mocktFn } from "../../../../vitest.setup.js";
+import { mockSpinner, mockLogger, mocktFn } from "../../../../vitest.setup.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 
 const {
@@ -33,7 +33,7 @@ vi.mock("#core/template/printer.js", () => ({
   printTemplates: mockPrintTemplates,
 }));
 
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+const consoleLogSpy = mockLogger.log;
 
 describe("setupListCommand", () => {
   let mockConfigCommand: any;
@@ -106,6 +106,9 @@ describe("setupListCommand", () => {
       expect(mockSpinner.info).toHaveBeenCalledWith(
         mocktFn("config.get.source.local"),
       );
+      expect(mockLogger.log).toHaveBeenCalled();
+
+      expect(mockPrintSettings).toHaveBeenCalledOnce();
       expect(mockPrintSettings).toHaveBeenCalledWith(sampleConfig.settings);
       expect(mockPrintTemplates).toHaveBeenCalledWith(
         "javascript",
@@ -177,7 +180,7 @@ describe("setupListCommand", () => {
       );
       expect(mockPrintSettings).toHaveBeenCalledWith({});
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.yellow(mocktFn("list.templates.not_found")),
+        mockLogger.colors.yellow(mocktFn("list.templates.not_found")),
       );
       expect(mockPrintTemplates).not.toHaveBeenCalled();
     });

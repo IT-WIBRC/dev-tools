@@ -1,5 +1,4 @@
-import chalk from "chalk";
-import type { Ora } from "ora";
+import { logger, type TSpinner } from "#utils/logger.js";
 import { saveCliConfig } from "#core/config/writer.js";
 import { t } from "#utils/i18n/translator.js";
 import { DevkitError } from "#utils/errors/base.js";
@@ -20,7 +19,7 @@ export async function validateAndSaveTemplate(
   templateDetails: AddTemplateSchema,
   targetConfig: CliConfig,
   isGlobal: boolean,
-  addSpinner: Ora,
+  addSpinner: TSpinner,
 ) {
   const {
     description,
@@ -79,6 +78,6 @@ export async function validateAndSaveTemplate(
   await saveCliConfig(targetConfig, isGlobal);
 
   addSpinner.succeed(
-    chalk.green(t("cli.add_template.success", { templateName })),
+    logger.colors.green(t("cli.add_template.success", { templateName })),
   );
 }

@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { setupInfoCommand } from "../../../src/commands/info.js";
-import { mockSpinner, mocktFn } from "../../../vitest.setup.js";
+import { mockSpinner, mocktFn, mockLogger } from "../../../vitest.setup.js";
 import { type SystemInfo } from "../../../src/core/info/info.js";
 
 const { mockCollectSystemInfo, mockHandleErrorAndExit } = vi.hoisted(() => ({
@@ -16,19 +16,8 @@ vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
 }));
 
-vi.mock("chalk", () => ({
-  default: {
-    bold: {
-      cyan: (str: string) => str,
-    },
-    yellow: (str: string) => str,
-    green: (str: string) => `[GREEN: ${str}]`,
-    red: (str: string) => `[RED: ${str}]`,
-  },
-}));
-
 let consoleOutput: string[] = [];
-const originalConsoleLog = console.log;
+const originalConsoleLog = mockLogger.log;
 
 const mockConsoleLog = vi.fn((output) => {
   consoleOutput.push(String(output));
@@ -67,7 +56,7 @@ describe("setupInfoCommand", () => {
 
     mocktFn.mockImplementation((key) => key);
 
-    console.log = mockConsoleLog;
+    mockLogger.log = mockConsoleLog;
 
     mockProgram = {
       command: vi.fn(() => mockProgram),
@@ -112,25 +101,25 @@ describe("setupInfoCommand", () => {
       const pad = (label: string) => label.padEnd(27, " ");
 
       expect(consoleOutput).toEqual([
-        "undefined",
+        "\n",
         `--- info.header.cli ---`,
         `${pad("info.cli.version")}: ${MOCKED_CLI_VERSION}`,
-        "undefined",
+        "\n",
         `--- info.header.runtime ---`,
         `${pad("info.runtime.runtime_name")}: ${MOCKED_SYSTEM_INFO.runtimeName}`,
         `${pad("info.runtime.runtime_version")}: ${MOCKED_SYSTEM_INFO.runtimeVersion}`,
         `${pad("info.runtime.package_manager")}: ${MOCKED_SYSTEM_INFO.packageManagerVersion}`,
-        "undefined",
+        "\n",
         `--- info.header.os_details ---`,
         `${pad("info.os.type_version")}: ${MOCKED_SYSTEM_INFO.os}`,
         `${pad("info.os.architecture")}: ${MOCKED_SYSTEM_INFO.arch}`,
         `${pad("info.os.shell")}: ${MOCKED_SYSTEM_INFO.shell}`,
         `${pad("info.os.home_dir")}: ${MOCKED_SYSTEM_INFO.homeDir}`,
-        "undefined",
+        "\n",
         `--- info.header.config_files ---`,
-        `${pad("info.config.global_path")}: ${GLOBAL_PATH} [GREEN: info.config.found]`,
-        `${pad("info.config.local_path")}: ${LOCAL_EXPECTED} [RED: info.config.not_found]`,
-        "undefined",
+        `${pad("info.config.global_path")}: ${GLOBAL_PATH} info.config.found`,
+        `${pad("info.config.local_path")}: ${LOCAL_EXPECTED} info.config.not_found`,
+        "\n",
       ]);
     });
 

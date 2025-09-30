@@ -1,7 +1,10 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import { scaffoldProject } from "../../../src/scaffolding/javascript.js";
+import {
+  scaffoldProject,
+  type ScaffoldJavascriptProjectOptions,
+} from "../../../src/scaffolding/javascript.js";
 import { DevkitError } from "../../../src/utils/errors/base.js";
-import { mockSpinner } from "../../../vitest.setup.js";
+import { mockSpinner, mockLogger } from "../../../vitest.setup.js";
 
 const {
   mockRunCliCommand,
@@ -36,12 +39,10 @@ describe("scaffoldProject", () => {
     projectName: "my-project",
     packageManager: "npm",
     cacheStrategy: "daily",
-  } as any;
+  } as ScaffoldJavascriptProjectOptions;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(console, "log").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   it("should run official CLI command for a {pm} template", async () => {
@@ -88,13 +89,13 @@ describe("scaffoldProject", () => {
     );
     await scaffoldProject({ ...options, templateConfig });
     expect(mockSpinner.fail).toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalled();
+    expect(mockLogger.error).toHaveBeenCalled();
   });
 
   it("should log success messages and next steps for non-CLI templates", async () => {
     const templateConfig = { location: "http://example.com" };
     await scaffoldProject({ ...options, templateConfig });
     expect(mockInstallDependencies).toHaveBeenCalled();
-    expect(console.log).toHaveBeenCalledWith("scaffolding.complete.success");
+    expect(mockLogger.log).toHaveBeenCalledWith("scaffolding.complete.success");
   });
 });

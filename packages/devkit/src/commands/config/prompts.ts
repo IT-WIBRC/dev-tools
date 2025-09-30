@@ -10,19 +10,19 @@ import {
   promptForLanguage,
   promptForPackageManager,
 } from "#core/prompts/prompts.js";
-import chalk from "chalk";
+import { logger } from "#utils/logger.js";
 
 const SETTINGS_CHOICES = [
   {
-    name: `pm (${chalk.gray("package manager")})`,
+    name: `pm (${logger.colors.dim("package manager")})`,
     value: "packageManager",
   },
   {
-    name: `cache (${chalk.gray("cache strategy")})`,
+    name: `cache (${logger.colors.dim("cache strategy")})`,
     value: "cacheStrategy",
   },
   {
-    name: `lg (${chalk.gray("language")})`,
+    name: `lg (${logger.colors.dim("language")})`,
     value: "language",
   },
 ];
@@ -36,7 +36,6 @@ async function handleInteractiveSettings(
     choices: SETTINGS_CHOICES,
   });
 
-  console.log(settingKey);
   let newValue;
   switch (settingKey) {
     case "packageManager":
@@ -58,7 +57,7 @@ async function handleInteractiveSettings(
   }
 
   await handleNonInteractiveSettingsUpdate(settingKey, newValue!, isGlobal);
-  console.log(t("config.set.success"));
+  logger.log(t("config.set.success"));
 }
 
 async function handleInteractiveTemplates(
@@ -108,7 +107,7 @@ async function handleInteractiveTemplates(
     updates,
     isGlobal,
   );
-  console.log(t("config.update.success", { templateName }));
+  logger.log(t("config.update.success", { templateName }));
 }
 
 export async function handleInteractiveConfig(

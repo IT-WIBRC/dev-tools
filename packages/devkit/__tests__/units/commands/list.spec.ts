@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { setupListCommand } from "../../../src/commands/list";
 import { DevkitError } from "../../../src/utils/errors/base";
 import type { CliConfig } from "../../../src/utils/schema/schema";
-import { mockChalk, mockSpinner } from "../../../vitest.setup";
+import { mockSpinner, mockLogger } from "../../../vitest.setup.js";
 
 const sampleLocalConfig: CliConfig = {
   settings: {
@@ -42,7 +42,6 @@ const {
   mockValidateProgrammingLanguage,
   mockHandleErrorAndExit,
   mockProgram,
-  consoleLogSpy,
 } = vi.hoisted(() => {
   return {
     mockReadAndMergeConfigs: vi.fn(),
@@ -57,7 +56,6 @@ const {
       option: vi.fn().mockReturnThis(),
       action: vi.fn().mockReturnThis(),
     },
-    consoleLogSpy: vi.spyOn(console, "log").mockImplementation(() => {}),
   };
 });
 
@@ -90,7 +88,6 @@ describe("list command", () => {
     mockProgram.action.mockImplementation((fn) => {
       actionFn = fn;
     });
-    consoleLogSpy.mockClear();
   });
 
   it("should define the list command correctly", () => {
@@ -251,8 +248,8 @@ describe("list command", () => {
       expect(mockSpinner.info).toHaveBeenCalledWith(
         "list.templates.using_local",
       );
-      expect(consoleLogSpy).toHaveBeenCalledTimes(1);
-      expect(consoleLogSpy).toHaveBeenCalledWith("\nlist.templates.header");
+      expect(mockLogger.log).toHaveBeenCalledTimes(1);
+      expect(mockLogger.log).toHaveBeenCalledWith("\nlist.templates.header");
 
       expect(mockPrintTemplates).toHaveBeenCalledOnce();
       expect(mockPrintTemplates).toHaveBeenCalledWith(
@@ -325,9 +322,11 @@ describe("list command", () => {
       );
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockChalk.yellow("list.templates.not_found- options template:"),
+        (mockLogger.colors as { yellow: Mock }).yellow(
+          "list.templates.not_found- options template:",
+        ),
       );
-      expect(consoleLogSpy).not.toHaveBeenCalled();
+      expect(mockLogger.log).not.toHaveBeenCalled();
       expect(mockPrintTemplates).not.toHaveBeenCalled();
     });
   });

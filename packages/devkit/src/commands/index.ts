@@ -1,8 +1,7 @@
 import { Command } from "commander";
 import { readAndMergeConfigs } from "#core/config/loader.js";
 import { t } from "#utils/i18n/translator.js";
-import ora from "ora";
-import chalk from "chalk";
+import { logger, TSpinner } from "#utils/logger.js";
 import { getProjectVersion } from "#core/info/project.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { setupNewCommand } from "#commands/new.js";
@@ -21,9 +20,13 @@ export async function setupAndParse() {
   program.parseOptions(process.argv);
   const isVerbose = !!program.opts().verbose;
 
-  const spinner = ora().start(
-    isVerbose ? chalk.bold.cyan("Initializing CLI...") : "",
-  );
+  const spinner: TSpinner = logger
+    .spinner()
+    .start(
+      isVerbose
+        ? logger.colors.cyan(logger.colors.bold("Initializing CLI..."))
+        : "",
+    );
 
   try {
     const { config, source } = await readAndMergeConfigs({
@@ -38,13 +41,14 @@ export async function setupAndParse() {
 
     await loadTranslations(locale);
 
-    isVerbose && spinner.succeed(chalk.bold.green(t("program.initialized")));
+    isVerbose &&
+      spinner.succeed(
+        logger.colors.green(logger.colors.bold(t("program.initialized"))),
+      );
 
     if (source === "default") {
-      console.warn(
-        "\n",
-        chalk.italic.bold.yellow(t("warning.no_config_found")),
-        "\n",
+      logger.warning(
+        `\n${logger.colors.yellowBold(logger.colors.italic(t("warning.no_config_found")))}\n`,
       );
     }
 

@@ -1,8 +1,7 @@
 import { t } from "#utils/i18n/translator.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { DevkitError } from "#utils/errors/base.js";
-import ora from "ora";
-import chalk from "chalk";
+import { logger, type TSpinner } from "#utils/logger.js";
 import { readAndMergeConfigs } from "#core/config/loader.js";
 import { printTemplates } from "#core/template/printer.js";
 import type { SetupCommandOptions } from "#utils/schema/schema.js";
@@ -64,7 +63,9 @@ export function setupListCommand(options: SetupCommandOptions): void {
     .action(async (language, cmdOptions: ListCommandOptions) => {
       const { global: isGlobal, all: showAll, filter } = cmdOptions;
 
-      const spinner = ora(t("list.templates.loading")).start();
+      const spinner: TSpinner = logger
+        .spinner(t("list.templates.loading"))
+        .start();
 
       try {
         if (isGlobal && showAll) {
@@ -87,7 +88,7 @@ export function setupListCommand(options: SetupCommandOptions): void {
         const startMessageKey = getStartMessage(!!isGlobal, !!showAll, source);
 
         if (startMessageKey.startsWith("list.templates.no_")) {
-          spinner.succeed(chalk.yellow(t(startMessageKey)));
+          spinner.succeed(logger.colors.yellow(t(startMessageKey)));
           return;
         }
 
@@ -95,7 +96,7 @@ export function setupListCommand(options: SetupCommandOptions): void {
 
         if (Object.keys(config?.templates || {}).length === 0) {
           spinner.succeed(
-            chalk.yellow(
+            logger.colors.yellow(
               t("list.templates.not_found", {
                 template: "",
               }),
@@ -104,7 +105,7 @@ export function setupListCommand(options: SetupCommandOptions): void {
           return;
         }
 
-        console.log(chalk.bold("\n" + t("list.templates.header")));
+        logger.log(logger.colors.bold("\n" + t("list.templates.header")));
 
         Object.entries(config?.templates || {}).forEach(
           ([lang, langTemplates]) => {

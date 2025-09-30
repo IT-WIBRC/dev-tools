@@ -9,8 +9,7 @@ import { ConfigError } from "#utils/errors/base.js";
 import fs from "#utils/fs/file.js";
 import path from "path";
 import os from "os";
-import ora, { type Ora } from "ora";
-import chalk from "chalk";
+import { logger, TSpinner } from "#utils/logger.js";
 import { select } from "@inquirer/prompts";
 import { findGlobalConfigFile } from "#core/config/search.js";
 import { findMonorepoRoot, findProjectRoot } from "#utils/fs/finder.js";
@@ -21,7 +20,7 @@ import { getPackageManager } from "#utils/package-manager/index.js";
 
 async function promptForStandardOverwrite(filePath: string): Promise<boolean> {
   const response = await select({
-    message: chalk.yellow(
+    message: logger.colors.yellow(
       t("config.init.confirm_overwrite", { path: filePath }),
     ),
     choices: [
@@ -46,7 +45,7 @@ async function getUpdatedConfig(): Promise<CliConfig> {
   };
 }
 
-async function handleGlobalInit(spinner: Ora): Promise<void> {
+async function handleGlobalInit(spinner: TSpinner): Promise<void> {
   let finalPath = await findGlobalConfigFile();
   if (!finalPath) {
     finalPath = path.join(os.homedir(), CONFIG_FILE_NAMES[0]);
@@ -59,16 +58,16 @@ async function handleGlobalInit(spinner: Ora): Promise<void> {
   if (shouldOverwrite) {
     const configToSave = await getUpdatedConfig();
     spinner.start(
-      chalk.cyan(t("config.init.initializing", { path: finalPath })),
+      logger.colors.cyan(t("config.init.initializing", { path: finalPath })),
     );
     await saveConfig(configToSave, finalPath);
-    spinner.succeed(chalk.green(t("config.init.success")));
+    spinner.succeed(logger.colors.green(t("config.init.success")));
   } else {
-    spinner.info(chalk.yellow(t("config.init.aborted")));
+    spinner.info(logger.colors.yellow(t("config.init.aborted")));
   }
 }
 
-async function handleLocalInit(spinner: Ora): Promise<void> {
+async function handleLocalInit(spinner: TSpinner): Promise<void> {
   const allConfigFiles = [...CONFIG_FILE_NAMES];
   const currentPath = process.cwd();
   const monorepoRoot = await findMonorepoRoot();
@@ -94,12 +93,12 @@ async function handleLocalInit(spinner: Ora): Promise<void> {
   if (shouldOverwrite && finalPath) {
     const configToSave = await getUpdatedConfig();
     spinner.start(
-      chalk.cyan(t("config.init.initializing", { path: finalPath })),
+      logger.colors.cyan(t("config.init.initializing", { path: finalPath })),
     );
     await saveConfig(configToSave, finalPath);
-    spinner.succeed(chalk.green(t("config.init.success")));
+    spinner.succeed(logger.colors.green(t("config.init.success")));
   } else {
-    spinner.info(chalk.yellow(t("config.init.aborted")));
+    spinner.info(logger.colors.yellow(t("config.init.aborted")));
   }
 }
 
@@ -114,7 +113,7 @@ export function setupInitCommand(options: SetupCommandOptions): void {
     .action(async (cmdOptions: { local: boolean; global: boolean }) => {
       const isLocal: boolean = cmdOptions.local;
       const isGlobal: boolean = cmdOptions.global;
-      const spinner: Ora = ora();
+      const spinner: TSpinner = logger.spinner();
 
       try {
         if (isLocal && isGlobal) {

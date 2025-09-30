@@ -362,7 +362,8 @@
     "description_required": "La description est requise.",
     "missing_required_options": {
       "add_template": "Options requises manquantes. Veuillez fournir tous les champs suivants : {fields}.\nAlternativement, exécutez avec le drapeau '-i' ou '--interactive' pour une configuration guidée."
-    }
+    },
+    "devkit_specific": "Problème interne inattendu rencontré par Devkit"
   },
   "cache": {
     "clone": {

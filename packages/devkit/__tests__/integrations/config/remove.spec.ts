@@ -215,7 +215,7 @@ describe("dk config remove", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "An unexpected error occurred: Template 'not-found-1, not-found-2' not found in configuration.",
+      "❌ Devkit encountered an unexpected internal issue: Template 'not-found-1, not-found-2' not found in configuration.",
     );
   });
 
@@ -229,7 +229,7 @@ describe("dk config remove", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "An unexpected error occurred: Invalid value for language. Valid options are: javascript",
+      "❌ Devkit encountered an unexpected internal issue: Invalid value for language. Valid options are: javascript",
     );
   });
 

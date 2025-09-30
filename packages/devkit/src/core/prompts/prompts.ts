@@ -8,7 +8,7 @@ import {
   VALID_PACKAGE_MANAGERS,
 } from "#utils/schema/schema.js";
 import { t } from "#utils/i18n/translator.js";
-import chalk from "chalk";
+import { logger } from "#utils/logger.js";
 
 /**
  * Prompts the user to select a programming language.
@@ -20,7 +20,7 @@ export async function promptForLanguage(
   defaultValue?: SupportedProgrammingLanguageValues,
 ): Promise<SupportedProgrammingLanguageValues> {
   const message = `${t("cli.add_template.prompts.language")} ${
-    required ? chalk.red("(required)") : chalk.gray("(optional)")
+    required ? logger.colors.red("(required)") : logger.colors.dim("(optional)")
   }`;
   const choices = Object.values(ProgrammingLanguage).map((lang) => ({
     name: lang,
@@ -44,7 +44,7 @@ export async function promptForPackageManager(
 ): Promise<SupportedPackageManager | null> {
   const message = `${t(
     "cli.add_template.prompts.package_manager",
-  )} ${required ? chalk.red("(required)") : chalk.gray("(optional)")}`;
+  )} ${required ? logger.colors.red("(required)") : logger.colors.dim("(optional)")}`;
   return (await select({
     message,
     choices: [
@@ -66,7 +66,7 @@ export async function promptForCacheStrategy(
 ): Promise<CacheStrategy | null> {
   const message = `${t(
     "cli.add_template.prompts.cache_strategy",
-  )} ${required ? chalk.red("(required)") : chalk.gray("(optional)")}`;
+  )} ${required ? logger.colors.red("(required)") : logger.colors.dim("(optional)")}`;
   return (await select({
     message,
     choices: [

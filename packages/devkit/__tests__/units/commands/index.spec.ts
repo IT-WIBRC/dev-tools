@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mockProgram, mockSpinner } from "../../../vitest.setup.js";
+import { mockProgram, mockSpinner, mockLogger } from "../../../vitest.setup.js";
 import { setupAndParse } from "../../../src/commands/index.js";
 import type { CliConfig } from "../../../src/utils/schema/schema.js";
 
@@ -53,7 +53,7 @@ vi.mock("#core/config/loader.js", () => ({
   readAndMergeConfigs: mockReadAndMergeConfigs,
 }));
 
-const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+const warnSpy = mockLogger.warning;
 const optsSpy = vi.spyOn(mockProgram, "opts");
 const parseOptionsSpy = vi.spyOn(mockProgram, "parseOptions");
 
@@ -61,7 +61,6 @@ describe("index.ts (Entry point)", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
-    warnSpy.mockClear();
   });
 
   afterEach(() => {
@@ -124,11 +123,7 @@ describe("index.ts (Entry point)", () => {
       await vi.runAllTimersAsync();
 
       expect(warnSpy).toHaveBeenCalledOnce();
-      expect(warnSpy).toHaveBeenCalledWith(
-        "\n",
-        expect.stringContaining("warning.no_config_found"),
-        "\n",
-      );
+      expect(warnSpy).toHaveBeenCalledWith("\nwarning.no_config_found\n");
     });
   });
 
