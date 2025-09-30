@@ -1,4 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
+import { mockLogger } from "../../../../vitest.setup.js";
 
 const { mockExistsSync, mockReadJson, mockWriteJson } = vi.hoisted(() => ({
   mockExistsSync: vi.fn(),
@@ -17,10 +18,6 @@ vi.mock("#utils/fs/file.js", () => ({
 import { updateJavascriptProjectName } from "../../../../src/core/template/update-project-name.js";
 import { FILE_NAMES } from "../../../../src/utils/schema/schema.js";
 
-const mockConsoleError = vi
-  .spyOn(console, "error")
-  .mockImplementation(() => {});
-
 describe("update-project-name.ts", () => {
   const projectPath = "/test/path";
   const newProjectName = "new-project";
@@ -32,7 +29,6 @@ describe("update-project-name.ts", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockConsoleError.mockClear();
   });
 
   describe("updateJavascriptProjectName", () => {
@@ -53,7 +49,7 @@ describe("update-project-name.ts", () => {
         ...mockPackageJson,
         name: newProjectName,
       });
-      expect(mockConsoleError).not.toHaveBeenCalled();
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
 
     it("should log an error if package.json does not exist", async () => {
@@ -61,11 +57,17 @@ describe("update-project-name.ts", () => {
 
       await updateJavascriptProjectName(projectPath, newProjectName);
 
+      expect(mockExistsSync).toHaveBeenCalledOnce();
       expect(mockExistsSync).toHaveBeenCalledWith(packageJsonPath);
+
       expect(mockReadJson).not.toHaveBeenCalled();
       expect(mockWriteJson).not.toHaveBeenCalled();
-      expect(mockConsoleError).toHaveBeenCalledOnce();
-      expect(mockConsoleError).toHaveBeenCalledWith(expect.any(String));
+
+      expect(mockLogger.error).toHaveBeenCalledOnce();
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        "error.package.file_not_found",
+        "TEMPL",
+      );
     });
 
     it("should log an error if writing to package.json fails", async () => {
@@ -87,9 +89,9 @@ describe("update-project-name.ts", () => {
         ...mockPackageJson,
         name: newProjectName,
       });
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        expect.any(String),
-        writeError,
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        "error.package.failed_to_update_project_name: Permission denied",
+        "TEMPL",
       );
     });
   });

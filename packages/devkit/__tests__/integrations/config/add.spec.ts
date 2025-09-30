@@ -226,7 +226,7 @@ describe("dk config add", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "An unexpected error occurred: Invalid value for language. Valid options are: javascript",
+      "❌ Devkit encountered an unexpected internal issue: Invalid value for language. Valid options are: javascript",
     );
   });
 
@@ -250,7 +250,7 @@ describe("dk config add", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "An unexpected error occurred: Template 'react-ts' already exists in the configuration. Use 'devkit config set' to update it.",
+      "❌ Devkit encountered an unexpected internal issue: Template 'react-ts' already exists in the configuration. Use 'devkit config set' to update it.",
     );
   });
 
@@ -283,7 +283,7 @@ describe("dk config add", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "An unexpected error occurred: Alias 'rt' already exists for another template in this language. Please choose a different alias.",
+      "❌ Devkit encountered an unexpected internal issue: Alias 'rt' already exists for another template in this language. Please choose a different alias.",
     );
   });
 });

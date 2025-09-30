@@ -4,9 +4,14 @@ import { DevkitError } from "../../../src/utils/errors/base.js";
 import { mockSpinner } from "../../../vitest.setup.js";
 import type { CliConfig } from "../../../src/utils/schema/schema.js";
 
-const { mockHandleErrorAndExit, mockScaffoldProject } = vi.hoisted(() => ({
+const {
+  mockHandleErrorAndExit,
+  mockScaffoldProject,
+  mockValidateProgrammingLanguage,
+} = vi.hoisted(() => ({
   mockHandleErrorAndExit: vi.fn(),
   mockScaffoldProject: vi.fn(),
+  mockValidateProgrammingLanguage: vi.fn(),
 }));
 
 let actionFn: any;
@@ -18,8 +23,8 @@ vi.mock("#scaffolding/javascript.js", () => ({
   scaffoldProject: mockScaffoldProject,
 }));
 
-vi.mock("#scaffolding/typescript.js", () => ({
-  scaffoldProject: mockScaffoldProject,
+vi.mock("#utils/validations/config.js", () => ({
+  validateProgrammingLanguage: mockValidateProgrammingLanguage,
 }));
 
 describe("setupNewCommand", () => {
@@ -169,12 +174,17 @@ describe("setupNewCommand", () => {
     const projectName = "my-python-project";
     const cmdOptions = { template: "my-template" };
 
+    const programmingLanguageError = new DevkitError(
+      "error.language_config_not_found- options language:python",
+    );
+    mockValidateProgrammingLanguage.mockRejectedValueOnce(
+      programmingLanguageError,
+    );
+
     await actionFn(language, projectName, cmdOptions);
 
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      new DevkitError(
-        "error.language_config_not_found- options language:python",
-      ),
+      programmingLanguageError,
       mockSpinner,
     );
   });

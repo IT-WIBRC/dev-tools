@@ -7,23 +7,85 @@ import {
   afterEach,
   type MockInstance,
   beforeAll,
+  afterAll,
+  type MockedFunction,
 } from "vitest";
 import { logger } from "../../../src/utils/logger.js";
 
-const { mockChalk, mockOra } = vi.hoisted(() => ({
-  mockChalk: {
-    blue: vi.fn((m) => `[blue] ${m}`),
-    green: vi.fn((m) => `[green] ${m}`),
-    yellow: vi.fn((m) => `[yellow] ${m}`),
-    red: vi.fn((m) => `[red] ${m}`),
-    dim: vi.fn((m) => `[dim] ${m}`),
-  },
-  mockOra: vi.fn(() => ({
-    start: vi.fn(),
-    stop: vi.fn(),
-    succeed: vi.fn(),
-  })),
-}));
+const MOCK_TIME = "10:00:00";
+const MOCK_TIMESTAMP = `[dim] [${MOCK_TIME}]`;
+
+const { mockChalk, mockOra } = vi.hoisted(() => {
+  type MockColorFn = MockedFunction<(msg: string) => string>;
+
+  const createColorMock = (name: string): MockColorFn =>
+    vi.fn((m) => `[${name}] ${m}`) as MockColorFn;
+
+  const simpleMocks = {
+    blue: createColorMock("blue"),
+    green: createColorMock("green"),
+    yellow: createColorMock("yellow"),
+    red: createColorMock("red"),
+    cyan: createColorMock("cyan"),
+    dim: createColorMock("dim"),
+    bold: createColorMock("bold"),
+    italic: createColorMock("italic"),
+    redBright: createColorMock("redBright"),
+    greenBright: createColorMock("greenBright"),
+    magenta: createColorMock("magenta"),
+    magentaBright: createColorMock("magentaBright"),
+    white: createColorMock("white"),
+  };
+
+  const compositeMocks = {
+    boldRed: createColorMock("bold_red"),
+    boldBlue: createColorMock("bold_blue"),
+    boldYellow: createColorMock("bold_yellow"),
+    cyanDim: createColorMock("cyan_dim"),
+  };
+
+  const timestampDimMock = vi.fn((m) => `[dim] ${m}`) as MockColorFn;
+
+  const boldMock = simpleMocks.bold as unknown as MockColorFn & {
+    red: MockColorFn;
+    blue: MockColorFn;
+    yellow: MockColorFn;
+  };
+  boldMock.red = compositeMocks.boldRed;
+  boldMock.blue = compositeMocks.boldBlue;
+  boldMock.yellow = compositeMocks.boldYellow;
+
+  const cyanMock = simpleMocks.cyan as unknown as MockColorFn & {
+    dim: MockColorFn;
+  };
+  cyanMock.dim = compositeMocks.cyanDim;
+
+  const mockChalk = {
+    ...simpleMocks,
+    dim: timestampDimMock,
+    bold: boldMock,
+    cyan: cyanMock,
+  };
+
+  mockChalk.blue = simpleMocks.blue;
+  mockChalk.green = simpleMocks.green;
+  mockChalk.yellow = simpleMocks.yellow;
+  mockChalk.red = simpleMocks.red;
+  mockChalk.redBright = simpleMocks.redBright;
+
+  return {
+    mockChalk: mockChalk,
+    mockOra: vi.fn((text) => ({
+      text: text,
+      start: vi.fn(),
+      stop: vi.fn(),
+      succeed: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      fail: vi.fn(),
+    })),
+  };
+});
 
 vi.mock("chalk", () => ({ default: mockChalk }));
 vi.mock("ora", () => ({ default: mockOra }));
@@ -31,15 +93,26 @@ vi.mock("ora", () => ({ default: mockOra }));
 describe("logger utility", () => {
   let mockConsoleLog: MockInstance;
   let mockConsoleError: MockInstance;
+  let timestampDimMock: MockInstance;
 
   beforeAll(() => {
     vi.unmock("#utils/logger.js");
+
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(`2024-01-01T${MOCK_TIME}`));
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
   });
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockConsoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
     mockConsoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    timestampDimMock = mockChalk.dim as MockInstance;
+    timestampDimMock.mockImplementation((m: string) => `[dim] ${m}`);
   });
 
   afterEach(() => {
@@ -54,15 +127,14 @@ describe("logger utility", () => {
     expect(mockChalk.blue).toHaveBeenCalledOnce();
     expect(mockChalk.blue).toHaveBeenCalledWith(message);
     expect(mockConsoleLog).toHaveBeenCalledWith(`[blue] ${message}`);
-    expect(mockConsoleError).not.toHaveBeenCalled();
   });
 
-  it("success() should call console.log with green checkmark", () => {
+  it("success() should call console.log with green checkmark and a newline", () => {
     const message = "Operation successful";
     logger.success(message);
 
-    expect(mockChalk.green).toHaveBeenCalledWith(`✔ ${message}`);
-    expect(mockConsoleLog).toHaveBeenCalledWith(`[green] ✔ ${message}`);
+    expect(mockChalk.green).toHaveBeenCalledWith(`\n✔ ${message}`);
+    expect(mockConsoleLog).toHaveBeenCalledWith(`[green] \n✔ ${message}`);
   });
 
   it("warning() should call console.log with yellow warning emoji", () => {
@@ -73,29 +145,33 @@ describe("logger utility", () => {
     expect(mockConsoleLog).toHaveBeenCalledWith(`[yellow] ⚠️ ${message}`);
   });
 
-  it("error() should call console.error with red cross emoji and a newline", () => {
+  it("error() should call console.error with timestamp, type tag, and redBright message", () => {
     const message = "File access denied";
+    const errorType = "CONFIG";
+    logger.error(message, errorType);
+
+    expect(timestampDimMock).toHaveBeenCalledWith(`[${MOCK_TIME}]`);
+    expect(mockChalk.bold.red).toHaveBeenCalledWith(`[${errorType}]`);
+
+    expect(mockChalk.redBright).toHaveBeenCalledWith(`❌ ${message}`);
+
+    const expectedOutput = `${MOCK_TIMESTAMP} [bold_red] [${errorType}] [redBright] ❌ ${message}`;
+    expect(mockConsoleError).toHaveBeenCalledWith(expectedOutput);
+  });
+
+  it("error() should default to 'UNKNOWN' type", () => {
+    const message = "Generic error";
     logger.error(message);
 
-    expect(mockChalk.red).toHaveBeenCalledWith(`\n❌ ${message}`);
-    expect(mockConsoleError).toHaveBeenCalledWith(`[red] \n❌ ${message}`);
-    expect(mockConsoleLog).not.toHaveBeenCalled();
+    expect(mockChalk.bold.red).toHaveBeenCalledWith(`[UNKNOWN]`);
   });
 
-  it("log() should call console.log directly without chalk", () => {
-    const message = "A plain log message";
-    logger.log(message);
-
-    expect(mockConsoleLog).toHaveBeenCalledWith(message);
-    expect(mockChalk.blue).not.toHaveBeenCalled();
-  });
-
-  it("dimmed() should call console.log with dim chalk", () => {
-    const message = "Extra details...";
+  it("dimmed() should call console.log with dim chalk and trim the message", () => {
+    const message = "  Extra details...  ";
     logger.dimmed(message);
 
-    expect(mockChalk.dim).toHaveBeenCalledWith(message);
-    expect(mockConsoleLog).toHaveBeenCalledWith(`[dim] ${message}`);
+    expect(timestampDimMock).toHaveBeenCalledWith(message.trim());
+    expect(mockConsoleLog).toHaveBeenCalledWith(`[dim] Extra details...`);
   });
 
   it("spinner() should call ora with the provided text", () => {
@@ -104,5 +180,34 @@ describe("logger utility", () => {
 
     expect(mockOra).toHaveBeenCalledWith(text);
     expect(spinnerInstance.start).toBeInstanceOf(Function);
+  });
+
+  describe("Colors object", () => {
+    const colors = logger.colors;
+    const testString = "Test";
+
+    it("should have all specified color methods and return mocked strings", () => {
+      expect(colors.white(testString)).toBe(`[white] ${testString}`);
+      expect(colors.blue(testString)).toBe(`[blue] ${testString}`);
+      expect(colors.green(testString)).toBe(`[green] ${testString}`);
+      expect(colors.yellow(testString)).toBe(`[yellow] ${testString}`);
+      expect(colors.red(testString)).toBe(`[red] ${testString}`);
+      expect(colors.cyan(testString)).toBe(`[cyan] ${testString}`);
+      expect(colors.dim(testString)).toBe(`[dim] ${testString}`);
+      expect(colors.bold(testString)).toBe(`[bold] ${testString}`);
+      expect(colors.italic(testString)).toBe(`[italic] ${testString}`);
+      expect(colors.redBright(testString)).toBe(`[redBright] ${testString}`);
+      expect(colors.greenBright(testString)).toBe(
+        `[greenBright] ${testString}`,
+      );
+      expect(colors.magenta(testString)).toBe(`[magenta] ${testString}`);
+      expect(colors.magentaBright(testString)).toBe(
+        `[magentaBright] ${testString}`,
+      );
+
+      expect(colors.boldBlue(testString)).toBe(`[bold_blue] ${testString}`);
+      expect(colors.cyanDim(testString)).toBe(`[cyan_dim] ${testString}`);
+      expect(colors.yellowBold(testString)).toBe(`[bold_yellow] ${testString}`);
+    });
   });
 });

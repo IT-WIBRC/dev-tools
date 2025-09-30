@@ -58,7 +58,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [ ] Add a configuration validation step when initializing or updating the config file to ensure all required fields are present and correctly formatted.
 - [ ]: Enhance interactivity with the `dk config add` command
 - [ ] **Enhance `list` Command**: Add flag to also see default config `--with-defaults`.
-- [ ] ** Enhance for organization Purpose **: Add new language `Typescript` with same code as javascript
+- [ ] ** Enhance for organization Purpose **: Add new language `Typescript` with same code as javascript, also support for nodejs template name for those who prefer it than the language
 - [ ] Add wildcard support for template name in the `dk config update` and `dk config remove` commands.
 - [ ] Use the interactive approach for the `dk config add` command (code already there)
 - [ ] **Dynamic Error Messages**: Update error handling to dynamically generate lists of valid options (e.g., package managers, cache strategies) in error messages.
@@ -66,7 +66,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [ ] **Color Configuration**: Add a feature to allow users to configure the colors for templates.
 - [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
 - [ ] **Testing**: Stabilize the integration test of the `new` command
-- [ ] **Centralize Utilities**: Move `chalk` and `ora` to a single, centralized file for better code organization.
+- [x] **Centralize Utilities**: Move `chalk` and `ora` to a single, centralized file for better code organization.
 - [x] Enable GitHub discussions
 - [x] Refactor and restructure the utilities
 - [ ] Better json structure for languages

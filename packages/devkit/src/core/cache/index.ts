@@ -1,9 +1,9 @@
-import chalk from "chalk";
-import type { Ora } from "ora";
 import os from "os";
 import path from "path";
 import type { CacheStrategy } from "#utils/schema/schema.js";
 import { t } from "#utils/i18n/translator.js";
+import { logger } from "#utils/logger.js";
+import type { Ora } from "ora";
 import { cloneRepo, pullRepo, isRepoFresh, getRepoNameFromUrl } from "./git.js";
 import { doesRepoExist } from "./fs-manager.js";
 import { updateJavascriptProjectName } from "../template/update-project-name.js";
@@ -31,34 +31,50 @@ export async function getTemplateFromCache(
     const repoName = getRepoNameFromUrl(url);
     const repoPath = path.join(CACHE_DIR, repoName);
 
-    spinner.text = chalk.bold.cyan(`Checking cache for: ${repoName}...`);
+    spinner.text = logger.colors.cyan(
+      logger.colors.bold(`Checking cache for: ${repoName}...`),
+    );
     spinner.start();
 
     const repoExists = await doesRepoExist(repoPath);
 
     if (!repoExists) {
-      spinner.text = chalk.italic.cyan(t("cache.clone.start", { url }));
+      spinner.text = logger.colors.cyan(
+        logger.colors.italic(t("cache.clone.start", { url })),
+      );
       await cloneRepo(url, repoPath);
-      spinner.succeed(chalk.bold.green(t("cache.clone.success")));
+      spinner.succeed(
+        logger.colors.green(logger.colors.bold(t("cache.clone.success"))),
+      );
     } else {
       const fresh = await isRepoFresh(repoPath, strategy);
       if (!fresh) {
-        spinner.text = chalk.cyan(t("cache.refresh.start"));
+        spinner.text = logger.colors.cyan(t("cache.refresh.start"));
         await pullRepo(repoPath);
-        spinner.succeed(chalk.green(t("cache.refresh.success")));
+        spinner.succeed(logger.colors.green(t("cache.refresh.success")));
       } else {
-        spinner.info(chalk.yellow(t("cache.use.info", { repoName })));
+        spinner.info(logger.colors.yellow(t("cache.use.info", { repoName })));
       }
     }
 
-    spinner.text = chalk.cyan(t("cache.copy.start"));
+    spinner.text = logger.colors.cyan(t("cache.copy.start"));
 
     await copyJavascriptTemplate(repoPath, destination);
     await updateJavascriptProjectName(destination, projectName);
 
-    spinner.succeed(chalk.bold.green(t("cache.copy.success")));
+    spinner.succeed(
+      logger.colors.green(logger.colors.bold(t("cache.copy.success"))),
+    );
   } catch (error: any) {
-    spinner.fail(chalk.red(t("cache.copy.fail")));
+    spinner.fail(logger.colors.red(t("cache.copy.fail")));
+
+    const message = t("cache.copy.fail");
+    if (error instanceof Error) {
+      logger.error(`${message}: ${error.message}`, "CACHE");
+    } else {
+      logger.error(message, "CACHE");
+    }
+
     throw error;
   }
 }

@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { setupUpdateCommand } from "../../../../src/commands/config/update.js";
-import { mockSpinner, mockChalk, mocktFn } from "../../../../vitest.setup.js";
+import { mockSpinner, mocktFn, mockLogger } from "../../../../vitest.setup.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 
 const { mockHandleErrorAndExit, mockHandleNonInteractiveTemplateUpdate } =
@@ -19,7 +19,7 @@ vi.mock("../../../../src/commands/config/logic.js", () => ({
   handleNonInteractiveTemplateUpdate: mockHandleNonInteractiveTemplateUpdate,
 }));
 
-const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+const consoleLogSpy = mockLogger.log;
 const mockProcessExit = vi
   .spyOn(process, "exit")
   .mockImplementation((() => {}) as unknown as never);
@@ -98,7 +98,7 @@ describe("setupUpdateCommand", () => {
       await actionFn("javascript", ["my-template"], defaultCmdOptions);
 
       expect(mockSpinner.start).toHaveBeenCalledWith(
-        mockChalk.cyan(
+        mockLogger.colors.cyan(
           mocktFn("config.update.updating", { templateName: "my-template" }),
         ),
       );
@@ -114,7 +114,7 @@ describe("setupUpdateCommand", () => {
       );
       expect(mockSpinner.stop).toHaveBeenCalled();
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.green(
+        mockLogger.colors.green(
           `\n✔ ${mocktFn("config.update.success_summary", {
             count: "1",
             templateName: "my-template",
@@ -145,7 +145,7 @@ describe("setupUpdateCommand", () => {
         false,
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.green(
+        mockLogger.colors.green(
           `\n✔ ${mocktFn("config.update.success_summary", {
             count: "2",
             templateName: "temp1, temp2",
@@ -174,7 +174,7 @@ describe("setupUpdateCommand", () => {
 
       expect(mockHandleNonInteractiveTemplateUpdate).toHaveBeenCalledTimes(3);
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.yellow(
+        mockLogger.colors.yellow(
           `\n${mocktFn("config.update.single_fail", {
             templateName: "temp2",
             error: mocktFn("error.template.not_found", { template: "temp2" }),
@@ -210,7 +210,7 @@ describe("setupUpdateCommand", () => {
       expect(mockSpinner.stop).toHaveBeenCalled();
       expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.yellow(
+        mockLogger.colors.yellow(
           `\n${mocktFn("config.update.single_fail", {
             templateName: "my-template",
             error: "unknown error",

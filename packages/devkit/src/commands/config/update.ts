@@ -1,6 +1,5 @@
 import { t } from "#utils/i18n/translator.js";
-import ora from "ora";
-import chalk from "chalk";
+import { logger, type TSpinner } from "#utils/logger.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { handleNonInteractiveTemplateUpdate } from "./logic.js";
 import { type Command } from "commander";
@@ -32,8 +31,8 @@ export function setupUpdateCommand(configCommand: Command): void {
         cmdOptions: UpdateCommandOptions,
         childCommand: Command,
       ) => {
-        const spinner = ora().start(
-          chalk.cyan(
+        const spinner: TSpinner = logger.spinner().start(
+          logger.colors.cyan(
             t("config.update.updating", {
               templateName: templateNames.join(", "),
             }),
@@ -65,14 +64,14 @@ export function setupUpdateCommand(configCommand: Command): void {
             } catch (error: unknown) {
               hasErrors = true;
               if (error instanceof DevkitError) {
-                console.log(
-                  chalk.yellow(
+                logger.log(
+                  logger.colors.yellow(
                     `\n${t("config.update.single_fail", { templateName, error: error.message })}`,
                   ),
                 );
               } else {
-                console.log(
-                  chalk.yellow(
+                logger.log(
+                  logger.colors.yellow(
                     `\n${t("config.update.single_fail", { templateName, error: "unknown error" })}`,
                   ),
                 );
@@ -83,8 +82,8 @@ export function setupUpdateCommand(configCommand: Command): void {
           spinner.stop();
 
           if (successfullyUpdatedCount > 0) {
-            console.log(
-              chalk.green(
+            logger.log(
+              logger.colors.green(
                 `\n✔ ${t("config.update.success_summary", {
                   count: successfullyUpdatedCount.toString(),
                   templateName: templateNames.join(", "),

@@ -1,6 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { setupRemoveCommand } from "../../../../src/commands/config/remove.js";
-import { mockSpinner, mockChalk, mocktFn } from "../../../../vitest.setup.js";
+import { mockSpinner, mockLogger, mocktFn } from "../../../../vitest.setup.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 
 const {
@@ -35,8 +35,6 @@ vi.mock("#core/config/writer.js", () => ({
 vi.mock("#utils/validations/config.js", () => ({
   validateProgrammingLanguage: mockValidateProgrammingLanguage,
 }));
-
-vi.spyOn(console, "log").mockImplementation(() => {});
 
 describe("setupRemoveCommand", () => {
   let mockConfigCommand: any;
@@ -100,7 +98,7 @@ describe("setupRemoveCommand", () => {
       await actionFn("javascript", ["vue-basic"], { global: false });
 
       expect(mockSpinner.start).toHaveBeenCalledWith(
-        mockChalk.cyan(mocktFn("remove_template.start")),
+        mockLogger.colors.cyan(mocktFn("remove_template.start")),
       );
       expect(mockSaveLocalConfig).toHaveBeenCalledWith({
         settings: {},
@@ -275,7 +273,7 @@ describe("setupRemoveCommand", () => {
     });
 
     it("should remove existing templates and warn about non-existent ones", async () => {
-      const consoleLogSpy = vi.spyOn(console, "log");
+      const consoleLogSpy = mockLogger.log;
       const initialConfig = structuredClone(sampleConfig);
       mockReadAndMergeConfigs.mockResolvedValueOnce({
         config: initialConfig,
@@ -310,7 +308,7 @@ describe("setupRemoveCommand", () => {
         }),
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.yellow(
+        mockLogger.colors.yellow(
           mocktFn("remove_template.not_found_warning", {
             template: "non-existent",
           }),

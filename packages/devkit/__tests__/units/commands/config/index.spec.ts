@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setupConfigCommand } from "../../../../src/commands/config/index.js";
-import { mockSpinner, mockChalk, mocktFn } from "../../../../vitest.setup.js";
+import { mockSpinner, mocktFn, mockLogger } from "../../../../vitest.setup.js";
 
 const {
   mockReadAndMergeConfigs,
@@ -48,7 +48,7 @@ vi.mock("../../../../src/commands/config/list.js", () => ({
   setupListCommand: mockSetupListCommand,
 }));
 
-vi.spyOn(console, "log").mockImplementation(() => {});
+console.log = mockLogger.log;
 
 describe("setupConfigCommand", () => {
   let mockProgram: any;
@@ -110,7 +110,7 @@ describe("setupConfigCommand", () => {
 
       expect(mockSpinner.warn).toHaveBeenCalledOnce();
       expect(mockSpinner.warn).toHaveBeenCalledWith(
-        mockChalk.green("warning.no_command_or_option_provided"),
+        mockLogger.colors.green("warning.no_command_or_option_provided"),
       );
     });
 
@@ -131,7 +131,7 @@ describe("setupConfigCommand", () => {
         false,
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockChalk.green("config.set.success"),
+        mockLogger.colors.green("config.set.success"),
       );
     });
 
@@ -148,7 +148,7 @@ describe("setupConfigCommand", () => {
 
       expect(mockHandleNonInteractiveSettingsUpdate).not.toHaveBeenCalled();
       expect(mockSpinner.fail).toHaveBeenCalledWith(
-        mockChalk.redBright("error.command.set.invalid_format"),
+        mockLogger.colors.redBright("error.command.set.invalid_format"),
       );
     });
 
@@ -161,16 +161,15 @@ describe("setupConfigCommand", () => {
         config: mockConfig,
         source: "local",
       });
-      const consoleLogSpy = vi.spyOn(console, "log");
 
       setupConfigCommand(mockProgram);
       await mockAction(["language"], {});
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.yellow.bold("language") + ": " + "typescript",
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        mockLogger.colors.yellowBold("language") + ": " + "typescript",
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockChalk.green("config.get.success"),
+        mockLogger.colors.green("config.get.success"),
       );
     });
 
@@ -186,19 +185,18 @@ describe("setupConfigCommand", () => {
         config: mockConfig,
         source: "local",
       });
-      const consoleLogSpy = vi.spyOn(console, "log");
 
       setupConfigCommand(mockProgram);
       await mockAction(["language", "packageManager"], {});
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.yellow.bold("language") + ": " + "typescript",
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        mockLogger.colors.yellowBold("language") + ": " + "typescript",
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.yellow.bold("packageManager") + ": " + "bun",
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        mockLogger.colors.yellowBold("packageManager") + ": " + "bun",
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockChalk.green("config.get.success"),
+        mockLogger.colors.green("config.get.success"),
       );
     });
 
@@ -208,20 +206,19 @@ describe("setupConfigCommand", () => {
         config: mockConfig,
         source: "local",
       });
-      const consoleLogSpy = vi.spyOn(console, "log");
 
       setupConfigCommand(mockProgram);
       await mockAction(["nonexistent_key"], {});
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        mockChalk.redBright(
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        mockLogger.colors.redBright(
           mocktFn("config.get.not_found", {
             key: "nonexistent_key",
           }),
         ),
       );
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockChalk.green("config.get.success"),
+        mockLogger.colors.green("config.get.success"),
       );
     });
 

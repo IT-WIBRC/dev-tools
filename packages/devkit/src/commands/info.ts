@@ -1,7 +1,6 @@
 import { t } from "#utils/i18n/translator.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import ora from "ora";
-import chalk from "chalk";
+import { logger, type TSpinner } from "#utils/logger.js";
 import type { SetupCommandOptions } from "#utils/schema/schema.js";
 import { collectSystemInfo, type SystemInfo } from "#core/info/info.js";
 
@@ -40,10 +39,12 @@ const printInfo = (info: SystemInfo): void => {
     },
   ];
 
-  console.log();
+  logger.log("\n");
 
   sections.forEach((section) => {
-    console.log(chalk.bold.cyan(`--- ${t(section.titleKey)} ---`));
+    logger.log(
+      logger.colors.cyan(logger.colors.bold(`--- ${t(section.titleKey)} ---`)),
+    );
 
     section.items.forEach(([label, value]) => {
       let displayValue: string;
@@ -53,14 +54,14 @@ const printInfo = (info: SystemInfo): void => {
         displayValue = value;
       } else {
         const status = value.exists
-          ? chalk.green(t("info.config.found"))
-          : chalk.red(t("info.config.not_found"));
+          ? logger.colors.green(t("info.config.found"))
+          : logger.colors.red(t("info.config.not_found"));
         displayValue = `${value.path} ${status}`;
       }
 
-      console.log(`${chalk.yellow(labelPadded)}: ${displayValue}`);
+      logger.log(`${logger.colors.yellow(labelPadded)}: ${displayValue}`);
     });
-    console.log();
+    logger.log("\n");
   });
 };
 
@@ -73,7 +74,7 @@ export function setupInfoCommand(options: SetupCommandOptions): void {
     .alias("in")
     .description(t("info.command.description"))
     .action(async () => {
-      const spinner = ora(t("info.loading")).start();
+      const spinner: TSpinner = logger.spinner(t("info.loading")).start();
       try {
         const info = await collectSystemInfo(cliVersion);
 

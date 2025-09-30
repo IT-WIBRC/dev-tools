@@ -199,7 +199,7 @@ describe("dk config list", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "An unexpected error occurred: Global configuration file not found.",
+      "❌ Devkit encountered an unexpected internal issue: Global configuration file not found.",
     );
   });
 

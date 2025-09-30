@@ -228,7 +228,7 @@ describe("dk config", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "n unexpected error occurred: No local configuration file found. Run 'devkit config init --local' to create one.",
+      "❌ Devkit encountered an unexpected internal issue: No local configuration file found. Run 'devkit config init --local' to create one.",
     );
   });
 });

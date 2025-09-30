@@ -1,108 +1,122 @@
-import type { Ora } from "ora";
 import { vi } from "vitest";
+import type { TSpinner } from "./src/utils/logger";
 
-const { mocktFn, mockLoadTranslations, mockProgram, mockSpinner } = vi.hoisted(
-  () => {
-    const mockSpinner = {
-      text: "",
-      start: vi.fn(() => mockSpinner),
-      succeed: vi.fn(),
-      warn: vi.fn(),
-      info: vi.fn(() => mockSpinner),
-      fail: vi.fn(),
-      stop: vi.fn(),
-    } as unknown as Ora;
+const {
+  mocktFn,
+  mockLoadTranslations,
+  mockProgram,
+  mockSpinner,
+  mockExeca,
+  mockExecuteCommand,
+  mockLogger,
+} = vi.hoisted(() => {
+  const mocktFn = vi.fn().mockImplementation(
+    (key: string, options?: Record<string, unknown>) =>
+      `${key}` +
+      (options
+        ? `- options ${Object.entries(options)
+            .map(([k, v]) => `${k}:${v}`)
+            .join(", ")}`
+        : ""),
+  );
 
-    return {
-      mocktFn: vi.fn().mockImplementation(
-        (key: string, options?: Record<string, unknown>) =>
-          `${key}` +
-          (options
-            ? `- options ${Object.entries(options)
-                .map(([k, v]) => `${k}:${v}`)
-                .join(", ")}`
-            : ""),
-      ),
-      mockLoadTranslations: vi.fn(),
-      mockProgram: {
-        name: vi.fn(() => mockProgram),
-        alias: vi.fn(() => mockProgram),
-        description: vi.fn(() => mockProgram),
-        version: vi.fn(() => mockProgram),
-        helpOption: vi.fn(() => mockProgram),
-        command: vi.fn(() => mockProgram),
-        requiredOption: vi.fn(() => mockProgram),
-        option: vi.fn(() => mockProgram),
-        parse: vi.fn(() => mockProgram),
-        opts: vi.fn(),
-        parseOptions: vi.fn(),
-      },
-      mockSpinner,
-    };
-  },
-);
+  const mockLoadTranslations = vi.fn();
 
-const mockChalk = vi.hoisted(() => {
-  const handler = {
-    get: (target: any, prop: any) => {
-      return typeof target[prop] !== "undefined"
-        ? target[prop]
-        : (...args: any[]) => target(...args);
-    },
-    apply: (_: any, __: any, args: any[]) => {
-      return `${args.join("_")}`;
+  const mockSpinner = {
+    text: "",
+    start: vi.fn(() => {
+      return mockSpinner;
+    }),
+    succeed: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(() => {
+      return mockSpinner;
+    }),
+    fail: vi.fn(),
+    stop: vi.fn(),
+  } as unknown as TSpinner;
+
+  const mockProgram = {
+    name: vi.fn(() => {
+      return mockProgram;
+    }),
+    alias: vi.fn(() => {
+      return mockProgram;
+    }),
+    description: vi.fn(() => {
+      return mockProgram;
+    }),
+    version: vi.fn(() => {
+      return mockProgram;
+    }),
+    helpOption: vi.fn(() => {
+      return mockProgram;
+    }),
+    command: vi.fn(() => {
+      return mockProgram;
+    }),
+    requiredOption: vi.fn(() => {
+      return mockProgram;
+    }),
+    option: vi.fn(() => {
+      return mockProgram;
+    }),
+    parse: vi.fn(() => {
+      return mockProgram;
+    }),
+    opts: vi.fn(),
+    parseOptions: vi.fn(),
+  };
+
+  const mockExeca = vi.fn();
+  const mockExecuteCommand = vi.fn();
+
+  const mockLogger = {
+    error: vi.fn(),
+    info: vi.fn(),
+    success: vi.fn(),
+    log: vi.fn(),
+    warning: vi.fn(),
+    dimmed: vi.fn(),
+    spinner: vi.fn(() => mockSpinner),
+    colors: {
+      yellow: vi.fn((text: string) => text),
+      yellowBold: vi.fn((text: string) => text),
+      green: vi.fn((text: string) => text),
+      cyan: vi.fn((text: string) => text),
+      red: vi.fn((text: string) => text),
+      magenta: vi.fn((text: string) => text),
+      bold: vi.fn((text: string) => text),
+      italic: vi.fn((text: string) => text),
+      blue: vi.fn((text: string) => text),
+      dim: vi.fn((text: string) => text),
+      cyanDim: vi.fn((text: string) => text),
+      redBright: vi.fn((text: string) => text),
+      boldBlue: vi.fn((text: string) => text),
     },
   };
 
-  const baseMock = (...args: any[]) => `mocked_chalk_string_${args.join("_")}`;
-
-  const chainableMock = new Proxy(baseMock, handler);
-  const methods = [
-    "bold",
-    "blue",
-    "cyan",
-    "green",
-    "gray",
-    "yellow",
-    "magenta",
-    "red",
-    "dim",
-    "italic",
-    "redBright",
-    "white",
-  ];
-  methods.forEach((method) => {
-    (chainableMock as any)[method] = new Proxy(baseMock, handler);
-  });
-
-  return chainableMock;
+  return {
+    mocktFn,
+    mockLoadTranslations,
+    mockProgram,
+    mockSpinner,
+    mockExeca,
+    mockExecuteCommand,
+    mockLogger,
+  };
 });
 
 vi.mock("commander", () => ({ Command: vi.fn(() => mockProgram) }));
-vi.mock("ora", () => ({ default: () => mockSpinner }));
-vi.mock("chalk", () => ({ default: mockChalk }));
 
 vi.mock("#utils/i18n/translator.js", () => ({
   loadTranslations: mockLoadTranslations,
   t: mocktFn,
 }));
 
-const { mockExeca, mockExecuteCommand } = vi.hoisted(() => ({
-  mockExeca: vi.fn(),
-  mockExecuteCommand: vi.fn(),
-}));
-
 vi.mock("#utils/shell.js", () => ({
   execute: mockExeca,
   executeCommand: mockExecuteCommand,
-}));
-
-const { mockLogger } = vi.hoisted(() => ({
-  mockLogger: {
-    error: vi.fn(),
-    info: vi.fn(),
-    success: vi.fn(),
-  },
 }));
 
 vi.mock("#utils/logger.js", () => ({
@@ -112,7 +126,6 @@ vi.mock("#utils/logger.js", () => ({
 export {
   mockProgram,
   mockSpinner,
-  mockChalk,
   mockLoadTranslations,
   mocktFn,
   mockExeca,
