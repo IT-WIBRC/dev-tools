@@ -3,22 +3,9 @@ import {
   handleNonInteractiveSettingsUpdate,
   handleNonInteractiveTemplateUpdate,
 } from "../../../../src/commands/config/logic.js";
-import {
-  VALID_CACHE_STRATEGIES,
-  PackageManagers,
-} from "../../../../src/utils/schema/schema.js";
-import deepmerge from "deepmerge";
+import { VALID_CACHE_STRATEGIES } from "../../../../src/utils/schema/schema.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 import { mocktFn } from "../../../../vitest.setup.js";
-import {
-  validateAlias,
-  validateDescription,
-  validateLocation,
-} from "../../../../src/utils/validations/templates.js";
-import {
-  validatePackageManager,
-  validateCacheStrategy,
-} from "../../../../src/utils/validations/config.js";
 
 const {
   mockReadAndMergeConfigs,

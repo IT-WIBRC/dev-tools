@@ -82,7 +82,8 @@ const CMD_DESCRIPTION_KEY = "commands.list.command.description";
 const LANG_ARGUMENT_KEY = "commands.list.command.language.argument";
 const GLOBAL_OPTION_KEY = "commands.list.options.global";
 const ALL_OPTION_KEY = "commands.list.options.all";
-const FILTER_OPTION_KEY = "commands.list.command.filter.option";
+const WHERE_OPTION_KEY = "commands.list.command.where.option";
+const MODE_OPTION_KEY = "commands.list.command.mode.option";
 
 const USING_LOCAL_GLOBAL_KEY = "messages.config_source.using_local_and_global";
 const USING_GLOBAL_KEY = "messages.config_source.global";
@@ -127,8 +128,17 @@ describe("list command", () => {
       ALL_OPTION_KEY,
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
+      "-w, --where <strings...>",
+      WHERE_OPTION_KEY,
+    );
+    expect(mockProgram.option).toHaveBeenCalledWith(
+      "-m, --mode <string>",
+      MODE_OPTION_KEY,
+      "tree",
+    );
+    expect(mockProgram.option).not.toHaveBeenCalledWith(
       "-f, --filter <string>",
-      FILTER_OPTION_KEY,
+      expect.any(String),
     );
     expect(mockProgram.option).not.toHaveBeenCalledWith(
       "-l, --local",
@@ -178,7 +188,7 @@ describe("list command", () => {
             },
           ],
         ],
-        undefined,
+        [],
         "tree",
       );
     });
@@ -209,7 +219,7 @@ describe("list command", () => {
             },
           ],
         ],
-        undefined,
+        [],
         "tree",
       );
     });
@@ -241,7 +251,7 @@ describe("list command", () => {
             },
           ],
         ],
-        undefined,
+        [],
         "table",
       );
     });
@@ -262,7 +272,7 @@ describe("list command", () => {
       await actionFn("javascript", {
         all: false,
         global: false,
-        filter: "",
+        where: ["name:node"],
         mode: "table",
       });
 
@@ -288,7 +298,7 @@ describe("list command", () => {
             },
           ],
         ],
-        "",
+        ["name:node"],
         "table",
       );
     });
@@ -308,7 +318,7 @@ describe("list command", () => {
       await actionFn("javascript", {
         all: false,
         global: false,
-        filter: "javascript",
+        where: ["loc:local"],
         mode: "tree",
       });
 
@@ -331,7 +341,7 @@ describe("list command", () => {
             },
           ],
         ],
-        "javascript",
+        ["loc:local"],
         "tree",
       );
     });
@@ -347,7 +357,7 @@ describe("list command", () => {
       await actionFn("nonexistent", {
         all: false,
         global: false,
-        filter: "",
+        where: [],
         mode: "tree",
       });
 
@@ -383,7 +393,7 @@ describe("list command", () => {
       await actionFn("javascript", {
         all: false,
         global: false,
-        filter: "javascript",
+        where: ["cache:daily"],
         mode: "folder",
       });
 
@@ -402,7 +412,7 @@ describe("list command", () => {
     });
   });
 
-  describe("filter option", () => {
+  describe("where option", () => {
     beforeEach(() => {
       mockReadAndMergeConfigs.mockResolvedValue({
         config: structuredClone({
@@ -416,12 +426,13 @@ describe("list command", () => {
       mockValidateProgrammingLanguage.mockReturnValue(true);
     });
 
-    it("should pass the filter string to printTemplates", async () => {
+    it("should pass the array of where clauses to printTemplates", async () => {
+      const whereClauses = ["pm:npm", "desc:express"];
       setupListCommand({ program: mockProgram });
       await actionFn("", {
         all: true,
         global: false,
-        filter: "vue",
+        where: whereClauses,
         mode: "tree",
       });
 
@@ -447,7 +458,22 @@ describe("list command", () => {
             },
           ],
         ],
-        "vue",
+        whereClauses,
+        "tree",
+      );
+    });
+
+    it("should pass an empty array to printTemplates when --where is not used", async () => {
+      setupListCommand({ program: mockProgram });
+      await actionFn("", {
+        all: true,
+        global: false,
+        mode: "tree",
+      });
+
+      expect(mockPrintTemplates).toHaveBeenCalledWith(
+        expect.any(Array),
+        [],
         "tree",
       );
     });

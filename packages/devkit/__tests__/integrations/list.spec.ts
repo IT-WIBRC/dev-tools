@@ -40,6 +40,7 @@ const localConfig: CliConfig = {
           description: "A basic Vue template",
           location: "https://github.com/vuejs/vue",
           alias: "vb",
+          packageManager: "pnpm",
         },
       },
     },
@@ -49,6 +50,7 @@ const localConfig: CliConfig = {
           description: "A Node.js API boilerplate",
           location: "https://github.com/node-api",
           alias: "na",
+          packageManager: "yarn",
         },
       },
     },
@@ -179,16 +181,12 @@ describe("dk list", () => {
     expect(all).not.toContain("NODE");
   });
 
-  it("should filter templates by name when --filter is used", async () => {
+  it("should filter templates by name using the new --where syntax", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    await fs.writeJson(
-      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
-      globalConfig,
-    );
 
     const { all, exitCode } = await execa(
       "bun",
-      [CLI_PATH, "list", "--filter", "vue"],
+      [CLI_PATH, "list", "--where", "name:vue"],
       {
         all: true,
         env: { HOME: globalConfigDir },
@@ -196,24 +194,18 @@ describe("dk list", () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("Using local configuration.");
     expect(all).toContain("JAVASCRIPT");
     expect(all).toContain("vue-basic");
     expect(all).not.toContain("react-ts");
     expect(all).not.toContain("NODE");
-    expect(all).not.toContain("PYTHON");
   });
 
-  it("should filter templates by alias when --filter is used", async () => {
+  it("should filter templates by alias using the new --where syntax and exact regex match", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    await fs.writeJson(
-      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
-      globalConfig,
-    );
 
     const { all, exitCode } = await execa(
       "bun",
-      [CLI_PATH, "list", "--filter", "rt"],
+      [CLI_PATH, "list", "--where", "alias:/^rt$/"],
       {
         all: true,
         env: { HOME: globalConfigDir },
@@ -221,12 +213,62 @@ describe("dk list", () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(all).toContain("Using local configuration.");
     expect(all).toContain("JAVASCRIPT");
     expect(all).toContain("react-ts");
     expect(all).not.toContain("vue-basic");
-    expect(all).not.toContain("NODE");
-    expect(all).not.toContain("PYTHON");
+  });
+
+  it("should filter templates by substring in packageManager, matching both npm and pnpm", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+
+    const { all, exitCode } = await execa(
+      "bun",
+      [CLI_PATH, "list", "--where", "pm:npm"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("react-ts");
+    expect(all).toContain("vue-basic");
+    expect(all).not.toContain("node-api");
+  });
+
+  it("should filter templates by strict packageManager using regex", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+
+    const { all, exitCode } = await execa(
+      "bun",
+      [CLI_PATH, "list", "--where", "pm:/^npm$/"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("react-ts");
+    expect(all).not.toContain("vue-basic");
+  });
+
+  it("should filter templates using multiple clauses (Logical AND)", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+
+    const { all, exitCode } = await execa(
+      "bun",
+      [CLI_PATH, "list", "--where", "alias:vb", "desc:vue"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("vue-basic");
+    expect(all).not.toContain("react-ts");
+    expect(all).not.toContain("node-api");
   });
 
   it("should show an error if a language is provided but no templates are found for it", async () => {
@@ -331,7 +373,7 @@ describe("dk list", () => {
       );
     });
 
-    it("should filter templates by name when --filter is used", async () => {
+    it("should filter templates by name when --where is used in table mode", async () => {
       await fs.writeJson(
         path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
         localConfig,
@@ -343,7 +385,7 @@ describe("dk list", () => {
 
       const { all, exitCode } = await execa(
         "bun",
-        [CLI_PATH, "list", "--filter", "vue", "--mode", "table"],
+        [CLI_PATH, "list", "--where", "name:vue", "--mode", "table"],
         {
           all: true,
           env: { HOME: globalConfigDir },

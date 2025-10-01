@@ -3,37 +3,22 @@ import {
   type CliConfig,
   type DisplayModesValues,
   type LanguageConfig,
-  type TemplateConfig,
 } from "#utils/schema/schema.js";
 import { logger } from "#utils/logger.js";
+import { filterTemplatesByWhereClause } from "./filter.js";
 
 type TemplateMap = LanguageConfig["templates"];
-type TemplateList = [string, TemplateMap];
-
-const filterTemplateEntries = (
-  templates: TemplateMap,
-  filter?: string,
-): [string, TemplateConfig][] => {
-  let filteredTemplates = Object.entries(templates);
-  if (filter) {
-    const lowerFilter = filter.toLowerCase();
-    filteredTemplates = filteredTemplates.filter(
-      ([templateName, templateConfig]) => {
-        const name = templateName.toLowerCase();
-        const alias = templateConfig?.alias?.toLowerCase() ?? "";
-        return name.includes(lowerFilter) || alias.includes(lowerFilter);
-      },
-    );
-  }
-  return filteredTemplates;
-};
+export type TemplateList = [string, TemplateMap];
 
 export function printTemplatesTree(
   language: string,
   templates: TemplateMap,
-  filter?: string,
+  whereClauses: string[],
 ): void {
-  const filteredTemplates = filterTemplateEntries(templates, filter);
+  const filteredTemplates = filterTemplatesByWhereClause(
+    templates,
+    whereClauses,
+  );
 
   if (filteredTemplates.length === 0) return;
 
@@ -72,7 +57,7 @@ export function printTemplatesTree(
 
 function printTemplatesTable(
   templatesList: TemplateList[],
-  filter?: string,
+  whereClauses: string[],
 ): void {
   const tableData: string[][] = [];
   const languageHeader = logger.colors.bold("Language");
@@ -90,7 +75,10 @@ function printTemplatesTable(
   ]);
 
   templatesList.forEach(([lang, templates]) => {
-    const filteredTemplates = filterTemplateEntries(templates, filter);
+    const filteredTemplates = filterTemplatesByWhereClause(
+      templates,
+      whereClauses,
+    );
 
     filteredTemplates.forEach(([templateName, templateConfig]) => {
       const row = [
@@ -109,25 +97,26 @@ function printTemplatesTable(
     return;
   }
 
-  const messageKey = filter
-    ? "warnings.template_not_found_with_filter"
-    : "warnings.template_not_found";
+  const messageKey =
+    whereClauses.length > 0
+      ? "warnings.template_not_found_with_filter"
+      : "warnings.template_not_found";
 
   logger.warning(t(messageKey));
 }
 
 export function printTemplates(
   templatesList: TemplateList[],
-  filter?: string,
+  whereClauses: string[] = [],
   mode: DisplayModesValues = "tree",
 ): void {
   if (mode === "table") {
-    printTemplatesTable(templatesList, filter);
+    printTemplatesTable(templatesList, whereClauses);
     return;
   }
 
   templatesList.forEach(([lang, templates]) => {
-    printTemplatesTree(lang, templates, filter);
+    printTemplatesTree(lang, templates, whereClauses);
   });
 }
 

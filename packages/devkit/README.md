@@ -168,8 +168,8 @@ dk list
 # List templates for a specific language (e.g., 'javascript')
 dk list javascript
 
-# List templates and filter by a substring (e.g., 'vue')
-dk list --filter vue
+# List templates and filter by a where clause (e.g., 'name:vue')
+dk list --where name:vue
 ```
 
 #### Options
@@ -179,7 +179,7 @@ The `dk list` command now uses the following options to control which templates 
 - **`--local`**: Only list templates from the local configuration file (`.devkit.json`).
 - **`--global`**: Only list templates from the global configuration file (`~/.devkitrc`).
 - **`--all`**: List templates from both the local and global configurations, merging them into a single list.
-- **`--filter <string>`**: Filter templates by name or alias substring.
+- **`--where <clause>`**: **Filter templates using one or more property clauses.** Clauses must be in the format **`property:value`** or **`property=value`** (e.g., `alias:rt`, `pm=npm`, `name:/^node/`). Multiple `--where` arguments form a logical **AND** filter.
 - **`--mode <mode>`**: Sets the display mode for the template list. Options are **`tree`** (default, detailed view) or **`table`** (compact, column-based view).
 
 #### Examples
@@ -196,14 +196,11 @@ dk list --global
 # List templates from both local and global configs
 dk list --all
 
-# List templates and filter by name or alias substring
-dk list --filter vue
+# List templates and filter by alias 'rt' (using colon) AND package manager 'npm' (using equals)
+dk list --where alias:rt --where pm=npm
 
-# List javascript templates and filter by name or alias substring
-dk list javascript --filter react
-
-# List javascript templates and filter by name starting or containing
-dk list javascript --filter r
+# List javascript templates and filter by templates whose name starts with 'r'
+dk list javascript --where name:/^r/
 
 # List templates in a compact table format
 dk list --mode table
