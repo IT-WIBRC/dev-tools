@@ -44,11 +44,11 @@
         "language": {
           "argument": "The language to filter templates by"
         },
-        "filter": {
-          "option": "Filter templates by name or substring."
-        },
         "mode": {
           "option": "Set the display mode: 'tree' or 'table'. (Default: tree)"
+        },
+        "where": {
+          "option": "Filter templates by property using the format <property>:<value>.\n\nFilters use case-insensitive substring matching (e.g., 'desc:vue').\nUse '*' for present (non-empty) and '~' for missing (empty) values.\n\nExample: 'pm:bun alias:* cache:~' (AND logic)"
         }
       },
       "options": {
@@ -253,7 +253,7 @@
       "config_init_start": "Initializing config...",
       "template_adding": "Adding template '{templateName}' to configuration...",
       "template_removing": "Removing template(s) from configuration...",
-      "template_updating": "Updating template(s) '{templateName}' in configuration...",
+      "template_updating": "Updating template(s)'{templateName}' in configuration...",
       "cache_updating": "Updating cache...",
       "cache_clone_start": "✨ Cloning new template from {url}...",
       "cache_refresh_start": "🔄 Refreshing cached template...",
@@ -336,7 +336,8 @@
       "not_found": "Template '{template}' not found in configuration.",
       "language_not_found": "Template not found for the '{language}' language.",
       "exists": "Template '{template}' already exists in the configuration. Use 'devkit config set' to update it.",
-      "single_fail": "❌ Failed to update '{templateName}': {error}"
+      "single_fail": "❌ Failed to update '{templateName}': {error}",
+      "filter_regex_invalid": "Invalid regex pattern in filter: '{clause}' due to {error}."
     },
     "scaffolding": {
       "fail": "❌ Failed to scaffold project: {error}",
@@ -376,6 +377,8 @@
     "template_not_found_with_filter": "No templates matched the specified filter.",
     "templates_not_found": "The following templates were not found: {templates}.",
     "no_command_provided": "Warning: No command or option provided. Use `dk config --help` to see available commands.",
-    "no_config_found": "⚠️ No configuration file found. Using default configuration."
+    "no_config_found": "⚠️ No configuration file found. Using default configuration.",
+    "filter_delimiter_missing": "Ignoring filter clause missing a delimiter ('{delimiter1}' or '{delimiter2}'): {clause}",
+    "filter_property_unrecognized": "Ignoring unrecognized filter property: {property}"
   }
 }

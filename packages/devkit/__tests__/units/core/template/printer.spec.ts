@@ -2,9 +2,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   printSettings,
   printTemplates,
+  type TemplateList,
 } from "../../../../src/core/template/printer.js";
 import { mockLogger, mocktFn } from "../../../../vitest.setup.js";
-import type { LanguageConfig } from "../../../integrations/common.js";
+import type { LanguageConfig } from "../../../../src/utils/schema/schema.js";
+
+const mockFilterTemplatesByWhereClause = vi.hoisted(() => {
+  return vi.fn();
+});
+
+vi.mock("../../../../src/core/template/filter.js", () => ({
+  filterTemplatesByWhereClause: mockFilterTemplatesByWhereClause,
+}));
 
 const NEW_ALIAS_KEY = "commands.template.add.options.alias";
 const NEW_DESCRIPTION_KEY = "commands.template.add.options.description";
@@ -16,6 +25,9 @@ mockLogger.table = vi.fn();
 describe("print-utils", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFilterTemplatesByWhereClause.mockImplementation((templates) =>
+      Object.entries(templates),
+    );
   });
 
   const c: any = mockLogger.colors;
@@ -50,98 +62,100 @@ describe("print-utils", () => {
     language: "en",
   };
 
+  const filteredTemplatesReact = [
+    ["react-component", templates["react-component"]] as TemplateList,
+  ];
+
+  const filteredTemplatesNTA = [
+    ["node-ts-api", templates["node-ts-api"]] as TemplateList,
+  ];
+
   describe("printTemplates (Mode `Tree`: Default)", () => {
     it("should print all templates without a filter", () => {
+      mockFilterTemplatesByWhereClause.mockImplementationOnce(
+        (templates, clauses) => {
+          expect(clauses).toEqual([]);
+          return Object.entries(templates);
+        },
+      );
       printTemplates([["typescript", templates]]);
 
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledOnce();
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledWith(
+        templates,
+        [],
+      );
       expect(mockLogger.log).toHaveBeenCalledTimes(5);
 
-      printTemplates([["typescript", templates]]);
-
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        `\n${c.boldBlue("TYPESCRIPT")}:`,
-      );
-
       expect(mockLogger.log).toHaveBeenCalledWith(
         ` - ${c.green("node-ts-api")} ${c.cyanDim(`(${t(NEW_ALIAS_KEY)}: nta)`)}${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A simple Node.js API with TypeScript${c.dim("\n    Location")}: https://github.com/devkit/node-ts-api${c.dim(`\n    ${t(NEW_CACHE_KEY)}`)}: daily${c.dim(`\n    ${t(NEW_PM_KEY)}`)}: npm\n`,
       );
-
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        ` - ${c.green("react-component")} ${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A reusable React component${c.dim("\n    Location")}: /local/path/to/template\n`,
-      );
-
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        ` - ${c.green("next-app")} ${c.cyanDim(`(${t(NEW_ALIAS_KEY)}: nextjs)`)}${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A Next.js application template${c.dim("\n    Location")}: /local/path/to/template\n`,
-      );
-
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        ` - ${c.green("simple-template")} ${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A simple template${c.dim("\n    Location")}: /local/path/to/template\n`,
-      );
-
-      mockLogger.log.mockRestore();
     });
 
-    it("should print only filtered templates by name", () => {
-      printTemplates([["typescript", templates]], "react");
+    it("should print only filtered templates by a filter clause array", () => {
+      const filterClauses = ["name:react"];
+      mockFilterTemplatesByWhereClause.mockImplementationOnce(
+        (templates, clauses) => {
+          expect(clauses).toEqual(filterClauses);
+          return filteredTemplatesReact;
+        },
+      );
 
-      printTemplates([["typescript", templates]], "react");
+      printTemplates([["typescript", templates]], filterClauses);
 
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledOnce();
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledWith(
+        templates,
+        filterClauses,
+      );
+      expect(mockLogger.log).toHaveBeenCalledTimes(2);
       expect(mockLogger.log).toHaveBeenCalledWith(
         `\n${c.boldBlue("TYPESCRIPT")}:`,
       );
-      expect(mockLogger.log).toHaveBeenCalledTimes(4);
       expect(mockLogger.log).toHaveBeenCalledWith(
         ` - ${c.green("react-component")} ${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A reusable React component${c.dim("\n    Location")}: /local/path/to/template\n`,
       );
-
-      mockLogger.log.mockRestore();
     });
 
-    it("should print only filtered templates by alias", () => {
-      printTemplates([["javascript", templates]], "nta");
-      printTemplates([["javascript", templates]], "nta");
+    it("should not print anything if filter returns no templates", () => {
+      const filterClauses = ["name:unrelated"];
+      mockFilterTemplatesByWhereClause.mockReturnValueOnce([]);
 
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        `\n${c.boldBlue("JAVASCRIPT")}:`,
-      );
-      expect(mockLogger.log).toHaveBeenCalledTimes(4);
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        ` - ${c.green("node-ts-api")} ${c.cyanDim(`(${t(NEW_ALIAS_KEY)}: nta)`)}${c.dim(`\n    ${t(NEW_DESCRIPTION_KEY)}`)}: A simple Node.js API with TypeScript${c.dim("\n    Location")}: https://github.com/devkit/node-ts-api${c.dim(`\n    ${t(NEW_CACHE_KEY)}`)}: daily${c.dim(`\n    ${t(NEW_PM_KEY)}`)}: npm\n`,
-      );
+      printTemplates([["python", templates]], filterClauses);
 
-      mockLogger.log.mockRestore();
-    });
-
-    it("should not print anything if no templates match the filter", () => {
-      printTemplates([["python", templates]], "unrelated");
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledOnce();
       expect(mockLogger.log).not.toHaveBeenCalled();
-
-      printTemplates([["python", templates]], "unrelated");
-      expect(mockLogger.log).not.toHaveBeenCalled();
-      mockLogger.log.mockRestore();
     });
 
     it("should not print anything if templates are empty", () => {
       printTemplates([["rust", {}]]);
-      expect(mockLogger.log).not.toHaveBeenCalled();
 
-      printTemplates([["rust", {}]]);
       expect(mockLogger.log).not.toHaveBeenCalled();
-      mockLogger.log.mockRestore();
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledOnce();
     });
   });
 
   describe("printTemplates (Mode `Table`)", () => {
-    it("should call logger.table with all templates across multiple languages without a filter", () => {
-      printTemplates(
-        [
-          ["typescript", templates],
-          ["javascript", { "express-api": { description: "Express" } }],
-        ],
-        undefined,
-        "table",
-      );
+    const templatesJs = { "express-api": { description: "Express" } };
+    const templatesList = [
+      ["typescript", templates],
+      ["javascript", templatesJs],
+    ];
 
+    it("should call logger.table with all templates across multiple languages without a filter", () => {
+      mockFilterTemplatesByWhereClause
+        .mockImplementationOnce((templates, clauses) => {
+          expect(clauses).toEqual([]);
+          return Object.entries(templates);
+        })
+        .mockImplementationOnce((templates, clauses) => {
+          expect(clauses).toEqual([]);
+          return Object.entries(templates);
+        });
+
+      printTemplates(templatesList as TemplateList[], [], "table");
+
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(2);
       expect(mockLogger.table).toHaveBeenCalledTimes(1);
 
       const expectedTableData = [
@@ -171,14 +185,14 @@ describe("print-utils", () => {
           c.green("next-app"),
           "nextjs",
           "A Next.js application template",
-          c.dim("/local/path/to/template"),
+          "/local/path/to/template",
         ],
         [
           c.boldBlue("Typescript"),
           c.green("simple-template"),
           c.dim("N/A"),
-          c.dim("A simple template"),
-          c.dim("/local/path/to/template"),
+          "A simple template",
+          "/local/path/to/template",
         ],
         [
           c.boldBlue("Javascript"),
@@ -193,9 +207,19 @@ describe("print-utils", () => {
       expect(mockLogger.log).not.toHaveBeenCalled();
     });
 
-    it("should print only filtered templates by name or alias in table mode", () => {
-      printTemplates([["typescript", templates]], "nextjs", "table");
+    it("should print only filtered templates by a filter array in table mode", () => {
+      const filterClauses = ["alias:nextjs"];
+      mockFilterTemplatesByWhereClause
+        .mockImplementationOnce(() => filteredTemplatesNTA)
+        .mockImplementationOnce(() => []);
 
+      printTemplates(templatesList as TemplateList[], filterClauses, "table");
+
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(2);
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledWith(
+        templates,
+        filterClauses,
+      );
       expect(mockLogger.table).toHaveBeenCalledTimes(1);
 
       const expectedTableData = [
@@ -208,39 +232,37 @@ describe("print-utils", () => {
         ],
         [
           c.boldBlue("Typescript"),
-          c.green("next-app"),
-          "nextjs",
-          "A Next.js application template",
-          c.dim("/local/path/to/template"),
+          c.green("node-ts-api"),
+          "nta",
+          "A simple Node.js API with TypeScript",
+          "https://github.com/devkit/node-ts-api",
         ],
       ];
 
       expect(mockLogger.table).toHaveBeenCalledWith(expectedTableData);
     });
 
-    it("should not call logger.table if no templates match the filter", () => {
-      printTemplates([["typescript", templates]], "unrelated-app", "table");
+    it("should call logger.warning with filter key if filter yields no templates", () => {
+      const filterClauses = ["name:unrelated-app"];
+      mockFilterTemplatesByWhereClause.mockReturnValue([]);
 
-      expect(mockLogger.table).not.toHaveBeenCalled();
-    });
-
-    it("should not call logger.table if templates list is empty", () => {
-      printTemplates([["rust", {}]], undefined, "table");
-
-      expect(mockLogger.table).not.toHaveBeenCalled();
-      expect(mockLogger.warning).toHaveBeenCalledOnce();
-      expect(mockLogger.warning).toHaveBeenCalledWith(
-        "warnings.template_not_found",
-      );
-    });
-
-    it("should not call logger.table if templates list is empty with filter applied", () => {
-      printTemplates([["rust", {}]], "unrelated-app", "table");
+      printTemplates([["typescript", templates]], filterClauses, "table");
 
       expect(mockLogger.table).not.toHaveBeenCalled();
       expect(mockLogger.warning).toHaveBeenCalledOnce();
       expect(mockLogger.warning).toHaveBeenCalledWith(
         "warnings.template_not_found_with_filter",
+      );
+    });
+
+    it("should call logger.warning without filter key if templates list is empty", () => {
+      mockFilterTemplatesByWhereClause.mockReturnValue([]);
+      printTemplates([["rust", {}]], [], "table");
+
+      expect(mockLogger.table).not.toHaveBeenCalled();
+      expect(mockLogger.warning).toHaveBeenCalledOnce();
+      expect(mockLogger.warning).toHaveBeenCalledWith(
+        "warnings.template_not_found",
       );
     });
   });

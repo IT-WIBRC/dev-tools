@@ -58,13 +58,13 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [x] Refactor and restructure the utilities
 - [x] Better json structure for languages translation
 - [x] **Enhance `list` Command**: Add support for **different display modes** (e.g., table or tree structure). `tree` as default
-- [ ] **Enhance `list` Command**: Add options to **filter by properties** (e.g., `packageManager`, `alias`, etc.).
+- [x] **Enhance `list` Command**: Add options to **filter by properties** (e.g., `packageManager`, `alias`, etc.).
 - [ ] **Enhance `list` Command**: Add flag to also see default config `--with-defaults`.
 - [ ] Add wildcard support for template name in the `dk config update` and `dk config remove` commands.
-- [ ] ** Enhance for organization Purpose **: Add new language `Typescript` with same code as javascript, also support for nodejs template name for those who prefer it than the language
-- [ ] Add a configuration validation step when initializing or updating the config file to ensure all required fields are present and correctly formatted.
+- [ ] ** Enhance for organization Purpose **: Add new language `Typescript(ts)` with same code as javascript(js), also support for nodejs(node) template name for those who prefer it than the programming language name
+- [ ] Add a configuration validation step when updating the config file to ensure all required fields are present and correctly formatted.
 - [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
-- [ ] **Skip Confirmation**: Add a global `-y` or `--yes` option to skip confirmation prompts in commands like `dk init`.
+- [ ] **Skip Confirmation**: Add a global `-y`/`--yes` and `-n/--no` option to skip confirmation prompts in commands like `dk init`.
 - [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself. `dk upgrade`
 - [ ] **Testing**: Stabilize the integration test of the `new` command
 

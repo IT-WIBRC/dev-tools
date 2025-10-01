@@ -201,7 +201,7 @@ describe("dk config", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain(
-      "Les valeurs pour l'option '--set' doivent être une série de paires clé-valeur (par ex., --set key1 value1 key2 value2).",
+      "Les valeurs pour l'option '--set' doivent être une série de paires clé-valeur (par ex. --set clé1 valeur1 clé2 valeur2).",
     );
   });
 

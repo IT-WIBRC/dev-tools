@@ -17,7 +17,7 @@ import {
 type ListCommandOptions = {
   global?: boolean;
   all?: boolean;
-  filter?: string;
+  where?: string[];
   mode: DisplayModesValues;
 };
 
@@ -70,14 +70,16 @@ export function setupListCommand(options: SetupCommandOptions): void {
     .argument("[language]", t("commands.list.command.language.argument"), "")
     .option("-g, --global", t("commands.list.options.global"))
     .option("-a, --all", t("commands.list.options.all"))
-    .option("-f, --filter <string>", t("commands.list.command.filter.option"))
+    .option("-w, --where <strings...>", t("commands.list.command.where.option"))
     .option(
       "-m, --mode <string>",
       t("commands.list.command.mode.option"),
       "tree",
     )
     .action(async (language, cmdOptions: ListCommandOptions) => {
-      const { global: isGlobal, all: showAll, filter, mode } = cmdOptions;
+      const { global: isGlobal, all: showAll, where, mode } = cmdOptions;
+
+      const whereClauses: string[] = where || [];
 
       const spinner: TSpinner = logger
         .spinner(t("messages.status.config_loading"))
@@ -134,7 +136,7 @@ export function setupListCommand(options: SetupCommandOptions): void {
 
         validateDisplayMode(mode);
 
-        printTemplates(templatesToPrint, filter, mode);
+        printTemplates(templatesToPrint, whereClauses, mode);
 
         spinner.stop();
       } catch (error: unknown) {
