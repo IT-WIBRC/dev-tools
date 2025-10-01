@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setupListCommand } from "../../../src/commands/list";
 import { DevkitError } from "../../../src/utils/errors/base";
 import type { CliConfig } from "../../../src/utils/schema/schema";
@@ -40,6 +40,7 @@ const {
   mockReadAndMergeConfigs,
   mockPrintTemplates,
   mockValidateProgrammingLanguage,
+  mockValidateDisplayMode,
   mockHandleErrorAndExit,
   mockProgram,
 } = vi.hoisted(() => {
@@ -48,6 +49,7 @@ const {
     mockPrintTemplates: vi.fn(),
     mockValidateProgrammingLanguage: vi.fn(),
     mockHandleErrorAndExit: vi.fn(),
+    mockValidateDisplayMode: vi.fn(),
     mockProgram: {
       command: vi.fn().mockReturnThis(),
       alias: vi.fn().mockReturnThis(),
@@ -69,6 +71,7 @@ vi.mock("#core/template/printer.js", () => ({
 
 vi.mock("#utils/validations/config.js", () => ({
   validateProgrammingLanguage: mockValidateProgrammingLanguage,
+  validateDisplayMode: mockValidateDisplayMode,
 }));
 
 vi.mock("#utils/errors/handler.js", () => ({
@@ -145,33 +148,38 @@ describe("list command", () => {
         source: "merged",
       });
       mockValidateProgrammingLanguage.mockReturnValueOnce(true);
+      mockValidateDisplayMode.mockReturnValueOnce(true);
 
       setupListCommand({ program: mockProgram });
-      await actionFn("", { all: true });
+      await actionFn("", { all: true, mode: "tree" });
 
       expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
       expect(mockSpinner.info).toHaveBeenCalledWith(USING_LOCAL_GLOBAL_KEY);
       expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "javascript",
-        {
-          "javascript-node": {
-            description: "Node.js project template",
-            location: "/path/to/local/templates/javascript-node",
-          },
-        },
+        [
+          [
+            "javascript",
+            {
+              "javascript-node": {
+                description: "Node.js project template",
+                location: "/path/to/local/templates/javascript-node",
+              },
+            },
+          ],
+          [
+            "typescript",
+            {
+              "typescript-express": {
+                description: "Express.js project template with TypeScript",
+                location: "/path/to/global/templates/typescript-express",
+              },
+            },
+          ],
+        ],
         undefined,
-      );
-      expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "typescript",
-        {
-          "typescript-express": {
-            description: "Express.js project template with TypeScript",
-            location: "/path/to/global/templates/typescript-express",
-          },
-        },
-        undefined,
+        "tree",
       );
     });
 
@@ -183,21 +191,26 @@ describe("list command", () => {
       mockValidateProgrammingLanguage.mockReturnValueOnce(true);
 
       setupListCommand({ program: mockProgram });
-      await actionFn("", { global: true });
+      await actionFn("", { global: true, mode: "tree" });
 
       expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
       expect(mockSpinner.info).toHaveBeenCalledWith(USING_GLOBAL_KEY);
       expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "typescript",
-        {
-          "typescript-express": {
-            description: "Express.js project template with TypeScript",
-            location: "/path/to/global/templates/typescript-express",
-          },
-        },
+        [
+          [
+            "typescript",
+            {
+              "typescript-express": {
+                description: "Express.js project template with TypeScript",
+                location: "/path/to/global/templates/typescript-express",
+              },
+            },
+          ],
+        ],
         undefined,
+        "tree",
       );
     });
 
@@ -207,23 +220,29 @@ describe("list command", () => {
         source: "local",
       });
       mockValidateProgrammingLanguage.mockReturnValueOnce(true);
+      mockValidateDisplayMode.mockReturnValueOnce(true);
 
       setupListCommand({ program: mockProgram, config: sampleLocalConfig });
-      await actionFn("", {});
+      await actionFn("", { mode: "table" });
 
       expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();
       expect(mockSpinner.stop).toHaveBeenCalledTimes(2);
       expect(mockSpinner.info).toHaveBeenCalledWith(USING_LOCAL_KEY);
       expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "javascript",
-        {
-          "javascript-node": {
-            description: "Node.js project template",
-            location: "/path/to/local/templates/javascript-node",
-          },
-        },
+        [
+          [
+            "javascript",
+            {
+              "javascript-node": {
+                description: "Node.js project template",
+                location: "/path/to/local/templates/javascript-node",
+              },
+            },
+          ],
+        ],
         undefined,
+        "table",
       );
     });
 
@@ -244,6 +263,7 @@ describe("list command", () => {
         all: false,
         global: false,
         filter: "",
+        mode: "table",
       });
 
       expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
@@ -257,14 +277,19 @@ describe("list command", () => {
 
       expect(mockPrintTemplates).toHaveBeenCalledOnce();
       expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "javascript",
-        {
-          "javascript-node": {
-            description: "Node.js project template",
-            location: "/path/to/local/templates/javascript-node",
-          },
-        },
+        [
+          [
+            "javascript",
+            {
+              "javascript-node": {
+                description: "Node.js project template",
+                location: "/path/to/local/templates/javascript-node",
+              },
+            },
+          ],
+        ],
         "",
+        "table",
       );
     });
 
@@ -284,6 +309,7 @@ describe("list command", () => {
         all: false,
         global: false,
         filter: "javascript",
+        mode: "tree",
       });
 
       expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
@@ -294,14 +320,19 @@ describe("list command", () => {
       expect(mockSpinner.info).toHaveBeenCalledWith(GLOBAL_FALLBACK_KEY);
       expect(mockPrintTemplates).toHaveBeenCalledOnce();
       expect(mockPrintTemplates).toHaveBeenCalledWith(
+        [
+          [
+            "javascript",
+            {
+              "javascript-node": {
+                description: "Node.js project template",
+                location: "/path/to/local/templates/javascript-node",
+              },
+            },
+          ],
+        ],
         "javascript",
-        {
-          "javascript-node": {
-            description: "Node.js project template",
-            location: "/path/to/local/templates/javascript-node",
-          },
-        },
-        "javascript",
+        "tree",
       );
     });
 
@@ -317,6 +348,7 @@ describe("list command", () => {
         all: false,
         global: false,
         filter: "",
+        mode: "tree",
       });
 
       expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
@@ -330,6 +362,43 @@ describe("list command", () => {
       );
       expect(mockLogger.log).not.toHaveBeenCalled();
       expect(mockPrintTemplates).not.toHaveBeenCalled();
+    });
+
+    it("should throw an error when the mode is invalid", async () => {
+      mockReadAndMergeConfigs.mockResolvedValue({
+        config: structuredClone({
+          templates: {
+            ...sampleLocalConfig.templates,
+          },
+        }),
+        source: "global",
+      });
+      const modeError = new DevkitError("Invalid mode");
+      mockValidateProgrammingLanguage.mockReturnValue(true);
+      mockValidateDisplayMode.mockImplementationOnce(() => {
+        throw modeError;
+      });
+
+      setupListCommand({ program: mockProgram });
+      await actionFn("javascript", {
+        all: false,
+        global: false,
+        filter: "javascript",
+        mode: "folder",
+      });
+
+      expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
+        "javascript",
+      );
+      expect(mockSpinner.start).toHaveBeenCalled();
+      expect(mockSpinner.stop).toHaveBeenCalledTimes(1);
+      expect(mockSpinner.info).toHaveBeenCalledWith(GLOBAL_FALLBACK_KEY);
+      expect(mockPrintTemplates).not.toHaveBeenCalled();
+      expect(mockHandleErrorAndExit).toHaveBeenCalledOnce();
+      expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
+        modeError,
+        mockSpinner,
+      );
     });
   });
 
@@ -349,28 +418,37 @@ describe("list command", () => {
 
     it("should pass the filter string to printTemplates", async () => {
       setupListCommand({ program: mockProgram });
-      await actionFn("", { all: true, global: false, filter: "vue" });
+      await actionFn("", {
+        all: true,
+        global: false,
+        filter: "vue",
+        mode: "tree",
+      });
 
       expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "javascript",
-        {
-          "javascript-node": {
-            description: "Node.js project template",
-            location: "/path/to/local/templates/javascript-node",
-          },
-        },
+        [
+          [
+            "javascript",
+            {
+              "javascript-node": {
+                description: "Node.js project template",
+                location: "/path/to/local/templates/javascript-node",
+              },
+            },
+          ],
+          [
+            "typescript",
+            {
+              "typescript-express": {
+                description: "Express.js project template with TypeScript",
+                location: "/path/to/global/templates/typescript-express",
+              },
+            },
+          ],
+        ],
         "vue",
-      );
-      expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "typescript",
-        {
-          "typescript-express": {
-            description: "Express.js project template with TypeScript",
-            location: "/path/to/global/templates/typescript-express",
-          },
-        },
-        "vue",
+        "tree",
       );
     });
   });
@@ -378,7 +456,7 @@ describe("list command", () => {
   describe("error handling", () => {
     it("should throw a DevkitError if both --global and --all flags are used", async () => {
       setupListCommand({ program: mockProgram });
-      await actionFn("", { global: true, all: true });
+      await actionFn("", { global: true, all: true, mode: "table" });
 
       expect(mockValidateProgrammingLanguage).not.toHaveBeenCalled();
       expect(mockSpinner.start).toHaveBeenCalled();

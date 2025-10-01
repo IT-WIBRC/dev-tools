@@ -5,6 +5,7 @@ import { logger, type TSpinner } from "#utils/logger.js";
 import { readAndMergeConfigs } from "#core/config/loader.js";
 import { printSettings, printTemplates } from "#core/template/printer.js";
 import { type Command } from "commander";
+import type { LanguageConfig } from "#/utils/schema/schema";
 
 type ListCommandOptions = {
   all?: boolean;
@@ -100,8 +101,8 @@ export function setupListCommand(configCommand: Command): void {
           logger.log(logger.colors.yellow(t("warnings.template_not_found")));
         } else {
           Object.entries(config?.templates || {}).forEach(
-            ([lang, langTemplates]) => {
-              printTemplates(lang, langTemplates.templates);
+            ([language, langTemplates]) => {
+              printTemplates([[language, langTemplates.templates]]);
             },
           );
         }

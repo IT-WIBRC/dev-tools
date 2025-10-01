@@ -8,7 +8,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 #### Core CLI & Configuration
 
-- **Improved `add-template` Command:** Added an interactive, guided flow that uses command-line options to pre-fill prompts. This enhancement is now marked as complete.
+- **Improved `add-template` Command:** Added an interactive, guided flow that uses command-line options to pre-fill prompts. This enhancement is now marked as complete. (Deactivate for now to focus on the automate part)
 - **Enhanced `list` Command:** The command now includes a filter option and has improved output for better readability.
 - **Auto-Detect Package Manager:** The CLI now automatically detects the user's default package manager at initialization and saves it to the configuration file.
 - **Refactor `new` Command:** The command now accepts language and project name as arguments with a `--template` option.
@@ -47,29 +47,26 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 #### Core CLI & Configuration
 
-- [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself. `dk upgrade`
 - [x] `dk info`: A command to display system and environment information that could be useful for debugging issues.
 - [x] change the `config` alias from `cf` to `conf`
 - [x] **Unified `config` Command**: Complete the refactoring of all configuration-related commands into the new `git`-like pattern under `dk config`. This includes implementing:
   - **Core Operations**: `dk config <key> [value]` for set and get.
   - **Subcommands**: `dk config add`, `dk config update`, and `dk config remove` to manage templates.
   - **Listing**: `dk config --list` with `--all` and `--global` flags.
-- [ ] **Enhance `list` Command**: Add support for **different display modes** (e.g., table or tree structure). Also, add options to **filter by property** (e.g., `packageManager`)
-- [ ] Add a configuration validation step when initializing or updating the config file to ensure all required fields are present and correctly formatted.
-- [ ]: Enhance interactivity with the `dk config add` command
-- [ ] **Enhance `list` Command**: Add flag to also see default config `--with-defaults`.
-- [ ] ** Enhance for organization Purpose **: Add new language `Typescript` with same code as javascript, also support for nodejs template name for those who prefer it than the language
-- [ ] Add wildcard support for template name in the `dk config update` and `dk config remove` commands.
-- [ ] Use the interactive approach for the `dk config add` command (code already there)
-- [ ] **Dynamic Error Messages**: Update error handling to dynamically generate lists of valid options (e.g., package managers, cache strategies) in error messages.
-- [ ] **Skip Confirmation**: Add a global `-y` or `--yes` option to skip confirmation prompts in commands like `dk init`.
-- [ ] **Color Configuration**: Add a feature to allow users to configure the colors for templates.
-- [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
-- [ ] **Testing**: Stabilize the integration test of the `new` command
 - [x] **Centralize Utilities**: Move `chalk` and `ora` to a single, centralized file for better code organization.
 - [x] Enable GitHub discussions
 - [x] Refactor and restructure the utilities
 - [x] Better json structure for languages translation
+- [x] **Enhance `list` Command**: Add support for **different display modes** (e.g., table or tree structure). `tree` as default
+- [ ] **Enhance `list` Command**: Add options to **filter by properties** (e.g., `packageManager`, `alias`, etc.).
+- [ ] **Enhance `list` Command**: Add flag to also see default config `--with-defaults`.
+- [ ] Add wildcard support for template name in the `dk config update` and `dk config remove` commands.
+- [ ] ** Enhance for organization Purpose **: Add new language `Typescript` with same code as javascript, also support for nodejs template name for those who prefer it than the language
+- [ ] Add a configuration validation step when initializing or updating the config file to ensure all required fields are present and correctly formatted.
+- [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
+- [ ] **Skip Confirmation**: Add a global `-y` or `--yes` option to skip confirmation prompts in commands like `dk init`.
+- [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself. `dk upgrade`
+- [ ] **Testing**: Stabilize the integration test of the `new` command
 
 #### Multi-Language Support
 
@@ -80,6 +77,11 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 - [ ] **Security Documentation**: Add a new section to the documentation outlining the security measures taken to prevent supply chain attacks.
 - [x] **Package Updates**: Ensure the root `package.json` includes all new packages and that any corrupted packages are replaced.
+
+### Debating
+
+- [ ] **Color Configuration**: Add a feature to allow users to configure the colors for templates.
+- [ ] Use the interactive approach for the `dk config add` command (code already there)
 
 ---
 

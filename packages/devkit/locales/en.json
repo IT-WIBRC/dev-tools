@@ -46,6 +46,9 @@
         },
         "filter": {
           "option": "Filter templates by name or substring."
+        },
+        "mode": {
+          "option": "Set the display mode: 'tree' or 'table'. (Default: tree)"
         }
       },
       "options": {
@@ -370,6 +373,7 @@
     "no_local_config": "No local project configuration found. Using global or default settings.",
     "global_not_initialized": "Global configuration not initialized. Run 'devkit config init' to create one.",
     "template_not_found": "No templates found in the configuration file.",
+    "template_not_found_with_filter": "No templates matched the specified filter.",
     "templates_not_found": "The following templates were not found: {templates}.",
     "no_command_provided": "Warning: No command or option provided. Use `dk config --help` to see available commands.",
     "no_config_found": "⚠️ No configuration file found. Using default configuration."

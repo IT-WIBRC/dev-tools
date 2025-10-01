@@ -4,13 +4,21 @@ import { DevkitError } from "#utils/errors/base.js";
 import { logger, type TSpinner } from "#utils/logger.js";
 import { readAndMergeConfigs } from "#core/config/loader.js";
 import { printTemplates } from "#core/template/printer.js";
-import type { SetupCommandOptions } from "#utils/schema/schema.js";
-import { validateProgrammingLanguage } from "#utils/validations/config.js";
+import type {
+  DisplayModesValues,
+  LanguageConfig,
+  SetupCommandOptions,
+} from "#utils/schema/schema.js";
+import {
+  validateDisplayMode,
+  validateProgrammingLanguage,
+} from "#utils/validations/config.js";
 
 type ListCommandOptions = {
   global?: boolean;
   all?: boolean;
   filter?: string;
+  mode: DisplayModesValues;
 };
 
 const getStartMessage = (
@@ -63,8 +71,13 @@ export function setupListCommand(options: SetupCommandOptions): void {
     .option("-g, --global", t("commands.list.options.global"))
     .option("-a, --all", t("commands.list.options.all"))
     .option("-f, --filter <string>", t("commands.list.command.filter.option"))
+    .option(
+      "-m, --mode <string>",
+      t("commands.list.command.mode.option"),
+      "tree",
+    )
     .action(async (language, cmdOptions: ListCommandOptions) => {
-      const { global: isGlobal, all: showAll, filter } = cmdOptions;
+      const { global: isGlobal, all: showAll, filter, mode } = cmdOptions;
 
       const spinner: TSpinner = logger
         .spinner(t("messages.status.config_loading"))
@@ -96,8 +109,9 @@ export function setupListCommand(options: SetupCommandOptions): void {
         }
 
         spinner.info(t(startMessageKey)).start();
+        const allTemplates = Object.entries(config?.templates || {});
 
-        if (Object.keys(config?.templates || {}).length === 0) {
+        if (allTemplates.length === 0) {
           spinner.succeed(
             logger.colors.yellow(
               t("warnings.template_not_found", {
@@ -110,12 +124,18 @@ export function setupListCommand(options: SetupCommandOptions): void {
 
         logger.log(logger.colors.bold("\n" + t("commands.list.output.header")));
 
-        Object.entries(config?.templates || {}).forEach(
-          ([lang, langTemplates]) => {
-            if (language && lang !== language) return;
-            printTemplates(lang, langTemplates.templates, filter);
-          },
-        );
+        const templatesToPrint: [string, LanguageConfig["templates"]][] = [];
+
+        allTemplates.forEach(([lang, langConfig]) => {
+          if (!language || lang === language) {
+            templatesToPrint.push([lang, langConfig.templates]);
+          }
+        });
+
+        validateDisplayMode(mode);
+
+        printTemplates(templatesToPrint, filter, mode);
+
         spinner.stop();
       } catch (error: unknown) {
         handleErrorAndExit(error as Error, spinner);

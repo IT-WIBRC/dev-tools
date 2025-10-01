@@ -1,6 +1,14 @@
 import chalk from "chalk";
 import ora, { type Ora } from "ora";
 
+const stripAnsi = (str: string): string => {
+  return str.replace(
+    // oxlint-disable-next-line no-control-regex
+    /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+    "",
+  );
+};
+
 function getTimestamp(): string {
   const date = new Date();
   const time = date.toTimeString().split(" ")[0];
@@ -13,6 +21,51 @@ function formatError(message: string, errorType: ErrorType): string {
   const coloredMessage = chalk.redBright(`${message}`);
 
   return `${typeTag}>> ${coloredMessage}`;
+}
+
+function _logTable(data: string[][]): void {
+  if (!Array.isArray(data) || data.length <= 1 || data[0].length === 0) {
+    return;
+  }
+
+  const numCols = data[0].length;
+  // oxlint-disable-next-line no-new-array
+  const colWidths = new Array(numCols).fill(0);
+  const PADDING = 3;
+
+  for (const row of data) {
+    for (let i = 0; i < numCols; i++) {
+      const cell = row[i] || "";
+      const cellTextLength = stripAnsi(cell).length;
+      if (cellTextLength > colWidths[i]) {
+        colWidths[i] = cellTextLength;
+      }
+    }
+  }
+
+  data.forEach((row, rowIndex) => {
+    let line = "";
+    for (let i = 0; i < numCols; i++) {
+      const cell = row[i] || "";
+      const targetWidth = colWidths[i];
+      const cellTextLength = stripAnsi(cell).length;
+
+      const paddingSpaces = " ".repeat(targetWidth - cellTextLength);
+
+      const columnSeparator = " ";
+
+      line += cell + paddingSpaces + columnSeparator.repeat(PADDING);
+    }
+
+    console.log(line.trimEnd());
+
+    if (rowIndex === 0) {
+      const totalWidth =
+        colWidths.reduce((sum, width) => sum + width, 0) +
+        (numCols - 1) * PADDING;
+      console.log(chalk.dim("-".repeat(totalWidth)));
+    }
+  });
 }
 
 export type ErrorType =
@@ -54,6 +107,10 @@ export const logger = {
 
   dimmed(message: string) {
     console.log(chalk.dim(message.trim()));
+  },
+
+  table(data: string[][]): void {
+    _logTable(data);
   },
 
   colors: {

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   validateCacheStrategy,
+  validateDisplayMode,
   validateLanguage,
   validatePackageManager,
   validateProgrammingLanguage,
@@ -8,6 +9,7 @@ import {
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 import { mocktFn } from "../../../../vitest.setup.js";
 import {
+  DisplayModes,
   PackageManagers,
   ProgrammingLanguage,
   TextLanguages,
@@ -83,6 +85,29 @@ describe("validateProgrammingLanguage", () => {
       mocktFn(NEW_ERROR_KEY, {
         key: "Programming Language",
         options: Object.values(ProgrammingLanguage)
+          .map((value) => value.toLowerCase())
+          .join(", "),
+      }),
+    );
+  });
+});
+
+describe("validateDisplayMode", () => {
+  it("should not throw an error for a valid display mode", () => {
+    const validLang = DisplayModes.Tree.toLowerCase();
+    expect(() => validateDisplayMode(validLang)).not.toThrow();
+
+    const validLang1 = DisplayModes.Table.toLowerCase();
+    expect(() => validateDisplayMode(validLang1)).not.toThrow();
+  });
+
+  it("should throw a DevkitError for an invalid programming language", () => {
+    const invalidDisplayMode = "invalid-display-mode";
+    expect(() => validateDisplayMode(invalidDisplayMode)).toThrow(DevkitError);
+    expect(() => validateDisplayMode(invalidDisplayMode)).toThrow(
+      mocktFn(NEW_ERROR_KEY, {
+        key: "mode",
+        options: Object.values(DisplayModes)
           .map((value) => value.toLowerCase())
           .join(", "),
       }),

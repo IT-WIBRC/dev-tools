@@ -129,14 +129,14 @@ describe("setupListCommand", () => {
       expect(consoleLogSpy).toHaveBeenCalledWith(
         mockLogger.colors.bold("\n" + mocktFn(TEMPLATES_HEADER)),
       );
-      expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "javascript",
-        sampleConfig.templates.javascript.templates,
-      );
-      expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "typescript",
-        sampleConfig.templates.typescript.templates,
-      );
+
+      expect(mockPrintTemplates).toHaveBeenCalledTimes(2);
+      expect(mockPrintTemplates).toHaveBeenCalledWith([
+        ["javascript", sampleConfig.templates.javascript.templates],
+      ]);
+      expect(mockPrintTemplates).toHaveBeenCalledWith([
+        ["typescript", sampleConfig.templates.typescript.templates],
+      ]);
       expect(mockSpinner.stop).toHaveBeenCalled();
     });
 
@@ -156,10 +156,9 @@ describe("setupListCommand", () => {
         mocktFn(CONFIG_SOURCE_GLOBAL),
       );
       expect(mockPrintSettings).toHaveBeenCalledWith(sampleConfig.settings);
-      expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "javascript",
-        sampleConfig.templates.javascript.templates,
-      );
+      expect(mockPrintTemplates).toHaveBeenCalledWith([
+        ["javascript", sampleConfig.templates.javascript.templates],
+      ]);
     });
 
     it("should display both local and global configs with --all flag", async () => {
@@ -177,14 +176,12 @@ describe("setupListCommand", () => {
         mocktFn(CONFIG_SOURCE_MERGED),
       );
       expect(mockPrintSettings).toHaveBeenCalledWith(sampleConfig.settings);
-      expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "javascript",
-        sampleConfig.templates.javascript.templates,
-      );
-      expect(mockPrintTemplates).toHaveBeenCalledWith(
-        "typescript",
-        sampleConfig.templates.typescript.templates,
-      );
+      expect(mockPrintTemplates).toHaveBeenCalledWith([
+        ["javascript", sampleConfig.templates.javascript.templates],
+      ]);
+      expect(mockPrintTemplates).toHaveBeenCalledWith([
+        ["typescript", sampleConfig.templates.typescript.templates],
+      ]);
     });
 
     it("should handle no templates found gracefully", async () => {
