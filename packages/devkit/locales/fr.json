@@ -46,6 +46,9 @@
         },
         "filter": {
           "option": "Filtrer les modèles par nom ou sous-chaîne."
+        },
+        "mode": {
+          "option": "Définir le mode d'affichage : 'tree' (arborescence) ou 'table' (tableau). (Par défaut : tree)"
         }
       },
       "options": {
@@ -370,6 +373,7 @@
     "no_local_config": "Aucune configuration de projet locale trouvée. Utilisation des paramètres globaux ou par défaut.",
     "global_not_initialized": "Configuration globale non initialisée. Exécutez 'devkit config init' pour en créer une.",
     "template_not_found": "Aucun modèle trouvé dans le fichier de configuration.",
+    "template_not_found_with_filter": "La liste des modèles est vide après application du filtre.",
     "templates_not_found": "Les modèles suivants n'ont pas été trouvés : {templates}.",
     "no_command_provided": "Avertissement : Aucune commande ou option fournie. Utilisez `dk config --help` pour voir les commandes disponibles.",
     "no_config_found": "⚠️ Aucun fichier de configuration trouvé. Utilisation de la configuration par défaut."

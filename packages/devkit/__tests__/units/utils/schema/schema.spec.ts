@@ -21,7 +21,6 @@ describe("Schema Constants and Defaults", () => {
     expect(JavascriptPackageManagers.Bun).toBe("bun");
     expect(JavascriptPackageManagers.Npm).toBe("npm");
     expect(JavascriptPackageManagers.Yarn).toBe("yarn");
-    expect(JavascriptPackageManagers.Deno).toBe("deno");
     expect(JavascriptPackageManagers.Pnpm).toBe("pnpm");
   });
 
@@ -29,12 +28,11 @@ describe("Schema Constants and Defaults", () => {
     expect(PackageManagers.Bun).toBe("bun");
     expect(PackageManagers.Npm).toBe("npm");
     expect(PackageManagers.Yarn).toBe("yarn");
-    expect(PackageManagers.Deno).toBe("deno");
     expect(PackageManagers.Pnpm).toBe("pnpm");
   });
 
   it("should correctly define VALID_PACKAGE_MANAGERS", () => {
-    const expected = ["bun", "npm", "yarn", "deno", "pnpm"];
+    const expected = ["bun", "npm", "yarn", "pnpm"];
     expect(VALID_PACKAGE_MANAGERS).toEqual(expect.arrayContaining(expected));
     expect(VALID_PACKAGE_MANAGERS.length).toBe(expected.length);
     expect(Object.isSealed(VALID_PACKAGE_MANAGERS)).toBe(true);

@@ -1,4 +1,5 @@
 import {
+  DisplayModes,
   PackageManagers,
   type PackageManager,
   type CacheStrategy,
@@ -8,6 +9,7 @@ import {
   ProgrammingLanguage,
   type SupportedProgrammingLanguageValues,
   type SupportedPackageManager,
+  type DisplayModesValues,
 } from "#utils/schema/schema.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { t } from "#utils/i18n/translator.js";
@@ -65,6 +67,22 @@ export function validateProgrammingLanguage(
       t("errors.validation.invalid_value", {
         key: "Programming Language",
         options: validLanguages.join(", "),
+      }),
+    );
+  }
+}
+
+export function validateDisplayMode(
+  value: string,
+): asserts value is DisplayModesValues {
+  const validDisplayMode = Object.values(DisplayModes).map((value) =>
+    value.toLowerCase(),
+  );
+  if (!validDisplayMode.includes(value as DisplayModesValues)) {
+    throw new DevkitError(
+      t("errors.validation.invalid_value", {
+        key: "mode",
+        options: validDisplayMode.join(", "),
       }),
     );
   }

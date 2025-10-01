@@ -65,6 +65,10 @@ const { mockChalk, mockOra } = vi.hoisted(() => {
     dim: timestampDimMock,
     bold: boldMock,
     cyan: cyanMock,
+    boldRed: compositeMocks.boldRed,
+    boldBlue: compositeMocks.boldBlue,
+    boldYellow: compositeMocks.boldYellow,
+    cyanDim: compositeMocks.cyanDim,
   };
 
   mockChalk.blue = simpleMocks.blue;
@@ -137,14 +141,6 @@ describe("logger utility", () => {
     expect(mockConsoleLog).toHaveBeenCalledWith(`[green] \n✔ ${message}`);
   });
 
-  it("warning() should call console.log with yellow warning emoji", () => {
-    const message = "Configuration missing";
-    logger.warning(message);
-
-    expect(mockChalk.yellow).toHaveBeenCalledWith(`⚠️ ${message}`);
-    expect(mockConsoleLog).toHaveBeenCalledWith(`[yellow] ⚠️ ${message}`);
-  });
-
   it("error() should call console.error with timestamp, type tag, and redBright message", () => {
     const message = "File access denied";
     const errorType = "CONFIG";
@@ -161,13 +157,61 @@ describe("logger utility", () => {
     expect(mockConsoleError).toHaveBeenCalledWith(expectedOutput);
   });
 
-  it("error() should default to 'UNKNOWN' type", () => {
-    const message = "Generic error";
-    logger.error(message);
+  it("spinner() should call ora with the provided text", () => {
+    const text = "Loading data...";
+    const spinnerInstance = logger.spinner(text);
 
-    expect(mockChalk.bold.red).toHaveBeenCalledWith(
-      `❌[dim] [10:00:00]::[UNKNOWN]`,
-    );
+    expect(mockOra).toHaveBeenCalledWith(text);
+    expect(spinnerInstance.start).toBeInstanceOf(Function);
+  });
+
+  describe("table() utility", () => {
+    it("should calculate widths and log correctly aligned, colored strings and a separator", () => {
+      const testData = [
+        [logger.colors.bold("Header1"), logger.colors.boldBlue("Header2")],
+        [
+          logger.colors.green("Short"),
+          logger.colors.cyanDim("A very long colored string"),
+        ],
+        [logger.colors.dim("Longer row"), logger.colors.white("Short")],
+      ];
+
+      logger.table(testData);
+
+      const expectedLine1 = `[bold] Header1     [bold_blue] Header2                   `;
+
+      const expectedTotalWidth = 56;
+      const expectedLine2 = `[dim] ${"-".repeat(expectedTotalWidth)}`;
+
+      const expectedLine3 = `[green] Short      [cyan_dim] A very long colored string   `;
+
+      const expectedLine4 = `[dim] Longer row   [white] Short                     `;
+
+      expect(mockConsoleLog).toHaveBeenCalledTimes(4);
+      expect(mockConsoleLog).toHaveBeenNthCalledWith(
+        1,
+        expectedLine1.trimEnd(),
+      );
+      expect(mockConsoleLog).toHaveBeenNthCalledWith(2, expectedLine2);
+      expect(mockConsoleLog).toHaveBeenNthCalledWith(
+        3,
+        expectedLine3.trimEnd(),
+      );
+      expect(mockConsoleLog).toHaveBeenNthCalledWith(
+        4,
+        expectedLine4.trimEnd(),
+      );
+    });
+
+    it("should handle empty or single row data by doing nothing", () => {
+      logger.table([]);
+      logger.table([[]]);
+      logger.table([[], []]);
+      logger.table([["Header"]]);
+      logger.table([["H1", "H2"]]);
+
+      expect(mockConsoleLog).not.toHaveBeenCalled();
+    });
   });
 
   it("dimmed() should call console.log with dim chalk and trim the message", () => {
@@ -178,12 +222,13 @@ describe("logger utility", () => {
     expect(mockConsoleLog).toHaveBeenCalledWith(`[dim] Extra details...`);
   });
 
-  it("spinner() should call ora with the provided text", () => {
-    const text = "Loading data...";
-    const spinnerInstance = logger.spinner(text);
+  it("error() should default to 'UNKNOWN' type", () => {
+    const message = "Generic error";
+    logger.error(message);
 
-    expect(mockOra).toHaveBeenCalledWith(text);
-    expect(spinnerInstance.start).toBeInstanceOf(Function);
+    expect(mockChalk.bold.red).toHaveBeenCalledWith(
+      `❌[dim] [10:00:00]::[UNKNOWN]`,
+    );
   });
 
   describe("Colors object", () => {

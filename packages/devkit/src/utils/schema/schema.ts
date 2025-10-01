@@ -8,7 +8,6 @@ export const JavascriptPackageManagers = {
   Bun: "bun",
   Npm: "npm",
   Yarn: "yarn",
-  Deno: "deno",
   Pnpm: "pnpm",
 } as const;
 
@@ -64,7 +63,7 @@ export interface TemplateConfig {
 }
 
 export interface LanguageConfig {
-  templates: { [key: string]: TemplateConfig };
+  templates: { [templateName: string]: TemplateConfig };
 }
 
 export interface CliConfig {
@@ -77,6 +76,11 @@ export interface CliConfig {
 }
 
 export type ConfigurationSource = "local" | "global" | "default" | "merged";
+export const DisplayModes = {
+  Tree: "tree",
+  Table: "table",
+} as const;
+export type DisplayModesValues = ValuesOf<typeof DisplayModes>;
 
 export interface UpdateCommandOptions {
   global: boolean;

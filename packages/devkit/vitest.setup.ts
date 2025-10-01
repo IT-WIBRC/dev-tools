@@ -78,6 +78,7 @@ const {
     log: vi.fn(),
     warning: vi.fn(),
     dimmed: vi.fn(),
+    table: vi.fn(),
     spinner: vi.fn(() => mockSpinner),
     colors: {
       yellow: vi.fn((text: string) => text),

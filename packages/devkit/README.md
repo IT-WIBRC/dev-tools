@@ -110,7 +110,7 @@ Scaffolder comes with a set of pre-configured templates for popular frameworks a
 > **Note:** All templates currently support Node.js projects and must be configured under the `javascript` key.
 
 | Template Name  | Description                                            | Alias  |
-| -------------- | ------------------------------------------------------ | ------ |
+| :------------- | :----------------------------------------------------- | :----- |
 | `vue`          | An official Vue.js project.                            |        |
 | `nuxt`         | An official Nuxt.js project.                           | `nx`   |
 | `nest`         | An official Nest.js project.                           |        |
@@ -180,6 +180,7 @@ The `dk list` command now uses the following options to control which templates 
 - **`--global`**: Only list templates from the global configuration file (`~/.devkitrc`).
 - **`--all`**: List templates from both the local and global configurations, merging them into a single list.
 - **`--filter <string>`**: Filter templates by name or alias substring.
+- **`--mode <mode>`**: Sets the display mode for the template list. Options are **`tree`** (default, detailed view) or **`table`** (compact, column-based view).
 
 #### Examples
 
@@ -203,6 +204,9 @@ dk list javascript --filter react
 
 # List javascript templates and filter by name starting or containing
 dk list javascript --filter r
+
+# List templates in a compact table format
+dk list --mode table
 ```
 
 ---
