@@ -1,53 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setupConfigCommand } from "../../../../src/commands/config/index.js";
 import { mockSpinner, mocktFn, mockLogger } from "../../../../vitest.setup.js";
-import type { CliConfig } from "../../../integrations/common.js";
-
-const MOCK_LOCAL_CONFIG: CliConfig = {
-  settings: { language: "en", packageManager: "npm" } as any,
-  templates: {},
-};
-
-const MOCK_GLOBAL_CONFIG: CliConfig = {
-  settings: { language: "fr", packageManager: "yarn" } as any,
-  templates: {},
-};
-
-const MOCK_CONFIG_SOURCES = {
-  local: MOCK_LOCAL_CONFIG,
-  global: MOCK_GLOBAL_CONFIG,
-  default: null,
-  configFound: true,
-};
 
 const {
-  mockReadConfigSources,
-  mockHandleNonInteractiveSettingsUpdate,
   mockHandleErrorAndExit,
   mockSetupAddCommand,
   mockSetupRemoveCommand,
   mockSetupUpdateCommand,
   mockSetupListCommand,
+  mockHandleGetAction,
+  mockHandleSetAction,
 } = vi.hoisted(() => ({
-  mockReadConfigSources: vi.fn(),
-  mockHandleNonInteractiveSettingsUpdate: vi.fn(),
   mockHandleErrorAndExit: vi.fn(),
   mockSetupAddCommand: vi.fn(),
   mockSetupRemoveCommand: vi.fn(),
   mockSetupUpdateCommand: vi.fn(),
   mockSetupListCommand: vi.fn(),
-}));
-
-vi.mock("../../../../src/commands/config/logic.js", () => ({
-  handleNonInteractiveSettingsUpdate: mockHandleNonInteractiveSettingsUpdate,
+  mockHandleSetAction: vi.fn(),
+  mockHandleGetAction: vi.fn(),
 }));
 
 vi.mock("../../../../src/utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
-}));
-
-vi.mock("#core/config/loader.js", () => ({
-  readConfigSources: mockReadConfigSources,
 }));
 
 vi.mock("../../../../src/commands/config/add.js", () => ({
@@ -66,7 +40,13 @@ vi.mock("../../../../src/commands/config/list.js", () => ({
   setupListCommand: mockSetupListCommand,
 }));
 
-console.log = mockLogger.log;
+vi.mock("../../../../src/commands/config/set/index.js", () => ({
+  handleSetAction: mockHandleSetAction,
+}));
+
+vi.mock("../../../../src/commands/config/get/index.js", () => ({
+  handleGetAction: mockHandleGetAction,
+}));
 
 describe("setupConfigCommand", () => {
   let mockProgram: any;
@@ -74,10 +54,6 @@ describe("setupConfigCommand", () => {
 
   const DESC_KEY = "commands.config.command.description";
   const NO_COMMAND_WARN_KEY = "warnings.no_command_provided";
-  const SET_SUCCESS_KEY = "messages.success.config_updated";
-  const GET_SUCCESS_KEY = "messages.success.config_read";
-  const INVALID_FORMAT_KEY = "errors.command.set_invalid_format";
-  const GET_NOT_FOUND_KEY = "errors.config.get_key_not_found";
   const CONFIG_LOADING_KEY = "messages.status.config_loading";
 
   beforeEach(() => {
@@ -92,7 +68,6 @@ describe("setupConfigCommand", () => {
         return mockProgram;
       }),
     };
-    mockReadConfigSources.mockResolvedValue(MOCK_CONFIG_SOURCES);
   });
 
   it("should set up the config command with correct options and subcommands", () => {
@@ -100,6 +75,16 @@ describe("setupConfigCommand", () => {
 
     expect(mockProgram.command).toHaveBeenCalledWith("config [keys...]");
     expect(mockProgram.alias).toHaveBeenCalledWith("conf");
+    expect(mockProgram.option).toHaveBeenCalledWith(
+      "-g, --global",
+      mocktFn("commands.config.set.option.global"),
+      false,
+    );
+    expect(mockProgram.option).toHaveBeenCalledWith(
+      "-s, --set <value...>",
+      mocktFn("commands.config.set.option.bulk"),
+      false,
+    );
     expect(mockProgram.description).toHaveBeenCalledWith(mocktFn(DESC_KEY));
     expect(mockSetupAddCommand).toHaveBeenCalledWith(mockProgram);
     expect(mockSetupRemoveCommand).toHaveBeenCalledWith(mockProgram);
@@ -108,160 +93,75 @@ describe("setupConfigCommand", () => {
   });
 
   describe("action handler", () => {
-    it("should default to warning if no keys or options are provided", async () => {
+    it("should delegate to warning logic if no keys or options are provided", async () => {
       setupConfigCommand(mockProgram);
       await mockAction([], { global: false });
 
       expect(mockSpinner.start).toHaveBeenCalledWith(
         mockLogger.colors.cyan(mocktFn(CONFIG_LOADING_KEY)),
       );
+      expect(mockSpinner.stop).toHaveBeenCalledOnce();
 
-      expect(mockReadConfigSources).toHaveBeenCalledWith({
-        forceGlobal: false,
-        forceLocal: true,
-      });
+      expect(mockHandleSetAction).not.toHaveBeenCalled();
+      expect(mockHandleGetAction).not.toHaveBeenCalled();
 
       expect(mockSpinner.warn).toHaveBeenCalledWith(
         mocktFn(NO_COMMAND_WARN_KEY),
       );
     });
 
-    it("should call handleNonInteractiveSettingsUpdate for --set flag and respect the --global flag", async () => {
+    it("should delegate to handleSetAction for --set flag and pass all arguments", async () => {
       setupConfigCommand(mockProgram);
 
       const cmdOptions = {
         set: ["language", "typescript", "pm", "bun"],
         global: true,
       };
-      await mockAction([], cmdOptions);
+      const keys: string[] = [];
+      await mockAction(keys, cmdOptions);
 
-      expect(mockReadConfigSources).toHaveBeenCalledWith({
-        forceGlobal: true,
-        forceLocal: false,
-      });
+      expect(mockSpinner.stop).toHaveBeenCalledOnce();
+      expect(mockHandleGetAction).not.toHaveBeenCalled();
 
-      expect(mockHandleNonInteractiveSettingsUpdate).toHaveBeenCalledWith(
-        "language",
-        "typescript",
+      expect(mockHandleSetAction).toHaveBeenCalledWith(
+        cmdOptions.set,
         true,
-      );
-
-      expect(mockHandleNonInteractiveSettingsUpdate).toHaveBeenCalledWith(
-        "pm",
-        "bun",
-        true,
-      );
-
-      expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockLogger.colors.green(mocktFn(SET_SUCCESS_KEY)),
+        mockSpinner,
       );
     });
 
-    it("should fail for invalid --set format (odd number of arguments)", async () => {
+    it("should delegate to handleGetAction when keys are provided (GET functionality)", async () => {
       setupConfigCommand(mockProgram);
+      const keys = ["language", "pm"];
+      const cmdOptions = { global: false };
 
-      const cmdOptions = { set: ["language"], global: false };
-      await mockAction([], cmdOptions);
+      await mockAction(keys, cmdOptions);
 
-      expect(mockHandleNonInteractiveSettingsUpdate).not.toHaveBeenCalled();
+      expect(mockSpinner.stop).toHaveBeenCalledOnce();
+      expect(mockHandleSetAction).not.toHaveBeenCalled();
 
-      expect(mockReadConfigSources).toHaveBeenCalledWith({
-        forceGlobal: false,
-        forceLocal: true,
-      });
-
-      expect(mockSpinner.fail).toHaveBeenCalledWith(
-        mockLogger.colors.redBright(mocktFn(INVALID_FORMAT_KEY)),
+      expect(mockHandleGetAction).toHaveBeenCalledWith(
+        keys,
+        false,
+        mockSpinner,
       );
     });
 
-    it("should print a single config value when a key is provided (GET functionality) from Local by default", async () => {
-      mockReadConfigSources.mockResolvedValue({
-        ...MOCK_CONFIG_SOURCES,
-        local: {
-          settings: {},
-          templates: {
-            javascript: {},
-          },
-        } as unknown as CliConfig,
-      });
+    it("should handle errors gracefully by calling handleErrorAndExit", async () => {
+      const mockError = new Error("Config action failed");
+
+      mockHandleSetAction.mockRejectedValue(mockError);
 
       setupConfigCommand(mockProgram);
-      await mockAction(["language"], { global: false });
 
-      expect(mockReadConfigSources).toHaveBeenCalledWith({
-        forceGlobal: false,
-        forceLocal: true,
-      });
-
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        mockLogger.colors.yellowBold(
-          mocktFn("errors.config.get_key_not_found", {
-            key: "language",
-          }),
-        ),
-      );
-
-      expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockLogger.colors.green(mocktFn(GET_SUCCESS_KEY)),
-      );
-    });
-
-    it("should print a single config value when a key is provided (GET functionality) from Global when --global is set", async () => {
-      mockReadConfigSources.mockResolvedValue({
-        ...MOCK_CONFIG_SOURCES,
-        global: { settings: { language: "fr" }, templates: {} } as CliConfig,
-      });
-
-      setupConfigCommand(mockProgram);
-      await mockAction(["language"], { global: true });
-
-      expect(mockReadConfigSources).toHaveBeenCalledWith({
-        forceGlobal: true,
-        forceLocal: false,
-      });
-
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        mockLogger.colors.yellowBold("language") + ": " + "fr",
-      );
-
-      expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockLogger.colors.green(mocktFn(GET_SUCCESS_KEY)),
-      );
-    });
-
-    it("should handle a non-existent key gracefully (GET functionality)", async () => {
-      mockReadConfigSources.mockResolvedValue({
-        ...MOCK_CONFIG_SOURCES,
-        local: { settings: {}, templates: {} } as CliConfig,
-      });
-
-      setupConfigCommand(mockProgram);
-      await mockAction(["nonexistent_key"], {});
-
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        mockLogger.colors.redBright(
-          mocktFn(GET_NOT_FOUND_KEY, {
-            key: "nonexistent_key",
-          }),
-        ),
-      );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockLogger.colors.green(mocktFn(GET_SUCCESS_KEY)),
-      );
-    });
-
-    it("should handle errors gracefully during config loading", async () => {
-      const mockError = new Error("Config read failed");
-      mockReadConfigSources.mockRejectedValue(mockError);
-
-      setupConfigCommand(mockProgram);
-      await mockAction([], {});
+      await mockAction([], { set: ["a", "b"] });
 
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         mockError,
         mockSpinner,
       );
+
+      expect(mockSpinner.stop).toHaveBeenCalledOnce();
     });
   });
 });

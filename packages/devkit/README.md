@@ -189,7 +189,7 @@ Here are some examples of how to use the new options:
 
 ```bash
 # List all templates, including the Scaffolder's built-in defaults
-dk list --include-defaults
+dk list -d
 
 # List templates only from the local configuration file
 dk list --local
@@ -212,28 +212,28 @@ dk list --mode table -d
 
 ---
 
-### Manage your CLI configuration
+### Manage your CLI configuration (`dk config` / `dk conf`)
 
-The `dk config` command is a central hub for all configuration and template management. It works with subcommands to handle different tasks.
+The `dk config` command is the central hub for managing your CLI settings and templates.
 
-#### Get and Set Configuration Values
+#### Get and Set Configuration Values (Core)
 
-The core `dk config` command allows you to **get** or **set** configuration values directly using arguments and options.
+The main `dk config` command allows you to **get** or **set** simple configuration values like your preferred package manager or language.
 
-- To **get** a value, provide the key as a direct argument (e.g., `dk config language`). You can retrieve multiple values by listing their keys.
-- To **set** one or more values, use the `--set` or `-s` flag followed by key-value pairs (e.g., `dk config --set language fr`).
-
-> **Note:** Running `dk config` without arguments or options is not supported and will result in an error.
+| Action          | Command Syntax                   | Description                                                                                                                                                                           |
+| :-------------- | :------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **GET** (Read)  | `dk config <key...>`             | Retrieve the value(s) for the specified configuration key(s). Supported keys include: **pm** / **defaultPackageManager**, **lang** / **language**, and **cache** / **cacheStrategy**. |
+| **SET** (Write) | `dk config --set <key value...>` | Set one or more configuration properties in bulk (key-value pairs).                                                                                                                   |
 
 ```bash
-# Get the value of the 'defaultPackageManager' setting
-dk config defaultPackageManager
+# Get the value of the 'defaultPackageManager' setting using its short alias
+dk config pm
 
-# Get the value of the 'language' setting from the global config
-dk config language --global
+# Get the value of both 'language' and 'cacheStrategy' from the global config
+dk config language cacheStrategy --global
 
 # Set your default package manager to pnpm and the language to French in a single command (local)
-dk config --set defaultPackageManager pnpm language fr
+dk config --set pm pnpm lang fr
 
 # Set your default package manager to npm in your global config
 dk config --set defaultPackageManager npm --global
@@ -322,17 +322,6 @@ dk config remove node node-api --global
 
 ---
 
-#### Manage cache strategy for a template
-
-Use the `dk config cache` command to update the cache strategy for a specific template.
-
-```bash
-# Set the cache strategy for the 'react' template to 'always-refresh'
-dk config cache react always-refresh
-```
-
----
-
 ### Shortcuts
 
 For a faster workflow, the following commands have shortcuts:
@@ -349,7 +338,6 @@ For a faster workflow, the following commands have shortcuts:
 | `config remove` | `conf rm` |
 | `config update` | `conf up` |
 | `config list`   | `conf ls` |
-| `cache`         | `c`       |
 | `version`       | `v`       |
 | `help`          | `h`       |
 
@@ -419,7 +407,7 @@ You can also define an **`alias`** to make it easier to reference a specific tem
 Once an alias is configured, you can use it in place of the full template name for faster commands.
 
 ```bash
-# Create a new project using the alias 'gh-template'
+# Create a new project from the alias 'gh-template'
 dk new javascript my-new-project-name -t gh-template
 ```
 

@@ -61,9 +61,9 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [x] **Enhance `list` Command**: Add options to **filter by properties** (e.g., `packageManager`, `alias`, etc.).
 - [x] **Enhance `list` Command**: Add flag to also see default config `--include-defaults`.
 - [x] Explain the usage of `{pm}` role inside the config in the documentation.
-- [x] Add a `--settings, -s` to the `dk list` command to display the current configuration settings only
+- [x] Add a `--settings, -s` to the `dk list` command to display the current configuration settings Only
 - [x] Add wildcard support for template name in the `dk config update` and `dk config remove` commands.
-- [ ] add short keys to get config using `dk config` like `dk config lang` for `dk config language`
+- [x] add short keys to get config using `dk config` like `dk config lang` for `dk config language`
 - [ ] ** Enhance for organization Purpose **: Add new language `Typescript(ts)` with same code as javascript(js), also support for nodejs(node) template name for those who prefer it than the programming language name
 - [ ] Add a configuration validation step when updating the config file to ensure all required fields are present and correctly formatted.
 - [ ] **Testing**: Stabilize the integration test of the `new` command

@@ -65,7 +65,7 @@
     },
     "config": {
       "command": {
-        "description": "Manage DevKit settings"
+        "description": "Manage DevKit's global and local settings, including package managers, cache strategy, and templates."
       },
       "interactive": {
         "prompt_action": "What would you like to configure?",
@@ -89,7 +89,7 @@
         },
         "option": {
           "global": "Update the global configuration instead of the local one.",
-          "bulk": "Sets multiple configuration properties."
+          "bulk": "Set one or more configuration properties in bulk (e.g., KEY VALUE). Supported keys include: **pm** / **packageManager**, **cache** / **cacheStrategy**, and **lang** / **language**."
         }
       },
       "get": {

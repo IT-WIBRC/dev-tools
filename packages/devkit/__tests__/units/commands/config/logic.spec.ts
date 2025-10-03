@@ -205,7 +205,7 @@ describe("Non-interactive Config Logic", () => {
       expect(updatedConfig.settings.defaultPackageManager).toBe("bun");
 
       expect(mockValidateConfigValue).toHaveBeenCalledWith(
-        "defaultPackageManager",
+        "packageManager",
         "bun",
       );
     });
