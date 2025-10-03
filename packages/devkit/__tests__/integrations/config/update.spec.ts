@@ -51,84 +51,101 @@ const createGlobalTemplateFiles = async () => {
   );
 };
 
-describe("dk config update", () => {
-  beforeAll(() => {
-    vi.unmock("#utils/shell.js");
-  });
+beforeAll(() => {
+  vi.unmock("#utils/shell.js");
+});
 
-  beforeEach(async () => {
-    originalCwd = process.cwd();
-    tempDir = path.join(os.tmpdir(), `devkit-test-config-update-${Date.now()}`);
-    globalConfigDir = path.join(
-      os.tmpdir(),
-      `devkit-global-config-dir-${Date.now()}`,
-    );
-    localTemplatePath = path.join(tempDir, "templates");
-    globalTemplatePath = path.join(globalConfigDir, "templates");
+beforeEach(async () => {
+  originalCwd = process.cwd();
+  tempDir = path.join(os.tmpdir(), `devkit-test-config-update-${Date.now()}`);
+  globalConfigDir = path.join(
+    os.tmpdir(),
+    `devkit-global-config-dir-${Date.now()}`,
+  );
+  localTemplatePath = path.join(tempDir, "templates");
+  globalTemplatePath = path.join(globalConfigDir, "templates");
 
-    await fs.ensureDir(tempDir);
-    process.chdir(tempDir);
-    await fs.ensureDir(globalConfigDir);
+  await fs.ensureDir(tempDir);
+  process.chdir(tempDir);
+  await fs.ensureDir(globalConfigDir);
 
-    await createLocalTemplateFiles();
-    await createGlobalTemplateFiles();
+  await createLocalTemplateFiles();
+  await createGlobalTemplateFiles();
 
-    localConfig = {
-      ...defaultCliConfig,
-      templates: {
-        javascript: {
-          templates: {
-            "react-ts": {
-              description: "A React project with TypeScript",
-              location: path.join(
-                localTemplatePath,
-                "javascript",
-                "react-ts.txt",
-              ),
-              alias: "rt",
-              packageManager: "npm",
-            },
-            "vue-basic": {
-              description: "A basic Vue template",
-              location: path.join(
-                localTemplatePath,
-                "javascript",
-                "vue-basic.txt",
-              ),
-              alias: "vb",
-            },
+  localConfig = {
+    ...defaultCliConfig,
+    templates: {
+      javascript: {
+        templates: {
+          "react-ts": {
+            description: "A React project with TypeScript",
+            location: path.join(
+              localTemplatePath,
+              "javascript",
+              "react-ts.txt",
+            ),
+            alias: "rt",
+            packageManager: "npm",
+          },
+          "vue-basic": {
+            description: "A basic Vue template",
+            location: path.join(
+              localTemplatePath,
+              "javascript",
+              "vue-basic.txt",
+            ),
+            alias: "vb",
+          },
+          "other-js": {
+            description: "Another JS template",
+            location: path.join(
+              localTemplatePath,
+              "javascript",
+              "other-js.txt",
+            ),
           },
         },
       },
-    };
+    },
+  };
 
-    globalConfig = {
-      ...defaultCliConfig,
-      templates: {
-        javascript: {
-          templates: {
-            "react-ts": {
-              description: "A global React template",
-              location: path.join(
-                globalTemplatePath,
-                "javascript",
-                "react-ts.txt",
-              ),
-              alias: "rt-global",
-            },
+  globalConfig = {
+    ...defaultCliConfig,
+    templates: {
+      javascript: {
+        templates: {
+          "react-ts": {
+            description: "A global React template",
+            location: path.join(
+              globalTemplatePath,
+              "javascript",
+              "react-ts.txt",
+            ),
+            alias: "rt-global",
+          },
+          "angular-js": {
+            description: "A global Angular template",
+            location: path.join(
+              globalTemplatePath,
+              "javascript",
+              "angular-js.txt",
+            ),
+            alias: "ng-g",
           },
         },
       },
-    };
-  });
+    },
+  };
+});
 
-  afterEach(async () => {
-    process.chdir(originalCwd);
-    await fs.remove(tempDir);
-    await fs.remove(globalConfigDir);
-  });
+afterEach(async () => {
+  process.chdir(originalCwd);
+  await fs.remove(tempDir);
+  await fs.remove(globalConfigDir);
+});
 
-  it("should update a single template in the local config", async () => {
+describe("Config Update - Single and Multiple Templates", () => {
+  it("should update a single template in the local config by name", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -162,6 +179,168 @@ describe("dk config update", () => {
     );
   });
 
+  it("should update multiple templates in the local config", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "update",
+        "javascript",
+        "react-ts",
+        "vue-basic",
+        "-d",
+        "Updated description for all",
+      ],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "Successfully updated 2 (react-ts, vue-basic) template(s) from javascript!",
+    );
+    expect(
+      updatedConfig.templates.javascript.templates["react-ts"].description,
+    ).toBe("Updated description for all");
+    expect(
+      updatedConfig.templates.javascript.templates["vue-basic"].description,
+    ).toBe("Updated description for all");
+  });
+});
+
+describe("Config Update - Wildcard and Alias Support", () => {
+  it("should update a single template in the local config using its alias", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "update",
+        "javascript",
+        "rt",
+        "-d",
+        "Updated via Alias",
+      ],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "Successfully updated 1 (react-ts) template(s) from javascript!",
+    );
+    expect(
+      updatedConfig.templates.javascript.templates["react-ts"].description,
+    ).toBe("Updated via Alias");
+  });
+
+  it("should update ALL local templates using the wildcard '*'", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "update",
+        "javascript",
+        "*",
+        "-d",
+        "Updated by Wildcard",
+      ],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "Successfully updated 3 (react-ts, vue-basic, other-js) template(s) from javascript!",
+    );
+    expect(
+      updatedConfig.templates.javascript.templates["other-js"].description,
+    ).toBe("Updated by Wildcard");
+  });
+
+  it("should update templates found by '*' but warn for explicitly listed non-existent names", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "update",
+        "javascript",
+        "*",
+        "non-existent-A",
+        "non-existent-B",
+        "-d",
+        "Updated, ignoring unknowns",
+      ],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "Successfully updated 3 (react-ts, vue-basic, other-js) template(s) from javascript!",
+    );
+    expect(all).toContain(
+      "The following templates were not found: non-existent-A, non-existent-B",
+    );
+    expect(
+      updatedConfig.templates.javascript.templates["react-ts"].description,
+    ).toBe("Updated, ignoring unknowns");
+  });
+
+  it("should update found templates while warning for missing ones when not using wildcard", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "update",
+        "javascript",
+        "react-ts",
+        "non-existent-template",
+        "-d",
+        "A description that should fail for one",
+      ],
+      { all: true, reject: false },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "Successfully updated 1 (react-ts) template(s) from javascript!",
+    );
+    expect(all).toContain(
+      "The following templates were not found: non-existent-template",
+    );
+    expect(
+      updatedConfig.templates.javascript.templates["react-ts"].description,
+    ).toBe("A description that should fail for one");
+  });
+});
+
+describe("Config Update - Global Configuration", () => {
   it("should update a single template in the global config with --global flag", async () => {
     await fs.writeJson(
       path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
@@ -200,40 +379,52 @@ describe("dk config update", () => {
     );
   });
 
-  it("should update multiple templates in the local config", async () => {
-    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+  it("should update ALL global templates using the wildcard '*' with --global flag", async () => {
+    await fs.writeJson(
+      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
+      globalConfig,
+    );
+
+    const newLocationPath = path.join(
+      globalTemplatePath,
+      "javascript",
+      "react-ts.txt",
+    );
+
     const { exitCode, all } = await execute(
       "bun",
       [
         CLI_PATH,
         "config",
+        "--global",
         "update",
         "javascript",
-        "react-ts",
-        "vue-basic",
-        "-d",
-        "Updated description for all",
+        "*",
+        "-l",
+        newLocationPath,
       ],
-      { all: true },
+      { all: true, env: { HOME: globalConfigDir } },
     );
 
     const updatedConfig = await fs.readJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
     );
 
     expect(exitCode).toBe(0);
     expect(all).toContain(
-      "Successfully updated 2 (react-ts, vue-basic) template(s) from javascript!",
+      "Successfully updated 2 (react-ts, angular-js) template(s) from javascript!",
     );
     expect(
-      updatedConfig.templates.javascript.templates["react-ts"].description,
-    ).toBe("Updated description for all");
+      updatedConfig.templates.javascript.templates["react-ts"].location,
+    ).toBe(newLocationPath);
     expect(
-      updatedConfig.templates.javascript.templates["vue-basic"].description,
-    ).toBe("Updated description for all");
+      updatedConfig.templates.javascript.templates["angular-js"].location,
+    ).toBe(newLocationPath);
   });
+});
 
-  it("should handle partial updates with some failures", async () => {
+describe("Config Update - Failure and Edge Cases", () => {
+  it("should fail gracefully if NO template names were found to act on", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -242,40 +433,8 @@ describe("dk config update", () => {
         "config",
         "update",
         "javascript",
-        "react-ts",
-        "non-existent-template",
-        "-d",
-        "A description that should fail for one",
-      ],
-      { all: true, reject: false },
-    );
-
-    const updatedConfig = await fs.readJson(
-      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-    );
-
-    expect(exitCode).toBe(1);
-    expect(all).toContain(
-      "Failed to update 'non-existent-template': Template 'non-existent-template' not found in configuration.",
-    );
-    expect(all).toContain(
-      "Successfully updated 1 (react-ts, non-existent-template) template(s) from javascript!",
-    );
-    expect(
-      updatedConfig.templates.javascript.templates["react-ts"].description,
-    ).toBe("A description that should fail for one");
-  });
-
-  it("should fail gracefully if a template is not found", async () => {
-    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    const { exitCode, all } = await execute(
-      "bun",
-      [
-        CLI_PATH,
-        "config",
-        "update",
-        "javascript",
-        "non-existent-template",
+        "non-existent-template-A",
+        "non-existent-template-B",
         "-d",
         "some-description",
       ],
@@ -284,11 +443,11 @@ describe("dk config update", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "Failed to update 'non-existent-template': Template 'non-existent-template' not found in configuration.",
+      "Template 'non-existent-template-A, non-existent-template-B' not found in configuration.",
     );
   });
 
-  it("should fail gracefully if a language is not found", async () => {
+  it("should fail gracefully if a language is not found (validation error)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -306,7 +465,7 @@ describe("dk config update", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "Failed to update 'ts-template': Invalid value for Programming Language. Valid options are: javascript",
+      "Invalid value for Programming Language. Valid options are: javascript",
     );
   });
 

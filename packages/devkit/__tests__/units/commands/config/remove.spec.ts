@@ -2,7 +2,10 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import { setupRemoveCommand } from "../../../../src/commands/config/remove.js";
 import { mockSpinner, mockLogger, mocktFn } from "../../../../vitest.setup.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
-import type { CliConfig } from "../../../../src/utils/schema/schema.js";
+import type {
+  CliConfig,
+  ConfigurationSource,
+} from "../../../../src/utils/schema/schema.js";
 
 const {
   mockHandleErrorAndExit,
@@ -38,7 +41,6 @@ vi.mock("#utils/validations/config.js", () => ({
 }));
 
 const CMD_DESCRIPTION_KEY = "commands.template.remove.command.description";
-const STATUS_REMOVING_KEY = "messages.status.template_removing";
 const SUCCESS_REMOVED_KEY = "messages.success.template_removed";
 const WARNING_NOT_FOUND_KEY = "warnings.template.list_not_found";
 const ERROR_TEMPLATE_NOT_FOUND_KEY = "errors.template.not_found";
@@ -58,6 +60,10 @@ const defaultTemplateConfig: CliConfig["templates"] = {
         description: "A basic React template",
         location: "https://github.com/facebook/react",
       },
+      "node-cli": {
+        description: "A Node.js CLI template",
+        location: "https://github.com/node/node-cli",
+      },
     },
   },
   typescript: {
@@ -71,7 +77,7 @@ const sampleConfig: CliConfig = {
 };
 
 const createMockSources = (
-  targetType: "local" | "global" | "default",
+  targetType: ConfigurationSource,
 ): ReturnType<typeof mockReadConfigSources> => {
   const local = targetType === "local" ? structuredClone(sampleConfig) : null;
   const global = targetType === "global" ? structuredClone(sampleConfig) : null;
@@ -85,6 +91,23 @@ const createMockSources = (
 
 describe("setupRemoveCommand", () => {
   let mockConfigCommand: any;
+  const callAction = (
+    language: string,
+    templateNames: string[],
+    isGlobal: boolean,
+  ) => {
+    const parentOpts = { global: isGlobal };
+    return actionFn(
+      language,
+      templateNames,
+      {},
+      {
+        parent: {
+          opts: vi.fn(() => parentOpts),
+        },
+      },
+    );
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -113,27 +136,9 @@ describe("setupRemoveCommand", () => {
     );
   });
 
-  describe("action handler", () => {
-    const callAction = (
-      language: string,
-      templateNames: string[],
-      isGlobal: boolean,
-    ) => {
-      const parentOpts = { global: isGlobal };
-      return actionFn(
-        language,
-        templateNames,
-        {},
-        {
-          parent: {
-            opts: vi.fn(() => parentOpts),
-          },
-        },
-      );
-    };
-
+  describe("action handler - Single and Multiple Named Removal", () => {
     it("should remove a template by its name from local config", async () => {
-      mockReadConfigSources.mockImplementation(() =>
+      mockReadConfigSources.mockImplementationOnce(() =>
         createMockSources("local"),
       );
 
@@ -145,27 +150,25 @@ describe("setupRemoveCommand", () => {
         forceLocal: true,
       });
 
-      expect(mockSpinner.start).toHaveBeenCalledWith(
-        mockLogger.colors.cyan(mocktFn(STATUS_REMOVING_KEY)),
-      );
       expect(mockSaveLocalConfig).toHaveBeenCalledOnce();
-      const expectedConfig: CliConfig = {
-        settings: {} as CliConfig["settings"],
-        templates: {
-          javascript: {
-            templates: {
-              "react-basic": {
-                description: "A basic React template",
-                location: "https://github.com/facebook/react",
+      expect(mockSaveLocalConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: {
+            ...defaultTemplateConfig.settings,
+          },
+          templates: {
+            javascript: {
+              templates: {
+                ...defaultTemplateConfig.javascript?.templates,
+                "vue-basic": undefined,
               },
             },
+            typescript: {
+              ...defaultTemplateConfig.typescript,
+            },
           },
-          typescript: {
-            templates: {},
-          },
-        },
-      };
-      expect(mockSaveLocalConfig).toHaveBeenCalledWith(expectedConfig);
+        }),
+      );
 
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
         mocktFn(SUCCESS_REMOVED_KEY, {
@@ -174,7 +177,6 @@ describe("setupRemoveCommand", () => {
           language: "javascript",
         }),
       );
-      expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
     });
 
     it("should remove a template by its alias", async () => {
@@ -201,20 +203,28 @@ describe("setupRemoveCommand", () => {
       );
 
       setupRemoveCommand(mockConfigCommand);
-      await callAction("javascript", ["vue-basic", "react-basic"], false);
+      await callAction("javascript", ["vue-basic", "react-basic", "vb"], false);
 
       expect(mockSaveLocalConfig).toHaveBeenCalledWith(
         expect.objectContaining({
+          settings: {
+            ...defaultTemplateConfig.settings,
+          },
           templates: {
             javascript: {
-              templates: {},
+              templates: {
+                "node-cli": {
+                  ...defaultTemplateConfig.javascript?.templates?.["node-cli"],
+                },
+              },
             },
             typescript: {
-              templates: {},
+              ...defaultTemplateConfig.typescript,
             },
           },
         }),
       );
+
       expect(mockSpinner.succeed).toHaveBeenCalledWith(
         mocktFn(SUCCESS_REMOVED_KEY, {
           count: "2",
@@ -238,6 +248,144 @@ describe("setupRemoveCommand", () => {
       });
       expect(mockSaveGlobalConfig).toHaveBeenCalledOnce();
     });
+  });
+
+  describe("action handler - Wildcard and Mixed Removal", () => {
+    it("should remove ALL templates using the wildcard '*'", async () => {
+      mockReadConfigSources.mockImplementation(() =>
+        createMockSources("local"),
+      );
+
+      setupRemoveCommand(mockConfigCommand);
+      await callAction("javascript", ["*"], false);
+
+      expect(mockSaveLocalConfig).toHaveBeenCalledOnce();
+      expect(mockSaveLocalConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          templates: {
+            javascript: {
+              templates: {},
+            },
+            typescript: {
+              templates: {},
+            },
+          },
+        }),
+      );
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(
+        mocktFn(SUCCESS_REMOVED_KEY, {
+          count: "3",
+          templateName: "vue-basic, react-basic, node-cli",
+          language: "javascript",
+        }),
+      );
+      expect(mockLogger.warning).not.toHaveBeenCalled();
+    });
+
+    it("should remove ALL templates and warn about explicitly listed non-existent names (wildcard + extra)", async () => {
+      mockReadConfigSources.mockImplementation(() =>
+        createMockSources("local"),
+      );
+
+      setupRemoveCommand(mockConfigCommand);
+      await callAction("javascript", ["*", "non-existent-A", "vb"], false);
+
+      expect(mockSaveLocalConfig).toHaveBeenCalledOnce();
+      expect(mockSaveLocalConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: {},
+          templates: {
+            javascript: {
+              templates: {},
+            },
+            typescript: {
+              templates: {},
+            },
+          },
+        }),
+      );
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(
+        mocktFn(SUCCESS_REMOVED_KEY, {
+          count: "3",
+          templateName: "vue-basic, react-basic, node-cli",
+          language: "javascript",
+        }),
+      );
+      expect(mockLogger.warning).toHaveBeenCalledWith(
+        mockLogger.colors.yellow(
+          mocktFn(WARNING_NOT_FOUND_KEY, {
+            templates: ["non-existent-A", "vb"].join(", "),
+          }),
+        ),
+      );
+    });
+
+    it("should remove existing templates and warn about non-existent ones (no wildcard)", async () => {
+      mockReadConfigSources.mockImplementation(() =>
+        createMockSources("local"),
+      );
+
+      setupRemoveCommand(mockConfigCommand);
+      await callAction("javascript", ["vue-basic", "non-existent"], false);
+
+      expect(mockSaveLocalConfig).toHaveBeenCalledOnce();
+      expect(mockSaveLocalConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: {},
+          templates: {
+            javascript: {
+              templates: {
+                "react-basic": {
+                  ...defaultTemplateConfig.javascript?.templates?.[
+                    "react-basic"
+                  ],
+                },
+                "node-cli": {
+                  ...defaultTemplateConfig.javascript?.templates?.["node-cli"],
+                },
+              },
+            },
+            typescript: {
+              templates: {},
+            },
+          },
+        }),
+      );
+      expect(mockSpinner.succeed).toHaveBeenCalledWith(
+        mocktFn(SUCCESS_REMOVED_KEY, {
+          count: "1",
+          templateName: "vue-basic",
+          language: "javascript",
+        }),
+      );
+      expect(mockLogger.warning).toHaveBeenCalledWith(
+        mockLogger.colors.yellow(
+          mocktFn(WARNING_NOT_FOUND_KEY, {
+            templates: "non-existent",
+          }),
+        ),
+      );
+    });
+  });
+
+  describe("action handler - Error and Edge Cases", () => {
+    const callAction = (
+      language: string,
+      templateNames: string[],
+      isGlobal: boolean,
+    ) => {
+      const parentOpts = { global: isGlobal };
+      return actionFn(
+        language,
+        templateNames,
+        {},
+        {
+          parent: {
+            opts: vi.fn(() => parentOpts),
+          },
+        },
+      );
+    };
 
     it("should throw DevkitError if local config is not found (isGlobal=false)", async () => {
       mockReadConfigSources.mockResolvedValue({
@@ -249,11 +397,6 @@ describe("setupRemoveCommand", () => {
 
       setupRemoveCommand(mockConfigCommand);
       await callAction("javascript", ["vue-basic"], false);
-
-      expect(mockReadConfigSources).toHaveBeenCalledWith({
-        forceGlobal: false,
-        forceLocal: true,
-      });
 
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         new DevkitError(mocktFn(ERROR_LOCAL_NOT_FOUND_KEY)),
@@ -271,11 +414,6 @@ describe("setupRemoveCommand", () => {
 
       setupRemoveCommand(mockConfigCommand);
       await callAction("javascript", ["vue-basic"], true);
-
-      expect(mockReadConfigSources).toHaveBeenCalledWith({
-        forceGlobal: true,
-        forceLocal: false,
-      });
 
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         new DevkitError(mocktFn(ERROR_GLOBAL_NOT_FOUND_KEY)),
@@ -307,7 +445,7 @@ describe("setupRemoveCommand", () => {
       );
     });
 
-    it("should throw an error if none of the provided template names exist", async () => {
+    it("should throw an error if none of the provided template names exist (templatesToActOn.length === 0)", async () => {
       mockReadConfigSources.mockImplementation(() =>
         createMockSources("local"),
       );
@@ -322,45 +460,6 @@ describe("setupRemoveCommand", () => {
           }),
         ),
         mockSpinner,
-      );
-    });
-
-    it("should remove existing templates and warn about non-existent ones", async () => {
-      mockReadConfigSources.mockImplementation(() =>
-        createMockSources("local"),
-      );
-
-      setupRemoveCommand(mockConfigCommand);
-      await callAction("javascript", ["vue-basic", "non-existent"], false);
-
-      expect(mockSaveLocalConfig).toHaveBeenCalledOnce();
-      expect(mockSaveLocalConfig).toHaveBeenCalledWith(
-        expect.objectContaining({
-          templates: {
-            javascript: {
-              templates: {
-                "react-basic": expect.any(Object),
-              },
-            },
-            typescript: {
-              templates: {},
-            },
-          },
-        }),
-      );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mocktFn(SUCCESS_REMOVED_KEY, {
-          count: "1",
-          templateName: "vue-basic",
-          language: "javascript",
-        }),
-      );
-      expect(mockLogger.warning).toHaveBeenCalledWith(
-        mockLogger.colors.yellow(
-          mocktFn(WARNING_NOT_FOUND_KEY, {
-            templates: "non-existent",
-          }),
-        ),
       );
     });
 

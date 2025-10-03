@@ -274,8 +274,9 @@ dk config add javascript react-ts-template --description "My custom React TS tem
 The `dk config update` command allows you to modify an existing template's properties.
 
 - You must provide the language and the name of the template(s) you wish to update.
-- **Important:** If you list multiple template names, the command will apply the **exact same property updates** to all of them. For instance, you cannot update the `description` of two different templates to different values in a single command.
-- You can also update the template's name using the `--new-name` flag.
+- **Wildcard Support:** Use the wildcard character `*` in place of a template name (e.g., `dk config update javascript *`) to apply the update to **all templates** registered under that language.
+- **Multiple Templates:** You can list multiple template names to apply the **exact same property updates** to all of them.
+- You can also update the template's name using the `--new-name` flag (this flag only works when updating a single template).
 - Use the `--global` flag to update templates in your global (`~/.devkitrc`) file.
 
 <!-- end list -->
@@ -284,18 +285,21 @@ The `dk config update` command allows you to modify an existing template's prope
 # Update the description and alias for a single template
 dk config update javascript my-template --description "A new and improved description" --alias "my-alias"
 
-# Update a template's package manager and remove its alias
-dk config update javascript my-template --package-manager bun --alias null
+# Apply a new package manager to ALL javascript templates in the local config
+dk config update javascript * --package-manager bun
 
 # Change a template's name and its description in a single command
 dk config update javascript my-template --new-name my-cool-template --description "A newly renamed template"
 ```
+
+---
 
 #### Remove an existing template from your configuration
 
 The `dk config remove` command allows you to delete one or more templates from your configuration file.
 
 - You must provide the language and the name(s) of the template(s) you wish to remove.
+- **Wildcard Support:** Use the wildcard character `*` in place of a template name (e.g., `dk config remove javascript *`) to remove **all templates** registered under that language.
 - **Multiple Templates:** You can list multiple template names to remove them all in one operation (e.g., `dk config remove javascript template1 template2`).
 - **Global:** You can explicitly remove the template from your global (`~/.devkitrc`) file using the `--global` flag.
 - **Local:** It removes the template from the `.devkit.json` file in the root of your current project.
@@ -306,12 +310,17 @@ The `dk config remove` command allows you to delete one or more templates from y
 # Remove the 'react-ts-template' for 'javascript' from the local config
 dk config remove javascript react-ts-template
 
+# Remove ALL javascript templates from the local config
+dk config remove javascript *
+
 # Remove multiple templates at once from the local config
 dk config remove javascript template1 template2
 
 # Remove the 'node-api' template from the global config
 dk config remove node node-api --global
 ```
+
+---
 
 #### Manage cache strategy for a template
 
