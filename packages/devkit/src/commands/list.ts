@@ -2,62 +2,27 @@ import { t } from "#utils/i18n/translator.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { logger, type TSpinner } from "#utils/logger.js";
-import { readAndMergeConfigs } from "#core/config/loader.js";
 import { printTemplates } from "#core/template/printer.js";
 import type {
   DisplayModesValues,
-  LanguageConfig,
   SetupCommandOptions,
 } from "#utils/schema/schema.js";
 import {
   validateDisplayMode,
   validateProgrammingLanguage,
 } from "#utils/validations/config.js";
+import {
+  getAnnotatedTemplates,
+  type AnnotatedTemplate,
+} from "#core/template/annotator.js";
 
 type ListCommandOptions = {
   global?: boolean;
   all?: boolean;
   where?: string[];
   mode: DisplayModesValues;
-};
-
-const getStartMessage = (
-  isGlobal: boolean,
-  showAll: boolean,
-  source: string,
-): Parameters<typeof t>[0] => {
-  const TEMPLATE_NOT_FOUND_KEY = "errors.template.not_found";
-  const GLOBAL_NOT_FOUND_KEY = "errors.config.global_not_found";
-
-  if (showAll) {
-    if (source === "merged") {
-      return "messages.config_source.using_local_and_global";
-    }
-    if (source === "global") {
-      return "messages.config_source.global_only";
-    }
-    if (source === "local") {
-      return "messages.config_source.local_only";
-    }
-    return TEMPLATE_NOT_FOUND_KEY;
-  }
-
-  if (isGlobal) {
-    if (source !== "global") {
-      return GLOBAL_NOT_FOUND_KEY;
-    }
-    return "messages.config_source.global";
-  }
-
-  if (source === "local") {
-    return "messages.config_source.local";
-  }
-
-  if (source === "global") {
-    return "messages.config_source.global_fallback";
-  }
-
-  return TEMPLATE_NOT_FOUND_KEY;
+  includeDefaults?: boolean;
+  settings?: boolean;
 };
 
 export function setupListCommand(options: SetupCommandOptions): void {
@@ -70,14 +35,27 @@ export function setupListCommand(options: SetupCommandOptions): void {
     .argument("[language]", t("commands.list.command.language.argument"), "")
     .option("-g, --global", t("commands.list.options.global"))
     .option("-a, --all", t("commands.list.options.all"))
+    .option("-s, --settings", t("commands.list.options.settings"))
     .option("-w, --where <strings...>", t("commands.list.command.where.option"))
     .option(
       "-m, --mode <string>",
       t("commands.list.command.mode.option"),
       "tree",
     )
+    .option(
+      "-d, --include-defaults",
+      t("commands.list.options.include_defaults"),
+      false,
+    )
     .action(async (language, cmdOptions: ListCommandOptions) => {
-      const { global: isGlobal, all: showAll, where, mode } = cmdOptions;
+      const {
+        global: isGlobal,
+        all: showAll,
+        where,
+        mode,
+        includeDefaults,
+        settings,
+      } = cmdOptions;
 
       const whereClauses: string[] = where || [];
 
@@ -96,43 +74,68 @@ export function setupListCommand(options: SetupCommandOptions): void {
 
         if (language) validateProgrammingLanguage(language);
 
-        const { config, source } = await readAndMergeConfigs({
-          forceGlobal: isGlobal,
-          mergeAll: showAll,
-        });
+        const annotatedTemplates: AnnotatedTemplate[] =
+          await getAnnotatedTemplates({
+            forceGlobal: !!isGlobal,
+            mergeAll: !!showAll,
+            includeDefaults: !!includeDefaults,
+          });
+
+        let finalConfig = null;
+        if (settings) {
+          const { getMergedConfig } = await import("#core/config/merger.js");
+          finalConfig = await getMergedConfig(!!showAll || !!isGlobal);
+        }
 
         spinner.stop();
 
-        const startMessageKey = getStartMessage(!!isGlobal, !!showAll, source);
+        spinner
+          .succeed(logger.colors.green(t("messages.success.config_loaded")))
+          .start();
 
-        if (startMessageKey === "errors.config.global_not_found") {
-          spinner.succeed(logger.colors.yellow(t(startMessageKey)));
-          return;
-        }
+        const defaultsSuffix = includeDefaults
+          ? t("messages.status.including_defaults_suffix")
+          : "";
 
-        spinner.info(t(startMessageKey)).start();
-        const allTemplates = Object.entries(config?.templates || {});
-
-        if (allTemplates.length === 0) {
-          spinner.succeed(
-            logger.colors.yellow(
-              t("warnings.template_not_found", {
-                template: "",
-              }),
+        if (settings && finalConfig) {
+          const { printSettings } = await import("#core/template/printer.js");
+          logger.log(
+            logger.colors.bold(
+              "\n" + t("commands.list.output.settings_header") + defaultsSuffix,
             ),
           );
+          printSettings(finalConfig.settings || {});
+        }
+
+        let templatesToPrint: AnnotatedTemplate[] = annotatedTemplates;
+        if (language) {
+          templatesToPrint = annotatedTemplates.filter(
+            (t) => t._language === language,
+          );
+        }
+
+        if (templatesToPrint.length === 0) {
+          if (!settings) {
+            const translationKey = language
+              ? "warnings.template.not_found_for_language"
+              : "warnings.template.not_found_in_config";
+
+            spinner.warn(
+              logger.colors.yellow(
+                t(translationKey, {
+                  language,
+                }),
+              ),
+            );
+          }
           return;
         }
 
-        logger.log(logger.colors.bold("\n" + t("commands.list.output.header")));
-
-        const templatesToPrint: [string, LanguageConfig["templates"]][] = [];
-
-        allTemplates.forEach(([lang, langConfig]) => {
-          if (!language || lang === language) {
-            templatesToPrint.push([lang, langConfig.templates]);
-          }
-        });
+        logger.log(
+          logger.colors.bold(
+            "\n" + t("commands.list.output.header") + defaultsSuffix,
+          ),
+        );
 
         validateDisplayMode(mode);
 

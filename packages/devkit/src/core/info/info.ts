@@ -1,4 +1,4 @@
-import { readAndMergeConfigs } from "../config/loader.js";
+import { getMergedConfig } from "../config/merger.js";
 import { defaultCliConfig, type CliConfig } from "#utils/schema/schema.js";
 import { getPackageManager } from "#utils/package-manager/index.js";
 import { findGlobalConfigFile, findLocalConfigFile } from "../config/search.js";
@@ -27,7 +27,7 @@ const getPackageManagerVersion = async (
     const { stdout } = await execute(managerToQuery, ["--version"]);
     return `${managerToQuery} v${(stdout as string)?.trim?.()}`;
     // oxlint-disable-next-line no-unused-vars
-  } catch (error) {
+  } catch (_error: unknown) {
     return t("errors.system.info_package_manager_not_found", {
       manager: managerToQuery,
     });
@@ -50,10 +50,7 @@ export type SystemInfo = {
 export const collectSystemInfo = async (
   cliVersion: string,
 ): Promise<SystemInfo> => {
-  const { config } = await readAndMergeConfigs({
-    mergeAll: false,
-    forceGlobal: false,
-  });
+  const config = await getMergedConfig(true);
 
   const packageManagerVersion = await getPackageManagerVersion(config);
 

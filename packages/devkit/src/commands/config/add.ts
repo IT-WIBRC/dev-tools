@@ -1,12 +1,30 @@
 import { logger, type TSpinner } from "#utils/logger.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { t } from "#utils/i18n/translator.js";
-import { readAndMergeConfigs } from "#core/config/loader.js";
+import { readConfigSources } from "#core/config/loader.js";
 import { validateAndSaveTemplate } from "./validate-and-save.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { type Command } from "commander";
 import { type AddCommandOptions, type AddTemplateSchema } from "./types.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
+import type { CliConfig } from "#utils/schema/schema.js";
+
+async function getTargetConfigForModification(
+  isGlobal: boolean,
+): Promise<CliConfig> {
+  const sources = await readConfigSources({
+    forceGlobal: isGlobal,
+    forceLocal: !isGlobal,
+  });
+
+  const targetConfig = isGlobal ? sources.global : sources.local;
+
+  if (targetConfig) {
+    return targetConfig;
+  }
+
+  return sources.default;
+}
 
 export function setupAddCommand(configCommand: Command): void {
   configCommand
@@ -69,9 +87,7 @@ export function setupAddCommand(configCommand: Command): void {
 
           validateProgrammingLanguage(language);
 
-          const { config } = await readAndMergeConfigs({
-            forceGlobal: isGlobal,
-          });
+          const config = await getTargetConfigForModification(isGlobal);
 
           const templateDetails: AddTemplateSchema = {
             language,

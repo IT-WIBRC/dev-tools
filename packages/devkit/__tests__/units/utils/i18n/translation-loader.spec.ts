@@ -2,6 +2,7 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import {
   loadTranslations,
   translations,
+  activeLanguage,
 } from "../../../../src/utils/i18n/translation-loader.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 import path from "path";
@@ -37,7 +38,7 @@ describe("loadTranslations", () => {
   });
 
   it("should load translations based on user config language", async () => {
-    mockOsLocale.mockResolvedValue("en_US");
+    mockOsLocale.mockResolvedValueOnce("en_US");
     mockFs.readJson.mockImplementation(async (filePath) => {
       if (filePath === mockFrJsonPath) {
         return { "test.key": "Bonjour" };
@@ -64,6 +65,7 @@ describe("loadTranslations", () => {
 
     expect(mockFs.readJson).toHaveBeenCalledWith(mockFrJsonPath);
     expect(translations).toEqual({ "test.key": "Bonjour" });
+    expect(activeLanguage).toBe("fr");
   });
 
   it("should fall back to 'en' if the system locale is not supported", async () => {

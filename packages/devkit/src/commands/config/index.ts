@@ -1,5 +1,4 @@
 import { t } from "#utils/i18n/translator.js";
-import { readAndMergeConfigs } from "#core/config/loader.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { handleNonInteractiveSettingsUpdate } from "./logic.js";
 import { type Command } from "commander";
@@ -9,10 +8,28 @@ import { setupAddCommand } from "./add.js";
 import { setupRemoveCommand } from "./remove.js";
 import { setupUpdateCommand } from "./update.js";
 import { setupListCommand } from "./list.js";
+import type { CliConfig } from "#utils/schema/schema.js";
+import { readConfigSources } from "#core/config/loader.js";
 
 interface ConfigOptions {
   global?: boolean;
   set?: string[];
+}
+
+async function getSettingsConfig(isGlobal: boolean): Promise<CliConfig> {
+  const isLocal = !isGlobal;
+  const configSources = await readConfigSources({
+    forceGlobal: isGlobal,
+    forceLocal: isLocal,
+  });
+
+  function getConfig(config: CliConfig | null): CliConfig {
+    return (config || {}) as CliConfig;
+  }
+
+  return isLocal
+    ? getConfig(configSources?.local)
+    : getConfig(configSources?.global);
 }
 
 async function handleConfigAction(
@@ -22,7 +39,7 @@ async function handleConfigAction(
 ): Promise<void> {
   const { global: isGlobal, set: bulkSetValues } = cmdOptions;
 
-  const { config } = await readAndMergeConfigs({ forceGlobal: isGlobal });
+  const config = await getSettingsConfig(!!isGlobal);
   spinner.stop();
 
   if (bulkSetValues && bulkSetValues.length > 0) {
@@ -54,7 +71,7 @@ async function handleConfigAction(
         );
       }
     });
-    spinner.succeed(logger.colors.green(t("messages.success.config_updated")));
+    spinner.succeed(logger.colors.green(t("messages.success.config_read")));
     return;
   }
 

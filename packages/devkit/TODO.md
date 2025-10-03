@@ -59,14 +59,15 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [x] Better json structure for languages translation
 - [x] **Enhance `list` Command**: Add support for **different display modes** (e.g., table or tree structure). `tree` as default
 - [x] **Enhance `list` Command**: Add options to **filter by properties** (e.g., `packageManager`, `alias`, etc.).
-- [ ] **Enhance `list` Command**: Add flag to also see default config `--with-defaults`.
+- [x] **Enhance `list` Command**: Add flag to also see default config `--include-defaults`.
+- [x] Explain the usage of `{pm}` role inside the config in the documentation.
+- [x] Add a `--settings, -s` to the `dk list` command to display the current configuration settings only
 - [ ] Add wildcard support for template name in the `dk config update` and `dk config remove` commands.
+- [ ] add short keys to get config using `dk config` like `dk config lang` for `dk config language`
 - [ ] ** Enhance for organization Purpose **: Add new language `Typescript(ts)` with same code as javascript(js), also support for nodejs(node) template name for those who prefer it than the programming language name
 - [ ] Add a configuration validation step when updating the config file to ensure all required fields are present and correctly formatted.
-- [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
-- [ ] **Skip Confirmation**: Add a global `-y`/`--yes` and `-n/--no` option to skip confirmation prompts in commands like `dk init`.
-- [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself. `dk upgrade`
 - [ ] **Testing**: Stabilize the integration test of the `new` command
+- [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
 
 #### Multi-Language Support
 
@@ -80,8 +81,11 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 
 ### Debating
 
+- [ ] **Skip Confirmation**: Add a global `-y`/`--yes` and `-n/--no` option to skip confirmation prompts in commands like `dk init`.
+- [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself. `dk upgrade`
 - [ ] **Color Configuration**: Add a feature to allow users to configure the colors for templates.
 - [ ] Use the interactive approach for the `dk config add` command (code already there)
+- [ ] Remove the `dk config list` command.
 
 ---
 

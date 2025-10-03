@@ -9,6 +9,7 @@ import { DevkitError } from "#utils/errors/base.js";
 import { findLocalesDir } from "./locales.js";
 
 export let translations: Record<string, string> = {};
+export let activeLanguage: TextLanguageValues = "en";
 
 function getSupportedLanguage(
   lang?: string | null,
@@ -29,7 +30,9 @@ export async function loadTranslations(
   const userLang = getSupportedLanguage(configLang);
   const rawSystemLocale = await osLocale();
   const systemLang = getSupportedLanguage(rawSystemLocale);
+
   const languageToLoad = userLang || systemLang || "en";
+  activeLanguage = languageToLoad as TextLanguageValues;
 
   try {
     const localesDir = await findLocalesDir();
@@ -42,6 +45,7 @@ export async function loadTranslations(
     const fallbackPath = path.join(localesDir, "en.json");
     try {
       translations = await fs.readJson(fallbackPath);
+      activeLanguage = "en";
     } catch (e) {
       throw new DevkitError(
         `Failed to load translations from both ${languageToLoad}.json and the fallback en.json`,

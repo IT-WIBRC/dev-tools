@@ -1,6 +1,5 @@
 import {
   CONFIG_FILE_NAMES,
-  type ConfigurationSource,
   type ReadConfigOptions,
 } from "#utils/schema/schema.js";
 import fs from "#utils/fs/file.js";
@@ -28,71 +27,45 @@ export async function getConfigFilepath(isGlobal = false): Promise<string> {
 }
 
 type ReadConfig = Omit<ReadConfigOptions, "useFallback">;
-export async function findConfigPaths(options: ReadConfig): Promise<{
-  primary: string | null;
-  secondary: string | null;
-  source: ConfigurationSource;
-  configFound: boolean;
+export async function getConfigPathSources(options: ReadConfig): Promise<{
+  localPath: string | null;
+  globalPath: string | null;
 }> {
-  const shouldMergeAll =
-    !!options.mergeAll || (!!options.forceGlobal && !!options.forceLocal);
-
-  let primaryPath: string | null = null;
-  let secondaryPath: string | null = null;
-  let source: ConfigurationSource = "default";
-  let configFound = false;
+  const localConfigPath = await findLocalConfigFile();
+  const globalConfigPath = await findGlobalConfigFile();
 
   const isConfigPathExist = async (path: string | null): Promise<boolean> =>
     path ? await fs.pathExists(path) : false;
 
-  if (shouldMergeAll) {
-    const localPath = await findLocalConfigFile();
-    const globalPath = await findGlobalConfigFile();
-    const hasLocal = await isConfigPathExist(localPath);
-    const hasGlobal = await isConfigPathExist(globalPath);
+  const hasLocal = await isConfigPathExist(localConfigPath);
+  const hasGlobal = await isConfigPathExist(globalConfigPath);
 
-    if (hasLocal) {
-      primaryPath = localPath;
-      configFound = true;
-      source = hasGlobal ? "merged" : "local";
-      if (hasGlobal) {
-        secondaryPath = globalPath;
-      }
-    } else if (hasGlobal) {
-      primaryPath = globalPath;
-      configFound = true;
-      source = "global";
-    }
+  let finalLocalPath: string | null = null;
+  let finalGlobalPath: string | null = null;
+
+  const shouldMergeAll = !!options.mergeAll;
+
+  if (shouldMergeAll) {
+    finalLocalPath = hasLocal ? localConfigPath : null;
+    finalGlobalPath = hasGlobal ? globalConfigPath : null;
   } else if (options.forceLocal) {
-    primaryPath = await findLocalConfigFile();
-    if (await isConfigPathExist(primaryPath)) {
-      source = "local";
-      configFound = true;
-    }
+    finalLocalPath = hasLocal ? localConfigPath : null;
+    finalGlobalPath = null;
   } else if (options.forceGlobal) {
-    primaryPath = await findGlobalConfigFile();
-    if (await isConfigPathExist(primaryPath)) {
-      source = "global";
-      configFound = true;
-    }
+    finalLocalPath = null;
+    finalGlobalPath = hasGlobal ? globalConfigPath : null;
   } else {
-    primaryPath = await findLocalConfigFile();
-    if (await isConfigPathExist(primaryPath)) {
-      source = "local";
-      configFound = true;
-    } else {
-      primaryPath = await findGlobalConfigFile();
-      if (await isConfigPathExist(primaryPath)) {
-        source = "global";
-        configFound = true;
-      }
+    if (hasLocal) {
+      finalLocalPath = localConfigPath;
+      finalGlobalPath = null;
+    } else if (hasGlobal) {
+      finalLocalPath = null;
+      finalGlobalPath = globalConfigPath;
     }
   }
 
   return {
-    primary: primaryPath,
-    secondary: secondaryPath,
-    source,
-    configFound,
+    localPath: finalLocalPath,
+    globalPath: finalGlobalPath,
   };
 }

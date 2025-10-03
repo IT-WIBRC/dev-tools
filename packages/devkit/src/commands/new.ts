@@ -4,6 +4,7 @@ import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { logger, type TSpinner } from "#utils/logger.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
+import { getMergedConfig } from "#core/config/merger.js";
 
 const getScaffolder = async (language: string) => {
   if (language === "javascript") {
@@ -16,7 +17,7 @@ const getScaffolder = async (language: string) => {
 };
 
 export function setupNewCommand(options: SetupCommandOptions) {
-  const { program, config } = options;
+  const { program } = options;
   program
     .command("new")
     .alias("nw")
@@ -44,6 +45,7 @@ export function setupNewCommand(options: SetupCommandOptions) {
       try {
         validateProgrammingLanguage(language);
 
+        const config = await getMergedConfig(true);
         const languageTemplates = config.templates[language];
         if (!languageTemplates) {
           throw new DevkitError(

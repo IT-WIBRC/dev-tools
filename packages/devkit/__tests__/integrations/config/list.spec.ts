@@ -111,54 +111,124 @@ describe("dk config list", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("Using local configuration.");
-    expect(all).toContain("JAVASCRIPT");
-    expect(all).toContain("NODE");
-    expect(all).not.toContain("PYTHON");
+    expect(all).toContain("Javascript");
+    expect(all).toContain("Node");
+    expect(all).not.toContain("Python");
   });
 
-  it("should fall back to the `default` config if no local config exists", async () => {
-    await fs.writeJson(
-      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
-      globalConfig,
-    );
+  describe("Include defaults option", () => {
+    it("should fall back to the `default` config if no local config exists and `--include-defaults` is used", async () => {
+      await fs.writeJson(
+        path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
+        globalConfig,
+      );
 
-    const { all, exitCode } = await execute(
-      "bun",
-      [CLI_PATH, "config", "list"],
-      {
-        all: true,
-        env: { HOME: globalConfigDir },
-      },
-    );
+      const { all, exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "config", "list", "--include-defaults"],
+        {
+          all: true,
+          env: { HOME: globalConfigDir },
+        },
+      );
 
-    expect(exitCode).toBe(0);
-    expect(all).toContain(
-      "No local configuration found. Using templates from global configuration.",
-    );
-    expect(all).toContain("PYTHON");
-  });
+      expect(exitCode).toBe(0);
+      expect(all).toContain("Available Templates:");
+      expect(all).toContain("remix");
+    });
 
-  it("should list templates from both local and global configurations when --all is used", async () => {
-    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
-    await fs.writeJson(
-      path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
-      globalConfig,
-    );
+    it("should fall back to the `default` config if no global config exists and `--include-defaults` is used", async () => {
+      await fs.writeJson(
+        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+        localConfig,
+      );
 
-    const { all, exitCode } = await execute(
-      "bun",
-      [CLI_PATH, "config", "list", "--all"],
-      {
-        all: true,
-        env: { HOME: globalConfigDir },
-      },
-    );
+      const { all, exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "config", "list", "--global", "--include-defaults"],
+        {
+          all: true,
+          env: { HOME: globalConfigDir },
+        },
+      );
 
-    expect(exitCode).toBe(0);
-    expect(all).toContain("Using local and global configurations.");
-    expect(all).toContain("JAVASCRIPT");
-    expect(all).toContain("NODE");
-    expect(all).toContain("PYTHON");
+      expect(exitCode).toBe(0);
+      expect(all).toContain("Available Templates:");
+      expect(all).toContain("remix");
+    });
+
+    it("should use both the `default` config and the local config if exists and `--include-defaults` is used", async () => {
+      await fs.writeJson(
+        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+        localConfig,
+      );
+
+      const { all, exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "config", "list", "--include-defaults"],
+        {
+          all: true,
+          env: { HOME: globalConfigDir },
+        },
+      );
+
+      expect(exitCode).toBe(0);
+      expect(all).toContain("Available Templates:");
+      expect(all).toContain("Javascript");
+      expect(all).toContain("remix");
+      expect(all).toContain("Node");
+      expect(all).toContain("node-api");
+    });
+
+    it("should list templates from both local and global configurations when --all is used", async () => {
+      await fs.writeJson(
+        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+        localConfig,
+      );
+      await fs.writeJson(
+        path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
+        globalConfig,
+      );
+
+      const { all, exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "config", "list", "--all"],
+        {
+          all: true,
+          env: { HOME: globalConfigDir },
+        },
+      );
+
+      expect(exitCode).toBe(0);
+      expect(all).toContain("Using local and global configurations.");
+      expect(all).toContain("Javascript");
+      expect(all).toContain("Node");
+      expect(all).toContain("Python");
+    });
+
+    it("should use both the `default` config and the global config if exists and `--include-defaults` is used", async () => {
+      await fs.writeJson(
+        path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
+        globalConfig,
+      );
+
+      const { all, exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "config", "list", "--global", "--include-defaults"],
+        {
+          all: true,
+          env: { HOME: globalConfigDir },
+        },
+      );
+
+      expect(exitCode).toBe(0);
+      expect(all).toContain("Available Templates:");
+      expect(all).toContain("Javascript");
+      expect(all).toContain("remix");
+      expect(all).toContain("Python");
+      expect(all).toContain("django");
+      expect(all).not.toContain("node-api");
+    });
   });
 
   it("should only list global config when --global is used", async () => {
@@ -179,9 +249,9 @@ describe("dk config list", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("Using global configuration.");
-    expect(all).toContain("PYTHON");
-    expect(all).not.toContain("JAVASCRIPT");
-    expect(all).not.toContain("NODE");
+    expect(all).toContain("Python");
+    expect(all).not.toContain("Javascript");
+    expect(all).not.toContain("Node");
   });
 
   it("should show an error when --global is used and no global config exists", async () => {
@@ -241,8 +311,8 @@ describe("dk config list", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("No templates found in the configuration file.");
-    expect(all).not.toContain("JAVASCRIPT");
-    expect(all).not.toContain("NODE");
-    expect(all).not.toContain("PYTHON");
+    expect(all).not.toContain("Javascript");
+    expect(all).not.toContain("Node");
+    expect(all).not.toContain("Python");
   });
 });

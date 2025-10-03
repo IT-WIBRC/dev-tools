@@ -100,7 +100,7 @@ describe("dk config", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("language: fr");
-    expect(all).toContain("Configuration mise à jour avec succès !");
+    expect(all).toContain("Paramètres de configuration récupérés avec succès.");
   });
 
   it("should get multiple settings from the local config", async () => {
@@ -114,7 +114,7 @@ describe("dk config", () => {
     expect(exitCode).toBe(0);
     expect(all).toContain("language: fr");
     expect(all).toContain("cacheStrategy: always-refresh");
-    expect(all).toContain("Configuration mise à jour avec succès !");
+    expect(all).toContain("Paramètres de configuration récupérés avec succès.");
   });
 
   it("should get a setting from the global config with --global flag", async () => {
@@ -128,7 +128,7 @@ describe("dk config", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("language: en");
-    expect(all).toContain("Configuration mise à jour avec succès !");
+    expect(all).toContain("Paramètres de configuration récupérés avec succès.");
   });
 
   it("should set a single setting in the local config", async () => {
