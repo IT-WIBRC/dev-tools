@@ -7,7 +7,7 @@ import {
 import { t } from "#utils/i18n/translator.js";
 import { DevkitError } from "#utils/errors/base.js";
 import deepmerge from "deepmerge";
-import { readAndMergeConfigs } from "#core/config/loader.js";
+import { readConfigSources } from "#core/config/loader.js";
 import { saveGlobalConfig, saveLocalConfig } from "#core/config/writer.js";
 import { validateConfigValue } from "#utils/validations/validateConfigValue.js";
 import { configAliases } from "#utils/validations/configAliases.js";
@@ -33,18 +33,30 @@ async function saveConfig(
   }
 }
 
+async function getTargetConfig(isGlobal: boolean): Promise<CliConfig> {
+  const sources = await readConfigSources({
+    forceGlobal: isGlobal,
+    forceLocal: !isGlobal,
+  });
+
+  const targetConfig = isGlobal ? sources.global : sources.local;
+
+  if (!targetConfig) {
+    if (!isGlobal) {
+      throw new DevkitError(t("errors.config.local_not_found"));
+    }
+    throw new DevkitError(t("errors.config.not_found"));
+  }
+
+  return targetConfig;
+}
+
 export async function handleNonInteractiveSettingsUpdate(
   key: string,
   value: string,
   isGlobal: boolean,
 ): Promise<void> {
-  const { config, source } = await readAndMergeConfigs({
-    forceGlobal: isGlobal,
-  });
-
-  if (source === "default" && !isGlobal) {
-    throw new DevkitError(t("errors.config.local_not_found"));
-  }
+  const config = await getTargetConfig(isGlobal);
 
   const canonicalKey = (
     configAliases as Record<string, keyof CliConfig["settings"]>
@@ -70,22 +82,18 @@ export async function handleNonInteractiveTemplateUpdate(
   },
   isGlobal: boolean,
 ): Promise<void> {
-  const { config, source } = await readAndMergeConfigs({
-    forceGlobal: isGlobal,
-  });
-
-  if (source === "default" && !isGlobal) {
-    throw new DevkitError(t("errors.config.local_not_found"));
-  }
+  const config = await getTargetConfig(isGlobal);
 
   validateProgrammingLanguage(language);
 
-  const languageTemplates = config.templates[language];
-  if (!languageTemplates) {
-    throw new DevkitError(
-      t("errors.template.language_not_found", { language }),
-    );
+  if (!config.templates) {
+    config.templates = {};
   }
+  if (!config.templates[language]) {
+    config.templates[language] = { templates: {} };
+  }
+
+  const languageTemplates = config.templates[language];
 
   const templateKey = Object.keys(languageTemplates.templates).find(
     (key) =>

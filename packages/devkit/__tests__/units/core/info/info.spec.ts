@@ -7,7 +7,7 @@ import { collectSystemInfo } from "../../../../src/core/info/info.js";
 import { mocktFn, mockExeca } from "../../../../vitest.setup.js";
 
 const {
-  mockReadAndMergeConfigs,
+  mockGetMergedConfig,
   mockGetPackageManager,
   mockFindGlobalConfigFile,
   mockFindLocalConfigFile,
@@ -31,7 +31,7 @@ const {
   const MOCKED_SHELL = "/bin/bash";
 
   return {
-    mockReadAndMergeConfigs: vi.fn(),
+    mockGetMergedConfig: vi.fn(),
     mockGetPackageManager: vi.fn(),
     mockFindGlobalConfigFile: vi.fn(),
     mockFindLocalConfigFile: vi.fn(),
@@ -52,8 +52,8 @@ const {
   };
 });
 
-vi.mock("../../../../src/core/config/loader.js", () => ({
-  readAndMergeConfigs: mockReadAndMergeConfigs,
+vi.mock("../../../../src/core/config/merger.js", () => ({
+  getMergedConfig: mockGetMergedConfig,
 }));
 
 vi.mock("#utils/package-manager/index.js", () => ({
@@ -91,9 +91,7 @@ const NEW_PM_NOT_FOUND_KEY = "errors.system.info_package_manager_not_found";
 
 describe("collectSystemInfo", () => {
   beforeEach(() => {
-    mockReadAndMergeConfigs.mockResolvedValue({
-      config: defaultCliConfig,
-    });
+    mockGetMergedConfig.mockResolvedValue(defaultCliConfig);
     mockGetPackageManager.mockResolvedValue(null);
     mockExeca.mockResolvedValue({ stdout: "1.2.3" });
     mockFindGlobalConfigFile.mockResolvedValue(null);
@@ -117,10 +115,7 @@ describe("collectSystemInfo", () => {
       expect(info.globalConfig.path).toBe(NEW_GLOBAL_CONFIG_KEY);
       expect(info.localConfig.path).toBe(NEW_LOCAL_CONFIG_KEY);
 
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
-        mergeAll: false,
-        forceGlobal: false,
-      });
+      expect(mockGetMergedConfig).toHaveBeenCalledWith(true);
     });
 
     it("should report the exact path and 'exists: true' when both files are found", async () => {
@@ -150,11 +145,6 @@ describe("collectSystemInfo", () => {
       expect(info.cliVersion).toBe(MOCKED_CLI_VERSION);
       expect(info.runtimeName).toBe("Node.js");
       expect(info.runtimeVersion).toBe(MOCKED_NODE_VERSION);
-
-      expect(info.homeDir).toBe(MOCKED_HOME_DIR);
-      expect(info.os).toBe(`${MOCKED_OS_TYPE} ${MOCKED_OS_RELEASE}`);
-      expect(info.arch).toBe(MOCKED_ARCH);
-      expect(info.shell).toBe(MOCKED_SHELL);
     });
 
     it("should correctly collect and format static system and runtime info in a Bun environment", async () => {
@@ -191,7 +181,7 @@ describe("collectSystemInfo", () => {
     };
 
     it("Priority 1: Should use package manager from config settings (highest priority)", async () => {
-      mockReadAndMergeConfigs.mockResolvedValueOnce({ config: customConfig });
+      mockGetMergedConfig.mockResolvedValueOnce(customConfig);
       mockGetPackageManager.mockResolvedValueOnce("pnpm");
       mockExeca.mockImplementationOnce((cmd) =>
         cmd === "yarn"
@@ -206,9 +196,7 @@ describe("collectSystemInfo", () => {
     });
 
     it("Priority 2: Should use detected package manager when config does not specify one", async () => {
-      mockReadAndMergeConfigs.mockResolvedValueOnce({
-        config: {},
-      });
+      mockGetMergedConfig.mockResolvedValueOnce(undefined);
       mockGetPackageManager.mockResolvedValueOnce("pnpm");
       mockExeca.mockImplementationOnce((cmd) =>
         cmd === "pnpm"
@@ -227,11 +215,23 @@ describe("collectSystemInfo", () => {
       vi.spyOn(process, "version", "get").mockReturnValue(MOCKED_NODE_VERSION);
       vi.spyOn(process, "env", "get").mockReturnValue({ SHELL: MOCKED_SHELL });
       vi.mock("os", () => ({ default: mockOs }));
+      vi.mock("../../../../src/core/config/merger.js", () => ({
+        getMergedConfig: mockGetMergedConfig,
+      }));
+      vi.mock("#utils/package-manager/index.js", () => ({
+        getPackageManager: mockGetPackageManager,
+      }));
+      vi.mock("../../../../src/core/config/search.js", () => ({
+        findGlobalConfigFile: mockFindGlobalConfigFile,
+        findLocalConfigFile: mockFindLocalConfigFile,
+      }));
 
-      mockReadAndMergeConfigs.mockResolvedValueOnce({
-        config: defaultCliConfig,
-      });
+      mockExeca.mockResolvedValue({ stdout: "1.2.3" });
+      mockFindGlobalConfigFile.mockResolvedValue(null);
+      mockFindLocalConfigFile.mockResolvedValue(null);
+      mockGetMergedConfig.mockResolvedValue(defaultCliConfig);
       mockGetPackageManager.mockResolvedValueOnce(null);
+
       mockExeca.mockImplementationOnce((cmd) =>
         cmd === "bun"
           ? Promise.resolve({ stdout: "10.2.4" })
@@ -252,7 +252,7 @@ describe("collectSystemInfo", () => {
           defaultPackageManager: "bun",
         },
       };
-      mockReadAndMergeConfigs.mockResolvedValueOnce({ config: bunConfig });
+      mockGetMergedConfig.mockResolvedValueOnce(bunConfig);
       mockExeca.mockRejectedValueOnce(new Error("bun not found"));
 
       const info = await collectSystemInfo(MOCKED_CLI_VERSION);

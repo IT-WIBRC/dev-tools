@@ -1,16 +1,20 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { setupAddCommand } from "../../../../src/commands/config/add.js";
-import { mockSpinner, mocktFn } from "../../../../vitest.setup.js";
+import { mockLogger, mockSpinner, mocktFn } from "../../../../vitest.setup.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
+import type {
+  CliConfig,
+  TextLanguageValues,
+} from "../../../../src/utils/schema/schema.js";
 
 const {
   mockHandleErrorAndExit,
-  mockReadAndMergeConfigs,
+  mockReadConfigSources,
   mockValidateAndSaveTemplate,
   mockValidateProgrammingLanguage,
 } = vi.hoisted(() => ({
   mockHandleErrorAndExit: vi.fn(),
-  mockReadAndMergeConfigs: vi.fn(),
+  mockReadConfigSources: vi.fn(),
   mockValidateAndSaveTemplate: vi.fn(),
   mockValidateProgrammingLanguage: vi.fn(),
 }));
@@ -22,7 +26,7 @@ vi.mock("#utils/errors/handler.js", () => ({
 }));
 
 vi.mock("#core/config/loader.js", () => ({
-  readAndMergeConfigs: mockReadAndMergeConfigs,
+  readConfigSources: mockReadConfigSources,
 }));
 
 vi.mock("#utils/validations/config.js", () => ({
@@ -33,16 +37,36 @@ vi.mock("../../../../src/commands/config/validate-and-save.js", () => ({
   validateAndSaveTemplate: mockValidateAndSaveTemplate,
 }));
 
+const MOCK_DEFAULT_CONFIG: CliConfig = {
+  settings: {
+    language: "en",
+    cacheStrategy: "daily",
+    defaultPackageManager: "npm",
+  },
+  templates: {},
+};
+const MOCK_LOCAL_CONFIG: CliConfig = {
+  settings: {
+    language: "fr",
+    cacheStrategy: "never-refresh",
+    defaultPackageManager: "pnpm",
+  },
+  templates: {},
+};
+const MOCK_GLOBAL_CONFIG: CliConfig = {
+  settings: {
+    language: "es" as TextLanguageValues,
+    cacheStrategy: "always-refresh",
+    defaultPackageManager: "yarn",
+  },
+  templates: {},
+};
+
 describe("setupAddCommand", () => {
   let mockConfigCommand: any;
 
-  const ADD_DESC_KEY = "commands.template.add.description";
-  const DESC_OPT_KEY = "commands.template.add.options.description";
-  const LOC_OPT_KEY = "commands.template.add.prompts.location";
-  const ALIAS_OPT_KEY = "commands.template.add.options.alias";
-  const CACHE_OPT_KEY = "commands.template.add.options.cache";
-  const PM_OPT_KEY = "commands.template.add.options.package_manager";
   const MISSING_REQUIRED_KEY = "errors.command.missing_required_options";
+  const TEMPLATE_ADDING_KEY = "messages.status.template_adding";
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -57,6 +81,13 @@ describe("setupAddCommand", () => {
         return mockConfigCommand;
       }),
     };
+    mockReadConfigSources.mockResolvedValue({
+      local: MOCK_LOCAL_CONFIG,
+      global: MOCK_GLOBAL_CONFIG,
+      default: MOCK_DEFAULT_CONFIG,
+      configFound: true,
+    });
+    mockValidateProgrammingLanguage.mockReturnValue(true);
   });
 
   it("should set up the add command with correct options and arguments", () => {
@@ -64,89 +95,140 @@ describe("setupAddCommand", () => {
     expect(mockConfigCommand.command).toHaveBeenCalledWith(
       "add <language> <templateName>",
     );
-
     expect(mockConfigCommand.alias).toHaveBeenCalledWith("a");
-    expect(mockConfigCommand.description).toHaveBeenCalledWith(
-      mocktFn(ADD_DESC_KEY),
-    );
-    expect(mockConfigCommand.option).toHaveBeenCalledWith(
-      "-d, --description <string>",
-      mocktFn(DESC_OPT_KEY),
-      "",
-    );
-    expect(mockConfigCommand.option).toHaveBeenCalledWith(
-      "-o, --location <string>",
-      mocktFn(LOC_OPT_KEY),
-      "",
-    );
-    expect(mockConfigCommand.option).toHaveBeenCalledWith(
-      "-a, --alias <string>",
-      mocktFn(ALIAS_OPT_KEY),
-      "",
-    );
-
-    expect(mockConfigCommand.option).toHaveBeenCalledWith(
-      "-c, --cache-strategy <string>",
-      mocktFn(CACHE_OPT_KEY),
-      "",
-    );
-
-    expect(mockConfigCommand.option).toHaveBeenCalledWith(
-      "-p, --package-manager <string>",
-      mocktFn(PM_OPT_KEY),
-      "",
-    );
   });
 
-  describe("action handler", () => {
+  describe("action handler (Targeting Logic)", () => {
     const defaultCmdOptions = {
       description: "A simple template",
       location: "http://example.com/template",
       alias: "st",
       cacheStrategy: "network_only",
       packageManager: "npm",
-      global: false,
     };
 
-    it("should process and save a new template with all options", async () => {
-      const mockConfig = { settings: {}, templates: {} };
-      mockReadAndMergeConfigs.mockResolvedValueOnce({
-        config: mockConfig,
-        source: "local",
-      });
-      mockValidateProgrammingLanguage.mockReturnValueOnce(true);
+    const mockParentCommand = {
+      parent: {
+        opts: vi.fn(() => ({ global: false })),
+      },
+    };
 
+    it("should process and save a new template targeting the LOCAL config by default", async () => {
       setupAddCommand(mockConfigCommand);
-      await actionFn("typescript", "my-template", defaultCmdOptions);
-
-      expect(mockSpinner.start).toHaveBeenCalledOnce();
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
-        forceGlobal: false,
-      });
-      expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
+      await actionFn(
         "typescript",
+        "my-template",
+        defaultCmdOptions,
+        mockParentCommand,
       );
+
+      expect(mockSpinner.start).toHaveBeenCalled();
+      expect(mockLogger.spinner).toHaveBeenCalled();
+      expect(mockLogger.spinner).toHaveBeenCalledWith(
+        expect.stringContaining(
+          mocktFn(TEMPLATE_ADDING_KEY, { templateName: "my-template" }),
+        ),
+      );
+
+      expect(mockReadConfigSources).toHaveBeenCalledWith({
+        forceGlobal: false,
+        forceLocal: true,
+      });
+
       expect(mockValidateAndSaveTemplate).toHaveBeenCalledWith(
-        {
-          language: "typescript",
-          templateName: "my-template",
-          description: defaultCmdOptions.description,
-          location: defaultCmdOptions.location,
-          alias: defaultCmdOptions.alias,
-          cacheStrategy: defaultCmdOptions.cacheStrategy,
-          packageManager: defaultCmdOptions.packageManager,
-        },
-        mockConfig,
+        expect.objectContaining({ language: "typescript" }),
+        MOCK_LOCAL_CONFIG,
         false,
         mockSpinner,
       );
     });
 
-    it("should throw DevkitError if description is missing", async () => {
+    it("should target the GLOBAL config when the parent command's `--global` flag is set", async () => {
+      setupAddCommand(mockConfigCommand);
+      mockParentCommand.parent.opts.mockReturnValue({ global: true });
+
+      await actionFn(
+        "python",
+        "django-app",
+        defaultCmdOptions,
+        mockParentCommand as any,
+      );
+
+      expect(mockReadConfigSources).toHaveBeenCalledWith({
+        forceGlobal: true,
+        forceLocal: false,
+      });
+
+      expect(mockValidateAndSaveTemplate).toHaveBeenCalledWith(
+        expect.objectContaining({ language: "python" }),
+        MOCK_GLOBAL_CONFIG,
+        true,
+        mockSpinner,
+      );
+    });
+
+    it("should fallback to DEFAULT config if LOCAL is null and not global mode", async () => {
+      mockReadConfigSources.mockResolvedValue({
+        local: null,
+        global: MOCK_GLOBAL_CONFIG,
+        default: MOCK_DEFAULT_CONFIG,
+        configFound: false,
+      });
+
+      setupAddCommand(mockConfigCommand);
+      mockParentCommand.parent.opts.mockReturnValue({ global: false });
+
+      await actionFn(
+        "javascript",
+        "js-app",
+        defaultCmdOptions,
+        mockParentCommand as any,
+      );
+
+      expect(mockValidateAndSaveTemplate).toHaveBeenCalledWith(
+        expect.any(Object),
+        MOCK_DEFAULT_CONFIG,
+        false,
+        mockSpinner,
+      );
+    });
+
+    it("should fallback to DEFAULT config if GLOBAL is null and in global mode", async () => {
+      mockReadConfigSources.mockResolvedValue({
+        local: MOCK_LOCAL_CONFIG,
+        global: null,
+        default: MOCK_DEFAULT_CONFIG,
+        configFound: false,
+      });
+
+      setupAddCommand(mockConfigCommand);
+      mockParentCommand.parent.opts.mockReturnValue({ global: true });
+
+      await actionFn(
+        "javascript",
+        "js-app",
+        defaultCmdOptions,
+        mockParentCommand as any,
+      );
+
+      expect(mockValidateAndSaveTemplate).toHaveBeenCalledWith(
+        expect.any(Object),
+        MOCK_DEFAULT_CONFIG,
+        true,
+        mockSpinner,
+      );
+    });
+
+    it("should throw DevkitError if description is missing (required field validation)", async () => {
       setupAddCommand(mockConfigCommand);
       const cmdOptions = { ...defaultCmdOptions, description: "" };
 
-      await actionFn("typescript", "my-template", cmdOptions);
+      await actionFn(
+        "typescript",
+        "my-template",
+        cmdOptions,
+        mockParentCommand as any,
+      );
 
       expect(mockHandleErrorAndExit).toHaveBeenCalledOnce();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
@@ -157,13 +239,19 @@ describe("setupAddCommand", () => {
         ),
         mockSpinner,
       );
+      expect(mockReadConfigSources).not.toHaveBeenCalled();
     });
 
-    it("should throw DevkitError if location is missing", async () => {
+    it("should throw DevkitError if location is missing (required field validation)", async () => {
       setupAddCommand(mockConfigCommand);
       const cmdOptions = { ...defaultCmdOptions, location: "" };
 
-      await actionFn("typescript", "my-template", cmdOptions);
+      await actionFn(
+        "typescript",
+        "my-template",
+        cmdOptions,
+        mockParentCommand as any,
+      );
 
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         new DevkitError(
@@ -173,42 +261,10 @@ describe("setupAddCommand", () => {
         ),
         mockSpinner,
       );
+      expect(mockReadConfigSources).not.toHaveBeenCalled();
     });
 
-    it("should handle `global` flag correctly", async () => {
-      const mockConfig = { settings: {}, templates: {} };
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: mockConfig,
-        source: "global",
-      });
-      mockValidateProgrammingLanguage.mockReturnValue(true);
-
-      setupAddCommand(mockConfigCommand);
-      await actionFn(
-        "python",
-        "django-app",
-        {
-          ...defaultCmdOptions,
-        },
-        {
-          parent: {
-            opts: vi.fn(() => ({ global: true })),
-          },
-        },
-      );
-
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
-        forceGlobal: true,
-      });
-      expect(mockValidateAndSaveTemplate).toHaveBeenCalledWith(
-        expect.any(Object),
-        mockConfig,
-        true,
-        mockSpinner,
-      );
-    });
-
-    it("should handle an invalid language gracefully", async () => {
+    it("should handle an invalid language gracefully (pre-config load)", async () => {
       const mockError = new DevkitError(
         "error.language_config_not_found - keys: language, values: invalid-lang",
       );
@@ -217,9 +273,14 @@ describe("setupAddCommand", () => {
       });
 
       setupAddCommand(mockConfigCommand);
-      await actionFn("invalid-lang", "my-template", defaultCmdOptions);
+      await actionFn(
+        "invalid-lang",
+        "my-template",
+        defaultCmdOptions,
+        mockParentCommand as any,
+      );
 
-      expect(mockReadAndMergeConfigs).not.toHaveBeenCalled();
+      expect(mockReadConfigSources).not.toHaveBeenCalled();
 
       expect(mockHandleErrorAndExit).toHaveBeenCalledOnce();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
@@ -230,10 +291,15 @@ describe("setupAddCommand", () => {
 
     it("should handle unexpected errors gracefully", async () => {
       const mockError = new Error("Unexpected error");
-      mockReadAndMergeConfigs.mockRejectedValue(mockError);
+      mockReadConfigSources.mockRejectedValue(mockError);
 
       setupAddCommand(mockConfigCommand);
-      await actionFn("typescript", "my-template", defaultCmdOptions);
+      await actionFn(
+        "typescript",
+        "my-template",
+        defaultCmdOptions,
+        mockParentCommand as any,
+      );
 
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
         mockError,

@@ -27,8 +27,12 @@ const {
     start: vi.fn(() => {
       return mockSpinner;
     }),
-    succeed: vi.fn(),
-    warn: vi.fn(),
+    succeed: vi.fn(() => {
+      return mockSpinner;
+    }),
+    warn: vi.fn(() => {
+      return mockSpinner;
+    }),
     info: vi.fn(() => {
       return mockSpinner;
     }),

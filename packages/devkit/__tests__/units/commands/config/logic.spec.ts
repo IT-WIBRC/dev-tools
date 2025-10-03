@@ -6,9 +6,10 @@ import {
 import { VALID_CACHE_STRATEGIES } from "../../../../src/utils/schema/schema.js";
 import { DevkitError } from "../../../../src/utils/errors/base.js";
 import { mocktFn } from "../../../../vitest.setup.js";
+import type { CliConfig } from "../../../../src/utils/schema/schema.js";
 
 const {
-  mockReadAndMergeConfigs,
+  mockReadConfigSources,
   mockSaveGlobalConfig,
   mockSaveLocalConfig,
   mockValidateConfigValue,
@@ -19,7 +20,7 @@ const {
   mockValidateCacheStrategy,
   mockValidateProgrammingLanguage,
 } = vi.hoisted(() => ({
-  mockReadAndMergeConfigs: vi.fn(),
+  mockReadConfigSources: vi.fn(),
   mockSaveGlobalConfig: vi.fn(),
   mockSaveLocalConfig: vi.fn(),
   mockValidateConfigValue: vi.fn(),
@@ -32,7 +33,7 @@ const {
 }));
 
 vi.mock("#core/config/loader.js", () => ({
-  readAndMergeConfigs: mockReadAndMergeConfigs,
+  readConfigSources: mockReadConfigSources,
 }));
 
 vi.mock("#core/config/writer.js", () => ({
@@ -60,31 +61,45 @@ vi.mock("deepmerge", () => ({
   default: vi.fn((target, source) => ({ ...target, ...source })),
 }));
 
-describe("Non-interactive Config Logic", () => {
-  const baseConfig = {
-    settings: {
-      language: "en",
-      defaultPackageManager: "npm",
-    },
-    templates: {
-      typescript: {
-        templates: {
-          web: {
-            description: "A web template",
-            location: "https://example.com/web",
-            alias: "w",
-            cacheStrategy: "network_only",
-            packageManager: "npm",
-          },
-          cli: {
-            description: "A CLI template",
-            location: "https://example.com/cli",
-          },
+const baseConfig: CliConfig = {
+  settings: {
+    language: "en",
+    defaultPackageManager: "npm",
+    cacheStrategy: "daily",
+  },
+  templates: {
+    typescript: {
+      templates: {
+        web: {
+          description: "A web template",
+          location: "https://example.com/web",
+          alias: "w",
+          cacheStrategy: "always-refresh",
+          packageManager: "npm",
+        },
+        cli: {
+          description: "A CLI template",
+          location: "https://example.com/cli",
         },
       },
     },
-  };
+  },
+} as const;
 
+const createMockSources = (
+  targetType: "local" | "global" | "default",
+): ReturnType<typeof mockReadConfigSources> => {
+  const local = targetType === "local" ? structuredClone(baseConfig) : null;
+  const global = targetType === "global" ? structuredClone(baseConfig) : null;
+  return Promise.resolve({
+    local,
+    global,
+    default: structuredClone(baseConfig),
+    configFound: targetType !== "default",
+  });
+};
+
+describe("Non-interactive Config Logic", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockValidateAlias.mockReturnValue(undefined);
@@ -96,17 +111,16 @@ describe("Non-interactive Config Logic", () => {
 
   describe("handleNonInteractiveSettingsUpdate", () => {
     it("should update a global setting successfully", async () => {
-      mockReadAndMergeConfigs.mockResolvedValueOnce({
-        config: structuredClone(baseConfig),
-        source: "global",
-      });
+      mockReadConfigSources.mockImplementation(() =>
+        createMockSources("global"),
+      );
       mockSaveGlobalConfig.mockResolvedValueOnce(undefined);
 
       await handleNonInteractiveSettingsUpdate("language", "fr", true);
 
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledOnce();
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
+      expect(mockReadConfigSources).toHaveBeenCalledWith({
         forceGlobal: true,
+        forceLocal: false,
       });
 
       expect(mockValidateConfigValue).toHaveBeenCalledOnce();
@@ -118,17 +132,16 @@ describe("Non-interactive Config Logic", () => {
     });
 
     it("should update a local setting successfully", async () => {
-      mockReadAndMergeConfigs.mockResolvedValueOnce({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
+      mockReadConfigSources.mockImplementation(() =>
+        createMockSources("local"),
+      );
       mockSaveLocalConfig.mockResolvedValueOnce(undefined);
 
       await handleNonInteractiveSettingsUpdate("language", "fr", false);
 
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledOnce();
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
+      expect(mockReadConfigSources).toHaveBeenCalledWith({
         forceGlobal: false,
+        forceLocal: true,
       });
 
       expect(mockValidateConfigValue).toHaveBeenCalledOnce();
@@ -139,10 +152,12 @@ describe("Non-interactive Config Logic", () => {
       expect(updatedConfig.settings.language).toBe("fr");
     });
 
-    it("should throw an error if local config is not found", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "default",
+    it("should throw an error if local config is not found (isGlobal=false)", async () => {
+      mockReadConfigSources.mockResolvedValue({
+        local: null,
+        global: structuredClone(baseConfig),
+        default: structuredClone(baseConfig),
+        configFound: true,
       });
 
       await expect(
@@ -151,19 +166,36 @@ describe("Non-interactive Config Logic", () => {
         new DevkitError(mocktFn("errors.config.local_not_found")),
       );
 
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledOnce();
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
+      expect(mockReadConfigSources).toHaveBeenCalledWith({
         forceGlobal: false,
+        forceLocal: true,
+      });
+      expect(mockValidateConfigValue).not.toHaveBeenCalledOnce();
+    });
+
+    it("should throw an error if global config is not found (isGlobal=true)", async () => {
+      mockReadConfigSources.mockResolvedValue({
+        local: structuredClone(baseConfig),
+        global: null,
+        default: structuredClone(baseConfig),
+        configFound: true,
       });
 
+      await expect(
+        handleNonInteractiveSettingsUpdate("language", "fr", true),
+      ).rejects.toThrow(new DevkitError(mocktFn("errors.config.not_found")));
+
+      expect(mockReadConfigSources).toHaveBeenCalledWith({
+        forceGlobal: true,
+        forceLocal: false,
+      });
       expect(mockValidateConfigValue).not.toHaveBeenCalledOnce();
     });
 
     it("should use the canonical key for an alias", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
+      mockReadConfigSources.mockImplementation(() =>
+        createMockSources("local"),
+      );
       mockSaveLocalConfig.mockResolvedValue(undefined);
 
       await handleNonInteractiveSettingsUpdate("packageManager", "bun", false);
@@ -171,6 +203,7 @@ describe("Non-interactive Config Logic", () => {
       expect(mockSaveLocalConfig).toHaveBeenCalledOnce();
       const updatedConfig = mockSaveLocalConfig.mock.calls[0]![0];
       expect(updatedConfig.settings.defaultPackageManager).toBe("bun");
+
       expect(mockValidateConfigValue).toHaveBeenCalledWith(
         "defaultPackageManager",
         "bun",
@@ -179,12 +212,14 @@ describe("Non-interactive Config Logic", () => {
   });
 
   describe("handleNonInteractiveTemplateUpdate", () => {
-    it("should update a single template property successfully (calls validation)", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
+    beforeEach(() => {
+      mockReadConfigSources.mockImplementation(() =>
+        createMockSources("local"),
+      );
+      mockSaveLocalConfig.mockResolvedValue(undefined);
+    });
 
+    it("should update a single template property successfully (calls validation)", async () => {
       await handleNonInteractiveTemplateUpdate(
         "typescript",
         "web",
@@ -201,12 +236,22 @@ describe("Non-interactive Config Logic", () => {
       );
     });
 
-    it("should delete a template property if value is 'null' (alias)", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
+    it("should update a template property by alias name successfully", async () => {
+      await handleNonInteractiveTemplateUpdate(
+        "typescript",
+        "w",
+        { description: "Updated via alias" },
+        false,
+      );
 
+      expect(mockSaveLocalConfig).toHaveBeenCalled();
+      const updatedConfig = mockSaveLocalConfig.mock.calls[0]![0];
+      expect(updatedConfig.templates.typescript.templates.web.description).toBe(
+        "Updated via alias",
+      );
+    });
+
+    it("should delete a template property if value is 'null' (alias)", async () => {
       await handleNonInteractiveTemplateUpdate(
         "typescript",
         "web",
@@ -223,13 +268,24 @@ describe("Non-interactive Config Logic", () => {
       ).toBeUndefined();
     });
 
-    it("should rename a template successfully", async () => {
-      const initialConfig = structuredClone(baseConfig);
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: initialConfig,
-        source: "local",
-      });
+    it("should delete a template property if value is 'null' (cacheStrategy)", async () => {
+      await handleNonInteractiveTemplateUpdate(
+        "typescript",
+        "web",
+        { cacheStrategy: "null" },
+        false,
+      );
 
+      expect(mockValidateCacheStrategy).not.toHaveBeenCalled();
+
+      expect(mockSaveLocalConfig).toHaveBeenCalled();
+      const updatedConfig = mockSaveLocalConfig.mock.calls[0]![0];
+      expect(
+        updatedConfig.templates.typescript.templates.web.cacheStrategy,
+      ).toBeUndefined();
+    });
+
+    it("should rename a template successfully", async () => {
       await handleNonInteractiveTemplateUpdate(
         "typescript",
         "web",
@@ -246,15 +302,16 @@ describe("Non-interactive Config Logic", () => {
     });
 
     it("should throw an error if local config is not found", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "default",
+      mockReadConfigSources.mockResolvedValue({
+        local: null,
+        global: structuredClone(baseConfig),
+        default: structuredClone(baseConfig),
+        configFound: true,
       });
-      mockValidateProgrammingLanguage.mockReturnValueOnce(undefined);
 
       await expect(
         handleNonInteractiveTemplateUpdate(
-          "javascript",
+          "typescript",
           "web",
           { newName: "new-name" },
           false,
@@ -263,23 +320,45 @@ describe("Non-interactive Config Logic", () => {
         new DevkitError(mocktFn("errors.config.local_not_found")),
       );
 
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledOnce();
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
+      expect(mockReadConfigSources).toHaveBeenCalledWith({
         forceGlobal: false,
+        forceLocal: true,
       });
 
       expect(mockValidateConfigValue).not.toHaveBeenCalledOnce();
     });
 
-    it("should throw an error if there is no template inside fro this programming language", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: {
-          ...structuredClone(baseConfig),
-          templates: {},
-        },
-        source: "local",
+    it("should throw an error if global config is not found (isGlobal=true)", async () => {
+      mockReadConfigSources.mockResolvedValue({
+        local: structuredClone(baseConfig),
+        global: null,
+        default: structuredClone(baseConfig),
+        configFound: true,
       });
-      mockValidateProgrammingLanguage.mockReturnValueOnce(undefined);
+
+      await expect(
+        handleNonInteractiveTemplateUpdate(
+          "typescript",
+          "web",
+          { newName: "new-name" },
+          true,
+        ),
+      ).rejects.toThrow(new DevkitError(mocktFn("errors.config.not_found")));
+
+      expect(mockReadConfigSources).toHaveBeenCalledWith({
+        forceGlobal: true,
+        forceLocal: false,
+      });
+      expect(mockValidateConfigValue).not.toHaveBeenCalledOnce();
+    });
+
+    it("should throw an error if the programming language is not found in templates (but exists in config)", async () => {
+      mockReadConfigSources.mockResolvedValue({
+        local: { ...structuredClone(baseConfig), templates: {} },
+        global: null,
+        default: structuredClone(baseConfig),
+        configFound: true,
+      });
 
       await expect(
         handleNonInteractiveTemplateUpdate(
@@ -290,26 +369,12 @@ describe("Non-interactive Config Logic", () => {
         ),
       ).rejects.toThrow(
         new DevkitError(
-          mocktFn("errors.template.language_not_found", {
-            language: "javascript",
-          }),
+          mocktFn("errors.template.not_found", { template: "web" }),
         ),
       );
-
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledOnce();
-      expect(mockReadAndMergeConfigs).toHaveBeenCalledWith({
-        forceGlobal: false,
-      });
-
-      expect(mockValidateConfigValue).not.toHaveBeenCalledOnce();
     });
 
-    it("should throw an error for an invalid template name", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
-
+    it("should throw an error for an invalid template name (template not found)", async () => {
       await expect(
         handleNonInteractiveTemplateUpdate("typescript", "unknown", {}, false),
       ).rejects.toThrow(
@@ -320,11 +385,6 @@ describe("Non-interactive Config Logic", () => {
     });
 
     it("should throw an error for an invalid cache strategy value", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
-
       const cacheStrategyError = new DevkitError(
         mocktFn("errors.validation.invalid_cache_strategy", {
           value: "invalid_strategy",
@@ -349,14 +409,9 @@ describe("Non-interactive Config Logic", () => {
     });
 
     it("should throw an error for an invalid location value", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
-
       const locationError = new DevkitError(
         mocktFn("errors.validation.invalid_location", {
-          value: "location",
+          value: "invalid_url",
         }),
       );
       mockValidateLocation.mockImplementationOnce(() => {
@@ -367,23 +422,14 @@ describe("Non-interactive Config Logic", () => {
         handleNonInteractiveTemplateUpdate(
           "typescript",
           "web",
-          {
-            description: "A great description",
-            cacheStrategy: "daily" as "null",
-            location: "location",
-          },
+          { location: "invalid_url" },
           false,
         ),
       ).rejects.toThrow(locationError);
-      expect(mockValidateLocation).toHaveBeenCalledWith("location");
+      expect(mockValidateLocation).toHaveBeenCalledWith("invalid_url");
     });
 
     it("should throw an error for an invalid alias value", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
-
       const aliasError = new DevkitError(
         mocktFn("errors.validation.invalid_alias", {
           alias: "a",
@@ -397,12 +443,7 @@ describe("Non-interactive Config Logic", () => {
         handleNonInteractiveTemplateUpdate(
           "typescript",
           "web",
-          {
-            description: "A great description",
-            cacheStrategy: "daily" as "null",
-            location: "location",
-            alias: "a",
-          },
+          { alias: "a" },
           false,
         ),
       ).rejects.toThrow(aliasError);
@@ -410,11 +451,6 @@ describe("Non-interactive Config Logic", () => {
     });
 
     it("should throw an error for an invalid 'packageManager' value", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
-
       const pmError = new DevkitError(
         mocktFn("errors.validation.invalid_pm", {
           packageManager: "pm",
@@ -428,13 +464,7 @@ describe("Non-interactive Config Logic", () => {
         handleNonInteractiveTemplateUpdate(
           "typescript",
           "web",
-          {
-            description: "A great description",
-            cacheStrategy: "daily" as "null",
-            location: "location",
-            alias: "a",
-            packageManager: "pm",
-          },
+          { packageManager: "pm" },
           false,
         ),
       ).rejects.toThrow(pmError);
@@ -442,11 +472,6 @@ describe("Non-interactive Config Logic", () => {
     });
 
     it("should throw an error if the new name already exists", async () => {
-      mockReadAndMergeConfigs.mockResolvedValue({
-        config: structuredClone(baseConfig),
-        source: "local",
-      });
-
       await expect(
         handleNonInteractiveTemplateUpdate(
           "typescript",

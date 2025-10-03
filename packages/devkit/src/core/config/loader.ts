@@ -1,23 +1,24 @@
-import deepmerge from "deepmerge";
-import fs from "#utils/fs/file.js";
 import {
   type CliConfig,
   defaultCliConfig,
-  type ConfigurationSource,
   type ReadConfigOptions,
 } from "#utils/schema/schema.js";
-import { findConfigPaths } from "./finder.js";
+import fs from "#utils/fs/file.js";
+import { getConfigPathSources } from "./finder.js";
 
-async function readAndMergeSingleConfig(
-  currentConfig: CliConfig,
-  path: string,
-): Promise<CliConfig> {
+export type ConfigurationSources = {
+  default: CliConfig;
+  global: CliConfig | null;
+  local: CliConfig | null;
+  configFound: boolean;
+};
+
+async function readSingleConfig(
+  path: string | null,
+): Promise<CliConfig | null> {
   if (path && (await fs.pathExists(path))) {
     try {
-      const foundConfig = await fs.readJson(path);
-      return deepmerge(currentConfig, foundConfig, {
-        arrayMerge: (_, sourceArray) => sourceArray,
-      });
+      return (await fs.readJson(path)) as CliConfig;
     } catch (e: unknown) {
       console.error(
         `Warning: Failed to parse configuration file at "${path}". The file may be invalid.`,
@@ -25,33 +26,25 @@ async function readAndMergeSingleConfig(
       );
     }
   }
-  return currentConfig;
+  return null;
 }
 
-export async function readAndMergeConfigs(
+export async function readConfigSources(
   options: ReadConfigOptions = {},
-): Promise<{ config: CliConfig; source: ConfigurationSource }> {
-  const { primary, secondary, source, configFound } =
-    await findConfigPaths(options);
+): Promise<ConfigurationSources> {
+  const { localPath, globalPath } = await getConfigPathSources(options);
 
-  let finalConfig: CliConfig = {} as CliConfig;
+  const [localConfig, globalConfig] = await Promise.all([
+    readSingleConfig(localPath),
+    readSingleConfig(globalPath),
+  ]);
 
-  if (configFound) {
-    finalConfig = await readAndMergeSingleConfig(
-      structuredClone(finalConfig),
-      primary || "",
-    );
-    if (secondary) {
-      finalConfig = await readAndMergeSingleConfig(
-        structuredClone(finalConfig),
-        secondary,
-      );
-    }
-  }
+  const configFound = !!localConfig || !!globalConfig;
 
-  if (!configFound && options.useFallback) {
-    finalConfig = deepmerge(structuredClone(defaultCliConfig), finalConfig);
-  }
-
-  return { config: finalConfig, source };
+  return {
+    default: structuredClone(defaultCliConfig),
+    global: structuredClone(globalConfig),
+    local: structuredClone(localConfig),
+    configFound,
+  };
 }

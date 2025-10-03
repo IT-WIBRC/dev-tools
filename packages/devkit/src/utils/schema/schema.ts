@@ -94,7 +94,6 @@ export interface UpdateCommandOptions {
 
 export interface SetupCommandOptions {
   program: Command;
-  config: CliConfig;
 }
 
 export interface ReadConfigOptions {

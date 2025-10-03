@@ -54,7 +54,9 @@
       "options": {
         "global": "Lister les modèles de la configuration globale.",
         "local": "Lister les modèles de la configuration locale.",
-        "all": "Lister les modèles des configurations locale et globale."
+        "all": "Lister les modèles des configurations locale et globale.",
+        "settings": "Inclure les paramètres de configuration dans le résultat",
+        "include_defaults": "Inclure les modèles et paramètres par défaut non configurés dans le résultat"
       },
       "output": {
         "header": "Modèles disponibles :",
@@ -248,7 +250,9 @@
       "config_initialized": "Fichier de configuration créé avec succès !",
       "info_collected": "Informations système collectées.",
       "scaffolding_complete": "\n🚀 Projet créé avec succès ! 🎉",
-      "next_steps": "\n| Prochaines étapes :\n"
+      "next_steps": "\n| Prochaines étapes :\n",
+      "config_loaded": "Sources de configuration chargées avec succès.",
+      "config_read": "Paramètres de configuration récupérés avec succès."
     },
     "status": {
       "scaffolding_project": "Échafaudage du projet '{projectName}' avec le modèle '{template}'...",
@@ -267,7 +271,8 @@
       "config_source_local_and_global": "Utilisation des configurations locale et globale.",
       "config_source_local": "Utilisation de la configuration locale.",
       "config_source_global": "Utilisation de la configuration globale.",
-      "templates_using_global_fallback": "Aucune configuration locale trouvée. Utilisation des modèles de la configuration globale."
+      "templates_using_global_fallback": "Aucune configuration locale trouvée. Utilisation des modèles de la configuration globale.",
+      "including_defaults_suffix": "(y compris les modèles par défaut)"
     },
     "scaffolding": {
       "start": "Échafaudage du projet {language} : {project}",

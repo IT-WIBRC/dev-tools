@@ -54,7 +54,9 @@
       "options": {
         "global": "List templates from the global configuration.",
         "local": "List templates from the local configuration.",
-        "all": "List templates from both local and global configurations."
+        "all": "List templates from both local and global configurations.",
+        "settings": "Include configuration settings in the output",
+        "include_defaults": "Include default, unconfigured templates and settings in the output"
       },
       "output": {
         "header": "Available Templates:",
@@ -244,7 +246,9 @@
       "config_initialized": "Configuration file created successfully!",
       "info_collected": "System information collected.",
       "scaffolding_complete": "\n🚀 Project created successfully! 🎉",
-      "next_steps": "\n| Next steps:\n"
+      "next_steps": "\n| Next steps:\n",
+      "config_loaded": "Configuration sources loaded successfully.",
+      "config_read": "Configuration settings retrieved successfully."
     },
     "status": {
       "scaffolding_project": "Scaffolding project '{projectName}' with the '{template}' template...",
@@ -263,7 +267,8 @@
       "config_source_local_and_global": "Using local and global configurations.",
       "config_source_local": "Using local configuration.",
       "config_source_global": "Using global configuration.",
-      "templates_using_global_fallback": "No local configuration found. Using templates from global configuration."
+      "templates_using_global_fallback": "No local configuration found. Using templates from global configuration.",
+      "including_defaults_suffix": "(including default templates)"
     },
     "scaffolding": {
       "start": "Scaffolding {language} project: {project}",
@@ -373,9 +378,13 @@
     "not_found": "⚠️ No configuration file found. Using default settings.",
     "no_local_config": "No local project configuration found. Using global or default settings.",
     "global_not_initialized": "Global configuration not initialized. Run 'devkit config init' to create one.",
-    "template_not_found": "No templates found in the configuration file.",
-    "template_not_found_with_filter": "No templates matched the specified filter.",
-    "templates_not_found": "The following templates were not found: {templates}.",
+    "template": {
+      "not_found": "No templates found in the configuration file.",
+      "list_not_found": "The following templates were not found: {templates}.",
+      "not_found_with_filter": "No templates matched the specified filter.",
+      "not_found_for_language": "No templates found for the '{language}' language in the config.",
+      "not_found_in_config": "No templates found in the configuration."
+    },
     "no_command_provided": "Warning: No command or option provided. Use `dk config --help` to see available commands.",
     "no_config_found": "⚠️ No configuration file found. Using default configuration.",
     "filter_delimiter_missing": "Ignoring filter clause missing a delimiter ('{delimiter1}' or '{delimiter2}'): {clause}",

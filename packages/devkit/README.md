@@ -176,6 +176,7 @@ dk list --where name:vue
 
 The `dk list` command now uses the following options to control which templates are displayed:
 
+- **`-d, --include-defaults`**: **Include Scaffolder's built-in, default templates in the list.** By default, only templates defined in your local or global config files are shown.
 - **`--local`**: Only list templates from the local configuration file (`.devkit.json`).
 - **`--global`**: Only list templates from the global configuration file (`~/.devkitrc`).
 - **`--all`**: List templates from both the local and global configurations, merging them into a single list.
@@ -187,6 +188,9 @@ The `dk list` command now uses the following options to control which templates 
 Here are some examples of how to use the new options:
 
 ```bash
+# List all templates, including the Scaffolder's built-in defaults
+dk list --include-defaults
+
 # List templates only from the local configuration file
 dk list --local
 
@@ -202,8 +206,8 @@ dk list --where alias:rt --where pm=npm
 # List javascript templates and filter by templates whose name starts with 'r'
 dk list javascript --where name:/^r/
 
-# List templates in a compact table format
-dk list --mode table
+# List templates in a compact table format, including defaults
+dk list --mode table -d
 ```
 
 ---
@@ -239,6 +243,7 @@ dk config --set defaultPackageManager npm --global
 
 The `dk config list` command provides a detailed, comprehensive view of your configuration. Unlike the top-level `dk list` command, this subcommand shows both the **settings** and **templates** from the active configuration files. It's useful for debugging and getting a full overview of your current setup.
 
+- The **`-d, --include-defaults`** option includes Scaffolder's default settings and templates in the output.
 - The **`--global`** option forces the command to only display settings and templates from your global configuration file (`~/.devkitrc`), ignoring any local configuration.
 - The **`--all`** option displays a merged view of your local and global configurations, showing the final effective settings.
 
@@ -251,8 +256,8 @@ dk config list
 # List configuration only from the global file
 dk config list --global
 
-# List a merged view of the local and global configurations
-dk config list --all
+# List a merged view of the local and global configurations, including defaults
+dk config list --all -d
 ```
 
 #### Add a new template
@@ -354,32 +359,59 @@ Scaffolder now loads settings with a clear priority to give you maximum control 
 3.  **System Language Detection**: If a language setting is not found in either the local or global configuration, `dk` will **automatically detect your system's language** and load the corresponding translations.
 4.  **Default**: If none of the above are found, the language will default to English (`en`).
 
-### Creating a New Template (The Full Workflow)
+### Template Configuration
 
-Scaffolder allows you to create and use your own templates in three simple steps.
+Scaffolder provides a set of default templates and we'll progressively add more.
 
-#### Step 1: Create the Template Project
+#### Template `location` and the `{pm}` Placeholder
 
-First, build your template. This is a standard project directory containing all the files you want to use. You can use any type of project, from a simple boilerplate to a complex custom setup.
+The `location` property for a custom template can be an **absolute path**, a **relative path**, a GitHub URL, or a command.
 
-#### Step 2: Add the Template to Your Config
+For command-based templates (like those using `create-react-app` or `create-nuxt-app`), you can use the special placeholder **`{pm}`** within the `location` string.
 
-Once your template project is ready, use the `dk config add` command to register it with the CLI. This command adds the template's details to your `.devkit.json` file, making it available for use.
+| Placeholder | Description                                                                                                                                                  |
+| :---------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`{pm}`**  | This token is dynamically replaced at runtime with the **effective package manager** (e.g., `npm`, `pnpm`, `bun`, or `yarn`) defined in your CLI's settings. |
 
-> **Note:** All custom templates must be added to the `javascript` section of your configuration file.
+This ensures that the template command always uses your preferred package manager without needing to hardcode it.
 
-```bash
-# Add a template from a local folder to your global config
-dk config add javascript custom-js-app --description "My personal JavaScript boilerplate" --location /Users/myuser/projects/my-local-template --global
+> **Note:** Cache strategies are only applied when using a GitHub URL.
+
+You can also define an **`alias`** to make it easier to reference a specific template. An alias is a simple shortcut for a template's name.
+
+```json
+{
+  "templates": {
+    "javascript": {
+      "templates": {
+        "my-local-template": {
+          "description": "A template from my local machine",
+          "location": "/Users/myuser/projects/my-local-template"
+        },
+        "from-github": {
+          "description": "A template from a GitHub repository",
+          "location": "https://github.com/my-user/my-template-repo.git",
+          "alias": "gh-template",
+          "cacheStrategy": "daily"
+        },
+        "from-create-command": {
+          "description": "Uses the native `create` command with the configured package manager",
+          "location": "{pm} create nuxt@latest",
+          "packageManager": "bun"
+        }
+      }
+    }
+  }
+}
 ```
 
-#### Step 3: Use the Template
+### Using a custom template with an alias
 
-After running the `dk config add` command, you can scaffold a new project from your template using `dk new`.
+Once an alias is configured, you can use it in place of the full template name for faster commands.
 
 ```bash
-# Create a new project from the template we just added
-dk new javascript my-awesome-project -t custom-js-app
+# Create a new project using the alias 'gh-template'
+dk new javascript my-new-project-name -t gh-template
 ```
 
 ### Create and configure a project file
@@ -502,47 +534,32 @@ Example for Windows:
 }
 ```
 
-### Template Configuration
+### Creating a New Template (The Full Workflow)
 
-Scaffolder provides a set of default templates and we'll progressively add more. The `location` property for a custom template can be an **absolute path**, a **relative path**, a GitHub URL, or a command. Note that cache strategies are only applied when using a GitHub URL.
+Scaffolder allows you to create and use your own templates in three simple steps.
 
-> **Note:** Currently, the configuration and all templates are for Node.js projects and must be nested within the `templates.javascript` object.
+#### Step 1: Create the Template Project
 
-You can also define an **`alias`** to make it easier to reference a specific template. An alias is a simple shortcut for a template's name.
+First, build your template. This is a standard project directory containing all the files you want to use. You can use any type of project, from a simple boilerplate to a complex custom setup.
 
-```json
-{
-  "templates": {
-    "javascript": {
-      "templates": {
-        "my-local-template": {
-          "description": "A template from my local machine",
-          "location": "/Users/myuser/projects/my-local-template"
-        },
-        "from-github": {
-          "description": "A template from a GitHub repository",
-          "location": "https://github.com/my-user/my-template-repo.git",
-          "alias": "gh-template",
-          "cacheStrategy": "daily"
-        },
-        "from-create-command": {
-          "description": "Uses the native `create` command",
-          "location": "{pm} create nuxt@latest",
-          "packageManager": "bun"
-        }
-      }
-    }
-  }
-}
-```
+#### Step 2: Add the Template to Your Config
 
-### Using a custom template with an alias
+Once your template project is ready, use the `dk config add` command to register it with the CLI. This command adds the template's details to your `.devkit.json` file, making it available for use.
 
-Once an alias is configured, you can use it in place of the full template name for faster commands.
+> **Note:** All custom templates must be added to the `javascript` section of your configuration file.
 
 ```bash
-# Create a new project using the alias 'gh-template'
-dk new javascript my-new-project-name -t gh-template
+# Add a template from a local folder to your global config
+dk config add javascript custom-js-app --description "My personal JavaScript boilerplate" --location /Users/myuser/projects/my-local-template --global
+```
+
+#### Step 3: Use the Template
+
+After running the `dk config add` command, you can scaffold a new project from your template using `dk new`.
+
+```bash
+# Create a new project from the template we just added
+dk new javascript my-awesome-project -t custom-js-app
 ```
 
 ---

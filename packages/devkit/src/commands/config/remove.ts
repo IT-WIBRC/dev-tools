@@ -2,7 +2,7 @@ import { t } from "#utils/i18n/translator.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { logger, type TSpinner } from "#utils/logger.js";
-import { readAndMergeConfigs } from "#core/config/loader.js";
+import { readConfigSources } from "#core/config/loader.js";
 import { saveGlobalConfig, saveLocalConfig } from "#core/config/writer.js";
 import { type Command } from "commander";
 import { type CliConfig } from "#utils/schema/schema.js";
@@ -18,6 +18,27 @@ async function saveConfig(
   } else {
     await saveLocalConfig(targetConfig);
   }
+}
+
+async function getTargetConfigForModification(
+  isGlobal: boolean,
+): Promise<CliConfig> {
+  const sources = await readConfigSources({
+    forceGlobal: isGlobal,
+    forceLocal: !isGlobal,
+  });
+
+  const targetConfig = isGlobal ? sources.global : sources.local;
+
+  if (!targetConfig) {
+    if (isGlobal) {
+      throw new DevkitError(t("errors.config.global_not_found"));
+    } else {
+      throw new DevkitError(t("errors.config.local_not_found"));
+    }
+  }
+
+  return targetConfig;
 }
 
 export function setupRemoveCommand(configCommand: Command): void {
@@ -42,9 +63,7 @@ export function setupRemoveCommand(configCommand: Command): void {
         try {
           validateProgrammingLanguage(language);
 
-          const { config: targetConfig } = await readAndMergeConfigs({
-            forceGlobal: isGlobal,
-          });
+          const targetConfig = await getTargetConfigForModification(isGlobal);
 
           const languageTemplates = targetConfig?.templates?.[language];
           if (!languageTemplates?.templates) {
@@ -79,9 +98,13 @@ export function setupRemoveCommand(configCommand: Command): void {
           }
 
           if (templatesToRemove.length === 0) {
-            throw new DevkitError(
-              t("errors.template.not_found", { template: notFound.join(", ") }),
-            );
+            if (notFound.length === templateNames.length) {
+              throw new DevkitError(
+                t("errors.template.not_found", {
+                  template: notFound.join(", "),
+                }),
+              );
+            }
           }
 
           const templatesToKeep = Object.fromEntries(
@@ -105,7 +128,7 @@ export function setupRemoveCommand(configCommand: Command): void {
           if (notFound.length > 0) {
             logger.warning(
               logger.colors.yellow(
-                t("warnings.templates_not_found", {
+                t("warnings.template.list_not_found", {
                   templates: notFound.join(", "),
                 }),
               ),
