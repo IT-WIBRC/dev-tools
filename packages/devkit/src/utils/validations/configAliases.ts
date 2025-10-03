@@ -7,4 +7,5 @@ export const configAliases: Record<string, keyof CliConfig["settings"]> = {
   cacheStrategy: "cacheStrategy",
   language: "language",
   lg: "language",
+  lang: "language",
 };

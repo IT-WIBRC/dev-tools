@@ -62,7 +62,7 @@ export async function handleNonInteractiveSettingsUpdate(
     configAliases as Record<string, keyof CliConfig["settings"]>
   )[key];
 
-  validateConfigValue(canonicalKey, value);
+  validateConfigValue(key, value);
 
   (config.settings[canonicalKey] as unknown) = value;
 

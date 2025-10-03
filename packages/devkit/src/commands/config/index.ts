@@ -1,6 +1,5 @@
 import { t } from "#utils/i18n/translator.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
-import { handleNonInteractiveSettingsUpdate } from "./logic.js";
 import { type Command } from "commander";
 import { logger, type TSpinner } from "#utils/logger.js";
 
@@ -8,28 +7,12 @@ import { setupAddCommand } from "./add.js";
 import { setupRemoveCommand } from "./remove.js";
 import { setupUpdateCommand } from "./update.js";
 import { setupListCommand } from "./list.js";
-import type { CliConfig } from "#utils/schema/schema.js";
-import { readConfigSources } from "#core/config/loader.js";
+import { handleSetAction } from "./set/index.js";
+import { handleGetAction } from "./get/index.js";
 
 interface ConfigOptions {
   global?: boolean;
   set?: string[];
-}
-
-async function getSettingsConfig(isGlobal: boolean): Promise<CliConfig> {
-  const isLocal = !isGlobal;
-  const configSources = await readConfigSources({
-    forceGlobal: isGlobal,
-    forceLocal: isLocal,
-  });
-
-  function getConfig(config: CliConfig | null): CliConfig {
-    return (config || {}) as CliConfig;
-  }
-
-  return isLocal
-    ? getConfig(configSources?.local)
-    : getConfig(configSources?.global);
 }
 
 async function handleConfigAction(
@@ -38,40 +21,15 @@ async function handleConfigAction(
   spinner: TSpinner,
 ): Promise<void> {
   const { global: isGlobal, set: bulkSetValues } = cmdOptions;
-
-  const config = await getSettingsConfig(!!isGlobal);
   spinner.stop();
 
   if (bulkSetValues && bulkSetValues.length > 0) {
-    if (bulkSetValues.length % 2 !== 0) {
-      spinner.fail(
-        logger.colors.redBright(t("errors.command.set_invalid_format")),
-      );
-      return;
-    }
-    for (let i = 0; i < bulkSetValues.length; i += 2) {
-      const bulkKey = bulkSetValues[i];
-      const bulkValue = bulkSetValues[i + 1];
-      await handleNonInteractiveSettingsUpdate(bulkKey, bulkValue, !!isGlobal);
-    }
-    spinner.succeed(logger.colors.green(t("messages.success.config_updated")));
+    await handleSetAction(bulkSetValues, !!isGlobal, spinner);
     return;
   }
 
   if (keys && keys.length > 0) {
-    keys.forEach((key) => {
-      const configValue = config.settings[key as keyof typeof config.settings];
-      if (configValue !== undefined) {
-        logger.log(logger.colors.yellowBold(key) + ": " + configValue);
-      } else {
-        logger.log(
-          logger.colors.redBright(
-            t("errors.config.get_key_not_found", { key }),
-          ),
-        );
-      }
-    });
-    spinner.succeed(logger.colors.green(t("messages.success.config_read")));
+    await handleGetAction(keys, !!isGlobal, spinner);
     return;
   }
 

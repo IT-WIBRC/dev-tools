@@ -65,7 +65,7 @@
     },
     "config": {
       "command": {
-        "description": "Gérer les paramètres DevKit"
+        "description": "Gérer les paramètres globaux et locaux de DevKit, y compris les gestionnaires de paquets, la stratégie de cache et les modèles (templates)."
       },
       "interactive": {
         "prompt_action": "Que souhaitez-vous configurer ?",
@@ -89,7 +89,7 @@
         },
         "option": {
           "global": "Mettre à jour la configuration globale au lieu de la locale.",
-          "bulk": "Définit plusieurs propriétés de configuration."
+          "bulk": "Définit une ou plusieurs propriétés de configuration en vrac (bulk) dans le format CLÉ VALEUR. Clés supportées : **pm** / **packageManager**, **cache** / **cacheStrategy**, **lang** / **language**."
         }
       },
       "get": {
