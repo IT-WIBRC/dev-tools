@@ -509,7 +509,7 @@ describe("dk list", () => {
 
       expect(exitCode).toBe(0);
       expect(all).toContain(
-        "Modèles disponibles :(y compris les modèles par défaut)",
+        "Modèles disponibles :(incluant les modèles par défaut)",
       );
       expect(all).toContain("remix");
     });
@@ -574,7 +574,7 @@ describe("dk list", () => {
 
       expect(exitCode).toBe(0);
       expect(all).toContain(
-        "Modèles disponibles :(y compris les modèles par défaut)",
+        "Modèles disponibles :(incluant les modèles par défaut)",
       );
       expect(all).toContain("Javascript");
       expect(all).toContain("remix");

@@ -55,7 +55,7 @@ describe("dk --verbose", () => {
   it("should display the config warning even without --verbose when using a default config", async () => {
     const { all } = await runTestCommand([]);
     expect(all).toContain(
-      "⚠️ No configuration file found. Using default settings.",
+      "No configuration file found. Using default settings.",
     );
     expect(all).not.toContain("CLI initialized successfully.");
   });

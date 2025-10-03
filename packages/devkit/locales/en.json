@@ -375,7 +375,7 @@
     }
   },
   "warnings": {
-    "not_found": "⚠️ No configuration file found. Using default settings.",
+    "not_found": "No configuration file found. Using default settings.",
     "no_local_config": "No local project configuration found. Using global or default settings.",
     "global_not_initialized": "Global configuration not initialized. Run 'devkit config init' to create one.",
     "template": {
@@ -386,7 +386,7 @@
       "not_found_in_config": "No templates found in the configuration."
     },
     "no_command_provided": "Warning: No command or option provided. Use `dk config --help` to see available commands.",
-    "no_config_found": "⚠️ No configuration file found. Using default configuration.",
+    "no_config_found": "No configuration file found. Using default configuration.",
     "filter_delimiter_missing": "Ignoring filter clause missing a delimiter ('{delimiter1}' or '{delimiter2}'): {clause}",
     "filter_property_unrecognized": "Ignoring unrecognized filter property: {property}"
   }

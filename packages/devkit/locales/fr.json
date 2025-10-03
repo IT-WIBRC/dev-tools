@@ -6,17 +6,17 @@
   },
   "program": {
     "program": {
-      "description": "Une puissante boîte à outils (devkit) pour l'échafaudage de nouveaux projets.",
-      "verbose_option": "Activer la journalisation verbeuse pour une sortie détaillée"
+      "description": "Un puissant devkit pour l'échafaudage de nouveaux projets.",
+      "verbose_option": "Activer les logs verbeux pour une sortie détaillée"
     },
     "version": {
-      "description": "Afficher la version actuelle de l'interface de ligne de commande."
+      "description": "Afficher la version actuelle de la CLI."
     },
     "help": {
       "description": "Afficher l'aide pour une commande."
     },
     "status": {
-      "initializing": "Initialisation de l'interface de ligne de commande..."
+      "initializing": "Initialisation de la CLI..."
     }
   },
   "commands": {
@@ -26,14 +26,14 @@
       },
       "project": {
         "language": {
-          "argument": "Le langage de programmation du modèle (par ex. 'react', 'node')"
+          "argument": "Le langage de programmation du modèle (ex: 'react', 'node')"
         },
         "name": {
           "argument": "Le nom de votre nouveau projet"
         },
         "template": {
           "option": {
-            "description": "Le nom du modèle à utiliser (par ex. 'ts', 'simple-api')"
+            "description": "Le nom du modèle à utiliser (ex: 'ts', 'simple-api')"
           }
         }
       }
@@ -48,15 +48,15 @@
           "option": "Définir le mode d'affichage : 'tree' ou 'table'. (Par défaut : tree)"
         },
         "where": {
-          "option": "Filtrer les modèles par propriété en utilisant le format <propriété>:<valeur> ou <propriété>=<valeur>.\n\nLes filtres utilisent la correspondance de sous-chaîne (insensible à la casse) (par ex. 'desc:vue').\nUtilisez '*' pour les valeurs présentes (non vides) et '~' pour les valeurs manquantes (vides).\n\nExemple : 'pm:bun alias:* cache:~' (logique ET)"
+          "option": "Filtrer les modèles par propriété en utilisant le format <propriété>:<valeur>.\n\nLes filtres utilisent une correspondance de sous-chaîne insensible à la casse (ex: 'desc:vue').\nUtilisez '*' pour présent (non-vide) et '~' pour manquant (vide).\n\nExemple : 'pm:bun alias:* cache:~' (logique ET)"
         }
       },
       "options": {
         "global": "Lister les modèles de la configuration globale.",
         "local": "Lister les modèles de la configuration locale.",
         "all": "Lister les modèles des configurations locale et globale.",
-        "settings": "Inclure les paramètres de configuration dans le résultat",
-        "include_defaults": "Inclure les modèles et paramètres par défaut non configurés dans le résultat"
+        "settings": "Inclure les paramètres de configuration dans la sortie",
+        "include_defaults": "Inclure les modèles et paramètres par défaut non configurés dans la sortie"
       },
       "output": {
         "header": "Modèles disponibles :",
@@ -73,19 +73,19 @@
           "settings": "Paramètres",
           "templates": "Modèles"
         },
-        "prompt_setting_key": "Choisissez un paramètre à modifier :",
-        "prompt_template_name": "Choisissez un modèle à mettre à jour :",
-        "prompt_language": "Choisissez un langage :",
-        "prompt_template_property": "Choisissez une propriété à mettre à jour :",
-        "prompt_new_value": "Entrez la nouvelle valeur pour {key} :",
+        "prompt_setting_key": "Choisir un paramètre à modifier :",
+        "prompt_template_name": "Choisir un modèle à mettre à jour :",
+        "prompt_language": "Choisir une langue :",
+        "prompt_template_property": "Choisir une propriété à mettre à jour :",
+        "prompt_new_value": "Entrer la nouvelle valeur pour {key} :",
         "success": "Session de configuration terminée."
       },
       "set": {
         "command": {
-          "description": "Définir une ou plusieurs valeurs de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache global pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue de l'interface de ligne de commande. Valeurs possibles : 'en', 'fr'\n"
+          "description": "Définir une ou plusieurs valeurs de configuration. \n\nClés disponibles :\n  pm, packageManager      - Définit le gestionnaire de paquets par défaut à utiliser pour les nouveaux projets.\n                          Valeurs possibles : {pmValues}\n  cache, cacheStrategy    - Définit le comportement de mise en cache global pour les modèles distants.\n                          Valeurs possibles : 'always-refresh', 'never-refresh', 'daily'\n  language, lg            - Définit la langue de la CLI. Valeurs possibles : 'en', 'fr'\n"
         },
         "argument": {
-          "description": "Une liste de paires clé-valeur à définir (par ex. 'pm npm language fr')"
+          "description": "Une liste de paires clé-valeur à définir (ex: 'pm npm language fr')"
         },
         "option": {
           "global": "Mettre à jour la configuration globale au lieu de la locale.",
@@ -97,7 +97,7 @@
           "description": "Obtenir une ou plusieurs valeurs de configuration."
         },
         "argument": {
-          "description": "La clé de la valeur de configuration à obtenir (par ex. 'pm', 'language')."
+          "description": "La clé de la valeur de configuration à obtenir (ex: 'pm', 'language')."
         },
         "option": {
           "global": "Obtenir la configuration globale au lieu de la locale."
@@ -123,7 +123,7 @@
           "argument": "Le langage de programmation du modèle à mettre à jour."
         },
         "template": {
-          "argument": "Le nom ou l'alias du modèle à mettre à jour."
+          "argument": "Le nom ou l'alias du ou des modèles à mettre à jour. Utiliser '*' pour tous les modèles."
         },
         "options": {
           "new_name": "Un nouveau nom pour le modèle.",
@@ -140,19 +140,19 @@
           "description": "Initialise un fichier de configuration avec les paramètres par défaut."
         },
         "option": {
-          "local": "Initialiser un fichier de configuration local au lieu d'un global.",
-          "global": "Initialiser un fichier de configuration global au lieu d'un local."
+          "local": "Initialiser un fichier de configuration locale au lieu de globale.",
+          "global": "Initialiser un fichier de configuration globale au lieu de locale."
         },
         "confirm_overwrite": "Le fichier de configuration existe déjà à {path}. Voulez-vous l'écraser ?",
         "confirm_monorepo_overwrite": "Un fichier de configuration existe à la racine du monorepo à {path}. Voulez-vous en créer un nouveau dans le paquet actuel ?",
         "monorepo_location": "Une racine de monorepo a été trouvée, mais aucun fichier de configuration n'y existe. Où voulez-vous créer le nouveau fichier de configuration ?",
         "location_current": "Le créer dans le paquet actuel.",
         "location_root": "Le créer à la racine du monorepo.",
-        "aborted": "Opération annulée. Aucune modification n'a été apportée."
+        "aborted": "Opération annulée. Aucune modification n'a été effectuée."
       },
       "list": {
         "command": {
-          "description": "Lister les paramètres et modèles disponibles."
+          "description": "Lister les paramètres et les modèles disponibles."
         },
         "options": {
           "all": "Lister les modèles des configurations locale et globale (fusionnées)."
@@ -172,23 +172,23 @@
         },
         "prompts": {
           "language": "Langage du modèle",
-          "template_name": "Entrez le nom du modèle",
-          "location": "Entrez l'emplacement du modèle",
-          "description": "Entrez la description du modèle",
-          "alias": "Entrez un alias court pour le modèle",
+          "template_name": "Entrer le nom du modèle",
+          "location": "Entrer l'emplacement du modèle",
+          "description": "Entrer la description du modèle",
+          "alias": "Entrer un alias court pour le modèle",
           "cache_strategy": "Stratégie de cache",
           "package_manager": "Gestionnaire de paquets"
         }
       },
       "remove": {
         "command": {
-          "description": "Supprimer un modèle de la configuration."
+          "description": "Supprimer un ou plusieurs modèles de la configuration."
         },
         "language": {
           "argument": "Le langage de programmation du modèle à supprimer."
         },
         "name": {
-          "argument": "Le nom ou l'alias du modèle à supprimer."
+          "argument": "Le nom ou l'alias du ou des modèles à supprimer. Utiliser '*' pour tous les modèles."
         },
         "option": {
           "global": "Supprimer le modèle de la configuration globale au lieu de la locale."
@@ -200,7 +200,7 @@
         "description": "Afficher les informations système et d'environnement pour le débogage."
       },
       "header": {
-        "cli": "Scaffolder CLI",
+        "cli": "CLI Scaffolder",
         "runtime": "Environnement d'exécution",
         "os_details": "Détails du système d'exploitation",
         "config_files": "Fichiers de configuration"
@@ -209,43 +209,39 @@
         "version": "Version"
       },
       "runtime": {
-        "runtime_name": "Environnement d'exécution",
-        "runtime_version": "Version de l'environnement d'exécution",
+        "runtime_name": "Environnement",
+        "runtime_version": "Version de l'environnement",
         "package_manager": "Gestionnaire de paquets"
       },
       "os": {
-        "type_version": "Type/Version du SE",
+        "type_version": "Type/Version de l'OS",
         "architecture": "Architecture",
         "shell": "Shell actif",
-        "home_dir": "Répertoire d'accueil"
+        "home_dir": "Répertoire personnel"
       },
       "shell": {
         "unknown": "Inconnu"
       },
       "config": {
-        "global_path": "Chemin de la configuration globale",
-        "local_path": "Chemin de la configuration locale",
+        "global_path": "Chemin de la config globale",
+        "local_path": "Chemin de la config locale",
         "found": "[TROUVÉ]",
         "not_found": "[NON TROUVÉ]",
-        "global_expected_location": "dans votre répertoire d'accueil",
+        "global_expected_location": "dans votre répertoire personnel",
         "local_expected_location": "dans le répertoire de travail actuel"
       }
-    },
-    "template_update": {
-      "success": "Modèle '{templateName}' mis à jour avec succès !",
-      "name_updated": "Nom du modèle mis à jour de '{oldName}' à '{newName}' avec succès !"
     }
   },
   "messages": {
     "success": {
-      "program_initialized": "Interface de ligne de commande initialisée avec succès.",
+      "program_initialized": "CLI initialisée avec succès.",
       "new_project": "✔ Projet '{projectName}' créé avec succès !",
       "template_cloned_or_cache": "Modèle cloné et mis en cache avec succès.",
       "template_added": "Modèle '{templateName}' ajouté avec succès !",
       "template_removed": "Suppression réussie de {count} modèle(s) ({templateName}) de {language}.",
       "template_updated": "✔ Modèle '{templateName}' mis à jour avec succès !",
-      "template_name_updated": "✔ Modèle '{oldName}' mis à jour à '{newName}' avec succès !",
-      "template_summary_updated": "Mise à jour réussie de {count} modèle(s) ({templateName}) de {language}!",
+      "template_name_updated": "✔ Modèle '{oldName}' mis à jour en '{newName}' avec succès !",
+      "template_summary_updated": "Mise à jour réussie de {count} modèle(s) ({templateName}) de {language} !",
       "config_updated": "Configuration mise à jour avec succès !",
       "config_initialized": "Fichier de configuration créé avec succès !",
       "info_collected": "Informations système collectées.",
@@ -260,19 +256,19 @@
       "config_updating": "Mise à jour de la configuration...",
       "config_init_start": "Initialisation de la configuration...",
       "template_adding": "Ajout du modèle '{templateName}' à la configuration...",
-      "template_removing": "Suppression du(des) modèle(s) de la configuration...",
-      "template_updating": "Mise à jour du(des) modèle(s) '{templateName}' dans la configuration...",
+      "template_removing": "Suppression du/des modèle(s) de la configuration...",
+      "template_updating": "Mise à jour du/des modèle(s) '{templateName}' dans la configuration...",
       "cache_updating": "Mise à jour du cache...",
       "cache_clone_start": "✨ Clonage du nouveau modèle depuis {url}...",
       "cache_refresh_start": "🔄 Rafraîchissement du modèle mis en cache...",
       "cache_use_info": "🚀 Utilisation du modèle mis en cache pour {repoName}.",
       "cache_copy_start": "📂 Copie du modèle mis en cache dans le répertoire du projet...",
-      "info_loading": "Collecte des détails système et d'environnement...",
+      "info_loading": "Collecte des détails du système et de l'environnement...",
       "config_source_local_and_global": "Utilisation des configurations locale et globale.",
       "config_source_local": "Utilisation de la configuration locale.",
       "config_source_global": "Utilisation de la configuration globale.",
       "templates_using_global_fallback": "Aucune configuration locale trouvée. Utilisation des modèles de la configuration globale.",
-      "including_defaults_suffix": "(y compris les modèles par défaut)"
+      "including_defaults_suffix": "(incluant les modèles par défaut)"
     },
     "scaffolding": {
       "start": "Échafaudage du projet {language} : {project}",
@@ -305,7 +301,7 @@
       "unexpected": "Une erreur inattendue s'est produite",
       "unknown": "Une erreur inconnue s'est produite",
       "devkit_specific": "Devkit a rencontré un problème interne inattendu",
-      "aborted": "Opération annulée. Aucune modification n'a été apportée."
+      "aborted": "Opération annulée. Aucune modification n'a été effectuée."
     },
     "validation": {
       "invalid_key": "Clé invalide : '{key}'. Les clés valides sont : {keys}",
@@ -314,14 +310,14 @@
       "invalid_cache_strategy": "Stratégie de cache invalide : '{value}'. Les options valides sont : {options}",
       "invalid_package_manager": "Gestionnaire de paquets invalide : '{value}'. Les options valides sont : {options}",
       "remove_required": "Impossible de supprimer une propriété requise : '{key}'.",
-      "alias_exists": "L'alias '{alias}' existe déjà pour un autre modèle dans cette langue. Veuillez choisir un alias différent.",
+      "alias_exists": "L'alias '{alias}' existe déjà pour un autre modèle dans ce langage. Veuillez choisir un alias différent.",
       "alias_empty": "L'alias du modèle ne peut pas être vide.",
-      "alias_too_short": "L'alias du modèle doit comporter au moins 10 lettres.",
+      "alias_too_short": "L'alias du modèle doit contenir au moins 10 lettres.",
       "description_empty": "La description du modèle ne peut pas être vide.",
-      "description_too_short": "La description du modèle doit comporter au moins 6 mots.",
+      "description_too_short": "La description du modèle doit contenir au moins 6 mots.",
       "github_repo": "URL de dépôt GitHub invalide ou inaccessible : {url}",
       "local_path": "Chemin local non trouvé : {path}",
-      "location": "Emplacement de modèle invalide. Veuillez fournir une URL GitHub ou un chemin local valide.",
+      "location": "Emplacement du modèle invalide. Veuillez fournir une URL GitHub ou un chemin local valide.",
       "language_required": "Le langage est requis.",
       "template_name_required": "Le nom du modèle est requis.",
       "location_required": "L'emplacement est requis.",
@@ -336,8 +332,8 @@
       "no_file_found": "Aucun fichier de configuration trouvé. Exécutez 'devkit config init' pour en créer un global, ou 'devkit config init --local' pour en créer un local.",
       "no_file_found_local": "Aucun fichier de configuration local trouvé. Exécutez 'devkit config init --local' pour en créer un.",
       "init_fail": "Échec de l'initialisation de la configuration.",
-      "init_local_and_global": "Impossible d'utiliser les drapeaux --local et --global en même temps.",
-      "global_not_found": "Fichier de configuration global non trouvé. Exécutez 'devkit config init --global' pour en créer un.",
+      "init_local_and_global": "Impossible d'utiliser les flags --local et --global en même temps.",
+      "global_not_found": "Fichier de configuration globale non trouvé. Exécutez 'devkit config init --global' pour en créer un.",
       "local_not_found": "Aucun fichier de configuration local trouvé. Exécutez 'devkit config init --local' pour en créer un.",
       "get_key_not_found": "Clé de configuration '{key}' non trouvée."
     },
@@ -346,7 +342,7 @@
       "language_not_found": "Modèle non trouvé pour le langage '{language}'.",
       "exists": "Le modèle '{template}' existe déjà dans la configuration. Utilisez 'devkit config set' pour le mettre à jour.",
       "single_fail": "❌ Échec de la mise à jour de '{templateName}' : {error}",
-      "filter_regex_invalid": "Motif regex invalide dans le filtre : '{clause}' à cause de {error}."
+      "filter_regex_invalid": "Pattern regex invalide dans le filtre : '{clause}' à cause de {error}."
     },
     "scaffolding": {
       "fail": "❌ Échec de l'échafaudage du projet : {error}",
@@ -358,17 +354,17 @@
     },
     "command": {
       "set_invalid_arguments_count": "Nombre d'arguments invalide. Veuillez fournir des paires clé-valeur.",
-      "set_invalid_format": "Les valeurs pour l'option '--set' doivent être une série de paires clé-valeur (par ex. --set clé1 valeur1 clé2 valeur2).",
-      "update_no_options": "Aucune option de mise à jour n'a été fournie. Veuillez spécifier au moins une option à mettre à jour (par ex. --new-name, --description, etc.).",
+      "set_invalid_format": "Les valeurs pour l'option '--set' doivent être une série de paires clé-valeur (ex: --set clé1 valeur1 clé2 valeur2).",
+      "update_no_options": "Aucune option de mise à jour n'a été fournie. Veuillez spécifier au moins une option à mettre à jour (ex: --new-name, --description, etc.).",
       "mutually_exclusive_options": "Vous ne pouvez pas utiliser les options `{options}` ensemble. Elles sont mutuellement exclusives.",
-      "missing_required_options": "Options requises manquantes. Veuillez fournir tous les champs suivants : {fields}.\nAlternativement, exécutez avec le drapeau '-i' ou '--interactive' pour une configuration guidée."
+      "missing_required_options": "Options requises manquantes. Veuillez fournir toutes les suivantes : {fields}.\nAlternativement, exécutez avec le flag '-i' ou '--interactive' pour une configuration guidée."
     },
     "system": {
       "file_not_found": "Impossible de trouver le fichier '{fileName}'.",
       "package_root_not_found": "Impossible de trouver la racine du projet contenant package.json.",
       "package_file_not_found": "{file} non trouvé à {path}",
       "package_name_update_fail": "Échec de la mise à jour du nom du projet :",
-      "version_read_fail": "Échec de la lecture de la version dans package.json.",
+      "version_read_fail": "Échec de la lecture de la version de package.json.",
       "git_generic": "Erreur Git",
       "info_package_manager_not_found": "Version de {manager} non trouvée. Est-il installé ?"
     },
@@ -379,15 +375,19 @@
     }
   },
   "warnings": {
-    "not_found": "⚠️ Aucun fichier de configuration trouvé. Utilisation des paramètres par défaut.",
+    "not_found": "Aucun fichier de configuration trouvé. Utilisation des paramètres par défaut.",
     "no_local_config": "Aucune configuration de projet locale trouvée. Utilisation des paramètres globaux ou par défaut.",
     "global_not_initialized": "Configuration globale non initialisée. Exécutez 'devkit config init' pour en créer une.",
-    "template_not_found": "Aucun modèle trouvé dans le fichier de configuration.",
-    "template_not_found_with_filter": "Aucun modèle ne correspondait au filtre spécifié.",
-    "templates_not_found": "Les modèles suivants n'ont pas été trouvés : {templates}.",
+    "template": {
+      "not_found": "Aucun modèle trouvé dans le fichier de configuration.",
+      "list_not_found": "Les modèles suivants n'ont pas été trouvés : {templates}.",
+      "not_found_with_filter": "Aucun modèle ne correspond au filtre spécifié.",
+      "not_found_for_language": "Aucun modèle trouvé pour le langage '{language}' dans la configuration.",
+      "not_found_in_config": "Aucun modèle trouvé dans la configuration."
+    },
     "no_command_provided": "Avertissement : Aucune commande ou option fournie. Utilisez `dk config --help` pour voir les commandes disponibles.",
-    "no_config_found": "⚠️ Aucun fichier de configuration trouvé. Utilisation de la configuration par défaut.",
-    "filter_delimiter_missing": "Ignorons la clause de filtre sans délimiteur ('{delimiter1}' ou '{delimiter2}') : {clause}",
-    "filter_property_unrecognized": "Ignorons la propriété de filtre non reconnue : {property}"
+    "no_config_found": "Aucun fichier de configuration trouvé. Utilisation de la configuration par défaut.",
+    "filter_delimiter_missing": "Ignorance de la clause de filtre manquant un délimiteur ('{delimiter1}' ou '{delimiter2}') : {clause}",
+    "filter_property_unrecognized": "Ignorance de la propriété de filtre non reconnue : {property}"
   }
 }
