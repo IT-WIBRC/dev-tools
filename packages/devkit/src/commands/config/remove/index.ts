@@ -5,6 +5,7 @@ import { logger, type TSpinner } from "#utils/logger.js";
 import { type Command } from "commander";
 import { type RemoveCommandOptions } from "../types.js";
 import { getTemplateNamesToActOn, saveConfig } from "./logic.js";
+import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
 
 export function setupRemoveCommand(configCommand: Command): void {
   configCommand
@@ -32,6 +33,7 @@ export function setupRemoveCommand(configCommand: Command): void {
             );
           }
 
+          language = mapLanguageAliasToCanonicalKey(language);
           const {
             targetConfig,
             languageTemplates,

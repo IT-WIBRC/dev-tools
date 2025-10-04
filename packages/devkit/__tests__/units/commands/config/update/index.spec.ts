@@ -12,11 +12,13 @@ const {
   mockHandleNonInteractiveTemplateUpdate,
   mockResolveTemplateNamesForUpdate,
   mockValidateProgrammingLanguage,
+  mockMapLanguageAliasToCanonicalKey,
 } = vi.hoisted(() => ({
   mockHandleErrorAndExit: vi.fn(),
   mockHandleNonInteractiveTemplateUpdate: vi.fn(),
   mockResolveTemplateNamesForUpdate: vi.fn(),
   mockValidateProgrammingLanguage: vi.fn(),
+  mockMapLanguageAliasToCanonicalKey: vi.fn((lang) => lang),
 }));
 
 let actionFn: (...options: unknown[]) => Promise<void>;
@@ -27,6 +29,10 @@ vi.mock("#utils/errors/handler.js", () => ({
 
 vi.mock("#utils/validations/config.js", () => ({
   validateProgrammingLanguage: mockValidateProgrammingLanguage,
+}));
+
+vi.mock("#core/config/language.js", () => ({
+  mapLanguageAliasToCanonicalKey: mockMapLanguageAliasToCanonicalKey,
 }));
 
 vi.mock("../../../../../src/commands/config/logic.js", () => ({
@@ -76,6 +82,7 @@ describe("setupUpdateCommand", () => {
     };
     mockProcessExit.mockClear();
     mockValidateProgrammingLanguage.mockReturnValue(true);
+    mockMapLanguageAliasToCanonicalKey.mockImplementation((lang) => lang);
   });
 
   it("should set up the update command with correct options and arguments", () => {
@@ -116,6 +123,53 @@ describe("setupUpdateCommand", () => {
     );
   });
 
+  it("should map a language alias ('ts') to its canonical key and use it for update logic", async () => {
+    const aliasLang = "ts";
+    const canonicalLang = "typescript";
+    const templateName = "my-template-actual";
+
+    mockMapLanguageAliasToCanonicalKey.mockReturnValueOnce(canonicalLang);
+    mockResolveTemplateNamesForUpdate.mockResolvedValueOnce({
+      resolvedNames: [templateName],
+      notFoundNames: [],
+    });
+    mockHandleNonInteractiveTemplateUpdate.mockResolvedValueOnce(undefined);
+
+    const defaultCmdOptions = {
+      description: "Updated description",
+      location: "http://updated.com",
+      newName: "new-name",
+      global: false,
+    };
+    const parentOpts = { parent: { opts: () => ({ global: false }) } };
+
+    setupUpdateCommand(mockConfigCommand);
+    await actionFn(aliasLang, [templateName], defaultCmdOptions, parentOpts);
+
+    expect(mockMapLanguageAliasToCanonicalKey).toHaveBeenCalledOnce();
+    expect(mockMapLanguageAliasToCanonicalKey).toHaveBeenCalledWith(aliasLang);
+
+    expect(mockValidateProgrammingLanguage).toHaveBeenCalledOnce();
+    expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(canonicalLang);
+    expect(mockResolveTemplateNamesForUpdate).toHaveBeenCalledOnce();
+    expect(mockResolveTemplateNamesForUpdate).toHaveBeenCalledWith(
+      canonicalLang,
+      [templateName],
+      false,
+    );
+
+    expect(mockHandleNonInteractiveTemplateUpdate).toHaveBeenCalledOnce();
+    expect(mockHandleNonInteractiveTemplateUpdate).toHaveBeenCalledWith(
+      canonicalLang,
+      templateName,
+      {
+        ...defaultCmdOptions,
+        language: "ts",
+      },
+      false,
+    );
+  });
+
   describe("action handler - Success and Wildcard", () => {
     const defaultCmdOptions = {
       description: "Updated description",
@@ -150,7 +204,6 @@ describe("setupUpdateCommand", () => {
         {
           ...defaultCmdOptions,
           language: "javascript",
-          isGlobal: false,
         },
         false,
       );
@@ -184,13 +237,25 @@ describe("setupUpdateCommand", () => {
       expect(mockHandleNonInteractiveTemplateUpdate).toHaveBeenCalledWith(
         "javascript",
         "temp1",
-        expect.objectContaining({ language: "javascript", isGlobal: false }),
+        {
+          language: "javascript",
+          global: false,
+          description: "Updated description",
+          location: "http://updated.com",
+          newName: "new-name",
+        },
         false,
       );
       expect(mockHandleNonInteractiveTemplateUpdate).toHaveBeenCalledWith(
         "javascript",
         "temp2",
-        expect.objectContaining({ language: "javascript", isGlobal: false }),
+        {
+          language: "javascript",
+          global: false,
+          description: "Updated description",
+          location: "http://updated.com",
+          newName: "new-name",
+        },
         false,
       );
 
@@ -255,6 +320,7 @@ describe("setupUpdateCommand", () => {
             mocktFn(SUCCESS_SUMMARY_KEY, {
               count: "2",
               templateName: "tempA, tempB",
+              language: "javascript",
             }),
           ),
         ),
@@ -286,13 +352,13 @@ describe("setupUpdateCommand", () => {
         notFoundNames: [],
       });
 
+      const devkitErrorInstance = new DevkitError(
+        mocktFn(TEMPLATE_NOT_FOUND_KEY, { template: "temp2" }),
+      );
+
       mockHandleNonInteractiveTemplateUpdate
         .mockResolvedValueOnce(undefined)
-        .mockRejectedValueOnce(
-          new DevkitError(
-            mocktFn(TEMPLATE_NOT_FOUND_KEY, { template: "temp2" }),
-          ),
-        )
+        .mockRejectedValueOnce(devkitErrorInstance)
         .mockResolvedValueOnce(undefined);
 
       setupUpdateCommand(mockConfigCommand);
@@ -346,25 +412,28 @@ describe("setupUpdateCommand", () => {
     });
 
     it("should throw an error if no templates are found to act on after resolution", async () => {
+      const missingTemplates = ["missing-1", "missing-2"];
       mockResolveTemplateNamesForUpdate.mockResolvedValueOnce({
         resolvedNames: [],
-        notFoundNames: ["missing-1", "missing-2"],
+        notFoundNames: missingTemplates,
       });
 
       setupUpdateCommand(mockConfigCommand);
       await actionFn(
         "javascript",
-        ["missing-1", "missing-2"],
+        missingTemplates,
         defaultCmdOptions,
         parentOpts,
       );
 
+      const expectedError = new DevkitError(
+        mocktFn(TEMPLATE_NOT_FOUND_KEY, {
+          template: missingTemplates.join(", "),
+        }),
+      );
+
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-        new DevkitError(
-          mocktFn(TEMPLATE_NOT_FOUND_KEY, {
-            template: "missing-1, missing-2",
-          }),
-        ),
+        expectedError,
         mockSpinner,
       );
       expect(mockHandleNonInteractiveTemplateUpdate).not.toHaveBeenCalled();
@@ -375,8 +444,10 @@ describe("setupUpdateCommand", () => {
 
       await actionFn("javascript", [], defaultCmdOptions, parentOpts);
 
+      const expectedError = new DevkitError(mocktFn(VALIDATION_REQUIRED_KEY));
+
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-        new DevkitError(mocktFn(VALIDATION_REQUIRED_KEY)),
+        expectedError,
         mockSpinner,
       );
       expect(mockResolveTemplateNamesForUpdate).not.toHaveBeenCalled();
@@ -384,9 +455,10 @@ describe("setupUpdateCommand", () => {
     });
 
     it("should handle unexpected errors during template update gracefully", async () => {
+      const templateName = "my-template";
       const mockError = new Error("Unexpected error");
       mockResolveTemplateNamesForUpdate.mockResolvedValueOnce({
-        resolvedNames: ["my-template"],
+        resolvedNames: [templateName],
         notFoundNames: [],
       });
       mockHandleNonInteractiveTemplateUpdate.mockRejectedValueOnce(mockError);
@@ -394,7 +466,7 @@ describe("setupUpdateCommand", () => {
       setupUpdateCommand(mockConfigCommand);
       await actionFn(
         "javascript",
-        ["my-template"],
+        [templateName],
         defaultCmdOptions,
         parentOpts,
       );
@@ -403,7 +475,7 @@ describe("setupUpdateCommand", () => {
       expect(consoleLogSpy).toHaveBeenCalledWith(
         mockLogger.colors.yellow(
           `\n${mocktFn(SINGLE_FAIL_KEY, {
-            templateName: "my-template",
+            templateName,
             error: "unknown error",
           })}`,
         ),

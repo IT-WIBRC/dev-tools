@@ -15,6 +15,7 @@ import {
   getAnnotatedTemplates,
   type AnnotatedTemplate,
 } from "#core/template/annotator.js";
+import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
 
 type ListCommandOptions = {
   global?: boolean;
@@ -72,7 +73,10 @@ export function setupListCommand(options: SetupCommandOptions): void {
           );
         }
 
-        if (language) validateProgrammingLanguage(language);
+        if (language) {
+          language = mapLanguageAliasToCanonicalKey(language);
+          validateProgrammingLanguage(language);
+        }
 
         const annotatedTemplates: AnnotatedTemplate[] =
           await getAnnotatedTemplates({

@@ -145,7 +145,7 @@ afterEach(async () => {
 });
 
 describe("Config Update - Single and Multiple Templates", () => {
-  it("should update a single template in the local config by name", async () => {
+  it("should update a single template in the local config by name (canonical language)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -177,6 +177,37 @@ describe("Config Update - Single and Multiple Templates", () => {
     expect(updatedConfig.templates.javascript.templates["react-ts"].alias).toBe(
       "rts",
     );
+  });
+
+  it("should update a single template in the local config using the 'js' language alias", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "update",
+        "js",
+        "react-ts",
+        "-d",
+        "Updated using JS alias",
+        "-a",
+        "rts",
+      ],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "Successfully updated 1 (react-ts) template(s) from javascript!",
+    );
+    expect(
+      updatedConfig.templates.javascript.templates["react-ts"].description,
+    ).toBe("Updated using JS alias");
   });
 
   it("should update multiple templates in the local config", async () => {
@@ -214,7 +245,7 @@ describe("Config Update - Single and Multiple Templates", () => {
 });
 
 describe("Config Update - Wildcard and Alias Support", () => {
-  it("should update a single template in the local config using its alias", async () => {
+  it("should update a single template in the local config using its alias (canonical language)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -243,7 +274,7 @@ describe("Config Update - Wildcard and Alias Support", () => {
     ).toBe("Updated via Alias");
   });
 
-  it("should update ALL local templates using the wildcard '*'", async () => {
+  it("should update ALL local templates using the wildcard '*' (canonical language)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -270,6 +301,35 @@ describe("Config Update - Wildcard and Alias Support", () => {
     expect(
       updatedConfig.templates.javascript.templates["other-js"].description,
     ).toBe("Updated by Wildcard");
+  });
+
+  it("should update ALL local templates using the 'js' language alias and wildcard '*'", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "update",
+        "js",
+        "*",
+        "-d",
+        "Updated by JS Alias Wildcard",
+      ],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "Successfully updated 3 (react-ts, vue-basic, other-js) template(s) from javascript!",
+    );
+    expect(
+      updatedConfig.templates.javascript.templates["other-js"].description,
+    ).toBe("Updated by JS Alias Wildcard");
   });
 
   it("should update templates found by '*' but warn for explicitly listed non-existent names", async () => {
@@ -447,7 +507,7 @@ describe("Config Update - Failure and Edge Cases", () => {
     );
   });
 
-  it("should fail gracefully if a language is not found (validation error)", async () => {
+  it("should fail gracefully if a language is not found (validation error, canonical language)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -455,8 +515,30 @@ describe("Config Update - Failure and Edge Cases", () => {
         CLI_PATH,
         "config",
         "update",
-        "typescript",
+        "python",
         "ts-template",
+        "-d",
+        "some-description",
+      ],
+      { all: true, reject: false },
+    );
+
+    expect(exitCode).toBe(1);
+    expect(all).toContain(
+      "Invalid value for Programming Language. Valid options are: javascript",
+    );
+  });
+
+  it("should fail gracefully if an unknown language alias is provided (validation error)", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "update",
+        "unknown-alias",
+        "some-template",
         "-d",
         "some-description",
       ],

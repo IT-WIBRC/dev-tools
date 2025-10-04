@@ -1,7 +1,7 @@
 import { select } from "@inquirer/prompts";
 import {
   ProgrammingLanguage,
-  type SupportedProgrammingLanguageValues,
+  type SupportedProgrammingLanguageKeys,
   type SupportedPackageManager,
   type CacheStrategy,
   VALID_CACHE_STRATEGIES,
@@ -17,8 +17,8 @@ import { logger } from "#utils/logger.js";
  */
 export async function promptForLanguage(
   required = true,
-  defaultValue?: SupportedProgrammingLanguageValues,
-): Promise<SupportedProgrammingLanguageValues> {
+  defaultValue?: SupportedProgrammingLanguageKeys,
+): Promise<SupportedProgrammingLanguageKeys> {
   const message = `${t("commands.template.add.prompts.language")} ${
     required ? logger.colors.red("(required)") : logger.colors.dim("(optional)")
   }`;
@@ -30,7 +30,7 @@ export async function promptForLanguage(
     message,
     choices,
     default: defaultValue,
-  })) as SupportedProgrammingLanguageValues;
+  })) as SupportedProgrammingLanguageKeys;
 }
 
 /**

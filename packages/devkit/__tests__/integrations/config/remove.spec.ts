@@ -92,7 +92,7 @@ describe("dk config remove - Basic and Alias", () => {
     await fs.remove(globalConfigDir);
   });
 
-  it("should remove a single template from the local config by name", async () => {
+  it("should remove a single template from the local config by name (canonical language)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -114,6 +114,30 @@ describe("dk config remove - Basic and Alias", () => {
     expect(
       updatedConfig.templates.javascript.templates["react-ts"],
     ).toBeDefined();
+    expect(
+      Object.keys(updatedConfig.templates.javascript.templates).length,
+    ).toBe(2);
+  });
+
+  it("should remove a single template from the local config using the 'js' language alias", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [CLI_PATH, "config", "remove", "js", "vue-basic"],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "Successfully removed 1 template(s) (vue-basic) from javascript.",
+    );
+    expect(
+      updatedConfig.templates.javascript.templates["vue-basic"],
+    ).toBeUndefined();
     expect(
       Object.keys(updatedConfig.templates.javascript.templates).length,
     ).toBe(2);
@@ -190,11 +214,32 @@ describe("dk config remove - Wildcard Support", () => {
     await fs.remove(globalConfigDir);
   });
 
-  it("should remove ALL local templates using the wildcard '*'", async () => {
+  it("should remove ALL local templates using the wildcard '*' (canonical language)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
       [CLI_PATH, "config", "remove", "javascript", "*"],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain(
+      "Successfully removed 3 template(s) (react-ts, vue-basic, node-cli) from javascript.",
+    );
+    expect(
+      Object.keys(updatedConfig.templates.javascript.templates).length,
+    ).toBe(0);
+  });
+
+  it("should remove ALL local templates using the 'js' language alias and wildcard '*'", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const { exitCode, all } = await execute(
+      "bun",
+      [CLI_PATH, "config", "remove", "js", "*"],
       { all: true },
     );
 
@@ -362,7 +407,7 @@ describe("dk config remove - Global and Edge Cases", () => {
     );
   });
 
-  it("should throw an error if the specified language is not found", async () => {
+  it("should throw an error if the specified language alias is unknown or invalid", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",

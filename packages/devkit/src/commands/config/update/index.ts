@@ -7,6 +7,7 @@ import { type UpdateCommandOptions } from "../types.js";
 import { resolveTemplateNamesForUpdate } from "./logic.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
+import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
 
 export function setupUpdateCommand(configCommand: Command): void {
   configCommand
@@ -60,7 +61,7 @@ export function setupUpdateCommand(configCommand: Command): void {
           ),
         );
 
-        const updates = { ...cmdOptions, language, isGlobal };
+        const updates = { ...cmdOptions, language };
         let hasErrors = false;
         let successfullyUpdatedCount = 0;
         let templatesToActOn: string[] = [];
@@ -73,7 +74,10 @@ export function setupUpdateCommand(configCommand: Command): void {
             );
           }
 
-          if (language) validateProgrammingLanguage(language);
+          if (language) {
+            language = mapLanguageAliasToCanonicalKey(language);
+            validateProgrammingLanguage(language);
+          }
 
           const resolution = await resolveTemplateNamesForUpdate(
             language,

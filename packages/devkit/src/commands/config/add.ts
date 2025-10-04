@@ -8,6 +8,7 @@ import { type Command } from "commander";
 import { type AddCommandOptions, type AddTemplateSchema } from "./types.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
 import type { CliConfig } from "#utils/schema/schema.js";
+import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
 
 async function getTargetConfigForModification(
   isGlobal: boolean,
@@ -85,6 +86,7 @@ export function setupAddCommand(configCommand: Command): void {
             );
           }
 
+          language = mapLanguageAliasToCanonicalKey(language);
           validateProgrammingLanguage(language);
 
           const config = await getTargetConfigForModification(isGlobal);

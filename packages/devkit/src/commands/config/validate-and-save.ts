@@ -33,9 +33,10 @@ export async function validateAndSaveTemplate(
 
   validateProgrammingLanguage(language);
 
-  const languageConfig = targetConfig.templates[language];
+  let languageConfig = targetConfig.templates[language];
   if (!languageConfig) {
     targetConfig.templates[language] = { templates: {} };
+    languageConfig = targetConfig.templates[language];
   }
 
   await validateLocation(location, addSpinner);
@@ -49,7 +50,7 @@ export async function validateAndSaveTemplate(
     validateCacheStrategy(cacheStrategy);
   }
 
-  if (languageConfig.templates[templateName]) {
+  if (languageConfig?.templates[templateName]) {
     throw new DevkitError(
       t("errors.template.exists", { template: templateName }),
     );
@@ -57,9 +58,10 @@ export async function validateAndSaveTemplate(
 
   if (alias) {
     validateAlias(alias);
-    const aliasExists = Object.values(languageConfig.templates).some(
+    const aliasExists = Object.values(languageConfig?.templates).some(
       (t) => t.alias === alias,
     );
+
     if (aliasExists) {
       throw new DevkitError(
         t("errors.validation.alias_exists", { alias: alias }),

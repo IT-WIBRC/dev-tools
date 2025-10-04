@@ -4,8 +4,8 @@ import { type Command } from "commander";
 import { logger, type TSpinner } from "#utils/logger.js";
 
 import { setupAddCommand } from "./add.js";
-import { setupRemoveCommand } from "./remove.js";
-import { setupUpdateCommand } from "./update.js";
+import { setupRemoveCommand } from "./remove/index.js";
+import { setupUpdateCommand } from "./update/index.js";
 import { setupListCommand } from "./list.js";
 import { handleSetAction } from "./set/index.js";
 import { handleGetAction } from "./get/index.js";

@@ -1,7 +1,7 @@
 import {
   type CacheStrategy,
   type SupportedPackageManager,
-  type SupportedProgrammingLanguageValues,
+  type SupportedProgrammingLanguageKeys,
 } from "#utils/schema/schema.js";
 
 export type ConfigCommandOptions = {
@@ -22,7 +22,7 @@ export type RemoveCommandOptions = {
 };
 
 export type AddTemplateSchema = {
-  language: SupportedProgrammingLanguageValues;
+  language: SupportedProgrammingLanguageKeys;
   templateName: string;
   description: string;
   location: string;

@@ -64,9 +64,10 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [x] Add a `--settings, -s` to the `dk list` command to display the current configuration settings Only
 - [x] Add wildcard support for template name in the `dk config update` and `dk config remove` commands.
 - [x] add short keys to get config using `dk config` like `dk config lang` for `dk config language`
-- [ ] ** Enhance for organization Purpose **: Add new language `Typescript(ts)` with same code as javascript(js), also support for nodejs(node) template name for those who prefer it than the programming language name
+- [x] ** Enhance for organization Purpose **: Add new language `Typescript(ts)` with same code as javascript(js), also support for nodejs(node) template name for those who prefer it than the programming language name
+- [x] **Testing**: Stabilize the integration test of the `new` command
+- [ ] Make sure to clean up if the `dk new` command fail
 - [ ] Add a configuration validation step when updating the config file to ensure all required fields are present and correctly formatted.
-- [ ] **Testing**: Stabilize the integration test of the `new` command
 - [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
 
 #### Multi-Language Support
@@ -82,6 +83,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 ### Debating
 
 - [ ] **Skip Confirmation**: Add a global `-y`/`--yes` and `-n/--no` option to skip confirmation prompts in commands like `dk init`.
+- [ ] For unsupported languages, we can let the configuration be added but with a warning that it's not supported yet. When using the `dk new` with an unsupported language, we can copy the template as is without any modifications but ignoring the `.git` folder and not installing dependencies.
 - [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself. `dk upgrade`
 - [ ] **Color Configuration**: Add a feature to allow users to configure the colors for templates.
 - [ ] Use the interactive approach for the `dk config add` command (code already there)

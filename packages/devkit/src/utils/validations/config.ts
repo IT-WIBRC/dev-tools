@@ -7,7 +7,7 @@ import {
   TextLanguages,
   type TextLanguageValues,
   ProgrammingLanguage,
-  type SupportedProgrammingLanguageValues,
+  type SupportedProgrammingLanguageKeys,
   type SupportedPackageManager,
   type DisplayModesValues,
 } from "#utils/schema/schema.js";
@@ -58,11 +58,11 @@ export function validateLanguage(
 
 export function validateProgrammingLanguage(
   value: string,
-): asserts value is SupportedProgrammingLanguageValues {
+): asserts value is SupportedProgrammingLanguageKeys {
   const validLanguages = Object.values(ProgrammingLanguage).map((value) =>
     value.toLowerCase(),
   );
-  if (!validLanguages.includes(value as SupportedProgrammingLanguageValues)) {
+  if (!validLanguages.includes(value as SupportedProgrammingLanguageKeys)) {
     throw new DevkitError(
       t("errors.validation.invalid_value", {
         key: "Programming Language",

@@ -115,7 +115,7 @@ describe("dk config add", () => {
     await fs.remove(globalConfigDir);
   });
 
-  it("should add a new template to the local config file", async () => {
+  it("should add a new template to the local config file (using canonical language)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const vueTemplatePath = path.join(
       localTemplateDir,
@@ -150,6 +150,86 @@ describe("dk config add", () => {
       description: "A basic Vue template",
       location: vueTemplatePath,
     });
+  });
+
+  it("should add a new template to the local config file using the 'js' alias", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const svelteTemplatePath = path.join(
+      localTemplateDir,
+      "javascript",
+      "svelte-basic.txt",
+    );
+    await fs.ensureDir(svelteTemplatePath);
+
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "add",
+        "js",
+        "svelte-basic",
+        "-d",
+        "A basic Svelte template",
+        "-o",
+        svelteTemplatePath,
+      ],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("Template 'svelte-basic' added successfully!");
+    expect(
+      updatedConfig.templates.javascript.templates["svelte-basic"],
+    ).toEqual({
+      description: "A basic Svelte template",
+      location: svelteTemplatePath,
+    });
+    expect(updatedConfig.templates.js).toBeUndefined();
+  });
+
+  it("should add a new template and create the 'typescript' language section using the 'ts' alias", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+    const tsNodeTemplatePath = path.join(
+      localTemplateDir,
+      "typescript",
+      "ts-node.txt",
+    );
+    await fs.ensureDir(tsNodeTemplatePath);
+
+    const { exitCode, all } = await execute(
+      "bun",
+      [
+        CLI_PATH,
+        "config",
+        "add",
+        "ts",
+        "ts-node",
+        "-d",
+        "A basic TS Node template",
+        "-o",
+        tsNodeTemplatePath,
+      ],
+      { all: true },
+    );
+
+    const updatedConfig = await fs.readJson(
+      path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("Template 'ts-node' added successfully!");
+
+    expect(updatedConfig.templates.typescript).toBeDefined();
+    expect(updatedConfig.templates.typescript.templates["ts-node"]).toEqual({
+      description: "A basic TS Node template",
+      location: tsNodeTemplatePath,
+    });
+    expect(updatedConfig.templates.ts).toBeUndefined();
   });
 
   it("should add a new template to the global config with --global flag", async () => {
@@ -206,7 +286,7 @@ describe("dk config add", () => {
     );
   });
 
-  it("should fail to add a template if the programming language language is not found", async () => {
+  it("should fail to add a template if the programming language language is invalid (even with alias resolution)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -214,7 +294,7 @@ describe("dk config add", () => {
         CLI_PATH,
         "config",
         "add",
-        "typescript",
+        "invalid-lang$",
         "ts-node",
         "-d",
         "A TS project",
@@ -225,12 +305,10 @@ describe("dk config add", () => {
     );
 
     expect(exitCode).toBe(1);
-    expect(all).toContain(
-      "[DEV]>> Devkit encountered an unexpected internal issue: Invalid value for Programming Language. Valid options are: javascript",
-    );
+    expect(all).toContain("Invalid value for Programming Language.");
   });
 
-  it("should fail to add a template if it already exists", async () => {
+  it("should fail to add a template if it already exists (using alias to check canonical key)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const { exitCode, all } = await execute(
       "bun",
@@ -238,7 +316,7 @@ describe("dk config add", () => {
         CLI_PATH,
         "config",
         "add",
-        "javascript",
+        "js",
         "react-ts",
         "-d",
         "A React project with TypeScript",
@@ -250,11 +328,11 @@ describe("dk config add", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "::[DEV]>> Devkit encountered an unexpected internal issue: Template 'react-ts' already exists in the configuration. Use 'devkit config set' to update it.",
+      "Template 'react-ts' already exists in the configuration. Use 'devkit config set' to update it.",
     );
   });
 
-  it("should fail to add a template if a template with the same alias exists", async () => {
+  it("should fail to add a template if a template with the same alias exists (using alias to check canonical key)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
     const location = path.join(
       localTemplateDir,
@@ -269,7 +347,7 @@ describe("dk config add", () => {
         CLI_PATH,
         "config",
         "add",
-        "javascript",
+        "js",
         "new-ts-template",
         "-d",
         "A new TS project",
@@ -283,7 +361,7 @@ describe("dk config add", () => {
 
     expect(exitCode).toBe(1);
     expect(all).toContain(
-      "::[DEV]>> Devkit encountered an unexpected internal issue: Alias 'rt' already exists for another template in this language. Please choose a different alias.",
+      "Alias 'rt' already exists for another template in this language. Please choose a different alias.",
     );
   });
 });

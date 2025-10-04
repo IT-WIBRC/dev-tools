@@ -1,11 +1,11 @@
 import {
   FILE_NAMES,
-  type SupportedProgrammingLanguageValues,
+  type SupportedProgrammingLanguageKeys,
 } from "#utils/schema/schema.js";
 import fs from "#utils/fs/file.js";
 
 export function getFilesToFilter(
-  language: SupportedProgrammingLanguageValues,
+  language: SupportedProgrammingLanguageKeys,
 ): string[] {
   const commonFiles = Object.values(FILE_NAMES.common);
   const languageSpecificFiles = FILE_NAMES[language].lockFiles;
