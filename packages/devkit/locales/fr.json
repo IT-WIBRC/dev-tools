@@ -268,7 +268,8 @@
       "config_source_local": "Utilisation de la configuration locale.",
       "config_source_global": "Utilisation de la configuration globale.",
       "templates_using_global_fallback": "Aucune configuration locale trouvée. Utilisation des modèles de la configuration globale.",
-      "including_defaults_suffix": "(incluant les modèles par défaut)"
+      "including_defaults_suffix": "(incluant les modèles par défaut)",
+      "project_removed": "Projet '{project}' supprimé avec succès."
     },
     "scaffolding": {
       "start": "Échafaudage du projet {language} : {project}",

@@ -6,32 +6,25 @@ import {
 import { DevkitError } from "../../../src/utils/errors/base.js";
 import { mockSpinner, mockLogger } from "../../../vitest.setup.js";
 
-const {
-  mockRunCliCommand,
-  mockInstallDependencies,
-  mockCopyLocalTemplate,
-  mockGetTemplateFromCache,
-} = vi.hoisted(() => ({
-  mockRunCliCommand: vi.fn(),
-  mockInstallDependencies: vi.fn(),
-  mockGetTemplateFromCache: vi.fn(),
-  mockCopyLocalTemplate: vi.fn(),
-}));
+const { mockScaffoldTemplate, mockInstallDependencies, mockFsRemove } =
+  vi.hoisted(() => ({
+    mockScaffoldTemplate: vi.fn(),
+    mockInstallDependencies: vi.fn(),
+    mockFsRemove: vi.fn(),
+  }));
 
-vi.mock("#scaffolding/cli-runner.js", () => ({
-  runCliCommand: mockRunCliCommand,
-}));
-
-vi.mock("#core/cache/index.js", () => ({
-  getTemplateFromCache: mockGetTemplateFromCache,
-}));
-
-vi.mock("#scaffolding/local-template.js", () => ({
-  copyLocalTemplate: mockCopyLocalTemplate,
+vi.mock("../../../src/scaffolding/scaffold-template.js", () => ({
+  scaffoldTemplate: mockScaffoldTemplate,
 }));
 
 vi.mock("#scaffolding/dependencies.js", () => ({
   installDependencies: mockInstallDependencies,
+}));
+
+vi.mock("#utils/fs/file.js", () => ({
+  default: {
+    remove: mockFsRemove,
+  },
 }));
 
 describe("scaffoldProject", () => {
@@ -39,65 +32,106 @@ describe("scaffoldProject", () => {
     projectName: "my-project",
     packageManager: "npm",
     cacheStrategy: "daily",
+    templateConfig: { location: "mock-location" },
   } as ScaffoldJavascriptProjectOptions;
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockScaffoldTemplate.mockResolvedValue({
+      isOfficialCli: false,
+      projectDirCreated: false,
+    });
+    mockInstallDependencies.mockResolvedValue(undefined);
   });
 
-  it("should run official CLI command for a {pm} template", async () => {
-    const templateConfig = { location: "{pm} create vue" };
-    await scaffoldProject({ ...options, templateConfig });
-    expect(mockRunCliCommand).toHaveBeenCalledOnce();
-    expect(mockRunCliCommand).toHaveBeenCalledWith({
-      command: "{pm} create vue",
-      projectName: options.projectName,
-      packageManager: options.packageManager,
-      spinner: mockSpinner,
+  it("should skip dependency install and success log for official CLI templates", async () => {
+    mockScaffoldTemplate.mockResolvedValue({
+      isOfficialCli: true,
+      projectDirCreated: false,
     });
+
+    await scaffoldProject(options);
+
+    expect(mockScaffoldTemplate).toHaveBeenCalledOnce();
     expect(mockInstallDependencies).not.toHaveBeenCalled();
-    expect(mockSpinner.fail).not.toHaveBeenCalled();
-  });
-
-  it("should get template from cache for a remote Git URL", async () => {
-    const templateConfig = { location: "https://github.com/repo/test.git" };
-    await scaffoldProject({ ...options, templateConfig });
-    expect(mockGetTemplateFromCache).toHaveBeenCalledWith({
-      url: templateConfig.location,
-      projectName: options.projectName,
-      spinner: mockSpinner,
-      strategy: options.cacheStrategy,
-    });
-    expect(mockInstallDependencies).toHaveBeenCalled();
-  });
-
-  it("should copy local template for a relative path", async () => {
-    const templateConfig = { location: "./templates/local" };
-    await scaffoldProject({ ...options, templateConfig });
-    expect(mockCopyLocalTemplate).toHaveBeenCalledWith({
-      sourcePath: templateConfig.location,
-      projectName: options.projectName,
-      spinner: mockSpinner,
-    });
-    expect(mockInstallDependencies).toHaveBeenCalled();
-  });
-
-  it("should call spinner.fail and console.error on any exception", async () => {
-    const templateConfig = { location: "http://invalid-url" };
-    vi.mocked(mockGetTemplateFromCache).mockRejectedValueOnce(
-      new DevkitError("Test error"),
+    expect(mockLogger.log).not.toHaveBeenCalledWith(
+      expect.stringContaining("messages.success.scaffolding_complete"),
     );
-    await scaffoldProject({ ...options, templateConfig });
-    expect(mockSpinner.fail).toHaveBeenCalled();
-    expect(mockLogger.error).toHaveBeenCalled();
   });
 
-  it("should log success messages and next steps for non-CLI templates", async () => {
-    const templateConfig = { location: "http://example.com" };
-    await scaffoldProject({ ...options, templateConfig });
-    expect(mockInstallDependencies).toHaveBeenCalled();
+  it("should run dependency install and log success for custom templates", async () => {
+    mockScaffoldTemplate.mockResolvedValue({
+      isOfficialCli: false,
+      projectDirCreated: true,
+    });
+
+    await scaffoldProject(options);
+
+    expect(mockScaffoldTemplate).toHaveBeenCalledOnce();
+    expect(mockInstallDependencies).toHaveBeenCalledOnce();
     expect(mockLogger.log).toHaveBeenCalledWith(
       expect.stringContaining("messages.success.scaffolding_complete"),
     );
+  });
+
+  it("should NOT call fs.remove if projectDirCreated is false on failure", async () => {
+    mockScaffoldTemplate.mockRejectedValueOnce(new DevkitError("CLI error"));
+
+    await scaffoldProject(options);
+
+    expect(mockSpinner.fail).toHaveBeenCalledOnce();
+    expect(mockFsRemove).not.toHaveBeenCalled();
+    expect(mockLogger.error).toHaveBeenCalled();
+  });
+
+  it("should call fs.remove and log cleanup warning if projectDirCreated is true on failure", async () => {
+    mockScaffoldTemplate.mockResolvedValueOnce({
+      isOfficialCli: false,
+      projectDirCreated: true,
+    });
+    vi.mocked(mockInstallDependencies).mockRejectedValueOnce(
+      new DevkitError("Install error"),
+    );
+
+    await scaffoldProject(options);
+
+    expect(mockSpinner.fail).toHaveBeenCalledOnce();
+    expect(mockFsRemove).toHaveBeenCalledWith(options.projectName);
+    expect(mockLogger.error).toHaveBeenCalled();
+    expect(mockLogger.warning).toHaveBeenCalledWith(
+      expect.stringContaining("messages.status.project_removed"),
+    );
+  });
+
+  it("should log cleanup failure error if fs.remove itself fails", async () => {
+    mockScaffoldTemplate.mockResolvedValueOnce({
+      isOfficialCli: false,
+      projectDirCreated: true,
+    });
+    vi.mocked(mockInstallDependencies).mockRejectedValueOnce(
+      new DevkitError("Install error"),
+    );
+    vi.mocked(mockFsRemove).mockRejectedValueOnce(
+      new Error("Permissions denied"),
+    );
+
+    await scaffoldProject(options);
+
+    expect(mockSpinner.fail).toHaveBeenCalledOnce();
+    expect(mockFsRemove).toHaveBeenCalledWith(options.projectName);
+    expect(mockLogger.error).toHaveBeenCalledTimes(2);
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      expect.stringContaining("errors.scaffolding.fail"),
+      "CLEANUP",
+    );
+  });
+
+  it("should call spinner.fail and console.error on any exception", async () => {
+    mockScaffoldTemplate.mockRejectedValueOnce(new Error("Generic error"));
+    await scaffoldProject(options);
+    expect(mockSpinner.fail).toHaveBeenCalled();
+    expect(mockLogger.error).toHaveBeenCalled();
+    expect(mockFsRemove).not.toHaveBeenCalled();
   });
 });

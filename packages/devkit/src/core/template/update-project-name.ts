@@ -17,9 +17,11 @@ export async function updateJavascriptProjectName(
 
   try {
     const packageJson = await fs.readJson(packageJsonPath);
-    packageJson.name = newProjectName;
 
-    await fs.writeJson(packageJsonPath, packageJson);
+    await fs.writeJson(packageJsonPath, {
+      ...packageJson,
+      name: newProjectName,
+    });
   } catch (error) {
     const errorMessage = t("errors.system.package_name_update_fail");
 
