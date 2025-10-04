@@ -66,7 +66,7 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [x] add short keys to get config using `dk config` like `dk config lang` for `dk config language`
 - [x] ** Enhance for organization Purpose **: Add new language `Typescript(ts)` with same code as javascript(js), also support for nodejs(node) template name for those who prefer it than the programming language name
 - [x] **Testing**: Stabilize the integration test of the `new` command
-- [ ] Make sure to clean up if the `dk new` command fail
+- [x] Make sure to clean up if the `dk new` command fail
 - [ ] Add a configuration validation step when updating the config file to ensure all required fields are present and correctly formatted.
 - [ ] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
 

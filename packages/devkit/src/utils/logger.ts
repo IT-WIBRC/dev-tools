@@ -77,6 +77,7 @@ export type ErrorType =
   | "ERR"
   | "CONFIG"
   | "TEMPL"
+  | "CLEANUP"
   | "CACHE";
 export type TSpinner = Ora;
 

@@ -286,7 +286,6 @@ describe("dk new", () => {
         { all: true, cwd: tempDir },
       );
       expect(exitCode).toBe(0);
-
       expect(
         await fs.pathExists(path.join(tempDir, "my-vue-app", "package.json")),
       ).toBe(true);

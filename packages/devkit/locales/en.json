@@ -268,7 +268,8 @@
       "config_source_local": "Using local configuration.",
       "config_source_global": "Using global configuration.",
       "templates_using_global_fallback": "No local configuration found. Using templates from global configuration.",
-      "including_defaults_suffix": "(including default templates)"
+      "including_defaults_suffix": "(including default templates)",
+      "project_removed": "Project '{project}' removed successfully."
     },
     "scaffolding": {
       "start": "Scaffolding {language} project: {project}",
