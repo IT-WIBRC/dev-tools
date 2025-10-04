@@ -12,7 +12,7 @@ Built to fit the modern developer workflow, `dk` seamlessly integrates into mono
 
 - **Unified Command:** Access all features with the short, intuitive command `dk`.
 - **Intelligent Scaffolding:** Create new projects from a wide variety of popular frameworks with a single, intuitive command. You can also use custom templates for a consistent workflow. **See the list of supported templates below.**
-- **Node.js Ecosystem Support:** All commands and templates are currently designed for and support the **Node.js ecosystem**, including projects managed with **npm**, **Yarn**, **pnpm**, and **Bun**. This includes **JavaScript, TypeScript, and any project that relies on a Node.js runtime or a similar engine like Bun** for dependency management and execution.
+- **Node.js Ecosystem Support:** All commands and templates are currently designed for and support the **Node.js ecosystem**, including projects managed with **npm**, **Yarn**, **pnpm**, and **Bun**. This includes **JavaScript, TypeScript, and any project that relies on a Node.js runtime or a similar engine like Bun** for dependency management and execution. **You can use either the full language name or its alias (e.g., `javascript` or `js`, `typescript` or `ts`, `nodejs` or `node`) when executing commands.**
 - **Robust Configuration:** The tool reliably finds your configuration file (`.devkit.json`) in any project or monorepo structure. It uses a clear priority system to manage both local and global settings.
 - **Powerful Cache Management:** Optimize project setup speed with flexible caching strategies for your templates. These strategies are mainly applied when using a GitHub URL:
   - `always-refresh`: Always pull the latest template from the remote repository.
@@ -107,7 +107,7 @@ In addition to the options for each command, you can use global flags that affec
 
 Scaffolder comes with a set of pre-configured templates for popular frameworks and libraries. You can use these templates out of the box with the `dk new` command.
 
-> **Note:** All templates currently support Node.js projects and must be configured under the `javascript` key.
+> **Note:** All templates currently support Node.js projects and must be configured under the **canonical language key** (`javascript`, `typescript`, or `nodejs`) in your config file. However, you can use the short **aliases** (`js`, `ts`, `node`) when running any `dk` command.
 
 | Template Name  | Description                                            | Alias  |
 | :------------- | :----------------------------------------------------- | :----- |
@@ -151,7 +151,10 @@ dk info
 The `new` command now takes a language and a project name as arguments. You can then specify the template with the `-t` or `--template` flag.
 
 ```bash
-# Create a new Vue project
+# Create a new Vue project using the 'js' language alias
+dk new js my-awesome-app -t vue
+
+# Create a new Vue project using the full 'javascript' name
 dk new javascript my-awesome-app -t vue
 ```
 
@@ -165,8 +168,8 @@ The `dk list` command allows you to view all available templates defined in your
 # List all templates, prioritizing the local config
 dk list
 
-# List templates for a specific language (e.g., 'javascript')
-dk list javascript
+# List templates for a specific language (e.g., 'javascript' or its alias 'js')
+dk list js
 
 # List templates and filter by a where clause (e.g., 'name:vue')
 dk list --where name:vue
@@ -204,7 +207,7 @@ dk list --all
 dk list --where alias:rt --where pm=npm
 
 # List javascript templates and filter by templates whose name starts with 'r'
-dk list javascript --where name:/^r/
+dk list js --where name:/^r/
 
 # List templates in a compact table format, including defaults
 dk list --mode table -d
@@ -265,8 +268,8 @@ dk config list --all -d
 The `dk config add` command allows you to easily register a new template with your CLI. It intelligently updates the configuration file in your current context.
 
 ```bash
-# Add a new template from a GitHub repository
-dk config add javascript react-ts-template --description "My custom React TS template" --location https://github.com/my-user/my-react-ts-template.git
+# Add a new template from a GitHub repository using the 'js' language alias
+dk config add js react-ts-template --description "My custom React TS template" --location https://github.com/my-user/my-react-ts-template.git
 ```
 
 #### Update a template's configuration
@@ -274,7 +277,7 @@ dk config add javascript react-ts-template --description "My custom React TS tem
 The `dk config update` command allows you to modify an existing template's properties.
 
 - You must provide the language and the name of the template(s) you wish to update.
-- **Wildcard Support:** Use the wildcard character `*` in place of a template name (e.g., `dk config update javascript *`) to apply the update to **all templates** registered under that language.
+- **Wildcard Support:** Use the wildcard character `*` in place of a template name (e.g., `dk config update js *`) to apply the update to **all templates** registered under that language.
 - **Multiple Templates:** You can list multiple template names to apply the **exact same property updates** to all of them.
 - You can also update the template's name using the `--new-name` flag (this flag only works when updating a single template).
 - Use the `--global` flag to update templates in your global (`~/.devkitrc`) file.
@@ -282,14 +285,14 @@ The `dk config update` command allows you to modify an existing template's prope
 <!-- end list -->
 
 ```bash
-# Update the description and alias for a single template
+# Update the description and alias for a single template using the canonical language name
 dk config update javascript my-template --description "A new and improved description" --alias "my-alias"
 
-# Apply a new package manager to ALL javascript templates in the local config
-dk config update javascript * --package-manager bun
+# Apply a new package manager to ALL javascript templates in the local config using the 'js' alias
+dk config update js * --package-manager bun
 
 # Change a template's name and its description in a single command
-dk config update javascript my-template --new-name my-cool-template --description "A newly renamed template"
+dk config update js my-template --new-name my-cool-template --description "A newly renamed template"
 ```
 
 ---
@@ -299,22 +302,22 @@ dk config update javascript my-template --new-name my-cool-template --descriptio
 The `dk config remove` command allows you to delete one or more templates from your configuration file.
 
 - You must provide the language and the name(s) of the template(s) you wish to remove.
-- **Wildcard Support:** Use the wildcard character `*` in place of a template name (e.g., `dk config remove javascript *`) to remove **all templates** registered under that language.
-- **Multiple Templates:** You can list multiple template names to remove them all in one operation (e.g., `dk config remove javascript template1 template2`).
+- **Wildcard Support:** Use the wildcard character `*` in place of a template name (e.g., `dk config remove js *`) to remove **all templates** registered under that language.
+- **Multiple Templates:** You can list multiple template names to remove them all in one operation (e.g., `dk config remove js template1 template2`).
 - **Global:** You can explicitly remove the template from your global (`~/.devkitrc`) file using the `--global` flag.
 - **Local:** It removes the template from the `.devkit.json` file in the root of your current project.
 
 <!-- end list -->
 
 ```bash
-# Remove the 'react-ts-template' for 'javascript' from the local config
-dk config remove javascript react-ts-template
+# Remove the 'react-ts-template' for 'javascript' from the local config using the 'js' alias
+dk config remove js react-ts-template
 
-# Remove ALL javascript templates from the local config
-dk config remove javascript *
+# Remove ALL javascript templates from the local config using the 'js' alias
+dk config remove js *
 
 # Remove multiple templates at once from the local config
-dk config remove javascript template1 template2
+dk config remove js template1 template2
 
 # Remove the 'node-api' template from the global config
 dk config remove node node-api --global
@@ -408,7 +411,7 @@ Once an alias is configured, you can use it in place of the full template name f
 
 ```bash
 # Create a new project from the alias 'gh-template'
-dk new javascript my-new-project-name -t gh-template
+dk new js my-new-project-name -t gh-template
 ```
 
 ### Create and configure a project file
@@ -543,11 +546,11 @@ First, build your template. This is a standard project directory containing all 
 
 Once your template project is ready, use the `dk config add` command to register it with the CLI. This command adds the template's details to your `.devkit.json` file, making it available for use.
 
-> **Note:** All custom templates must be added to the `javascript` section of your configuration file.
+> **Note:** All custom templates must be added under a supported language section (e.g., `javascript`, `typescript`, `node`) in your configuration file.
 
 ```bash
 # Add a template from a local folder to your global config
-dk config add javascript custom-js-app --description "My personal JavaScript boilerplate" --location /Users/myuser/projects/my-local-template --global
+dk config add js custom-js-app --description "My personal JavaScript boilerplate" --location /Users/myuser/projects/my-local-template --global
 ```
 
 #### Step 3: Use the Template
@@ -556,7 +559,7 @@ After running the `dk config add` command, you can scaffold a new project from y
 
 ```bash
 # Create a new project from the template we just added
-dk new javascript my-awesome-project -t custom-js-app
+dk new js my-awesome-project -t custom-js-app
 ```
 
 ---

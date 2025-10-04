@@ -48,7 +48,7 @@ const localConfig: CliConfig = {
         },
       },
     },
-    node: {
+    nodejs: {
       templates: {
         "node-api": {
           description: "A Node.js API boilerplate",
@@ -119,7 +119,7 @@ describe("dk list", () => {
     expect(all).toContain("Configuration sources loaded successfully.");
     expect(all).toContain("Available Templates:");
     expect(all).toContain("Javascript");
-    expect(all).toContain("Node");
+    expect(all).toContain("Nodejs");
     expect(all).not.toContain("Python");
   });
 
@@ -143,7 +143,7 @@ describe("dk list", () => {
     expect(all).toContain("Configuration sources loaded successfully.");
     expect(all).toContain("Available Templates:");
     expect(all).toContain("Javascript");
-    expect(all).toContain("Node");
+    expect(all).toContain("Nodejs");
     expect(all).toContain("Python");
   });
 
@@ -171,10 +171,10 @@ describe("dk list", () => {
     expect(all).toContain("Available Templates:");
     expect(all).toContain("Python");
     expect(all).not.toContain("Javascript");
-    expect(all).not.toContain("Node");
+    expect(all).not.toContain("Nodejs");
   });
 
-  it("should filter templates by language argument", async () => {
+  it("should filter templates by language argument (canonical name)", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
 
     const { all, exitCode } = await execute(
@@ -190,7 +190,36 @@ describe("dk list", () => {
     expect(all).toContain("Javascript");
     expect(all).toContain("react-ts");
     expect(all).toContain("vue-basic");
-    expect(all).not.toContain("Node");
+    expect(all).not.toContain("Nodejs");
+  });
+
+  it("should filter templates by 'js' language alias", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "list", "js"], {
+      all: true,
+      env: { HOME: globalConfigDir },
+    });
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("Javascript");
+    expect(all).toContain("react-ts");
+    expect(all).toContain("vue-basic");
+    expect(all).not.toContain("Nodejs");
+  });
+
+  it("should filter templates by 'node' language alias", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+
+    const { all, exitCode } = await execute("bun", [CLI_PATH, "list", "node"], {
+      all: true,
+      env: { HOME: globalConfigDir },
+    });
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("Nodejs");
+    expect(all).toContain("node-api");
+    expect(all).not.toContain("Javascript");
   });
 
   it("should filter templates by name using the --where syntax", async () => {
@@ -242,7 +271,24 @@ describe("dk list", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("react-ts");
-    expect(all).toContain("vue-basic");
+    expect(all).not.toContain("node-api");
+  });
+
+  it("should filter templates by substring in packageManager, matching only npm", async () => {
+    await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), localConfig);
+
+    const { all, exitCode } = await execute(
+      "bun",
+      [CLI_PATH, "list", "--where", "pm:/^npm/"],
+      {
+        all: true,
+        env: { HOME: globalConfigDir },
+      },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(all).toContain("react-ts");
+    expect(all).not.toContain("vue-basic");
     expect(all).not.toContain("node-api");
   });
 
@@ -336,6 +382,7 @@ describe("dk list", () => {
         javascript: {
           templates: {},
         },
+        nodejs: localConfig.templates.nodejs,
       },
     });
 
@@ -436,8 +483,29 @@ describe("dk list", () => {
       expect(all).toContain("Available Templates:");
       expect(all).toContain("Language");
       expect(all).toContain("Javascript");
-      expect(all).toContain("Node");
+      expect(all).toContain("Nodejs");
       expect(all).not.toContain("Python");
+    });
+
+    it("should filter templates by 'js' language alias in table mode", async () => {
+      await fs.writeJson(
+        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+        localConfig,
+      );
+
+      const { all, exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "list", "js", "--mode", "table"],
+        {
+          all: true,
+          env: { HOME: globalConfigDir },
+        },
+      );
+
+      expect(exitCode).toBe(0);
+      expect(all).toContain("Javascript");
+      expect(all).toContain("react-ts");
+      expect(all).not.toContain("Nodejs");
     });
 
     it("should handle both local and global configs being empty", async () => {
@@ -486,7 +554,7 @@ describe("dk list", () => {
       expect(all).toContain("Javascript");
       expect(all).toContain("vue-basic");
       expect(all).not.toContain("react-ts");
-      expect(all).not.toContain("Node");
+      expect(all).not.toContain("Nodejs");
       expect(all).not.toContain("Python");
     });
   });
@@ -553,7 +621,7 @@ describe("dk list", () => {
       expect(all).toContain("Available Templates:");
       expect(all).toContain("Javascript");
       expect(all).toContain("remix");
-      expect(all).toContain("Node");
+      expect(all).toContain("Nodejs");
       expect(all).toContain("node-api");
     });
 

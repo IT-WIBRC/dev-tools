@@ -96,7 +96,7 @@ describe("dk config", () => {
     it("should throw an error if no config file is found for setting", async () => {
       const { all, exitCode } = await execute(
         "bun",
-        [CLI_PATH, "conf", "--set", "language", "en"],
+        [CLI_PATH, "conf", "--set", "lang", "en"],
         { all: true, reject: false },
       );
 

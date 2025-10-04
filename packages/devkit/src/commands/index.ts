@@ -7,7 +7,7 @@ import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { setupNewCommand } from "#commands/new.js";
 import { setupConfigCommand } from "#commands/config/index.js";
 import { setupListCommand } from "#commands/list.js";
-import { setupInitCommand } from "#commands/init.js";
+import { setupInitCommand } from "#commands/init/index.js";
 
 import { setupInfoCommand } from "#commands/info.js";
 import { loadTranslations } from "#utils/i18n/translation-loader.js";

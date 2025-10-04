@@ -8,17 +8,26 @@ import {
 import { DevkitError } from "../../../../../src/utils/errors/base.js";
 import type { CliConfig } from "../../../../../src/utils/schema/schema.js";
 
-const { mockHandleErrorAndExit, mockGetTemplateNamesToActOn, mockSaveConfig } =
-  vi.hoisted(() => ({
-    mockHandleErrorAndExit: vi.fn(),
-    mockGetTemplateNamesToActOn: vi.fn(),
-    mockSaveConfig: vi.fn(),
-  }));
+const {
+  mockHandleErrorAndExit,
+  mockGetTemplateNamesToActOn,
+  mockSaveConfig,
+  mockMapLanguageAliasToCanonicalKey,
+} = vi.hoisted(() => ({
+  mockHandleErrorAndExit: vi.fn(),
+  mockGetTemplateNamesToActOn: vi.fn(),
+  mockSaveConfig: vi.fn(),
+  mockMapLanguageAliasToCanonicalKey: vi.fn((lang) => lang),
+}));
 
 let actionFn: (...options: unknown[]) => Promise<void>;
 
 vi.mock("#utils/errors/handler.js", () => ({
   handleErrorAndExit: mockHandleErrorAndExit,
+}));
+
+vi.mock("#core/config/language.js", () => ({
+  mapLanguageAliasToCanonicalKey: mockMapLanguageAliasToCanonicalKey,
 }));
 
 vi.mock("../../../../../src/commands/config/remove/logic.js", () => ({
@@ -92,6 +101,7 @@ describe("setupRemoveCommand (Command Handler)", () => {
         return mockConfigCommand;
       }),
     };
+    mockMapLanguageAliasToCanonicalKey.mockImplementation((lang) => lang);
   });
 
   it("should set up the remove command with correct options and arguments", () => {
@@ -103,6 +113,46 @@ describe("setupRemoveCommand (Command Handler)", () => {
     expect(mockConfigCommand.description).toHaveBeenCalledWith(
       mocktFn(CMD_DESCRIPTION_KEY),
     );
+  });
+
+  it("should map language alias ('js') to canonical key and pass it to logic", async () => {
+    const aliasLang = "js";
+    const canonicalLang = "javascript";
+    const templateToRemove = "vue-basic";
+
+    mockMapLanguageAliasToCanonicalKey.mockReturnValueOnce(canonicalLang);
+    mockGetTemplateNamesToActOn.mockResolvedValueOnce({
+      targetConfig: structuredClone(MOCK_TARGET_CONFIG),
+      languageTemplates: structuredClone(MOCK_LANGUAGE_TEMPLATES),
+      templatesToActOn: [templateToRemove],
+      notFound: [],
+    });
+    mockSaveConfig.mockResolvedValue(undefined);
+
+    setupRemoveCommand(mockConfigCommand);
+    await callAction(aliasLang, [templateToRemove], false);
+
+    expect(mockMapLanguageAliasToCanonicalKey).toHaveBeenCalledWith(aliasLang);
+
+    expect(mockGetTemplateNamesToActOn).toHaveBeenCalledWith(
+      canonicalLang,
+      [templateToRemove],
+      false,
+    );
+
+    expect(mockSpinner.succeed).toHaveBeenCalledWith(
+      mocktFn(SUCCESS_REMOVED_KEY, {
+        count: "1",
+        templateName: templateToRemove,
+        language: canonicalLang,
+      }),
+    );
+
+    const savedConfig = mockSaveConfig.mock.calls[0]![0];
+    expect(
+      savedConfig.templates[canonicalLang].templates[templateToRemove],
+    ).toBeUndefined();
+    expect(savedConfig.templates[aliasLang]).toBeUndefined();
   });
 
   describe("action handler", () => {
@@ -170,7 +220,10 @@ describe("setupRemoveCommand (Command Handler)", () => {
         templates,
         true,
       );
-      expect(mockSaveConfig).toHaveBeenCalledWith(expect.any(Object), true);
+      expect(mockSaveConfig).toHaveBeenCalledWith(
+        expect.objectContaining({ templates: expect.any(Object) }),
+        true,
+      );
 
       const savedConfig = mockSaveConfig.mock.calls[0]![0];
       expect(savedConfig.templates[language].templates).toEqual({});
@@ -245,12 +298,14 @@ describe("setupRemoveCommand (Command Handler)", () => {
       setupRemoveCommand(mockConfigCommand);
       await callAction("javascript", missingTemplates, false);
 
+      const expectedError = new DevkitError(
+        mocktFn(ERROR_TEMPLATE_NOT_FOUND_KEY, {
+          template: missingTemplates.join(", "),
+        }),
+      );
+
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-        new DevkitError(
-          mocktFn(ERROR_TEMPLATE_NOT_FOUND_KEY, {
-            template: missingTemplates.join(", "),
-          }),
-        ),
+        expectedError,
         mockSpinner,
       );
       expect(mockSaveConfig).not.toHaveBeenCalled();

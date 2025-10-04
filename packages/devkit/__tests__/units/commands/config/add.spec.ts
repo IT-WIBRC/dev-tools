@@ -12,11 +12,13 @@ const {
   mockReadConfigSources,
   mockValidateAndSaveTemplate,
   mockValidateProgrammingLanguage,
+  mockMapLanguageAliasToCanonicalKey,
 } = vi.hoisted(() => ({
   mockHandleErrorAndExit: vi.fn(),
   mockReadConfigSources: vi.fn(),
   mockValidateAndSaveTemplate: vi.fn(),
   mockValidateProgrammingLanguage: vi.fn(),
+  mockMapLanguageAliasToCanonicalKey: vi.fn((lang) => lang),
 }));
 
 let actionFn: (...options: unknown[]) => Promise<void>;
@@ -31,6 +33,10 @@ vi.mock("#core/config/loader.js", () => ({
 
 vi.mock("#utils/validations/config.js", () => ({
   validateProgrammingLanguage: mockValidateProgrammingLanguage,
+}));
+
+vi.mock("#core/config/language.js", () => ({
+  mapLanguageAliasToCanonicalKey: mockMapLanguageAliasToCanonicalKey,
 }));
 
 vi.mock("../../../../src/commands/config/validate-and-save.js", () => ({
@@ -88,6 +94,7 @@ describe("setupAddCommand", () => {
       configFound: true,
     });
     mockValidateProgrammingLanguage.mockReturnValue(true);
+    mockMapLanguageAliasToCanonicalKey.mockImplementation((lang) => lang);
   });
 
   it("should set up the add command with correct options and arguments", () => {
@@ -112,6 +119,40 @@ describe("setupAddCommand", () => {
         opts: vi.fn(() => ({ global: false })),
       },
     };
+
+    it("should map a language alias ('ts') to its canonical key and use it for validation/saving", async () => {
+      setupAddCommand(mockConfigCommand);
+      const aliasLang = "ts";
+      const canonicalLang = "typescript";
+      const templateName = "my-ts-template";
+
+      mockMapLanguageAliasToCanonicalKey.mockReturnValue(canonicalLang);
+
+      await actionFn(
+        aliasLang,
+        templateName,
+        defaultCmdOptions,
+        mockParentCommand,
+      );
+
+      expect(mockMapLanguageAliasToCanonicalKey).toHaveBeenCalledWith(
+        aliasLang,
+      );
+
+      expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
+        canonicalLang,
+      );
+
+      expect(mockValidateAndSaveTemplate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          language: canonicalLang,
+          templateName,
+        }),
+        MOCK_LOCAL_CONFIG,
+        false,
+        mockSpinner,
+      );
+    });
 
     it("should process and save a new template targeting the LOCAL config by default", async () => {
       setupAddCommand(mockConfigCommand);
@@ -148,7 +189,7 @@ describe("setupAddCommand", () => {
       mockParentCommand.parent.opts.mockReturnValue({ global: true });
 
       await actionFn(
-        "python",
+        "nodejs",
         "django-app",
         defaultCmdOptions,
         mockParentCommand as any,
@@ -160,7 +201,7 @@ describe("setupAddCommand", () => {
       });
 
       expect(mockValidateAndSaveTemplate).toHaveBeenCalledWith(
-        expect.objectContaining({ language: "python" }),
+        expect.objectContaining({ language: "nodejs" }),
         MOCK_GLOBAL_CONFIG,
         true,
         mockSpinner,
@@ -186,7 +227,7 @@ describe("setupAddCommand", () => {
       );
 
       expect(mockValidateAndSaveTemplate).toHaveBeenCalledWith(
-        expect.any(Object),
+        expect.objectContaining({ language: "javascript" }),
         MOCK_DEFAULT_CONFIG,
         false,
         mockSpinner,
@@ -212,7 +253,7 @@ describe("setupAddCommand", () => {
       );
 
       expect(mockValidateAndSaveTemplate).toHaveBeenCalledWith(
-        expect.any(Object),
+        expect.objectContaining({ language: "javascript" }),
         MOCK_DEFAULT_CONFIG,
         true,
         mockSpinner,
@@ -230,13 +271,15 @@ describe("setupAddCommand", () => {
         mockParentCommand as any,
       );
 
+      const expectedError = new DevkitError(
+        mocktFn(MISSING_REQUIRED_KEY, {
+          fields: "--description, --location",
+        }),
+      );
+
       expect(mockHandleErrorAndExit).toHaveBeenCalledOnce();
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-        new DevkitError(
-          mocktFn(MISSING_REQUIRED_KEY, {
-            fields: "--description, --location",
-          }),
-        ),
+        expectedError,
         mockSpinner,
       );
       expect(mockReadConfigSources).not.toHaveBeenCalled();
@@ -253,21 +296,21 @@ describe("setupAddCommand", () => {
         mockParentCommand as any,
       );
 
+      const expectedError = new DevkitError(
+        mocktFn(MISSING_REQUIRED_KEY, {
+          fields: "--description, --location",
+        }),
+      );
+
       expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-        new DevkitError(
-          mocktFn(MISSING_REQUIRED_KEY, {
-            fields: "--description, --location",
-          }),
-        ),
+        expectedError,
         mockSpinner,
       );
       expect(mockReadConfigSources).not.toHaveBeenCalled();
     });
 
     it("should handle an invalid language gracefully (pre-config load)", async () => {
-      const mockError = new DevkitError(
-        "error.language_config_not_found - keys: language, values: invalid-lang",
-      );
+      const mockError = new DevkitError("Invalid language");
       mockValidateProgrammingLanguage.mockImplementationOnce(() => {
         throw mockError;
       });

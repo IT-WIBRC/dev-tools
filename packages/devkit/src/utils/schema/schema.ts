@@ -2,6 +2,8 @@ import type { Command } from "commander";
 
 export const ProgrammingLanguage = {
   Javascript: "Javascript",
+  Typescript: "Typescript",
+  Nodejs: "Nodejs",
 } as const;
 
 export const JavascriptPackageManagers = {
@@ -50,9 +52,19 @@ export type LowercaseValues<T extends string> =
       ? Lowercase<U>
       : T;
 
-export type SupportedProgrammingLanguageValues = LowercaseValues<
+export type SupportedProgrammingLanguageKeys = LowercaseValues<
   ValuesOf<typeof ProgrammingLanguage>
 >;
+
+export const ProgrammingLanguageAlias = {
+  js: "javascript",
+  ts: "typescript",
+  node: "nodejs",
+} as const;
+
+export type ValidProgrammingLanguageInput =
+  | SupportedProgrammingLanguageKeys
+  | ValuesOf<typeof ProgrammingLanguageAlias>;
 
 export interface TemplateConfig {
   description: string;
@@ -67,7 +79,7 @@ export interface LanguageConfig {
 }
 
 export interface CliConfig {
-  templates: Record<string, LanguageConfig>;
+  templates: Record<SupportedProgrammingLanguageKeys | string, LanguageConfig>;
   settings: {
     defaultPackageManager: SupportedPackageManager;
     cacheStrategy: CacheStrategy;
@@ -103,88 +115,105 @@ export interface ReadConfigOptions {
   useFallback?: boolean;
 }
 
+const genericNodejsTemplate: TemplateConfig = {
+  description:
+    "A generic, unopinionated Node.js/Typescript project boilerplate.",
+  location: "https://github.com/IT-WIBRC/devkit-node-boilerplate.git",
+  alias: "node",
+  cacheStrategy: "daily",
+};
+
+const baseJsTemplates: Record<string, TemplateConfig> = {
+  nodejs: genericNodejsTemplate,
+  vue: {
+    description: "An official Vue.js project.",
+    location: "{pm} create vue@latest",
+    cacheStrategy: "always-refresh",
+  },
+  nuxt: {
+    description: "An official Nuxt.js project.",
+    location: "{pm} create nuxt@latest",
+    alias: "nx",
+  },
+  nest: {
+    description: "An official Nest.js project.",
+    location: "{pm} install -g @nestjs/cli && nest new",
+  },
+  nextjs: {
+    description: "An official Next.js project.",
+    location: "{pm} create next-app@latest",
+    alias: "next",
+  },
+  express: {
+    description: "A simple Express.js boilerplate from its generator.",
+    location: "https://github.com/expressjs/express-generator.git",
+    alias: "ex",
+  },
+  fastify: {
+    description: "A highly performant Fastify web framework boilerplate.",
+    location: "https://github.com/fastify/fastify-cli.git",
+    alias: "fy",
+  },
+  koa: {
+    description: "A Koa.js web framework boilerplate.",
+    location: "https://github.com/koajs/koa-generator.git",
+  },
+  adonis: {
+    description: "A full-stack Node.js framework (AdonisJS).",
+    location: "{pm} create adonisjs",
+    alias: "ad",
+  },
+  sails: {
+    description: "A real-time, MVC framework (Sails.js).",
+    location: "{pm} install -g sails && sails new",
+  },
+  angular: {
+    description: "An official Angular project.",
+    location: "{pm} install -g @angular/cli && ng new",
+    alias: "ng",
+  },
+  "angular-vite": {
+    description: "An Angular project using Vite via AnalogJS.",
+    location: "{pm} create analog@latest",
+    alias: "ng-v",
+  },
+  react: {
+    description: "A React project using the recommended Vite setup.",
+    location: "{pm} create vite@latest -- --template react",
+    alias: "rt",
+  },
+  svelte: {
+    description: "A Svelte project using SvelteKit.",
+    location: "{pm} create svelte@latest",
+  },
+  qwik: {
+    description: "An official Qwik project.",
+    location: "{pm} create qwik@latest",
+  },
+  astro: {
+    description: "A new Astro project.",
+    location: "{pm} create astro@latest",
+  },
+  solid: {
+    description: "An official SolidJS project.",
+    location: "{pm} create solid@latest",
+  },
+  remix: {
+    description: "An official Remix project.",
+    location: "{pm} create remix@latest",
+  },
+};
+
 export const defaultCliConfig: CliConfig = {
   templates: {
     javascript: {
-      templates: {
-        vue: {
-          description: "An official Vue.js project.",
-          location: "{pm} create vue@latest",
-          cacheStrategy: "always-refresh",
-        },
-        nuxt: {
-          description: "An official Nuxt.js project.",
-          location: "{pm} create nuxt@latest",
-          alias: "nx",
-        },
-        nest: {
-          description: "An official Nest.js project.",
-          location: "{pm} install -g @nestjs/cli && nest new",
-        },
-        nextjs: {
-          description: "An official Next.js project.",
-          location: "{pm} create next-app@latest",
-          alias: "next",
-        },
-        express: {
-          description: "A simple Express.js boilerplate from its generator.",
-          location: "https://github.com/expressjs/express-generator.git",
-          alias: "ex",
-        },
-        fastify: {
-          description: "A highly performant Fastify web framework boilerplate.",
-          location: "https://github.com/fastify/fastify-cli.git",
-          alias: "fy",
-        },
-        koa: {
-          description: "A Koa.js web framework boilerplate.",
-          location: "https://github.com/koajs/koa-generator.git",
-        },
-        adonis: {
-          description: "A full-stack Node.js framework (AdonisJS).",
-          location: "{pm} create adonisjs",
-          alias: "ad",
-        },
-        sails: {
-          description: "A real-time, MVC framework (Sails.js).",
-          location: "{pm} install -g sails && sails new",
-        },
-        angular: {
-          description: "An official Angular project.",
-          location: "{pm} install -g @angular/cli && ng new",
-          alias: "ng",
-        },
-        "angular-vite": {
-          description: "An Angular project using Vite via AnalogJS.",
-          location: "{pm} create analog@latest",
-          alias: "ng-v",
-        },
-        react: {
-          description: "A React project using the recommended Vite setup.",
-          location: "{pm} create vite@latest -- --template react",
-          alias: "rt",
-        },
-        svelte: {
-          description: "A Svelte project using SvelteKit.",
-          location: "{pm} create svelte@latest",
-        },
-        qwik: {
-          description: "An official Qwik project.",
-          location: "{pm} create qwik@latest",
-        },
-        astro: {
-          description: "A new Astro project.",
-          location: "{pm} create astro@latest",
-        },
-        solid: {
-          description: "An official SolidJS project.",
-          location: "{pm} create solid@latest",
-        },
-        remix: {
-          description: "An official Remix project.",
-          location: "{pm} create remix@latest",
-        },
-      },
+      templates: baseJsTemplates,
+    },
+    typescript: {
+      templates: baseJsTemplates,
+    },
+    nodejs: {
+      templates: baseJsTemplates,
     },
   },
   settings: {
@@ -206,6 +235,9 @@ export type DeepKeys<T> = T extends object
     }[keyof T]
   : "";
 
+const jsFiles = {
+  lockFiles: ["package-lock.json", "bun.lockb", "yarn.lock", "pnpm-lock.yaml"],
+};
 export const FILE_NAMES = {
   packageJson: "package.json",
   node_modules: "node_modules",
@@ -213,11 +245,12 @@ export const FILE_NAMES = {
     git: ".git",
   },
   javascript: {
-    lockFiles: [
-      "package-lock.json",
-      "bun.lockb",
-      "yarn.lock",
-      "pnpm-lock.yaml",
-    ],
+    ...jsFiles,
+  },
+  typescript: {
+    ...jsFiles,
+  },
+  nodejs: {
+    ...jsFiles,
   },
 } as const;

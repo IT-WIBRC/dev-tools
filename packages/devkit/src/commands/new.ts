@@ -5,9 +5,10 @@ import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { logger, type TSpinner } from "#utils/logger.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
 import { getMergedConfig } from "#core/config/merger.js";
+import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
 
 const getScaffolder = async (language: string) => {
-  if (language === "javascript") {
+  if (["javascript", "typescript", "nodejs"].includes(language)) {
     const { scaffoldProject } = await import("#scaffolding/javascript.js");
     return scaffoldProject;
   }
@@ -43,6 +44,7 @@ export function setupNewCommand(options: SetupCommandOptions) {
         .start();
 
       try {
+        language = mapLanguageAliasToCanonicalKey(language);
         validateProgrammingLanguage(language);
 
         const config = await getMergedConfig(true);

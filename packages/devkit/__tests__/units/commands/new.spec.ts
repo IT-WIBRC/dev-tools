@@ -9,11 +9,13 @@ const {
   mockScaffoldProject,
   mockValidateProgrammingLanguage,
   mockGetMergedConfig,
+  mockMapLanguageAliasToCanonicalKey,
 } = vi.hoisted(() => ({
   mockHandleErrorAndExit: vi.fn(),
   mockScaffoldProject: vi.fn(),
   mockValidateProgrammingLanguage: vi.fn(),
   mockGetMergedConfig: vi.fn(),
+  mockMapLanguageAliasToCanonicalKey: vi.fn((lang) => lang),
 }));
 
 let actionFn: (...options: unknown[]) => Promise<void>;
@@ -34,7 +36,10 @@ vi.mock("#utils/validations/config.js", () => ({
   validateProgrammingLanguage: mockValidateProgrammingLanguage,
 }));
 
-const LANGUAGE_NOT_FOUND_KEY = "errors.scaffolding.language_not_found";
+vi.mock("#core/config/language.js", () => ({
+  mapLanguageAliasToCanonicalKey: mockMapLanguageAliasToCanonicalKey,
+}));
+
 const TEMPLATE_NOT_FOUND_KEY = "errors.template.not_found";
 const NEW_PROJECT_SUCCESS_KEY = "messages.success.new_project";
 const CMD_DESCRIPTION_KEY = "commands.new.command.description";
@@ -70,6 +75,15 @@ describe("setupNewCommand", () => {
           },
         },
       },
+      nodejs: {
+        templates: {
+          "node-api": {
+            description: "Node.js API template",
+            location: "https://github.com/node-api",
+            alias: "node",
+          },
+        },
+      },
     },
     settings: {
       defaultPackageManager: "npm",
@@ -82,6 +96,7 @@ describe("setupNewCommand", () => {
     vi.clearAllMocks();
     actionFn = vi.fn();
     mockGetMergedConfig.mockResolvedValue(sampleConfig);
+    mockMapLanguageAliasToCanonicalKey.mockImplementation((lang) => lang);
 
     mockProgram = {
       command: vi.fn(() => mockProgram),
@@ -144,6 +159,35 @@ describe("setupNewCommand", () => {
     expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
   });
 
+  it("should map a language alias (e.g., 'ts') to its canonical key and scaffold", async () => {
+    setupNewCommand({ program: mockProgram });
+    const aliasLanguage = "ts";
+    const canonicalLanguage = "typescript";
+    const projectName = "ts-project";
+    const templateName = "ts-node";
+    const templateConfig =
+      sampleConfig?.templates?.typescript?.templates[templateName];
+    const cmdOptions = { template: templateName };
+
+    mockMapLanguageAliasToCanonicalKey.mockReturnValue(canonicalLanguage);
+
+    await actionFn(aliasLanguage, projectName, cmdOptions);
+
+    expect(mockMapLanguageAliasToCanonicalKey).toHaveBeenCalledWith(
+      aliasLanguage,
+    );
+    expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(
+      canonicalLanguage,
+    );
+    expect(mockGetMergedConfig).toHaveBeenCalledWith(true);
+    expect(mockScaffoldProject).toHaveBeenCalledWith({
+      projectName,
+      templateConfig,
+      packageManager: sampleConfig.settings.defaultPackageManager,
+      cacheStrategy: sampleConfig.settings.cacheStrategy,
+    });
+  });
+
   it("should scaffold a project using a template alias and global default settings", async () => {
     setupNewCommand({ program: mockProgram });
     const language = "javascript";
@@ -168,28 +212,35 @@ describe("setupNewCommand", () => {
     expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
   });
 
-  it("should throw a DevkitError if the language config is not found in the merged config", async () => {
-    mockGetMergedConfig.mockResolvedValue(sampleConfig);
-
+  it("should throw a DevkitError if the language is not valid (python)", async () => {
     setupNewCommand({ program: mockProgram });
     const language = "python";
     const projectName = "my-python-project";
     const cmdOptions = { template: "my-template" };
 
-    const expectedErrorMessage = mocktFn(LANGUAGE_NOT_FOUND_KEY, {
-      language: "python",
+    const expectedError = new DevkitError("Invalid language");
+    mockMapLanguageAliasToCanonicalKey.mockReturnValue(language);
+
+    mockValidateProgrammingLanguage.mockImplementation(() => {
+      throw expectedError;
     });
 
     await actionFn(language, projectName, cmdOptions);
 
+    expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(language);
+    expect(mockGetMergedConfig).not.toHaveBeenCalled();
+
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      new DevkitError(expectedErrorMessage),
-      expect.any(Object),
+      expectedError,
+      mockSpinner,
     );
     expect(mockScaffoldProject).not.toHaveBeenCalled();
   });
 
   it("should throw a DevkitError if the specified template is not found by name or alias", async () => {
+    vi.restoreAllMocks();
+    mockGetMergedConfig.mockClear();
+    mockGetMergedConfig.mockResolvedValueOnce(sampleConfig);
     setupNewCommand({ program: mockProgram });
     const language = "javascript";
     const projectName = "my-project";
@@ -199,12 +250,13 @@ describe("setupNewCommand", () => {
     const expectedErrorMessage = mocktFn(TEMPLATE_NOT_FOUND_KEY, {
       template: templateName,
     });
+    const expectedError = new DevkitError(expectedErrorMessage);
 
     await actionFn(language, projectName, cmdOptions);
 
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      new DevkitError(expectedErrorMessage),
-      expect.any(Object),
+      expectedError,
+      mockSpinner,
     );
     expect(mockScaffoldProject).not.toHaveBeenCalled();
   });
@@ -220,15 +272,13 @@ describe("setupNewCommand", () => {
 
     await actionFn(language, projectName, cmdOptions);
 
-    expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      mockError,
-      expect.any(Object),
-    );
+    expect(mockHandleErrorAndExit).toHaveBeenCalledWith(mockError, mockSpinner);
   });
 
   it("should throw a DevkitError if the language is not valid (before config lookup)", async () => {
+    const expectedError = new DevkitError("Invalid language");
     mockValidateProgrammingLanguage.mockImplementation(() => {
-      throw new DevkitError("Invalid language");
+      throw expectedError;
     });
 
     setupNewCommand({ program: mockProgram });
@@ -240,8 +290,8 @@ describe("setupNewCommand", () => {
 
     expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(language);
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      expect.any(DevkitError),
-      expect.any(Object),
+      expectedError,
+      mockSpinner,
     );
     expect(mockGetMergedConfig).not.toHaveBeenCalled();
   });

@@ -44,6 +44,16 @@ const userTemplates = {
       },
     },
   },
+  typescript: {
+    templates: {
+      tsexpress: {
+        description: "A TypeScript Express app",
+        location: "file://./packages/templates/typescript/tsexpress",
+        alias: "ts-exp",
+        packageManager: "npm",
+      },
+    },
+  },
 };
 
 const createConfigWithUserTemplates = (templateLocation: string): CliConfig =>
@@ -60,6 +70,14 @@ const createConfigWithUserTemplates = (templateLocation: string): CliConfig =>
           nestjs: {
             ...userTemplates.javascript.templates.nestjs,
             location: `${templateLocation}/javascript/nestjs`,
+          },
+        },
+      },
+      typescript: {
+        templates: {
+          tsexpress: {
+            ...userTemplates.typescript.templates.tsexpress,
+            location: `${templateLocation}/typescript/tsexpress`,
           },
         },
       },
@@ -96,9 +114,13 @@ describe("dk new", () => {
       process.env.HOME = mockInstallDir;
 
       const devkitDistDir = path.join(mockInstallDir, "dist");
-      const templatesDir = path.join(mockInstallDir, "templates", "javascript");
+      const templatesDir = path.join(mockInstallDir, "templates");
+      const templatesJsDir = path.join(templatesDir, "javascript");
+      const templatesTsDir = path.join(templatesDir, "typescript");
+
       await fs.ensureDir(devkitDistDir);
-      await fs.ensureDir(templatesDir);
+      await fs.ensureDir(templatesJsDir);
+      await fs.ensureDir(templatesTsDir);
 
       const configWithTemplates = createConfigWithUserTemplates(
         `file://${path.join(mockInstallDir, "templates")}`,
@@ -108,24 +130,32 @@ describe("dk new", () => {
         configWithTemplates,
       );
 
-      await fs.ensureDir(path.join(templatesDir, "vuejs"));
-
-      await fs.writeFile(path.join(templatesDir, "vuejs", "package.json"), {
+      await fs.ensureDir(path.join(templatesJsDir, "vuejs"));
+      await fs.writeFile(path.join(templatesJsDir, "vuejs", "package.json"), {
         name: "test-vue-template",
       });
-
       await fs.writeFile(
-        path.join(templatesDir, "vuejs", "vue-test.txt"),
+        path.join(templatesJsDir, "vuejs", "vue-test.txt"),
         "vue content",
       );
 
-      await fs.ensureDir(path.join(templatesDir, "nestjs"));
-      await fs.writeFile(path.join(templatesDir, "nestjs", "package.json"), {
+      await fs.ensureDir(path.join(templatesJsDir, "nestjs"));
+      await fs.writeFile(path.join(templatesJsDir, "nestjs", "package.json"), {
         name: "test-nest-template",
       });
       await fs.writeFile(
-        path.join(templatesDir, "nestjs", "nest-test.txt"),
+        path.join(templatesJsDir, "nestjs", "nest-test.txt"),
         "nestjs content",
+      );
+
+      await fs.ensureDir(path.join(templatesTsDir, "tsexpress"));
+      await fs.writeFile(
+        path.join(templatesTsDir, "tsexpress", "package.json"),
+        { name: "test-ts-express-template" },
+      );
+      await fs.writeFile(
+        path.join(templatesTsDir, "tsexpress", "ts-express-test.txt"),
+        "ts express content",
       );
     });
 
@@ -135,7 +165,7 @@ describe("dk new", () => {
       delete process.env.HOME;
     });
 
-    it("should successfully scaffold a new project from a different directory", async () => {
+    it("should successfully scaffold a new project from a different directory (canonical language: javascript)", async () => {
       const { exitCode } = await execute(
         "bun",
         [CLI_PATH, "new", "javascript", "my-vue-app", "-t", "vuejs"],
@@ -151,6 +181,27 @@ describe("dk new", () => {
       expect(
         await fs.pathExists(
           path.join(mockProjectDir, "my-vue-app", "vue-test.txt"),
+        ),
+      ).toBe(true);
+    });
+
+    it("should successfully scaffold a new project using the 'ts' language alias", async () => {
+      const { exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "new", "ts", "my-ts-app", "-t", "ts-exp"],
+        { cwd: mockProjectDir, all: true },
+      );
+      expect(exitCode).toBe(0);
+
+      expect(
+        await fs.pathExists(
+          path.join(mockProjectDir, "my-ts-app", "package.json"),
+        ),
+      ).toBe(true);
+
+      expect(
+        await fs.pathExists(
+          path.join(mockProjectDir, "my-ts-app", "ts-express-test.txt"),
         ),
       ).toBe(true);
     });
@@ -173,8 +224,16 @@ describe("dk new", () => {
         "templates",
         "javascript",
       );
+      const packagesTemplatesTsDir = path.join(
+        tempDir,
+        "packages",
+        "templates",
+        "typescript",
+      );
+
       await fs.ensureDir(packagesDevkitDir);
       await fs.ensureDir(packagesTemplatesJsDir);
+      await fs.ensureDir(packagesTemplatesTsDir);
 
       const configWithTemplates = createConfigWithUserTemplates(
         "file://./packages/templates",
@@ -203,6 +262,16 @@ describe("dk new", () => {
         path.join(packagesTemplatesJsDir, "nestjs", "nest-test.txt"),
         "nestjs content",
       );
+
+      await fs.ensureDir(path.join(packagesTemplatesTsDir, "tsexpress"));
+      await fs.writeFile(
+        path.join(packagesTemplatesTsDir, "tsexpress", "package.json"),
+        { name: "test-ts-express-template" },
+      );
+      await fs.writeFile(
+        path.join(packagesTemplatesTsDir, "tsexpress", "ts-express-test.txt"),
+        "ts express content",
+      );
     });
 
     afterEach(async () => {
@@ -210,7 +279,7 @@ describe("dk new", () => {
       delete process.env.HOME;
     });
 
-    it("should successfully scaffold a new project within the monorepo", async () => {
+    it("should successfully scaffold a new project within the monorepo (canonical language: javascript)", async () => {
       const { exitCode } = await execute(
         "bun",
         [CLI_PATH, "new", "javascript", "my-vue-app", "-t", "vuejs"],
@@ -223,6 +292,26 @@ describe("dk new", () => {
       ).toBe(true);
       expect(
         await fs.pathExists(path.join(tempDir, "my-vue-app", "vue-test.txt")),
+      ).toBe(true);
+    });
+
+    it("should successfully scaffold a new project within the monorepo using the 'ts' language alias", async () => {
+      const { exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "new", "ts", "my-ts-app-mono", "-t", "ts-exp"],
+        { all: true, cwd: tempDir },
+      );
+      expect(exitCode).toBe(0);
+
+      expect(
+        await fs.pathExists(
+          path.join(tempDir, "my-ts-app-mono", "package.json"),
+        ),
+      ).toBe(true);
+      expect(
+        await fs.pathExists(
+          path.join(tempDir, "my-ts-app-mono", "ts-express-test.txt"),
+        ),
       ).toBe(true);
     });
   });

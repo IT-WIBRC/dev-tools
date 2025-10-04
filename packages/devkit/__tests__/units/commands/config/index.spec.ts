@@ -28,11 +28,11 @@ vi.mock("../../../../src/commands/config/add.js", () => ({
   setupAddCommand: mockSetupAddCommand,
 }));
 
-vi.mock("../../../../src/commands/config/remove.js", () => ({
+vi.mock("../../../../src/commands/config/remove/index.js", () => ({
   setupRemoveCommand: mockSetupRemoveCommand,
 }));
 
-vi.mock("../../../../src/commands/config/update.js", () => ({
+vi.mock("../../../../src/commands/config/update/index.js", () => ({
   setupUpdateCommand: mockSetupUpdateCommand,
 }));
 

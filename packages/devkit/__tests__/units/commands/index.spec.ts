@@ -25,7 +25,7 @@ const {
   mockT: vi.fn((key) => key),
 }));
 
-vi.mock("#commands/init.js", () => ({
+vi.mock("#commands/init/index.js", () => ({
   setupInitCommand: mockSetupInitCommand,
 }));
 
