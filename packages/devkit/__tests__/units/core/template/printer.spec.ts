@@ -57,19 +57,12 @@ const ANNOTATED_TEMPLATES: AnnotatedTemplate[] = [
 ];
 
 const settings = {
-  packageManager: "pnpm",
+  defaultPackageManager: "pnpm",
   cacheStrategy: "daily",
   language: "en",
 };
 
 describe("print-utils", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockFilterTemplatesByWhereClause.mockImplementation((templateMap) =>
-      Object.entries(templateMap),
-    );
-  });
-
   const c: any = mockLogger.colors;
   const t = mocktFn;
 
@@ -77,11 +70,30 @@ describe("print-utils", () => {
   const LOCAL_TAG = c.blue("(local)");
   const DEFAULT_TAG = c.dim("(default)");
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockFilterTemplatesByWhereClause.mockImplementation((templateMap) =>
+      Object.entries(templateMap),
+    );
+  });
+
   describe("printTemplates (Mode `Tree`: Default)", () => {
     it("should print all templates without a filter, grouped by language", () => {
+      mockFilterTemplatesByWhereClause.mockReturnValue(
+        Object.entries(
+          ANNOTATED_TEMPLATES.reduce(
+            (acc, t) => {
+              acc[t._name] = t;
+              return acc;
+            },
+            {} as Record<string, AnnotatedTemplate>,
+          ),
+        ),
+      );
+
       printTemplates(ANNOTATED_TEMPLATES, [], "tree");
 
-      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(4);
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(1);
 
       expect(mockLogger.log).toHaveBeenCalledTimes(6);
 
@@ -103,14 +115,15 @@ describe("print-utils", () => {
 
     it("should print only filtered templates by a filter clause array", () => {
       const filterClauses = ["alias:nextjs"];
-      mockFilterTemplatesByWhereClause.mockImplementation((templateMap) => {
-        const templateName = Object.keys(templateMap)[0];
-        return templateName === "next-app" ? Object.entries(templateMap) : [];
-      });
+      const filteredTemplate = ANNOTATED_TEMPLATES[3];
+
+      mockFilterTemplatesByWhereClause.mockReturnValue([
+        [filteredTemplate._name, filteredTemplate],
+      ]);
 
       printTemplates(ANNOTATED_TEMPLATES, filterClauses);
 
-      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(4);
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(1);
 
       expect(mockLogger.log).toHaveBeenCalledTimes(2);
       expect(mockLogger.log).toHaveBeenCalledWith(
@@ -127,7 +140,7 @@ describe("print-utils", () => {
 
       printTemplates(ANNOTATED_TEMPLATES, filterClauses);
 
-      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(4);
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(1);
       expect(mockLogger.log).not.toHaveBeenCalled();
       expect(mockLogger.warning).toHaveBeenCalledOnce();
       expect(mockLogger.warning).toHaveBeenCalledWith(
@@ -149,11 +162,21 @@ describe("print-utils", () => {
 
   describe("printTemplates (Mode `Table`)", () => {
     it("should call logger.table with all templates including the new Source column", () => {
-      mockFilterTemplatesByWhereClause.mockImplementation(() => [1]);
+      mockFilterTemplatesByWhereClause.mockReturnValue(
+        Object.entries(
+          ANNOTATED_TEMPLATES.reduce(
+            (acc, t) => {
+              acc[t._name] = t;
+              return acc;
+            },
+            {} as Record<string, AnnotatedTemplate>,
+          ),
+        ),
+      );
 
       printTemplates(ANNOTATED_TEMPLATES, [], "table");
 
-      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(4);
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(1);
       expect(mockLogger.table).toHaveBeenCalledTimes(1);
 
       const expectedTableData = [
@@ -205,16 +228,15 @@ describe("print-utils", () => {
 
     it("should filter templates correctly in table mode", () => {
       const filterClauses = ["language:javascript"];
-      mockFilterTemplatesByWhereClause.mockImplementation((templateMap) => {
-        const templateName = Object.keys(templateMap)[0];
-        return templateName === "express-api"
-          ? Object.entries(templateMap)
-          : [];
-      });
+      const filteredTemplate = ANNOTATED_TEMPLATES[2];
+
+      mockFilterTemplatesByWhereClause.mockReturnValue([
+        [filteredTemplate._name, filteredTemplate],
+      ]);
 
       printTemplates(ANNOTATED_TEMPLATES, filterClauses, "table");
 
-      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(4);
+      expect(mockFilterTemplatesByWhereClause).toHaveBeenCalledTimes(1);
       expect(mockLogger.table).toHaveBeenCalledTimes(1);
 
       const expectedTableData = [
@@ -240,25 +262,57 @@ describe("print-utils", () => {
     });
   });
 
-  describe("printSettings", () => {
-    it("should print all settings correctly", () => {
+  describe("printSettings (Mode `Tree`: Default)", () => {
+    it("should print all settings correctly in tree mode (default)", () => {
       printSettings(settings);
-      expect(mockLogger.log).toHaveBeenCalledTimes(3);
 
+      expect(mockLogger.log).toHaveBeenCalledTimes(4);
+      expect(mockLogger.log).toHaveBeenCalledWith(c.bold("Settings:"));
       expect(mockLogger.log).toHaveBeenCalledWith(
-        `${c.yellowBold("  packageManager:")} ${c.cyan("pnpm")}`,
+        `${c.yellow("  defaultPackageManager:")} ${c.cyan("pnpm")}`,
       );
       expect(mockLogger.log).toHaveBeenCalledWith(
-        `${c.yellowBold("  cacheStrategy:")} ${c.cyan("daily")}`,
+        `${c.yellow("  cacheStrategy:")} ${c.cyan("daily")}`,
       );
       expect(mockLogger.log).toHaveBeenCalledWith(
-        `${c.yellowBold("  language:")} ${c.cyan("en")}`,
+        `${c.yellow("  language:")} ${c.cyan("en")}`,
       );
+      expect(mockLogger.table).not.toHaveBeenCalled();
     });
 
     it("should not print anything if settings object is empty", () => {
       printSettings({});
-      expect(mockLogger.log).not.toHaveBeenCalled();
+      expect(mockLogger.log).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("printSettings (Mode `Table`)", () => {
+    it("should print all settings correctly in table mode", () => {
+      printSettings(settings, "table");
+
+      expect(mockLogger.log).toHaveBeenCalledTimes(1);
+      expect(mockLogger.log).toHaveBeenCalledWith(c.bold("Settings:"));
+      expect(mockLogger.table).toHaveBeenCalledTimes(1);
+
+      const expectedTableData = [
+        [c.bold("Setting Key"), c.bold("Value")],
+        [c.yellow("defaultPackageManager"), c.cyan("pnpm")],
+        [c.yellow("cacheStrategy"), c.cyan("daily")],
+        [c.yellow("language"), c.cyan("en")],
+      ];
+
+      expect(mockLogger.table).toHaveBeenCalledWith(expectedTableData);
+    });
+
+    it("should print only the table headers if settings object is empty in table mode", () => {
+      printSettings({}, "table");
+
+      expect(mockLogger.log).toHaveBeenCalledTimes(1);
+      expect(mockLogger.table).toHaveBeenCalledTimes(1);
+
+      const expectedTableData = [[c.bold("Setting Key"), c.bold("Value")]];
+
+      expect(mockLogger.table).toHaveBeenCalledWith(expectedTableData);
     });
   });
 });

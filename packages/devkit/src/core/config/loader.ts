@@ -5,6 +5,8 @@ import {
 } from "#utils/schema/schema.js";
 import fs from "#utils/fs/file.js";
 import { getConfigPathSources } from "./finder.js";
+import { logger } from "#utils/logger.js";
+import { t } from "#utils/i18n/translator.js";
 
 export type ConfigurationSources = {
   default: CliConfig;
@@ -20,10 +22,13 @@ async function readSingleConfig(
     try {
       return (await fs.readJson(path)) as CliConfig;
     } catch (e: unknown) {
-      console.error(
-        `Warning: Failed to parse configuration file at "${path}". The file may be invalid.`,
-        (e as Error).cause,
-      );
+      if (e instanceof Error) {
+        logger.error(t("errors.config.read_fail_path", { path }), "ERR");
+        logger.warning(t("warnings.not_found"));
+      } else {
+        logger.error(t("errors.generic.unexpected"), "UNKNOWN");
+      }
+      return null;
     }
   }
   return null;

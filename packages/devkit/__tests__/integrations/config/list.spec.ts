@@ -27,6 +27,10 @@ let globalConfigDir: string;
 
 const localConfig: CliConfig = {
   ...defaultCliConfig,
+  settings: {
+    ...defaultCliConfig.settings,
+    language: "en",
+  },
   templates: {
     javascript: {
       templates: {
@@ -43,7 +47,7 @@ const localConfig: CliConfig = {
         },
       },
     },
-    node: {
+    nodejs: {
       templates: {
         "node-api": {
           description: "A Node.js API boilerplate",
@@ -57,18 +61,50 @@ const localConfig: CliConfig = {
 
 const globalConfig: CliConfig = {
   ...defaultCliConfig,
+  settings: {
+    ...defaultCliConfig.settings,
+    language: "fr",
+  },
   templates: {
-    python: {
+    typescript: {
       templates: {
-        django: {
-          description: "A Django template",
-          location: "https://github.com/django/django",
-          alias: "dj",
+        "ts-lib": {
+          description: "A TypeScript library template",
+          location: "https://github.com/ts-lib-template",
+          alias: "tl",
         },
       },
     },
   },
 };
+
+const invalidLocalConfigMissingLocation: Partial<CliConfig> = {
+  ...localConfig,
+  templates: {
+    javascript: {
+      templates: {
+        "bad-template": {
+          description: "Missing Location",
+          alias: "bt",
+          packageManager: "npm",
+        } as any,
+      },
+    } as any,
+  },
+} as any;
+
+const invalidGlobalConfigMalformedSetting: Partial<CliConfig> = {
+  ...globalConfig,
+  settings: {
+    ...globalConfig.settings,
+    defaultPackageManager: "invalid-package-manager-alias" as any,
+  },
+};
+
+const invalidLocalConfigMissingRequiredSettings: Partial<CliConfig> = {
+  ...localConfig,
+  settings: {} as any,
+} as any;
 
 describe("dk config list", () => {
   beforeAll(() => {
@@ -112,8 +148,8 @@ describe("dk config list", () => {
     expect(exitCode).toBe(0);
     expect(all).toContain("Using local configuration.");
     expect(all).toContain("Javascript");
-    expect(all).toContain("Node");
-    expect(all).not.toContain("Python");
+    expect(all).toContain("Nodejs");
+    expect(all).not.toContain("Typescript");
   });
 
   describe("Include defaults option", () => {
@@ -133,7 +169,7 @@ describe("dk config list", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("Available Templates:");
+      expect(all).toContain("Modèles disponibles :");
       expect(all).toContain("remix");
     });
 
@@ -153,8 +189,14 @@ describe("dk config list", () => {
       );
 
       expect(exitCode).toBe(0);
+      expect(all).toContain(
+        "Using global configuration.(including default templates)",
+      );
       expect(all).toContain("Available Templates:");
       expect(all).toContain("remix");
+      expect(all).toContain("Typescript");
+      expect(all).toContain("Javascript");
+      expect(all).toContain("Nodejs");
     });
 
     it("should use both the `default` config and the local config if exists and `--include-defaults` is used", async () => {
@@ -176,7 +218,7 @@ describe("dk config list", () => {
       expect(all).toContain("Available Templates:");
       expect(all).toContain("Javascript");
       expect(all).toContain("remix");
-      expect(all).toContain("Node");
+      expect(all).toContain("Nodejs");
       expect(all).toContain("node-api");
     });
 
@@ -202,8 +244,8 @@ describe("dk config list", () => {
       expect(exitCode).toBe(0);
       expect(all).toContain("Using local and global configurations.");
       expect(all).toContain("Javascript");
-      expect(all).toContain("Node");
-      expect(all).toContain("Python");
+      expect(all).toContain("Nodejs");
+      expect(all).toContain("Typescript");
     });
 
     it("should use both the `default` config and the global config if exists and `--include-defaults` is used", async () => {
@@ -222,11 +264,11 @@ describe("dk config list", () => {
       );
 
       expect(exitCode).toBe(0);
-      expect(all).toContain("Available Templates:");
+      expect(all).toContain("Modèles disponibles :");
       expect(all).toContain("Javascript");
       expect(all).toContain("remix");
-      expect(all).toContain("Python");
-      expect(all).toContain("django");
+      expect(all).toContain("Typescript");
+      expect(all).toContain("ts-lib");
       expect(all).not.toContain("node-api");
     });
   });
@@ -249,9 +291,9 @@ describe("dk config list", () => {
 
     expect(exitCode).toBe(0);
     expect(all).toContain("Using global configuration.");
-    expect(all).toContain("Python");
+    expect(all).toContain("Typescript");
     expect(all).not.toContain("Javascript");
-    expect(all).not.toContain("Node");
+    expect(all).not.toContain("Nodejs");
   });
 
   it("should show an error when --global is used and no global config exists", async () => {
@@ -274,7 +316,11 @@ describe("dk config list", () => {
   });
 
   it("should handle a config file with an empty templates section", async () => {
-    const emptyConfig = { ...localConfig, templates: {} };
+    const emptyConfig = {
+      ...localConfig,
+      templates: {},
+      settings: { ...localConfig.settings },
+    } as CliConfig;
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), emptyConfig);
     const { all, exitCode } = await execute(
       "bun",
@@ -288,16 +334,20 @@ describe("dk config list", () => {
     expect(exitCode).toBe(0);
     expect(all).toContain("No templates found in the configuration file.");
     expect(all).not.toContain("JAVASCRIPT");
-    expect(all).not.toContain("NODE");
-    expect(all).not.toContain("PYTHON");
+    expect(all).not.toContain("NODEJS");
+    expect(all).not.toContain("TYPESCRIPT");
   });
 
   it("should handle both local and global configs being empty", async () => {
     await fs.writeJson(path.join(tempDir, LOCAL_CONFIG_FILE_NAME), {
+      ...localConfig,
       templates: {},
+      settings: { ...localConfig.settings },
     });
     await fs.writeJson(path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME), {
+      ...globalConfig,
       templates: {},
+      settings: { ...globalConfig.settings },
     });
 
     const { all, exitCode } = await execute(
@@ -312,7 +362,93 @@ describe("dk config list", () => {
     expect(exitCode).toBe(0);
     expect(all).toContain("No templates found in the configuration file.");
     expect(all).not.toContain("Javascript");
-    expect(all).not.toContain("Node");
-    expect(all).not.toContain("Python");
+    expect(all).not.toContain("Nodejs");
+    expect(all).not.toContain("Typescript");
+  });
+
+  describe("Configuration Validation Failures", () => {
+    const VALIDATION_ERROR_MESSAGE = "Configuration validation failed.";
+    const TEMPLATE_ERROR_FRAGMENT = "is missing required field: 'location'";
+    const SETTINGS_PM_ERROR_FRAGMENT =
+      "The value for setting 'defaultPackageManager' is invalid";
+    const SETTINGS_MISSING_ERROR_FRAGMENT =
+      "The value for setting 'defaultPackageManager' is invalid or missing.";
+
+    it("should fail and exit if local config is invalid (missing required template field)", async () => {
+      await fs.writeJson(
+        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+        invalidLocalConfigMissingLocation,
+      );
+      await fs.writeJson(
+        path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
+        globalConfig,
+      );
+
+      const { all, exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "config", "list"],
+        {
+          all: true,
+          env: { HOME: globalConfigDir },
+          reject: false,
+        },
+      );
+
+      expect(exitCode).toBe(1);
+      expect(all).toContain(VALIDATION_ERROR_MESSAGE);
+      expect(all).toContain(TEMPLATE_ERROR_FRAGMENT);
+    });
+
+    it("should fail and exit if global config is invalid (malformed settings field) when using --all", async () => {
+      await fs.writeJson(
+        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+        localConfig,
+      );
+      await fs.writeJson(
+        path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
+        invalidGlobalConfigMalformedSetting,
+      );
+
+      const { all, exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "config", "list", "--all"],
+        {
+          all: true,
+          env: { HOME: globalConfigDir },
+          reject: false,
+        },
+      );
+
+      expect(exitCode).toBe(1);
+      expect(all).toContain(VALIDATION_ERROR_MESSAGE);
+      expect(all).toContain(SETTINGS_PM_ERROR_FRAGMENT);
+    });
+
+    it("should fail and exit if local config has empty/missing required settings fields", async () => {
+      await fs.writeJson(
+        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
+        invalidLocalConfigMissingRequiredSettings,
+      );
+
+      const { all, exitCode } = await execute(
+        "bun",
+        [CLI_PATH, "config", "list"],
+        {
+          all: true,
+          env: { HOME: globalConfigDir },
+          reject: false,
+        },
+      );
+
+      expect(exitCode).toBe(1);
+      expect(all).toContain(VALIDATION_ERROR_MESSAGE);
+      expect(all).toContain(SETTINGS_MISSING_ERROR_FRAGMENT);
+      expect(all).toContain(
+        "The value for setting 'cacheStrategy' is invalid or missing.",
+      );
+      expect(all).toContain(
+        "The value for setting 'language' is invalid or missing.",
+      );
+    });
   });
 });

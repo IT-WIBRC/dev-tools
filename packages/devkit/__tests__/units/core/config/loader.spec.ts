@@ -5,12 +5,19 @@ import {
 } from "../../../../src/core/config/loader.js";
 import { defaultCliConfig } from "../../../../src/utils/schema/schema.js";
 
-const { mockFs, mockGetConfigPathSources } = vi.hoisted(() => ({
+const MOCK_I18N_ERROR = "i18n-read-fail";
+const MOCK_I18N_WARNING = "i18n-warning-not-found";
+
+const { mockFs, mockGetConfigPathSources, mockLogger } = vi.hoisted(() => ({
   mockFs: {
     pathExists: vi.fn(),
     readJson: vi.fn(),
   },
   mockGetConfigPathSources: vi.fn(),
+  mockLogger: {
+    error: vi.fn(),
+    warning: vi.fn(),
+  },
 }));
 
 vi.mock("../../../../src/core/config/finder.js", () => ({
@@ -24,21 +31,33 @@ vi.mock("#utils/fs/file.js", () => ({
   },
 }));
 
+vi.mock("#utils/logger.js", () => ({
+  logger: mockLogger,
+}));
+
+vi.mock("#utils/i18n/translator.js", () => ({
+  t: vi.fn((key) => {
+    if (key.includes("read_fail")) return MOCK_I18N_ERROR;
+    if (key.includes("not_found")) return MOCK_I18N_WARNING;
+    return key;
+  }),
+}));
+
 const mockStructuredClone = vi.fn((obj) => JSON.parse(JSON.stringify(obj)));
 vi.stubGlobal("structuredClone", mockStructuredClone);
 
 describe("Configuration Loader Functions", () => {
+  const localConfig = { settings: { language: "fr" } };
+  const globalConfig = { settings: { defaultPackageManager: "pnpm" } };
+  const localPath = "/project/.devkitrc";
+  const globalPath = "/user/.devkitrc";
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockFs.pathExists.mockResolvedValue(true);
   });
 
   describe("readConfigSources", () => {
-    const localConfig = { settings: { language: "fr" } };
-    const globalConfig = { settings: { defaultPackageManager: "pnpm" } };
-    const localPath = "/project/.devkitrc";
-    const globalPath = "/user/.devkitrc";
-
     it("should load all three sources (Local, Global, Default) when both config files exist", async () => {
       mockGetConfigPathSources.mockResolvedValue({
         localPath: localPath,
@@ -64,6 +83,7 @@ describe("Configuration Loader Functions", () => {
       expect(sources.configFound).toBe(true);
 
       expect(mockStructuredClone).toHaveBeenCalledTimes(3);
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
 
     it("should load only Global and Default when Local path is null/config doesn't exist", async () => {
@@ -85,6 +105,7 @@ describe("Configuration Loader Functions", () => {
       expect(sources.global).toEqual(globalConfig);
       expect(sources.default).toEqual(defaultCliConfig);
       expect(sources.configFound).toBe(true);
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
 
     it("should return null for Local and Global when neither config file exists", async () => {
@@ -103,13 +124,10 @@ describe("Configuration Loader Functions", () => {
       expect(sources.global).toBeNull();
       expect(sources.default).toEqual(defaultCliConfig);
       expect(sources.configFound).toBe(false);
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
 
-    it("should handle JSON parsing errors gracefully and return null for the corrupted config", async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
+    it("should handle JSON parsing errors gracefully using logger.error and return null for the corrupted config", async () => {
       mockGetConfigPathSources.mockResolvedValue({
         localPath: localPath,
         globalPath: globalPath,
@@ -121,16 +139,13 @@ describe("Configuration Loader Functions", () => {
 
       const sources: ConfigurationSources = await readConfigSources();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        `Warning: Failed to parse configuration file at "${localPath}". The file may be invalid.`,
-        undefined,
-      );
+      expect(mockLogger.error).toHaveBeenCalledWith(MOCK_I18N_ERROR, "ERR");
+
+      expect(mockLogger.warning).toHaveBeenCalledWith(MOCK_I18N_WARNING);
 
       expect(sources.local).toBeNull();
       expect(sources.global).toEqual(globalConfig);
       expect(sources.configFound).toBe(true);
-
-      consoleErrorSpy.mockRestore();
     });
 
     it("should pass options (e.g., forceGlobal) to getConfigPathSources", async () => {

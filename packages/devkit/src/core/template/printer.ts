@@ -126,11 +126,19 @@ export function printTemplates(
     return;
   }
 
-  const finalFilteredList: AnnotatedTemplate[] = templatesList.filter(
-    (template) => {
-      const templateMap = { [template._name]: template };
-      return filterTemplatesByWhereClause(templateMap, whereClauses).length > 0;
+  const templateMap = templatesList.reduce(
+    (acc, template) => {
+      const key = `${template._language}:${template._name}`;
+      acc[key] = template;
+      return acc;
     },
+    {} as Record<string, AnnotatedTemplate>,
+  );
+
+  const filteredTemplatesEntries: Array<[string, AnnotatedTemplate]> =
+    filterTemplatesByWhereClause(templateMap, whereClauses) as any;
+  const finalFilteredList: AnnotatedTemplate[] = filteredTemplatesEntries.map(
+    ([_name, template]) => template,
   );
 
   if (finalFilteredList.length === 0) {
@@ -139,6 +147,11 @@ export function printTemplates(
         ? "warnings.template.not_found_with_filter"
         : "warnings.template.not_found";
     logger.warning(t(messageKey));
+    return;
+  }
+
+  if (mode === "table") {
+    printTemplatesTable(finalFilteredList, whereClauses);
     return;
   }
 
@@ -154,20 +167,44 @@ export function printTemplates(
     {} as Record<string, AnnotatedTemplate[]>,
   );
 
-  if (mode === "table") {
-    printTemplatesTable(finalFilteredList, whereClauses);
-    return;
-  }
-
   Object.entries(finalTemplatesByLanguage).forEach(([_, templates]) => {
     printTemplatesTree(templates);
   });
 }
 
-export function printSettings(settings: CliConfig["settings"]): void {
+function printSettingsTree(settings: CliConfig["settings"]): void {
+  logger.log(logger.colors.bold("Settings:"));
   Object.entries(settings).forEach(([key, value]) => {
-    const keyString = logger.colors.yellowBold(`  ${key}:`);
+    const keyString = logger.colors.yellow(`  ${key}:`);
     const valueString = logger.colors.cyan(value);
     logger.log(`${keyString} ${valueString}`);
   });
+}
+
+function printSettingsTable(settings: CliConfig["settings"]): void {
+  const tableData: string[][] = [];
+  const keyHeader = logger.colors.bold("Setting Key");
+  const valueHeader = logger.colors.bold("Value");
+
+  tableData.push([keyHeader, valueHeader]);
+
+  Object.entries(settings).forEach(([key, value]) => {
+    const row = [logger.colors.yellow(key), logger.colors.cyan(value)];
+    tableData.push(row);
+  });
+
+  logger.log(logger.colors.bold("Settings:"));
+  logger.table(tableData);
+}
+
+export function printSettings(
+  settings: CliConfig["settings"],
+  mode: DisplayModesValues = "tree",
+): void {
+  if (mode === "table") {
+    printSettingsTable(settings);
+    return;
+  }
+
+  printSettingsTree(settings);
 }
