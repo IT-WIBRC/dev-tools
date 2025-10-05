@@ -1,6 +1,6 @@
 {
   "name": "scaffolder-toolkit",
-  "version": "1.0.11",
+  "version": "2.0.0",
   "description": "🚀 A universal command-line tool for developers to automate project scaffolding and streamline their workflows.",
   "keywords": [
     "devkit",

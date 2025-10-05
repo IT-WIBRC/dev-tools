@@ -1,5 +1,7 @@
 # 🚀 Scaffolder-Toolkit (`dk`)
 
+![License](https://img.shields.io/npm/l/scaffolder-toolkit?style=plastic) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/IT-WIBRC/dev-tools/ci.yaml?branch=develop&style=plastic) ![npm bundle size](https://img.shields.io/bundlephobia/min/dev-tools?style=plastic&color=green) ![NPM Downloads](https://img.shields.io/npm/dt/scaffolder-toolkit?style=plastic) ![NPM Version](https://img.shields.io/npm/v/scaffolder-toolkit?style=plastic)
+
 A universal CLI for professional developers to automate project scaffolding and streamline workflows.
 
 **Scaffolder-Toolkit** (`dk`) is a powerful command-line tool designed to boost your productivity by automating repetitive tasks. Whether you're setting up a new machine or starting a new project, `dk` is your essential solution for project automation.
@@ -446,7 +448,7 @@ This is the recommended approach for most developers. Simply add the `$schema` p
 
 ```json
 {
-  "$schema": "https://gist.githubusercontent.com/IT-WIBRC/baab4cc74a28af5b23936f5cf576f8e6/raw/ed7445f123554cf5ed7fc6fb727d1faae22a9bed/devkit-schema.json",
+  "$schema": "https://gist.githubusercontent.com/IT-WIBRC/baab4cc74a28af5b23936f5cf576f8e6/raw/ac5d88b59dd12c0714cacff88711e52e6d5f0e90/devkit-schema.json",
   "settings": {
     "language": "fr",
     "defaultPackageManager": "npm",
@@ -482,7 +484,7 @@ For VS Code, open your **`settings.json`** file and add the following entry:
   "json.schemas": [
     {
       "fileMatch": [".devkit.json", ".devkitrc"],
-      "url": "https://gist.githubusercontent.com/IT-WIBRC/baab4cc74a28af5b23936f5cf576f8e6/raw/ed7445f123554cf5ed7fc6fb727d1faae22a9bed/devkit-schema.json"
+      "url": "https://gist.githubusercontent.com/IT-WIBRC/baab4cc74a28af5b23936f5cf576f8e6/raw/ac5d88b59dd12c0714cacff88711e52e6d5f0e90/devkit-schema.json"
     }
   ]
 }
