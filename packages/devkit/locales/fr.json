@@ -20,6 +20,11 @@
     }
   },
   "commands": {
+    "common": {
+      "options": {
+        "yes": "Confirmer automatiquement les invites (c'est-à-dire écraser les fichiers existants)."
+      }
+    },
     "new": {
       "command": {
         "description": "Créer un nouveau projet à partir d'un modèle"
@@ -148,7 +153,8 @@
         "monorepo_location": "Une racine de monorepo a été trouvée, mais aucun fichier de configuration n'y existe. Où voulez-vous créer le nouveau fichier de configuration ?",
         "location_current": "Le créer dans le paquet actuel.",
         "location_root": "Le créer à la racine du monorepo.",
-        "aborted": "Opération annulée. Aucune modification n'a été effectuée."
+        "aborted": "Opération annulée. Aucune modification n'a été effectuée.",
+        "skip_yes_confirm": "Ignorer la confirmation : Remplacement du fichier de configuration situé dans {path}."
       },
       "list": {
         "command": {

@@ -69,19 +69,15 @@ This document tracks all planned and completed tasks for the Dev Kit project.
 - [x] Make sure to clean up if the `dk new` command fail
 - [x] Add a configuration validation step when updating the config file to ensure all required fields are present and correctly formatted.
 - [x] **Dynamic Help Text**: Programmatically generate help text for options with constrained values (e.g., `--cache-strategy`) to ensure it's always up to date.
-- [ ] **Skip Confirmation**: Add a global `-y`/`--yes` and `-n/--no` option to skip confirmation prompts in commands like `dk init`.
+- [x] **Package Updates**: Ensure the root `package.json` includes all new packages and that any corrupted packages are replaced.
+- [x] **Skip Confirmation**: Add a global `-y`/`--yes` option to skip confirmation prompts in commands like `dk init`.
 
 #### Multi-Language Support
 
 - [ ] **Multi-Programming Language Support**: Progressively add support for other languages like Python, Ruby, Go, and Rust.
 - [ ] **Deno Support**: Test and confirm support for the Deno runtime.
 
-#### Documentation & Versioning
-
-- [ ] **Security Documentation**: Add a new section to the documentation outlining the security measures taken to prevent supply chain attacks.
-- [x] **Package Updates**: Ensure the root `package.json` includes all new packages and that any corrupted packages are replaced.
-
-### Debating
+### Debating (RD)
 
 - [ ] For unsupported languages, we can let the configuration be added but with a warning that it's not supported yet. When using the `dk new` with an unsupported language, we can copy the template as is without any modifications but ignoring the `.git` folder and not installing dependencies.
 - [ ] **CLI Self-Update**: Implement a command to allow users to update the CLI itself. `dk upgrade`

@@ -20,6 +20,11 @@
     }
   },
   "commands": {
+    "common": {
+      "options": {
+        "yes": "Automatically confirm yes to prompts (i.e., overwrite existing files)."
+      }
+    },
     "new": {
       "command": {
         "description": "Create a new project from a template"
@@ -148,7 +153,8 @@
         "monorepo_location": "A monorepo root was found, but no config file exists there. Where do you want to create the new config file?",
         "location_current": "Create it in the current package.",
         "location_root": "Create it in the monorepo root.",
-        "aborted": "Operation aborted. No changes were made."
+        "aborted": "Operation aborted. No changes were made.",
+        "skip_yes_confirm": "Skipping confirmation: Overwriting config file at {path}."
       },
       "list": {
         "command": {
@@ -243,7 +249,7 @@
       "template_name_updated": "✔ Template '{oldName}' updated to '{newName}' successfully!",
       "template_summary_updated": "Successfully updated {count} ({templateName}) template(s) from {language}!",
       "config_updated": "Configuration updated successfully!",
-      "config_initialized": "Configuration file created successfully!",
+      "config_initialized": "Configuration initialized successfully!",
       "info_collected": "System information collected.",
       "scaffolding_complete": "\n🚀 Project created successfully! 🎉",
       "next_steps": "\n| Next steps:\n",
