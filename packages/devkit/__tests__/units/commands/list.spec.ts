@@ -290,6 +290,7 @@ describe("list command", () => {
 
     expect(mockPrintSettings).toHaveBeenCalledWith(
       MOCK_CLI_CONFIG_WITH_SETTINGS.settings,
+      "tree",
     );
 
     expect(mockLogger.log).toHaveBeenCalledWith(

@@ -96,7 +96,7 @@ describe("dk config", () => {
     it("should throw an error if no config file is found for setting", async () => {
       const { all, exitCode } = await execute(
         "bun",
-        [CLI_PATH, "conf", "--set", "lang", "en"],
+        [CLI_PATH, "config", "--set", "lang", "en"],
         { all: true, reject: false },
       );
 
@@ -196,7 +196,7 @@ describe("dk config", () => {
 
       expect(exitCode).toBe(0);
       expect(all).toContain(
-        "Clé de configuration 'non_existent_key' non trouvée.",
+        "Clé de configuration 'non_existent_key' introuvable",
       );
     });
   });

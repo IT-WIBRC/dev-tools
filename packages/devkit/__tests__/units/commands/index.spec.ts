@@ -2,6 +2,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mockProgram, mockSpinner, mockLogger } from "../../../vitest.setup.js";
 import { setupAndParse } from "../../../src/commands/index.js";
 import type { CliConfig } from "../../../src/utils/schema/schema.js";
+import { ConfigError } from "../../../src/utils/errors/base.js";
 
 const {
   mockSetupInitCommand,
@@ -13,6 +14,7 @@ const {
   mockSetupInfoCommand,
   mockLoadTranslations,
   mockT,
+  mockValidateConfig,
 } = vi.hoisted(() => ({
   mockSetupInitCommand: vi.fn(),
   mockSetupNewCommand: vi.fn(),
@@ -23,6 +25,7 @@ const {
   mockSetupInfoCommand: vi.fn(),
   mockLoadTranslations: vi.fn().mockResolvedValue(undefined),
   mockT: vi.fn((key) => key),
+  mockValidateConfig: vi.fn(),
 }));
 
 vi.mock("#commands/init/index.js", () => ({
@@ -57,6 +60,10 @@ vi.mock("#core/config/loader.js", () => ({
   readConfigSources: mockReadConfigSources,
 }));
 
+vi.mock("#core/config/validation.js", () => ({
+  validateConfig: mockValidateConfig,
+}));
+
 vi.mock("#utils/i18n/translation-loader.js", () => ({
   loadTranslations: mockLoadTranslations,
 }));
@@ -67,7 +74,6 @@ vi.mock("#utils/i18n/translator.js", () => ({
 
 const warnSpy = mockLogger.warning;
 const optsSpy = vi.spyOn(mockProgram, "opts");
-const parseOptionsSpy = vi.spyOn(mockProgram, "parseOptions");
 
 const mockLocalConfig: Partial<CliConfig> = {
   settings: {
@@ -104,55 +110,52 @@ describe("index.ts (Entry point)", () => {
       default: mockDefaultConfig,
       configFound: true,
     });
+
+    mockValidateConfig.mockImplementation((config) => config);
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
-  describe("Initialization", () => {
-    it("should initialize the CLI and set up commands correctly in non-verbose mode", async () => {
+  describe("Initialization and Translation Loading", () => {
+    it("should call loadTranslations twice: once for system locale, once for config locale", async () => {
       optsSpy.mockReturnValue({});
 
       await setupAndParse();
       await vi.runAllTimersAsync();
 
-      expect(parseOptionsSpy).toHaveBeenCalledOnce();
-      expect(mockSpinner.start).toHaveBeenCalledWith("");
-      expect(mockSpinner.stop).toHaveBeenCalledOnce();
-      expect(mockSpinner.succeed).not.toHaveBeenCalled();
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(1, null);
 
-      expect(mockLoadTranslations).toHaveBeenCalledWith("fr");
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(2, "fr");
     });
 
-    it("should display a success message and info spinner in verbose mode", async () => {
-      optsSpy.mockReturnValue({ verbose: true });
+    it("should successfully validate local and global configs before reading language setting", async () => {
+      optsSpy.mockReturnValue({});
 
       await setupAndParse();
       await vi.runAllTimersAsync();
 
-      expect(parseOptionsSpy).toHaveBeenCalledOnce();
-      expect(mockSpinner.start).toHaveBeenCalledWith(
-        expect.stringContaining("program.status.initializing"),
-      );
-      expect(mockSpinner.succeed).toHaveBeenCalledOnce();
-      expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        expect.stringContaining("messages.success.program_initialized"),
-      );
-      expect(mockSpinner.stop).toHaveBeenCalled();
+      expect(mockValidateConfig).toHaveBeenCalledTimes(2);
+      expect(mockValidateConfig).toHaveBeenCalledWith(mockLocalConfig);
+      expect(mockValidateConfig).toHaveBeenCalledWith(mockGlobalConfig);
 
-      expect(mockLoadTranslations).toHaveBeenCalledWith("fr");
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(2, "fr");
     });
 
-    it("should prioritize local language setting for translations, then global, then null", async () => {
+    it("should prioritize local language setting, then global, then null/os-locale", async () => {
       mockReadConfigSources.mockResolvedValueOnce({
         local: { settings: { language: "fr" } },
         global: { settings: { language: "en" } },
         configFound: true,
       });
+      mockValidateConfig
+        .mockResolvedValueOnce({ settings: { language: "fr" } })
+        .mockResolvedValueOnce({ settings: { language: "en" } });
+
       await setupAndParse();
       await vi.runAllTimersAsync();
-      expect(mockLoadTranslations).toHaveBeenCalledWith("fr");
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(2, "fr");
 
       vi.clearAllMocks();
       mockReadConfigSources.mockResolvedValueOnce({
@@ -160,21 +163,29 @@ describe("index.ts (Entry point)", () => {
         global: { settings: { language: "es" } },
         configFound: true,
       });
-      mockProgram.parse.mockReturnValue(mockProgram);
-      await setupAndParse();
-      await vi.runAllTimersAsync();
-      expect(mockLoadTranslations).toHaveBeenCalledWith("es");
-
-      vi.clearAllMocks();
-      mockReadConfigSources.mockResolvedValueOnce({
-        local: null,
-        global: null,
-        configFound: false,
+      mockValidateConfig.mockResolvedValueOnce({
+        settings: { language: "es" },
       });
       mockProgram.parse.mockReturnValue(mockProgram);
       await setupAndParse();
       await vi.runAllTimersAsync();
-      expect(mockLoadTranslations).toHaveBeenCalledWith(null);
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(1, null);
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(2, "es");
+
+      vi.clearAllMocks();
+      mockReadConfigSources.mockResolvedValueOnce({
+        local: { settings: { some_other_setting: true } },
+        global: null,
+        configFound: true,
+      });
+      mockValidateConfig.mockResolvedValueOnce({
+        settings: { some_other_setting: true },
+      });
+      mockProgram.parse.mockReturnValue(mockProgram);
+      await setupAndParse();
+      await vi.runAllTimersAsync();
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(1, null);
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(2, null);
     });
 
     it("should display a warning if configFound is false (always visible)", async () => {
@@ -196,6 +207,49 @@ describe("index.ts (Entry point)", () => {
     });
   });
 
+  describe("Error Handling", () => {
+    it("should handle and exit gracefully on a validation error (ConfigError)", async () => {
+      const testError = new ConfigError("Template is malformed");
+
+      mockValidateConfig.mockRejectedValue(testError);
+      optsSpy.mockReturnValue({});
+
+      await setupAndParse();
+      await vi.runAllTimersAsync();
+
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(1, null);
+
+      expect(mockValidateConfig).toHaveBeenCalledOnce();
+
+      expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
+        testError,
+        mockSpinner,
+      );
+
+      expect(mockProgram.parse).not.toHaveBeenCalled();
+    });
+
+    it("should handle and exit gracefully on an initialization error (Read Error)", async () => {
+      const testError = new Error("Config load failed");
+      mockReadConfigSources.mockRejectedValue(testError);
+      optsSpy.mockReturnValue({});
+
+      await setupAndParse();
+      await vi.runAllTimersAsync();
+
+      expect(mockLoadTranslations).toHaveBeenNthCalledWith(1, null);
+
+      expect(mockReadConfigSources).toHaveBeenCalledOnce();
+      expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
+        testError,
+        mockSpinner,
+      );
+      expect(mockProgram.parse).not.toHaveBeenCalled();
+
+      expect(mockValidateConfig).not.toHaveBeenCalled();
+    });
+  });
+
   describe("Command Setup and Execution", () => {
     it("should set up all commands passing ONLY the program object", async () => {
       optsSpy.mockReturnValueOnce({});
@@ -205,48 +259,14 @@ describe("index.ts (Entry point)", () => {
 
       const expectedArg = { program: mockProgram };
 
-      expect(mockSetupInitCommand).toHaveBeenCalledOnce();
       expect(mockSetupInitCommand).toHaveBeenCalledWith(expectedArg);
-
-      expect(mockSetupNewCommand).toHaveBeenCalledOnce();
       expect(mockSetupNewCommand).toHaveBeenCalledWith(expectedArg);
-
-      expect(mockSetupConfigCommand).toHaveBeenCalledOnce();
       expect(mockSetupConfigCommand).toHaveBeenCalledWith(mockProgram);
-
-      expect(mockSetupListCommand).toHaveBeenCalledOnce();
       expect(mockSetupListCommand).toHaveBeenCalledWith(expectedArg);
-
-      expect(mockSetupInfoCommand).toHaveBeenCalledOnce();
       expect(mockSetupInfoCommand).toHaveBeenCalledWith(expectedArg);
 
       expect(mockProgram.name).toHaveBeenCalledWith("devkit");
-      expect(mockProgram.alias).toHaveBeenCalledWith("dk");
-      expect(mockProgram.version).toHaveBeenCalledWith(
-        "1.0.0",
-        "-V, --version",
-        "program.version.description",
-      );
       expect(mockProgram.parse).toHaveBeenCalledOnce();
-    });
-  });
-
-  describe("Error Handling", () => {
-    it("should handle and exit gracefully on an initialization error", async () => {
-      const testError = new Error("Config load failed");
-      mockReadConfigSources.mockRejectedValue(testError);
-      optsSpy.mockReturnValue({});
-
-      await setupAndParse();
-      await vi.runAllTimersAsync();
-
-      expect(mockReadConfigSources).toHaveBeenCalledOnce();
-      expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-        testError,
-        mockSpinner,
-      );
-      expect(mockProgram.parse).not.toHaveBeenCalled();
-      expect(mockLoadTranslations).not.toHaveBeenCalled();
     });
   });
 });

@@ -326,7 +326,7 @@
     },
     "config": {
       "parse_fail": "Échec de l'analyse de {file}. Utilisation de la configuration par défaut.",
-      "save_fail": "❌ Échec de l'enregistrement du fichier de configuration : {file}",
+      "save_fail": "Échec de l'enregistrement du fichier de configuration : {file}",
       "exists": "Le fichier existe déjà à {path}. Utilisez 'config set' pour le mettre à jour.",
       "not_found": "Fichier de configuration non trouvé.",
       "read_fail": "Échec de la lecture de la configuration à {path}.",
@@ -336,20 +336,31 @@
       "init_local_and_global": "Impossible d'utiliser les flags --local et --global en même temps.",
       "global_not_found": "Fichier de configuration globale non trouvé. Exécutez 'devkit config init --global' pour en créer un.",
       "local_not_found": "Aucun fichier de configuration local trouvé. Exécutez 'devkit config init --local' pour en créer un.",
-      "get_key_not_found": "Clé de configuration '{key}' non trouvée."
+      "get_key_not_found": "Clé de configuration '{key}' introuvable.",
+      "validation_failed": "La validation de la configuration a échoué. Veuillez corriger les erreurs ci-dessous dans votre fichier de configuration :\n\n{details}",
+      "malformed_root": "Le fichier de configuration doit être un objet JSON valide.",
+      "missing_or_malformed": "La section requise '{field}' est manquante ou mal formée (doit être un objet).",
+      "setting_invalid": "La valeur du paramètre '{setting}' est invalide ou manquante.",
+      "setting_invalid_type": "Le paramètre '{setting}' doit être de type {type}.",
+      "invalid_language_key": "La clé de langage de modèle '{key}' est invalide. Utilisez des noms de langages officiels en minuscules (par exemple, 'javascript', 'typescript').",
+      "template_structure_malformed": "Le bloc de langage pour '{language}' est mal formé. Il doit contenir un objet 'templates'.",
+      "template_malformed": "Le modèle '{template}' sous '{language}' est mal formé (doit être un objet).",
+      "template_field_missing": "Le modèle '{template}' dans '{language}' n'a pas le champ requis : '{field}' ou la valeur est invalide.",
+      "template_field_invalid": "La valeur du champ '{field}' pour le modèle '{template}' dans '{language}' est invalide.",
+      "invalid_config_file": "Le fichier de configuration à l'emplacement {path} est invalide. Utilisation des valeurs par défaut."
     },
     "template": {
       "not_found": "Modèle '{template}' non trouvé dans la configuration.",
       "language_not_found": "Modèle non trouvé pour le langage '{language}'.",
       "exists": "Le modèle '{template}' existe déjà dans la configuration. Utilisez 'devkit config set' pour le mettre à jour.",
-      "single_fail": "❌ Échec de la mise à jour de '{templateName}' : {error}",
+      "single_fail": "Échec de la mise à jour de '{templateName}' : {error}",
       "filter_regex_invalid": "Pattern regex invalide dans le filtre : '{clause}' à cause de {error}."
     },
     "scaffolding": {
-      "fail": "❌ Échec de l'échafaudage du projet : {error}",
-      "copy_fail": "❌ Échec de la copie du modèle local.",
-      "run_fail": "❌ Échec de l'exécution de la commande CLI officielle.",
-      "install_fail": "❌ Échec de l'installation des dépendances.",
+      "fail": "Échec de l'échafaudage du projet : {error}",
+      "copy_fail": "Échec de la copie du modèle local.",
+      "run_fail": "Échec de l'exécution de la commande CLI officielle.",
+      "install_fail": "Échec de l'installation des dépendances.",
       "unexpected": "Une erreur inattendue s'est produite pendant l'échafaudage.",
       "language_not_found": "Langage d'échafaudage non trouvé dans la configuration : '{language}'"
     },
@@ -370,9 +381,9 @@
       "info_package_manager_not_found": "Version de {manager} non trouvée. Est-il installé ?"
     },
     "cache": {
-      "clone_fail": "❌ Échec du clonage du dépôt.",
-      "refresh_fail": "❌ Échec du rafraîchissement du modèle.",
-      "copy_fail": "❌ Échec de la copie des fichiers depuis le cache."
+      "clone_fail": "Échec du clonage du dépôt.",
+      "refresh_fail": "Échec du rafraîchissement du modèle.",
+      "copy_fail": "Échec de la copie des fichiers depuis le cache."
     }
   },
   "warnings": {

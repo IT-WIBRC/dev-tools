@@ -8,9 +8,6 @@ import {
 type TemplateMap = LanguageConfig["templates"];
 type TemplateEntry = [string, TemplateConfig];
 
-/**
- * @const {object} FILTER_SYMBOLS - Reserved symbols used for presence/absence checks.
- */
 export const FILTER_SYMBOLS = {
   PRESENT: "*",
   MISSING: "~",
@@ -18,9 +15,6 @@ export const FILTER_SYMBOLS = {
   REGEX_END: "/",
 } as const;
 
-/**
- * @const {object} FILTER_DELIMITERS - Supported characters for separating property from value.
- */
 export const FILTER_DELIMITERS = {
   COLON: ":",
   EQUALS: "=",

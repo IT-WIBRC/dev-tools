@@ -326,30 +326,42 @@
     },
     "config": {
       "parse_fail": "Failed to parse {file}. Using default configuration.",
-      "save_fail": "❌ Failed to save configuration file: {file}",
-      "exists": "File already exists at {path}. Use 'config set' to update it.",
-      "not_found": "Configuration file not found.",
-      "read_fail": "Failed to read configuration at {path}.",
+      "save_fail": "Failed to save configuration file: {file}",
+      "exists": "File already exists at {path}. Use 'config set' to update it",
+      "not_found": "Configuration file not found",
+      "read_fail": "Failed to read configuration",
+      "read_fail_path": "Failed to read configuration at {path}",
       "no_file_found": "No configuration file found. Run 'devkit config init' to create a global one, or 'devkit config init --local' to create a local one.",
       "no_file_found_local": "No local configuration file found. Run 'devkit config init --local' to create one.",
-      "init_fail": "Failed to initialize configuration.",
+      "init_fail": "Failed to initialize configuration",
       "init_local_and_global": "Cannot use both --local and --global flags at the same time.",
       "global_not_found": "Global configuration file not found. Run 'devkit config init --global' to create one.",
       "local_not_found": "No local configuration file found. Run 'devkit config init --local' to create one.",
-      "get_key_not_found": "Configuration key '{key}' not found."
+      "get_key_not_found": "Configuration key '{key}' not found.",
+      "validation_failed": "Configuration validation failed. Please fix the errors below in your config file:\n\n{details}",
+      "malformed_root": "Configuration file must be a valid JSON object.",
+      "missing_or_malformed": "Required section '{field}' is missing or malformed (must be an object).",
+      "setting_invalid": "The value for setting '{setting}' is invalid or missing.",
+      "setting_invalid_type": "Setting '{setting}' must be of type {type}.",
+      "invalid_language_key": "Template language key '{key}' is invalid. Use lowercase official language names (e.g., '{options}').",
+      "template_structure_malformed": "The language block for '{language}' is malformed. It must contain a 'templates' object.",
+      "template_malformed": "Template '{template}' under '{language}' is malformed (must be an object).",
+      "template_field_missing": "Template '{template}' in '{language}' is missing required field: '{field}' or the value is invalid.",
+      "template_field_invalid": "The '{field}' value for template '{template}' in '{language}' is invalid.",
+      "invalid_config_file": "Configuration file at {path} is invalid. Falling back to defaults."
     },
     "template": {
       "not_found": "Template '{template}' not found in configuration.",
       "language_not_found": "Template not found for the '{language}' language.",
       "exists": "Template '{template}' already exists in the configuration. Use 'devkit config set' to update it.",
-      "single_fail": "❌ Failed to update '{templateName}': {error}",
+      "single_fail": "Failed to update '{templateName}': {error}",
       "filter_regex_invalid": "Invalid regex pattern in filter: '{clause}' due to {error}."
     },
     "scaffolding": {
-      "fail": "❌ Failed to scaffold project: {error}",
-      "copy_fail": "❌ Failed to copy local template.",
-      "run_fail": "❌ Failed to run official CLI command.",
-      "install_fail": "❌ Failed to install dependencies.",
+      "fail": "Failed to scaffold project: {error}",
+      "copy_fail": "Failed to copy local template.",
+      "run_fail": "Failed to run official CLI command.",
+      "install_fail": "Failed to install dependencies.",
       "unexpected": "An unexpected error occurred during scaffolding.",
       "language_not_found": "Scaffolding language not found in configuration: '{language}'"
     },
@@ -370,9 +382,9 @@
       "info_package_manager_not_found": "{manager} version not found. Is it installed?"
     },
     "cache": {
-      "clone_fail": "❌ Failed to clone repository.",
-      "refresh_fail": "❌ Failed to refresh template.",
-      "copy_fail": "❌ Failed to copy files from cache."
+      "clone_fail": "Failed to clone repository.",
+      "refresh_fail": "Failed to refresh template.",
+      "copy_fail": "Failed to copy files from cache."
     }
   },
   "warnings": {

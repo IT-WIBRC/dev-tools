@@ -8,19 +8,27 @@ import { setupNewCommand } from "#commands/new.js";
 import { setupConfigCommand } from "#commands/config/index.js";
 import { setupListCommand } from "#commands/list.js";
 import { setupInitCommand } from "#commands/init/index.js";
-
 import { setupInfoCommand } from "#commands/info.js";
 import { loadTranslations } from "#utils/i18n/translation-loader.js";
+import { validateConfig } from "#core/config/validation.js";
 
 export async function setupAndParse() {
   const spinner: TSpinner = logger.spinner();
 
   try {
+    let rawLocale = null;
+    await loadTranslations(rawLocale);
+
     const { configFound, global, local } = await readConfigSources({
       mergeAll: true,
     });
 
-    let rawLocale = local?.settings?.language || global?.settings?.language;
+    const validatedLocal = local ? await validateConfig(local) : null;
+    const validatedGlobal = global ? await validateConfig(global) : null;
+
+    rawLocale =
+      validatedLocal?.settings?.language || validatedGlobal?.settings?.language;
+
     await loadTranslations(rawLocale || null);
 
     const program = new Command();

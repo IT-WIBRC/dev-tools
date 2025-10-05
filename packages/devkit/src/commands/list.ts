@@ -108,7 +108,7 @@ export function setupListCommand(options: SetupCommandOptions): void {
               "\n" + t("commands.list.output.settings_header") + defaultsSuffix,
             ),
           );
-          printSettings(finalConfig.settings || {});
+          printSettings(finalConfig.settings || {}, mode);
         }
 
         let templatesToPrint: AnnotatedTemplate[] = annotatedTemplates;
