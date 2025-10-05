@@ -26,7 +26,7 @@
       },
       "project": {
         "language": {
-          "argument": "The programming language of the template (e.g., 'react', 'node')"
+          "argument": "The programming language of the template (values: {options})"
         },
         "name": {
           "argument": "The name of your new project"
@@ -65,7 +65,7 @@
     },
     "config": {
       "command": {
-        "description": "Manage DevKit's global and local settings, including package managers, cache strategy, and templates."
+        "description": "Manage DevKit's global and local settings, including package managers(pm, packageManager) and caching strategy(cache, cacheStrategy)"
       },
       "interactive": {
         "prompt_action": "What would you like to configure?",
@@ -117,7 +117,7 @@
       },
       "update_template": {
         "command": {
-          "description": "Update properties of a template, such as its alias, description, or location."
+          "description": "Update properties of a template, such as its alias, description, or location from languages ({options})"
         },
         "language": {
           "argument": "The programming language of the template to update."
@@ -130,8 +130,8 @@
           "description": "A new brief description for the template.",
           "alias": "A new alias for the template.",
           "location": "A new location for the template.",
-          "cache_strategy": "A new cache strategy for the template.",
-          "package_manager": "A new package manager for the template.",
+          "cache_strategy": "A new cache strategy for the template. Supported values: {options}.",
+          "package_manager": "A new package manager for the template. Supported values: {options}.",
           "global": "Update the template in the global configuration instead of the local one."
         }
       },
@@ -163,12 +163,12 @@
     },
     "template": {
       "add": {
-        "description": "Add a new template to the configuration",
+        "description": "Add a template to the configuration: Supported programming languages: {options}",
         "options": {
           "description": "A brief description of the template",
           "alias": "A short alias for the template",
-          "cache": "The cache strategy for the template",
-          "package_manager": "The package manager to use for the template"
+          "cache": "The cache strategy for the template: {options}",
+          "package_manager": "The package manager to use for the template:  {options}"
         },
         "prompts": {
           "language": "Template Language",
@@ -182,7 +182,7 @@
       },
       "remove": {
         "command": {
-          "description": "Remove a template from the configuration."
+          "description": "Remove a template from the configuration. Template for supported languages: {options}"
         },
         "language": {
           "argument": "The programming language of the template to remove."

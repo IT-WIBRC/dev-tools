@@ -59,6 +59,7 @@ const {
   mockValidateDisplayMode,
   mockHandleErrorAndExit,
   mockMapLanguageAliasToCanonicalKey,
+  mockGenerateDynamicHelpText,
 } = vi.hoisted(() => {
   return {
     mockGetAnnotatedTemplates: vi.fn(),
@@ -69,6 +70,9 @@ const {
     mockHandleErrorAndExit: vi.fn(),
     mockValidateDisplayMode: vi.fn(),
     mockMapLanguageAliasToCanonicalKey: vi.fn((lang) => lang),
+    mockGenerateDynamicHelpText: vi.fn(
+      (_, key) => `DYNAMIC_HELP_TEXT_FOR_${key}`,
+    ),
   };
 });
 
@@ -111,6 +115,10 @@ vi.mock("#core/config/language.js", () => ({
   mapLanguageAliasToCanonicalKey: mockMapLanguageAliasToCanonicalKey,
 }));
 
+vi.mock("#utils/i18n/generate-dynamic-help-text.js", () => ({
+  generateDynamicHelpText: mockGenerateDynamicHelpText,
+}));
+
 const CMD_DESCRIPTION_KEY = "commands.list.command.description";
 const LANG_ARGUMENT_KEY = "commands.list.command.language.argument";
 const GLOBAL_OPTION_KEY = "commands.list.options.global";
@@ -123,8 +131,12 @@ const HEADER_KEY = "commands.list.output.header";
 const SETTINGS_HEADER_KEY = "commands.list.output.settings_header";
 const MUTUALLY_EXCLUSIVE_KEY = "errors.command.mutually_exclusive_options";
 const SUCCESS_CONFIG_LOADED_KEY = "messages.success.config_loaded";
-const WARNING_TEMPLATE_NOT_FOUND_KEY =
+const WARNING_TEMPLATE_NOT_FOUND_FOR_LANGUAGE_KEY =
   "warnings.template.not_found_for_language";
+const WARNING_TEMPLATE_NOT_FOUND_IN_CONFIG_KEY =
+  "warnings.template.not_found_in_config";
+const INCLUDING_DEFAULTS_SUFFIX_KEY =
+  "messages.status.including_defaults_suffix";
 
 describe("list command", () => {
   beforeEach(() => {
@@ -134,7 +146,7 @@ describe("list command", () => {
     mockMapLanguageAliasToCanonicalKey.mockImplementation((lang) => lang);
   });
 
-  it("should define the list command correctly with new options", () => {
+  it("should define the list command correctly with dynamic help text", () => {
     setupListCommand({ program: mockProgram });
 
     expect(mockProgram.command).toHaveBeenCalledWith("list");
@@ -143,7 +155,7 @@ describe("list command", () => {
 
     expect(mockProgram.argument).toHaveBeenCalledWith(
       "[language]",
-      LANG_ARGUMENT_KEY,
+      `DYNAMIC_HELP_TEXT_FOR_${LANG_ARGUMENT_KEY}`,
       "",
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
@@ -164,7 +176,7 @@ describe("list command", () => {
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
       "-m, --mode <string>",
-      MODE_OPTION_KEY,
+      `DYNAMIC_HELP_TEXT_FOR_${MODE_OPTION_KEY}`,
       "tree",
     );
     expect(mockProgram.option).toHaveBeenCalledWith(
@@ -193,11 +205,120 @@ describe("list command", () => {
     );
 
     expect(mockSpinner.succeed).toHaveBeenCalledWith(
-      expect.stringContaining(SUCCESS_CONFIG_LOADED_KEY),
+      mocktFn(SUCCESS_CONFIG_LOADED_KEY),
     );
 
     expect(mockLogger.log).toHaveBeenCalled();
     expect(mockLogger.log).toHaveBeenCalledWith(
+      mockLogger.colors.bold(`\n${HEADER_KEY}`),
+    );
+  });
+
+  it("should pass mergeAll: true to annotator with --all flag and include defaults suffix if applicable", async () => {
+    setupListCommand({ program: mockProgram });
+    await actionFn("", { all: true, mode: "table", includeDefaults: true });
+
+    expect(mockGetAnnotatedTemplates).toHaveBeenCalledWith({
+      forceGlobal: false,
+      mergeAll: true,
+      includeDefaults: true,
+    });
+    expect(mockPrintTemplates).toHaveBeenCalledWith(
+      MOCK_ANNOTATED_TEMPLATES,
+      [],
+      "table",
+    );
+
+    const defaultsSuffix = mocktFn(INCLUDING_DEFAULTS_SUFFIX_KEY);
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      mockLogger.colors.bold(`\n${HEADER_KEY}${defaultsSuffix}`),
+    );
+  });
+
+  it("should print settings when --settings is used (and use the correct header)", async () => {
+    setupListCommand({ program: mockProgram });
+    await actionFn("", { settings: true, mode: "tree" });
+
+    expect(mockGetMergedConfig).toHaveBeenCalledWith(false);
+
+    expect(mockPrintSettings).toHaveBeenCalledWith(
+      MOCK_CLI_CONFIG_WITH_SETTINGS.settings,
+      "tree",
+    );
+
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      mockLogger.colors.bold(`\n${SETTINGS_HEADER_KEY}`),
+    );
+
+    expect(mockPrintTemplates).toHaveBeenCalledTimes(1);
+    expect(mockPrintTemplates).toHaveBeenCalledWith(
+      MOCK_ANNOTATED_TEMPLATES,
+      [],
+      "tree",
+    );
+  });
+
+  it("should call getMergedConfig(true) when --settings and --all are used", async () => {
+    setupListCommand({ program: mockProgram });
+    await actionFn("", { settings: true, all: true, mode: "tree" });
+
+    expect(mockGetMergedConfig).toHaveBeenCalledWith(true);
+  });
+
+  it("should throw a DevkitError if both --global and --all flags are used", async () => {
+    setupListCommand({ program: mockProgram });
+
+    const expectedErrorMessage = mocktFn(MUTUALLY_EXCLUSIVE_KEY, {
+      options: "global, all",
+    });
+    const expectedError = new DevkitError(expectedErrorMessage);
+
+    await actionFn("", { global: true, all: true, mode: "table" });
+
+    expect(mockGetAnnotatedTemplates).not.toHaveBeenCalled();
+
+    expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
+      expectedError,
+      mockSpinner,
+    );
+  });
+
+  it("should show WARNING_TEMPLATE_NOT_FOUND_FOR_LANGUAGE_KEY if no templates are found after language filter", async () => {
+    mockGetAnnotatedTemplates.mockResolvedValue(MOCK_ANNOTATED_TEMPLATES);
+    setupListCommand({ program: mockProgram });
+    const language = "nonexistent";
+
+    await actionFn(language, { mode: "tree" });
+
+    expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(language);
+
+    expect(mockSpinner.warn).toHaveBeenCalledWith(
+      mockLogger.colors.yellow(
+        mocktFn(WARNING_TEMPLATE_NOT_FOUND_FOR_LANGUAGE_KEY, { language }),
+      ),
+    );
+
+    expect(mockPrintTemplates).not.toHaveBeenCalled();
+    expect(mockLogger.log).not.toHaveBeenCalledWith(
+      expect.stringContaining(`\n${HEADER_KEY}`),
+    );
+  });
+
+  it("should show WARNING_TEMPLATE_NOT_FOUND_IN_CONFIG_KEY if no templates are found without language filter", async () => {
+    mockGetAnnotatedTemplates.mockResolvedValue([]);
+
+    setupListCommand({ program: mockProgram });
+
+    await actionFn("", { mode: "tree" });
+
+    expect(mockSpinner.warn).toHaveBeenCalledWith(
+      mockLogger.colors.yellow(
+        mocktFn(WARNING_TEMPLATE_NOT_FOUND_IN_CONFIG_KEY, { language: "" }),
+      ),
+    );
+
+    expect(mockPrintTemplates).not.toHaveBeenCalled();
+    expect(mockLogger.log).not.toHaveBeenCalledWith(
       expect.stringContaining(`\n${HEADER_KEY}`),
     );
   });
@@ -222,22 +343,6 @@ describe("list command", () => {
       expectedTemplates,
       [],
       "tree",
-    );
-  });
-
-  it("should pass mergeAll: true to annotator with --all flag", async () => {
-    setupListCommand({ program: mockProgram });
-    await actionFn("", { all: true, mode: "table" });
-
-    expect(mockGetAnnotatedTemplates).toHaveBeenCalledWith({
-      forceGlobal: false,
-      mergeAll: true,
-      includeDefaults: false,
-    });
-    expect(mockPrintTemplates).toHaveBeenCalledWith(
-      MOCK_ANNOTATED_TEMPLATES,
-      [],
-      "table",
     );
   });
 
@@ -278,83 +383,6 @@ describe("list command", () => {
       MOCK_ANNOTATED_TEMPLATES,
       whereClauses,
       "tree",
-    );
-  });
-
-  it("should print settings when --settings is used (and call config merger)", async () => {
-    setupListCommand({ program: mockProgram });
-    await actionFn("", { settings: true, mode: "tree" });
-
-    expect(mockGetMergedConfig).toHaveBeenCalledOnce();
-    expect(mockGetMergedConfig).toHaveBeenCalledWith(false);
-
-    expect(mockPrintSettings).toHaveBeenCalledWith(
-      MOCK_CLI_CONFIG_WITH_SETTINGS.settings,
-      "tree",
-    );
-
-    expect(mockLogger.log).toHaveBeenCalledWith(
-      expect.stringContaining(`\n${SETTINGS_HEADER_KEY}`),
-    );
-
-    expect(mockPrintTemplates).toHaveBeenCalledTimes(1);
-  });
-
-  it("should call getMergedConfig(true) when --settings and --all are used", async () => {
-    setupListCommand({ program: mockProgram });
-    await actionFn("", { settings: true, all: true, mode: "tree" });
-
-    expect(mockGetMergedConfig).toHaveBeenCalledWith(true);
-  });
-
-  it("should pass includeDefaults: true to annotator with --include-defaults flag", async () => {
-    setupListCommand({ program: mockProgram });
-    await actionFn("", { includeDefaults: true, mode: "tree" });
-
-    expect(mockGetAnnotatedTemplates).toHaveBeenCalledWith({
-      forceGlobal: false,
-      mergeAll: false,
-      includeDefaults: true,
-    });
-  });
-
-  it("should throw a DevkitError if both --global and --all flags are used", async () => {
-    setupListCommand({ program: mockProgram });
-
-    const expectedErrorMessage = mocktFn(MUTUALLY_EXCLUSIVE_KEY, {
-      options: "global, all",
-    });
-    const expectedError = new DevkitError(expectedErrorMessage);
-
-    await actionFn("", { global: true, all: true, mode: "table" });
-
-    expect(mockGetAnnotatedTemplates).not.toHaveBeenCalled();
-
-    expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
-      expectedError,
-      mockSpinner,
-    );
-  });
-
-  it("should show a warning message if no templates are found after language filter", async () => {
-    mockGetAnnotatedTemplates.mockResolvedValue([]);
-
-    setupListCommand({ program: mockProgram });
-    const language = "nonexistent";
-
-    await actionFn(language, { mode: "tree" });
-
-    expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(language);
-
-    expect(mockSpinner.warn).toHaveBeenCalledWith(
-      expect.stringContaining(
-        mocktFn(WARNING_TEMPLATE_NOT_FOUND_KEY, { language }),
-      ),
-    );
-
-    expect(mockPrintTemplates).not.toHaveBeenCalled();
-    expect(mockLogger.log).not.toHaveBeenCalledWith(
-      expect.stringContaining(`\n${HEADER_KEY}`),
     );
   });
 

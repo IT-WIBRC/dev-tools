@@ -13,12 +13,16 @@ const {
   mockResolveTemplateNamesForUpdate,
   mockValidateProgrammingLanguage,
   mockMapLanguageAliasToCanonicalKey,
+  mockGenerateDynamicHelpText,
 } = vi.hoisted(() => ({
   mockHandleErrorAndExit: vi.fn(),
   mockHandleNonInteractiveTemplateUpdate: vi.fn(),
   mockResolveTemplateNamesForUpdate: vi.fn(),
   mockValidateProgrammingLanguage: vi.fn(),
   mockMapLanguageAliasToCanonicalKey: vi.fn((lang) => lang),
+  mockGenerateDynamicHelpText: vi.fn(
+    (_, key) => `DYNAMIC_HELP_TEXT_FOR_${key}`,
+  ),
 }));
 
 let actionFn: (...options: unknown[]) => Promise<void>;
@@ -43,11 +47,17 @@ vi.mock("../../../../../src/commands/config/update/logic.js", () => ({
   resolveTemplateNamesForUpdate: mockResolveTemplateNamesForUpdate,
 }));
 
+vi.mock("#utils/i18n/generate-dynamic-help-text.js", () => ({
+  generateDynamicHelpText: mockGenerateDynamicHelpText,
+}));
+
 const consoleLogSpy = mockLogger.log;
 const mockProcessExit = vi
   .spyOn(process, "exit")
   .mockImplementation((() => {}) as unknown as never);
 
+const CMD_DESCRIPTION_KEY =
+  "commands.config.update_template.command.description";
 const OPT_NEW_NAME_KEY = "commands.config.update_template.options.new_name";
 const OPT_DESCRIPTION_KEY =
   "commands.config.update_template.options.description";
@@ -92,6 +102,10 @@ describe("setupUpdateCommand", () => {
     );
     expect(mockConfigCommand.alias).toHaveBeenCalledWith("up");
 
+    expect(mockConfigCommand.description).toHaveBeenCalledWith(
+      `DYNAMIC_HELP_TEXT_FOR_${CMD_DESCRIPTION_KEY}`,
+    );
+
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "-n, --new-name <string>",
       mocktFn(OPT_NEW_NAME_KEY),
@@ -108,14 +122,17 @@ describe("setupUpdateCommand", () => {
       "-l, --location <string>",
       mocktFn(OPT_LOCATION_KEY),
     );
+
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "--cache-strategy <string>",
-      mocktFn(OPT_CACHE_STRATEGY_KEY),
+      `DYNAMIC_HELP_TEXT_FOR_${OPT_CACHE_STRATEGY_KEY}`,
     );
+
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "--package-manager <string>",
-      mocktFn(OPT_PACKAGE_MANAGER_KEY),
+      `DYNAMIC_HELP_TEXT_FOR_${OPT_PACKAGE_MANAGER_KEY}`,
     );
+
     expect(mockConfigCommand.option).toHaveBeenCalledWith(
       "-g, --global",
       mocktFn(OPT_GLOBAL_KEY),
@@ -164,7 +181,7 @@ describe("setupUpdateCommand", () => {
       templateName,
       {
         ...defaultCmdOptions,
-        language: "ts",
+        language: aliasLang,
       },
       false,
     );

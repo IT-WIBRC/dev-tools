@@ -16,6 +16,7 @@ import {
   type AnnotatedTemplate,
 } from "#core/template/annotator.js";
 import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
+import { generateDynamicHelpText } from "#utils/i18n/generate-dynamic-help-text.js";
 
 type ListCommandOptions = {
   global?: boolean;
@@ -33,14 +34,21 @@ export function setupListCommand(options: SetupCommandOptions): void {
     .command("list")
     .alias("ls")
     .description(t("commands.list.command.description"))
-    .argument("[language]", t("commands.list.command.language.argument"), "")
+    .argument(
+      "[language]",
+      generateDynamicHelpText(
+        "language",
+        "commands.list.command.language.argument",
+      ),
+      "",
+    )
     .option("-g, --global", t("commands.list.options.global"))
     .option("-a, --all", t("commands.list.options.all"))
     .option("-s, --settings", t("commands.list.options.settings"))
     .option("-w, --where <strings...>", t("commands.list.command.where.option"))
     .option(
       "-m, --mode <string>",
-      t("commands.list.command.mode.option"),
+      generateDynamicHelpText("mode", "commands.list.command.mode.option"),
       "tree",
     )
     .option(

@@ -8,12 +8,18 @@ import { resolveTemplateNamesForUpdate } from "./logic.js";
 import { DevkitError } from "#utils/errors/base.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
 import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
+import { generateDynamicHelpText } from "#utils/i18n/generate-dynamic-help-text.js";
 
 export function setupUpdateCommand(configCommand: Command): void {
   configCommand
     .command("update <language> <templateName...>")
     .alias("up")
-    .description(t("commands.config.update_template.command.description"))
+    .description(
+      generateDynamicHelpText(
+        "supportedLanguage",
+        "commands.config.update_template.command.description",
+      ),
+    )
     .option(
       "-n, --new-name <string>",
       t("commands.config.update_template.options.new_name"),
@@ -32,11 +38,17 @@ export function setupUpdateCommand(configCommand: Command): void {
     )
     .option(
       "--cache-strategy <string>",
-      t("commands.config.update_template.options.cache_strategy"),
+      generateDynamicHelpText(
+        "cacheStrategy",
+        "commands.config.update_template.options.cache_strategy",
+      ),
     )
     .option(
       "--package-manager <string>",
-      t("commands.config.update_template.options.package_manager"),
+      generateDynamicHelpText(
+        "packageManager",
+        "commands.config.update_template.options.package_manager",
+      ),
     )
     .option(
       "-g, --global",
