@@ -6,6 +6,7 @@ import { logger, type TSpinner } from "#utils/logger.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
 import { getMergedConfig } from "#core/config/merger.js";
 import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
+import { generateDynamicHelpText } from "#utils/i18n/generate-dynamic-help-text.js";
 
 const getScaffolder = async (language: string) => {
   if (["javascript", "typescript", "nodejs"].includes(language)) {
@@ -23,7 +24,13 @@ export function setupNewCommand(options: SetupCommandOptions) {
     .command("new")
     .alias("nw")
     .description(t("commands.new.command.description"))
-    .argument("<language>", t("commands.new.project.language.argument"))
+    .argument(
+      "<language>",
+      generateDynamicHelpText(
+        "language",
+        "commands.new.project.language.argument",
+      ),
+    )
     .argument("<projectName>", t("commands.new.project.name.argument"))
     .requiredOption(
       "-t, --template <string>",

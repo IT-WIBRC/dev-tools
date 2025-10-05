@@ -9,6 +9,7 @@ import { type AddCommandOptions, type AddTemplateSchema } from "./types.js";
 import { validateProgrammingLanguage } from "#utils/validations/config.js";
 import type { CliConfig } from "#utils/schema/schema.js";
 import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
+import { generateDynamicHelpText } from "#utils/i18n/generate-dynamic-help-text.js";
 
 async function getTargetConfigForModification(
   isGlobal: boolean,
@@ -31,7 +32,12 @@ export function setupAddCommand(configCommand: Command): void {
   configCommand
     .command("add <language> <templateName>")
     .alias("a")
-    .description(t("commands.template.add.description"))
+    .description(
+      generateDynamicHelpText(
+        "supportedLanguage",
+        "commands.template.add.description",
+      ),
+    )
     .option(
       "-d, --description <string>",
       t("commands.template.add.options.description"),
@@ -49,12 +55,18 @@ export function setupAddCommand(configCommand: Command): void {
     )
     .option(
       "-c, --cache-strategy <string>",
-      t("commands.template.add.options.cache"),
+      generateDynamicHelpText(
+        "cacheStrategy",
+        "commands.template.add.options.cache",
+      ),
       "",
     )
     .option(
       "-p, --package-manager <string>",
-      t("commands.template.add.options.package_manager"),
+      generateDynamicHelpText(
+        "packageManager",
+        "commands.template.add.options.package_manager",
+      ),
       "",
     )
     .action(

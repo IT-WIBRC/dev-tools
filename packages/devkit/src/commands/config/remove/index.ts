@@ -6,12 +6,18 @@ import { type Command } from "commander";
 import { type RemoveCommandOptions } from "../types.js";
 import { getTemplateNamesToActOn, saveConfig } from "./logic.js";
 import { mapLanguageAliasToCanonicalKey } from "#core/config/language.js";
+import { generateDynamicHelpText } from "#utils/i18n/generate-dynamic-help-text.js";
 
 export function setupRemoveCommand(configCommand: Command): void {
   configCommand
     .command("remove <language> <templateName...>")
     .alias("rm")
-    .description(t("commands.template.remove.command.description"))
+    .description(
+      generateDynamicHelpText(
+        "supportedLanguage",
+        "commands.template.remove.command.description",
+      ),
+    )
     .action(
       async (
         language: string,

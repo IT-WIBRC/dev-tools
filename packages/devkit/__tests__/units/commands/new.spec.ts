@@ -40,12 +40,17 @@ vi.mock("#core/config/language.js", () => ({
   mapLanguageAliasToCanonicalKey: mockMapLanguageAliasToCanonicalKey,
 }));
 
+vi.mock("#utils/i18n/generate-dynamic-help-text.js", () => ({
+  generateDynamicHelpText: vi.fn((_, key) => `DYNAMIC_HELP_TEXT_FOR_${key}`),
+}));
+
 const TEMPLATE_NOT_FOUND_KEY = "errors.template.not_found";
 const NEW_PROJECT_SUCCESS_KEY = "messages.success.new_project";
 const CMD_DESCRIPTION_KEY = "commands.new.command.description";
 const LANG_ARGUMENT_KEY = "commands.new.project.language.argument";
 const NAME_ARGUMENT_KEY = "commands.new.project.name.argument";
 const TEMPLATE_OPTION_KEY = "commands.new.project.template.option.description";
+const LANG_NOT_FOUND_KEY = "errors.scaffolding.language_not_found";
 
 describe("setupNewCommand", () => {
   let mockProgram: any;
@@ -119,7 +124,7 @@ describe("setupNewCommand", () => {
     expect(mockProgram.description).toHaveBeenCalledWith(CMD_DESCRIPTION_KEY);
     expect(mockProgram.argument).toHaveBeenCalledWith(
       "<language>",
-      LANG_ARGUMENT_KEY,
+      `DYNAMIC_HELP_TEXT_FOR_${LANG_ARGUMENT_KEY}`,
     );
     expect(mockProgram.argument).toHaveBeenCalledWith(
       "<projectName>",
@@ -154,7 +159,7 @@ describe("setupNewCommand", () => {
     expect(mockSpinner.start).toHaveBeenCalledOnce();
     expect(mockSpinner.stop).toHaveBeenCalled();
     expect(mockSpinner.succeed).toHaveBeenCalledWith(
-      `${NEW_PROJECT_SUCCESS_KEY}- options projectName:react-project`,
+      mocktFn(NEW_PROJECT_SUCCESS_KEY, { projectName }),
     );
     expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
   });
@@ -207,28 +212,32 @@ describe("setupNewCommand", () => {
     });
 
     expect(mockSpinner.succeed).toHaveBeenCalledWith(
-      `${NEW_PROJECT_SUCCESS_KEY}- options projectName:vue-project`,
+      mocktFn(NEW_PROJECT_SUCCESS_KEY, { projectName }),
     );
     expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
   });
 
-  it("should throw a DevkitError if the language is not valid (python)", async () => {
+  it("should throw a DevkitError if the language is not valid (python) before config lookup", async () => {
     setupNewCommand({ program: mockProgram });
     const language = "python";
     const projectName = "my-python-project";
-    const cmdOptions = { template: "my-template" };
+    const templateName = "my-template";
+    const cmdOptions = { template: templateName };
 
-    const expectedError = new DevkitError("Invalid language");
     mockMapLanguageAliasToCanonicalKey.mockReturnValue(language);
-
-    mockValidateProgrammingLanguage.mockImplementation(() => {
-      throw expectedError;
+    mockValidateProgrammingLanguage.mockImplementation(() => {});
+    mockGetMergedConfig.mockResolvedValue({
+      ...sampleConfig,
+      templates: {},
     });
+
+    const expectedErrorMessage = mocktFn(LANG_NOT_FOUND_KEY, { language });
+    const expectedError = new DevkitError(expectedErrorMessage);
 
     await actionFn(language, projectName, cmdOptions);
 
     expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(language);
-    expect(mockGetMergedConfig).not.toHaveBeenCalled();
+    expect(mockGetMergedConfig).toHaveBeenCalledWith(true);
 
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
       expectedError,
@@ -288,6 +297,7 @@ describe("setupNewCommand", () => {
 
     await actionFn(language, projectName, cmdOptions);
 
+    expect(mockMapLanguageAliasToCanonicalKey).toHaveBeenCalledWith(language);
     expect(mockValidateProgrammingLanguage).toHaveBeenCalledWith(language);
     expect(mockHandleErrorAndExit).toHaveBeenCalledWith(
       expectedError,

@@ -26,7 +26,7 @@
       },
       "project": {
         "language": {
-          "argument": "Le langage de programmation du modèle (ex: 'react', 'node')"
+          "argument": "Le langage de programmation du modèle (values: {options})"
         },
         "name": {
           "argument": "Le nom de votre nouveau projet"
@@ -65,7 +65,7 @@
     },
     "config": {
       "command": {
-        "description": "Gérer les paramètres globaux et locaux de DevKit, y compris les gestionnaires de paquets, la stratégie de cache et les modèles (templates)."
+        "description": "Gérer les paramètres globaux et locaux de DevKit, y compris les gestionnaires de paquets(pm, packageManager) et la stratégie de cache(cache, cacheStrategy)."
       },
       "interactive": {
         "prompt_action": "Que souhaitez-vous configurer ?",
@@ -117,7 +117,7 @@
       },
       "update_template": {
         "command": {
-          "description": "Mettre à jour les propriétés d'un modèle, telles que son alias, sa description ou son emplacement."
+          "description": "Mettre à jour les propriétés d'un modèle, telles que son alias, sa description ou son emplacement à partir des langages ({options})"
         },
         "language": {
           "argument": "Le langage de programmation du modèle à mettre à jour."
@@ -130,8 +130,8 @@
           "description": "Une nouvelle brève description pour le modèle.",
           "alias": "Un nouvel alias pour le modèle.",
           "location": "Un nouvel emplacement pour le modèle.",
-          "cache_strategy": "Une nouvelle stratégie de cache pour le modèle.",
-          "package_manager": "Un nouveau gestionnaire de paquets pour le modèle.",
+          "cache_strategy": "Une nouvelle stratégie de cache pour le modèle. Valeurs prises en charge : {options}.",
+          "package_manager": "Un nouveau gestionnaire de paquets pour le modèle. Valeurs prises en charge : {options}.",
           "global": "Mettre à jour le modèle dans la configuration globale au lieu de la locale."
         }
       },
@@ -163,12 +163,12 @@
     },
     "template": {
       "add": {
-        "description": "Ajouter un nouveau modèle à la configuration",
+        "description": "Ajouter un modèle à la configuration : Langages de programmation pris en charge : {options}",
         "options": {
           "description": "Une brève description du modèle",
           "alias": "Un alias court pour le modèle",
-          "cache": "La stratégie de cache pour le modèle",
-          "package_manager": "Le gestionnaire de paquets à utiliser pour le modèle"
+          "cache": "La stratégie de cache pour le modèle : {options}",
+          "package_manager": "Le gestionnaire de paquets à utiliser pour le modèle : {options}"
         },
         "prompts": {
           "language": "Langage du modèle",
@@ -182,7 +182,7 @@
       },
       "remove": {
         "command": {
-          "description": "Supprimer un ou plusieurs modèles de la configuration."
+          "description": "Supprimer un ou plusieurs modèles de la configuration. Modèle pour les langages pris en charge : {options}"
         },
         "language": {
           "argument": "Le langage de programmation du modèle à supprimer."
@@ -342,7 +342,7 @@
       "missing_or_malformed": "La section requise '{field}' est manquante ou mal formée (doit être un objet).",
       "setting_invalid": "La valeur du paramètre '{setting}' est invalide ou manquante.",
       "setting_invalid_type": "Le paramètre '{setting}' doit être de type {type}.",
-      "invalid_language_key": "La clé de langage de modèle '{key}' est invalide. Utilisez des noms de langages officiels en minuscules (par exemple, 'javascript', 'typescript').",
+      "invalid_language_key": "La clé de langage de modèle '{key}' est invalide. Utilisez des noms de langages officiels en minuscules (par exemple, {options}).",
       "template_structure_malformed": "Le bloc de langage pour '{language}' est mal formé. Il doit contenir un objet 'templates'.",
       "template_malformed": "Le modèle '{template}' sous '{language}' est mal formé (doit être un objet).",
       "template_field_missing": "Le modèle '{template}' dans '{language}' n'a pas le champ requis : '{field}' ou la valeur est invalide.",

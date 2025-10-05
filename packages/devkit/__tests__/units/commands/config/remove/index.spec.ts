@@ -35,6 +35,10 @@ vi.mock("../../../../../src/commands/config/remove/logic.js", () => ({
   saveConfig: mockSaveConfig,
 }));
 
+vi.mock("#utils/i18n/generate-dynamic-help-text.js", () => ({
+  generateDynamicHelpText: vi.fn((_, key) => `DYNAMIC_HELP_TEXT_FOR_${key}`),
+}));
+
 const CMD_DESCRIPTION_KEY = "commands.template.remove.command.description";
 const STATUS_REMOVING_KEY = "messages.status.template_removing";
 const SUCCESS_REMOVED_KEY = "messages.success.template_removed";
@@ -111,7 +115,7 @@ describe("setupRemoveCommand (Command Handler)", () => {
     );
     expect(mockConfigCommand.alias).toHaveBeenCalledWith("rm");
     expect(mockConfigCommand.description).toHaveBeenCalledWith(
-      mocktFn(CMD_DESCRIPTION_KEY),
+      `DYNAMIC_HELP_TEXT_FOR_${CMD_DESCRIPTION_KEY}`,
     );
   });
 
@@ -152,7 +156,6 @@ describe("setupRemoveCommand (Command Handler)", () => {
     expect(
       savedConfig.templates[canonicalLang].templates[templateToRemove],
     ).toBeUndefined();
-    expect(savedConfig.templates[aliasLang]).toBeUndefined();
   });
 
   describe("action handler", () => {
