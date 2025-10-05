@@ -17,7 +17,17 @@ import { getPackageManager } from "#utils/package-manager/index.js";
 
 export async function promptForStandardOverwrite(
   filePath: string,
+  skipConfirmation: boolean = false,
 ): Promise<boolean> {
+  if (skipConfirmation) {
+    logger.info(
+      logger.colors.yellow(
+        t("commands.config.init.skip_yes_confirm", { path: filePath }),
+      ),
+    );
+    return true;
+  }
+
   const response = await select({
     message: logger.colors.yellow(
       t("commands.config.init.confirm_overwrite", { path: filePath }),
@@ -44,14 +54,17 @@ async function getUpdatedConfig(): Promise<CliConfig> {
   };
 }
 
-export async function handleGlobalInit(spinner: TSpinner): Promise<void> {
+export async function handleGlobalInit(
+  spinner: TSpinner,
+  skipConfirmation: boolean = false,
+): Promise<void> {
   let finalPath = await findGlobalConfigFile();
   if (!finalPath) {
     finalPath = path.join(os.homedir(), CONFIG_FILE_NAMES[0]);
   }
 
   const shouldOverwrite = (await fs.pathExists(finalPath))
-    ? await promptForStandardOverwrite(finalPath)
+    ? await promptForStandardOverwrite(finalPath, skipConfirmation)
     : true;
 
   if (shouldOverwrite) {
@@ -70,7 +83,10 @@ export async function handleGlobalInit(spinner: TSpinner): Promise<void> {
   }
 }
 
-export async function handleLocalInit(spinner: TSpinner): Promise<void> {
+export async function handleLocalInit(
+  spinner: TSpinner,
+  skipConfirmation: boolean = false,
+): Promise<void> {
   const allConfigFiles = [...CONFIG_FILE_NAMES];
   const currentPath = process.cwd();
   const monorepoRoot = await findMonorepoRoot();
@@ -88,7 +104,10 @@ export async function handleLocalInit(spinner: TSpinner): Promise<void> {
 
   if (existingConfigPath) {
     finalPath = existingConfigPath;
-    shouldOverwrite = await promptForStandardOverwrite(finalPath);
+    shouldOverwrite = await promptForStandardOverwrite(
+      finalPath,
+      skipConfirmation,
+    );
   } else {
     finalPath = path.join(rootDir, allConfigFiles[1]);
   }

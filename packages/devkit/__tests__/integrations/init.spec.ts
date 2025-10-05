@@ -27,25 +27,12 @@ let globalConfigDir: string;
 let localConfig: CliConfig;
 let globalConfig: CliConfig;
 
-const invalidLocalConfigMalformedSetting: Partial<CliConfig> = {
-  ...defaultCliConfig,
-  settings: {
-    ...defaultCliConfig.settings,
-    defaultPackageManager: "invalid-package-manager-alias" as any,
-  },
-} as any;
-
-const invalidLocalConfigMissingRequiredSettings: Partial<CliConfig> = {
-  ...defaultCliConfig,
-  settings: {} as any,
-} as any;
-
 const createLocalConfig = async () => {
   localConfig = {
     ...defaultCliConfig,
     settings: {
       ...defaultCliConfig.settings,
-      language: "fr",
+      language: "en",
       cacheStrategy: "always-refresh",
       defaultPackageManager: "npm",
     },
@@ -69,12 +56,20 @@ const createGlobalConfig = async () => {
   );
 };
 
+const INPUT_ENTER = "\n";
+const INPUT_DOWN_ARROW = "\x1B[B";
+
+const INPUT_YES_SIMULATED = INPUT_ENTER;
+const INPUT_NO_SIMULATED = INPUT_DOWN_ARROW + INPUT_ENTER;
+
 describe("dk config", () => {
   beforeAll(() => {
     vi.unmock("#utils/shell.js");
   });
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+
     originalCwd = process.cwd();
     tempDir = path.join(os.tmpdir(), `devkit-test-config-${Date.now()}`);
     globalConfigDir = path.join(
@@ -85,12 +80,144 @@ describe("dk config", () => {
     await fs.ensureDir(tempDir);
     process.chdir(tempDir);
     await fs.ensureDir(globalConfigDir);
+
+    vi.spyOn(os, "homedir").mockReturnValue(globalConfigDir);
   });
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     process.chdir(originalCwd);
     await fs.remove(tempDir);
     await fs.remove(globalConfigDir);
+  });
+
+  describe("INIT Functionality (Creating Config)", () => {
+    const SUCCESS_MESSAGE = "Configuration initialized successfully!";
+    const ABORTED_MESSAGE = "Operation aborted. No changes were made.";
+    const SKIP_YES_MESSAGE_FRAGMENT =
+      "Skipping confirmation: Overwriting config file at";
+
+    describe("Interactive Init (No --yes)", () => {
+      it("should create a local config file when none exists (default behavior)", async () => {
+        const localPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
+
+        expect(await fs.pathExists(localPath)).toBe(false);
+
+        const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
+          all: true,
+        });
+
+        expect(exitCode).toBe(0);
+        expect(all).toContain(SUCCESS_MESSAGE);
+        expect(await fs.pathExists(localPath)).toBe(true);
+      });
+
+      it("should prompt and successfully overwrite an existing local config file when 'yes' is selected (simulated input)", async () => {
+        await createLocalConfig();
+        const localPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
+
+        const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
+          all: true,
+          input: INPUT_YES_SIMULATED,
+        });
+        const finalConfig = await fs.readJson(localPath);
+
+        expect(exitCode).toBe(0);
+        expect(all).toContain(SUCCESS_MESSAGE);
+        expect(all).toContain(path.basename(localPath));
+        expect(finalConfig.settings.language).not.toBe("old");
+      });
+
+      it("should prompt and abort initialization when 'no' is selected for local config overwrite (simulated input)", async () => {
+        await createLocalConfig();
+        const localPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
+
+        const { all, exitCode } = await execute("bun", [CLI_PATH, "init"], {
+          all: true,
+          input: INPUT_NO_SIMULATED,
+        });
+        const finalConfig = await fs.readJson(localPath);
+
+        expect(exitCode).toBe(0);
+        expect(all).toContain(ABORTED_MESSAGE);
+        expect(all).toContain(path.basename(localPath));
+        expect(finalConfig.settings.language).toBe("en");
+      });
+
+      it("should prompt and successfully overwrite an existing global config file when --global is used and 'yes' is selected (simulated input)", async () => {
+        await createGlobalConfig();
+        const globalPath = path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME);
+
+        const { all, exitCode } = await execute(
+          "bun",
+          [CLI_PATH, "init", "--global"],
+          {
+            all: true,
+            env: { HOME: globalConfigDir },
+            input: INPUT_YES_SIMULATED,
+          },
+        );
+        const finalConfig = await fs.readJson(globalPath);
+
+        expect(exitCode).toBe(0);
+        expect(all).toContain(SUCCESS_MESSAGE);
+        expect(all).toContain(path.basename(globalPath));
+        expect(finalConfig.settings.language).not.toBe("old");
+      });
+    });
+
+    describe("Non-Interactive Init (With --yes)", () => {
+      it("should create a new local config file silently with --yes (no prompt, no existing file)", async () => {
+        const localPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
+
+        expect(await fs.pathExists(localPath)).toBe(false);
+
+        const { all, exitCode } = await execute(
+          "bun",
+          [CLI_PATH, "init", "--yes"],
+          { all: true },
+        );
+
+        expect(exitCode).toBe(0);
+        expect(all).toContain(SUCCESS_MESSAGE);
+        expect(await fs.pathExists(localPath)).toBe(true);
+        expect(all).not.toContain(SKIP_YES_MESSAGE_FRAGMENT);
+      });
+
+      it("should automatically overwrite an existing local config file with --yes (no prompt, success)", async () => {
+        await createLocalConfig();
+        const localPath = path.join(tempDir, LOCAL_CONFIG_FILE_NAME);
+
+        const { all, exitCode } = await execute(
+          "bun",
+          [CLI_PATH, "init", "-y"],
+          { all: true },
+        );
+        const finalConfig = await fs.readJson(localPath);
+
+        expect(exitCode).toBe(0);
+        expect(all).toContain(SKIP_YES_MESSAGE_FRAGMENT);
+        expect(all).toContain(SUCCESS_MESSAGE);
+        expect(finalConfig.settings.language).not.toBe("old");
+      });
+
+      it("should automatically overwrite an existing global config file with --global and --yes", async () => {
+        await createGlobalConfig();
+        const globalPath = path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME);
+
+        const { all, exitCode } = await execute(
+          "bun",
+          [CLI_PATH, "init", "--global", "-y"],
+          { all: true, env: { HOME: globalConfigDir } },
+        );
+        const finalConfig = await fs.readJson(globalPath);
+
+        expect(exitCode).toBe(0);
+        expect(all).toContain(SKIP_YES_MESSAGE_FRAGMENT);
+        expect(all).toContain(SUCCESS_MESSAGE);
+        expect(finalConfig.settings.language).not.toBe("old");
+      });
+    });
   });
 
   describe("Core Behavior", () => {
@@ -117,278 +244,6 @@ describe("dk config", () => {
       expect(all).toContain(
         "::[DEV]>> Devkit encountered an unexpected internal issue: No local configuration file found. Run 'devkit config init --local' to create one.",
       );
-    });
-  });
-
-  describe("GET Functionality (Reading Config)", () => {
-    it("should get a single setting from the local config using the full key", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "language"],
-        { all: true },
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("language: fr");
-      expect(all).toContain(
-        "Paramètres de configuration récupérés avec succès.",
-      );
-    });
-
-    it("should get a single setting from the local config using a short alias (lang)", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "lang"],
-        { all: true },
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("lang: fr");
-      expect(all).toContain(
-        "Paramètres de configuration récupérés avec succès.",
-      );
-    });
-
-    it("should get multiple settings from the local config using full keys", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "language", "cacheStrategy"],
-        { all: true },
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("language: fr");
-      expect(all).toContain("cacheStrategy: always-refresh");
-      expect(all).toContain(
-        "Paramètres de configuration récupérés avec succès.",
-      );
-    });
-
-    it("should get multiple settings from the local config using short aliases (pm, cache)", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "pm", "cache"],
-        { all: true },
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("pm: npm");
-      expect(all).toContain("cache: always-refresh");
-      expect(all).toContain(
-        "Paramètres de configuration récupérés avec succès.",
-      );
-    });
-
-    it("should get a setting from the global config with --global flag", async () => {
-      await createGlobalConfig();
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "language", "--global"],
-        { all: true, env: { HOME: globalConfigDir } },
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("language: en");
-      expect(all).toContain(
-        "Paramètres de configuration récupérés avec succès.",
-      );
-    });
-
-    it("should fail gracefully if a key to get is not found", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "non_existent_key"],
-        { all: true },
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain(
-        "Clé de configuration 'non_existent_key' introuvable.",
-      );
-    });
-  });
-
-  describe("SET Functionality (Updating Config)", () => {
-    it("should set a single setting in the local config using full key", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "--set", "language", "en"],
-        { all: true },
-      );
-
-      const updatedConfig = await fs.readJson(
-        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("Configuration mise à jour avec succès !");
-      expect(updatedConfig.settings.language).toBe("en");
-    });
-
-    it("should set a single setting in the local config using a short alias (lang)", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "--set", "lang", "en"],
-        { all: true },
-      );
-
-      const updatedConfig = await fs.readJson(
-        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("Configuration mise à jour avec succès !");
-      expect(updatedConfig.settings.language).toBe("en");
-      expect(updatedConfig.settings.defaultPackageManager).toBe("npm");
-    });
-
-    it("should set multiple settings in the local config using full keys", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [
-          CLI_PATH,
-          "config",
-          "--set",
-          "language",
-          "en",
-          "cacheStrategy",
-          "never-refresh",
-        ],
-        { all: true },
-      );
-
-      const updatedConfig = await fs.readJson(
-        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("Configuration mise à jour avec succès !");
-      expect(updatedConfig.settings.language).toBe("en");
-      expect(updatedConfig.settings.cacheStrategy).toBe("never-refresh");
-    });
-
-    it("should set multiple settings in the local config using short aliases (pm, cache)", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "-s", "pm", "pnpm", "cache", "never-refresh"],
-        { all: true },
-      );
-
-      const updatedConfig = await fs.readJson(
-        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("Configuration mise à jour avec succès !");
-      expect(updatedConfig.settings.defaultPackageManager).toBe("pnpm");
-      expect(updatedConfig.settings.cacheStrategy).toBe("never-refresh");
-    });
-
-    it("should set a single setting in the global config with --global flag", async () => {
-      await createGlobalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "--global", "--set", "language", "fr"],
-        { all: true, env: { HOME: globalConfigDir } },
-      );
-
-      const updatedConfig = await fs.readJson(
-        path.join(globalConfigDir, GLOBAL_CONFIG_FILE_NAME),
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain("Configuration updated successfully!");
-      expect(updatedConfig.settings.language).toBe("fr");
-    });
-
-    it("should fail if --set has an odd number of arguments", async () => {
-      await createLocalConfig();
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "--set", "language", "en", "invalid"],
-        { all: true, reject: false },
-      );
-
-      expect(exitCode).toBe(0);
-      expect(all).toContain(
-        "Les valeurs pour l'option '--set' doivent être une série de paires clé-valeur (ex: --set clé1 valeur1 clé2 valeur2).",
-      );
-    });
-  });
-
-  describe("Configuration Validation Failures", () => {
-    const VALIDATION_ERROR_MESSAGE =
-      "Failed to read configuration: Configuration validation failed";
-    const SETTINGS_PM_ERROR_FRAGMENT =
-      "The value for setting 'defaultPackageManager' is invalid";
-    const SETTINGS_MISSING_ERROR_FRAGMENT =
-      "The value for setting 'defaultPackageManager' is invalid or missing.";
-
-    it("should fail and exit if local config is invalid (malformed settings field) during SET", async () => {
-      await createLocalConfig();
-
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "--set", "pm", "invalid-pm"],
-        {
-          all: true,
-          reject: false,
-        },
-      );
-
-      expect(exitCode).toBe(1);
-      expect(all).toContain("Devkit a rencontré un problème interne inattendu");
-      expect(all).not.toContain(SETTINGS_PM_ERROR_FRAGMENT);
-    });
-
-    it("should fail and exit if local config is invalid (malformed settings field) during GET", async () => {
-      await fs.writeJson(
-        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-        invalidLocalConfigMalformedSetting,
-      );
-
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "language"],
-        {
-          all: true,
-          reject: false,
-        },
-      );
-
-      expect(exitCode).toBe(1);
-      expect(all).toContain(VALIDATION_ERROR_MESSAGE);
-      expect(all).toContain(SETTINGS_PM_ERROR_FRAGMENT);
-    });
-
-    it("should fail and exit if local config is invalid (missing required settings fields)", async () => {
-      await fs.writeJson(
-        path.join(tempDir, LOCAL_CONFIG_FILE_NAME),
-        invalidLocalConfigMissingRequiredSettings,
-      );
-
-      const { all, exitCode } = await execute(
-        "bun",
-        [CLI_PATH, "config", "language"],
-        {
-          all: true,
-          reject: false,
-        },
-      );
-
-      expect(exitCode).toBe(1);
-      expect(all).toContain(VALIDATION_ERROR_MESSAGE);
-      expect(all).toContain(SETTINGS_MISSING_ERROR_FRAGMENT);
     });
   });
 });

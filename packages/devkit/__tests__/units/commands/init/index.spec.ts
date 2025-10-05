@@ -25,10 +25,17 @@ vi.mock("../../../../src/commands/init/logic.js", () => ({
 const CMD_DESCRIPTION_KEY = "commands.config.init.command.description";
 const OPT_LOCAL_KEY = "commands.config.init.option.local";
 const OPT_GLOBAL_KEY = "commands.config.init.option.global";
+const OPT_YES_KEY = "commands.common.options.yes";
 const ERROR_INIT_MUTUAL_EXCLUSION_KEY = "errors.config.init_local_and_global";
 
-const callAction = (local: boolean, global: boolean) => {
-  return actionFn({ local, global });
+interface InitActionOptions {
+  local: boolean;
+  global: boolean;
+  yes?: boolean;
+}
+
+const callAction = (local: boolean, global: boolean, yes: boolean = false) => {
+  return actionFn({ local, global, yes } as InitActionOptions);
 };
 
 describe("setupInitCommand", () => {
@@ -51,7 +58,7 @@ describe("setupInitCommand", () => {
     setupOptions = { program: mockProgram };
   });
 
-  it("should set up the init command with correct arguments and options", () => {
+  it("should set up the init command with correct arguments and options, including -y/--yes", () => {
     setupInitCommand(setupOptions);
 
     expect(mockProgram.command).toHaveBeenCalledWith("init");
@@ -70,9 +77,49 @@ describe("setupInitCommand", () => {
       mocktFn(OPT_GLOBAL_KEY),
       false,
     );
+
+    expect(mockProgram.option).toHaveBeenCalledWith(
+      "-y, --yes",
+      mocktFn(OPT_YES_KEY),
+      false,
+    );
   });
 
-  describe("action handler", () => {
+  describe("action handler - Skip Confirmation Option", () => {
+    beforeEach(() => {
+      setupInitCommand(setupOptions);
+    });
+
+    it("should call handleLocalInit with skipConfirmation=false when -y is absent", async () => {
+      await callAction(false, false, false);
+
+      expect(mockHandleLocalInit).toHaveBeenCalledWith(mockSpinner, false);
+      expect(mockHandleGlobalInit).not.toHaveBeenCalled();
+    });
+
+    it("should call handleLocalInit with skipConfirmation=true when -y is provided", async () => {
+      await callAction(false, false, true);
+
+      expect(mockHandleLocalInit).toHaveBeenCalledWith(mockSpinner, true);
+      expect(mockHandleGlobalInit).not.toHaveBeenCalled();
+    });
+
+    it("should call handleGlobalInit with skipConfirmation=false when -y is absent", async () => {
+      await callAction(false, true, false);
+
+      expect(mockHandleGlobalInit).toHaveBeenCalledWith(mockSpinner, false);
+      expect(mockHandleLocalInit).not.toHaveBeenCalled();
+    });
+
+    it("should call handleGlobalInit with skipConfirmation=true when -y is provided", async () => {
+      await callAction(false, true, true);
+
+      expect(mockHandleGlobalInit).toHaveBeenCalledWith(mockSpinner, true);
+      expect(mockHandleLocalInit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("action handler - Existing Logic Checks", () => {
     beforeEach(() => {
       setupInitCommand(setupOptions);
     });
@@ -80,7 +127,7 @@ describe("setupInitCommand", () => {
     it("should default to calling handleLocalInit when no options are provided", async () => {
       await callAction(false, false);
 
-      expect(mockHandleLocalInit).toHaveBeenCalledWith(mockSpinner);
+      expect(mockHandleLocalInit).toHaveBeenCalledWith(mockSpinner, false);
       expect(mockHandleGlobalInit).not.toHaveBeenCalled();
       expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
     });
@@ -88,7 +135,7 @@ describe("setupInitCommand", () => {
     it("should call handleLocalInit when the --local option is set", async () => {
       await callAction(true, false);
 
-      expect(mockHandleLocalInit).toHaveBeenCalledWith(mockSpinner);
+      expect(mockHandleLocalInit).toHaveBeenCalledWith(mockSpinner, false);
       expect(mockHandleGlobalInit).not.toHaveBeenCalled();
       expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
     });
@@ -96,13 +143,13 @@ describe("setupInitCommand", () => {
     it("should call handleGlobalInit when the --global option is set", async () => {
       await callAction(false, true);
 
-      expect(mockHandleGlobalInit).toHaveBeenCalledWith(mockSpinner);
+      expect(mockHandleGlobalInit).toHaveBeenCalledWith(mockSpinner, false);
       expect(mockHandleLocalInit).not.toHaveBeenCalled();
       expect(mockHandleErrorAndExit).not.toHaveBeenCalled();
     });
 
-    it("should throw ConfigError and call handleErrorAndExit when both --local and --global are set", async () => {
-      await callAction(true, true);
+    it("should throw ConfigError and call handleErrorAndExit when both --local and --global are set (with -y being ignored in the error path)", async () => {
+      await callAction(true, true, true);
 
       expect(mockHandleGlobalInit).not.toHaveBeenCalled();
       expect(mockHandleLocalInit).not.toHaveBeenCalled();

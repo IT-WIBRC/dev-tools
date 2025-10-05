@@ -5,6 +5,12 @@ import { logger, TSpinner } from "#utils/logger.js";
 import { handleErrorAndExit } from "#utils/errors/handler.js";
 import { handleGlobalInit, handleLocalInit } from "./logic.js";
 
+interface InitCommandOptions {
+  local: boolean;
+  global: boolean;
+  yes?: boolean;
+}
+
 export function setupInitCommand(options: SetupCommandOptions): void {
   const { program } = options;
   program
@@ -13,9 +19,13 @@ export function setupInitCommand(options: SetupCommandOptions): void {
     .description(t("commands.config.init.command.description"))
     .option("-l, --local", t("commands.config.init.option.local"), false)
     .option("-g, --global", t("commands.config.init.option.global"), false)
-    .action(async (cmdOptions: { local: boolean; global: boolean }) => {
-      const isLocal: boolean = cmdOptions.local;
-      const isGlobal: boolean = cmdOptions.global;
+    .option("-y, --yes", t("commands.common.options.yes"), false)
+    .action(async (cmdOptions: InitCommandOptions) => {
+      const {
+        local: isLocal,
+        global: isGlobal,
+        yes: skipConfirmation,
+      } = cmdOptions;
       const spinner: TSpinner = logger.spinner();
 
       try {
@@ -24,9 +34,9 @@ export function setupInitCommand(options: SetupCommandOptions): void {
         }
 
         if (isGlobal) {
-          await handleGlobalInit(spinner);
+          await handleGlobalInit(spinner, skipConfirmation);
         } else {
-          await handleLocalInit(spinner);
+          await handleLocalInit(spinner, skipConfirmation);
         }
       } catch (error) {
         handleErrorAndExit(error, spinner);

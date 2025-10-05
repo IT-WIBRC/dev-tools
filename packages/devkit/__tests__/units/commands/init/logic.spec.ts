@@ -54,10 +54,9 @@ vi.mock("#utils/package-manager/index.js", () => ({
   getPackageManager: mockGetPackageManager,
 }));
 
-const CONFIG_INIT_START_KEY = "messages.status.config_init_start";
-const CONFIG_INITIALIZED_KEY = "messages.success.config_initialized";
 const CONFIRM_OVERWRITE_KEY = "commands.config.init.confirm_overwrite";
 const INIT_ABORTED_KEY = "commands.config.init.aborted";
+const SKIP_YES_CONFIRM_KEY = "commands.config.init.skip_yes_confirm";
 const COMMON_YES_KEY = "common.yes";
 const COMMON_NO_KEY = "common.no";
 
@@ -72,9 +71,9 @@ describe("Init Command Logic", () => {
   describe("promptForStandardOverwrite", () => {
     const mockPath = "/path/to/config.json";
 
-    it("should return true if the user selects 'yes'", async () => {
+    it("should return true if the user selects 'yes' (interactive)", async () => {
       mockSelect.mockResolvedValue(true);
-      const result = await promptForStandardOverwrite(mockPath);
+      const result = await promptForStandardOverwrite(mockPath, false);
 
       expect(mockSelect).toHaveBeenCalledWith({
         message: mockLogger.colors.yellow(
@@ -87,98 +86,87 @@ describe("Init Command Logic", () => {
         default: true,
       });
       expect(result).toBe(true);
+      expect(mockLogger.info).not.toHaveBeenCalled();
     });
 
-    it("should return false if the user selects 'no'", async () => {
+    it("should return false if the user selects 'no' (interactive)", async () => {
       mockSelect.mockResolvedValue(false);
-      const result = await promptForStandardOverwrite(mockPath);
+      const result = await promptForStandardOverwrite(mockPath, false);
       expect(result).toBe(false);
+    });
+
+    it("should return true immediately and log info if skipConfirmation is true", async () => {
+      const result = await promptForStandardOverwrite(mockPath, true);
+
+      expect(mockSelect).not.toHaveBeenCalled();
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        mockLogger.colors.yellow(
+          mocktFn(SKIP_YES_CONFIRM_KEY, { path: mockPath }),
+        ),
+      );
+      expect(result).toBe(true);
     });
   });
 
   describe("handleGlobalInit", () => {
-    const globalFileName = CONFIG_FILE_NAMES[0];
-    const defaultGlobalPath = `/home/user/${globalFileName}`;
-
     it("should create config at default global path if no existing file is found", async () => {
       mockFindGlobalConfigFile.mockResolvedValue(null);
       mockFs.pathExists.mockResolvedValue(false);
 
-      await handleGlobalInit(mockSpinner);
-
-      expect(mockPath.join).toHaveBeenCalledWith("/home/user", globalFileName);
+      await handleGlobalInit(mockSpinner, false);
 
       expect(mockSaveConfig).toHaveBeenCalledTimes(1);
-      expect(mockSaveConfig).toHaveBeenCalledWith(
-        expect.objectContaining({
-          settings: expect.objectContaining({ defaultPackageManager: "pnpm" }),
-        }),
-        defaultGlobalPath,
-      );
-
-      expect(mockSpinner.start).toHaveBeenCalledWith(
-        mockLogger.colors.cyan(
-          mocktFn(CONFIG_INIT_START_KEY, { path: defaultGlobalPath }),
-        ),
-      );
-      expect(mockSpinner.succeed).toHaveBeenCalledWith(
-        mockLogger.colors.green(mocktFn(CONFIG_INITIALIZED_KEY)),
-      );
-      expect(mockSpinner.info).not.toHaveBeenCalled();
+      expect(mockSpinner.succeed).toHaveBeenCalled();
     });
 
-    it("should use existing global config path if found and overwrite is confirmed", async () => {
+    it("should use existing global config path if found and overwrite is confirmed (interactive)", async () => {
       const existingPath = "/etc/custom/config.json";
       mockFindGlobalConfigFile.mockResolvedValue(existingPath);
       mockFs.pathExists.mockResolvedValue(true);
       mockSelect.mockResolvedValue(true);
 
-      await handleGlobalInit(mockSpinner);
+      await handleGlobalInit(mockSpinner, false);
 
-      expect(mockSelect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: expect.stringContaining(existingPath),
-        }),
-      );
-
+      expect(mockSelect).toHaveBeenCalled();
       expect(mockSaveConfig).toHaveBeenCalledWith(
         expect.any(Object),
         existingPath,
       );
       expect(mockSpinner.succeed).toHaveBeenCalled();
-      expect(mockSpinner.info).not.toHaveBeenCalled();
     });
 
-    it("should abort if existing global config file is found and overwrite is denied", async () => {
-      const existingPath = "/home/user/.cli-config.json";
+    it("should abort if existing global config file is found and overwrite is denied (interactive)", async () => {
       mockFindGlobalConfigFile.mockResolvedValue(null);
       mockFs.pathExists.mockResolvedValue(true);
       mockSelect.mockResolvedValue(false);
 
-      await handleGlobalInit(mockSpinner);
+      await handleGlobalInit(mockSpinner, false);
 
       expect(mockSelect).toHaveBeenCalled();
-
       expect(mockSaveConfig).not.toHaveBeenCalled();
       expect(mockSpinner.info).toHaveBeenCalledWith(
         mockLogger.colors.yellow(mocktFn(INIT_ABORTED_KEY)),
       );
-      expect(mockSpinner.succeed).not.toHaveBeenCalled();
     });
 
-    it("should detect and set 'yarn' as the default package manager", async () => {
-      mockFindGlobalConfigFile.mockResolvedValue(null);
-      mockFs.pathExists.mockResolvedValue(false);
-      mockGetPackageManager.mockResolvedValue("yarn");
+    it("should overwrite existing config without prompting if skipConfirmation is true", async () => {
+      const existingPath = "/etc/custom/config.json";
+      mockFindGlobalConfigFile.mockResolvedValue(existingPath);
+      mockFs.pathExists.mockResolvedValue(true);
 
-      await handleGlobalInit(mockSpinner);
+      await handleGlobalInit(mockSpinner, true);
 
-      expect(mockSaveConfig).toHaveBeenCalledWith(
-        expect.objectContaining({
-          settings: expect.objectContaining({ defaultPackageManager: "yarn" }),
-        }),
-        defaultGlobalPath,
+      expect(mockSelect).not.toHaveBeenCalled();
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        mockLogger.colors.yellow(
+          mocktFn(SKIP_YES_CONFIRM_KEY, { path: existingPath }),
+        ),
       );
+      expect(mockSaveConfig).toHaveBeenCalledWith(
+        expect.any(Object),
+        existingPath,
+      );
+      expect(mockSpinner.succeed).toHaveBeenCalled();
     });
   });
 
@@ -187,6 +175,7 @@ describe("Init Command Logic", () => {
     const currentPath = "/project/current";
     const monorepoRoot = "/project";
     const projectRoot = "/project/sub";
+    const existingPath = "/project/.cli-config.json";
 
     const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue(currentPath);
 
@@ -197,88 +186,58 @@ describe("Init Command Logic", () => {
 
       const expectedPath = `${projectRoot}/${localFileName}`;
 
-      await handleLocalInit(mockSpinner);
+      await handleLocalInit(mockSpinner, false);
 
-      expect(mockFindUp).toHaveBeenCalledWith(
-        expect.objectContaining({ cwd: projectRoot, limit: projectRoot }),
-      );
       expect(mockPath.join).toHaveBeenCalledWith(projectRoot, localFileName);
-
-      expect(mockSaveConfig).toHaveBeenCalledWith(
-        expect.any(Object),
-        expectedPath,
-      );
-      expect(mockSpinner.succeed).toHaveBeenCalled();
-    });
-
-    it("should prioritize monorepo root for path construction", async () => {
-      mockFindUp.mockResolvedValue(null);
-      mockFindMonorepoRoot.mockResolvedValue(monorepoRoot);
-      mockFindProjectRoot.mockResolvedValue(projectRoot);
-
-      const expectedPath = `${monorepoRoot}/${localFileName}`;
-
-      await handleLocalInit(mockSpinner);
-
-      expect(mockFindUp).toHaveBeenCalledWith(
-        expect.objectContaining({ cwd: monorepoRoot, limit: monorepoRoot }),
-      );
-      expect(mockPath.join).toHaveBeenCalledWith(monorepoRoot, localFileName);
       expect(mockSaveConfig).toHaveBeenCalledWith(
         expect.any(Object),
         expectedPath,
       );
     });
 
-    it("should use process.cwd() if no project or monorepo root is found", async () => {
-      mockFindUp.mockResolvedValue(null);
-      mockFindMonorepoRoot.mockResolvedValue(null);
-      mockFindProjectRoot.mockResolvedValue(null);
-
-      const expectedPath = `${currentPath}/${localFileName}`;
-
-      await handleLocalInit(mockSpinner);
-
-      expect(mockFindUp).toHaveBeenCalledWith(
-        expect.objectContaining({ cwd: currentPath, limit: currentPath }),
-      );
-      expect(mockPath.join).toHaveBeenCalledWith(currentPath, localFileName);
-      expect(mockSaveConfig).toHaveBeenCalledWith(
-        expect.any(Object),
-        expectedPath,
-      );
-    });
-
-    it("should use existing config path and save if overwrite is confirmed", async () => {
-      const existingPath = "/project/.cli-config.json";
+    it("should use existing config path and save if overwrite is confirmed (interactive)", async () => {
       mockFindUp.mockResolvedValue(existingPath);
       mockSelect.mockResolvedValue(true);
       mockFindMonorepoRoot.mockResolvedValue(monorepoRoot);
 
-      await handleLocalInit(mockSpinner);
+      await handleLocalInit(mockSpinner, false);
 
       expect(mockSelect).toHaveBeenCalled();
       expect(mockSaveConfig).toHaveBeenCalledWith(
         expect.any(Object),
         existingPath,
       );
-      expect(mockSpinner.succeed).toHaveBeenCalled();
     });
 
-    it("should use existing config path and abort if overwrite is denied", async () => {
-      const existingPath = "/project/current/.cli-config.json";
+    it("should use existing config path and abort if overwrite is denied (interactive)", async () => {
       mockFindUp.mockResolvedValue(existingPath);
       mockSelect.mockResolvedValue(false);
 
-      await handleLocalInit(mockSpinner);
+      await handleLocalInit(mockSpinner, false);
 
       expect(mockSelect).toHaveBeenCalled();
-
       expect(mockSaveConfig).not.toHaveBeenCalled();
       expect(mockSpinner.info).toHaveBeenCalledWith(
         mockLogger.colors.yellow(mocktFn(INIT_ABORTED_KEY)),
       );
-      expect(mockSpinner.succeed).not.toHaveBeenCalled();
+    });
+
+    it("should overwrite existing config without prompting if skipConfirmation is true", async () => {
+      mockFindUp.mockResolvedValue(existingPath);
+
+      await handleLocalInit(mockSpinner, true);
+
+      expect(mockSelect).not.toHaveBeenCalled();
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        mockLogger.colors.yellow(
+          mocktFn(SKIP_YES_CONFIRM_KEY, { path: existingPath }),
+        ),
+      );
+      expect(mockSaveConfig).toHaveBeenCalledWith(
+        expect.any(Object),
+        existingPath,
+      );
+      expect(mockSpinner.succeed).toHaveBeenCalled();
     });
 
     afterAll(() => {

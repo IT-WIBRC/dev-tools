@@ -418,7 +418,7 @@ dk new js my-new-project-name -t gh-template
 
 The `init` command allows you to initialize a configuration file at different scopes.
 
-**Note:** If a configuration file already exists at the specified location, you will be prompted to confirm if you want to overwrite it.
+**Note:** If a configuration file already exists at the specified location, you will be prompted to confirm if you want to overwrite it. To **skip the confirmation prompt and force overwrite**, use the **`--yes`** flag.
 
 - To initialize a **local** configuration file in your current project, use the `--local` flag, or run the command without any flags. The file will be named `.devkit.json`.
 - To initialize a **global** configuration file, use the `--global` flag. The file will be named `.devkitrc`.
@@ -429,11 +429,11 @@ The `init` command allows you to initialize a configuration file at different sc
 # Initialize a local configuration file in the current directory (default)
 dk init
 
-# Initialize a local configuration file in the current directory (explicit)
-dk init --local
+# Initialize a local configuration file and automatically overwrite if it exists
+dk init --local --yes
 
-# Initialize a global configuration file
-dk init --global
+# Initialize a global configuration file and force overwrite using the short alias
+dk init --global -y
 ```
 
 ### Add the JSON Schema for Autocompletion
