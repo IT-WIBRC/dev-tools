@@ -1,5 +1,35 @@
 # scaffolder-toolkit
 
+## 2.0.0
+
+### Major Changes
+
+- fb453cd: feat: Centralize configuration management under new 'dk config' command and enhance 'dk list'
+
+### Minor Changes
+
+- 6a4efa2: feat(config): Implement schema validation when loading configuration
+- 71930e4: feat: Introduces the new `dk info` command (alias `dk in`) to display comprehensive diagnostic information about the CLI environment. This command reports the CLI version, runtime details (Node.js/Bun), OS, and the existence and location of both global (`~/.devkitrc`) and local (`.devkit.json`) configuration files.
+- 3407be6: feat(.github): configure GitHub Discussions for community feedback
+- a8a222e: feat(config): Add --yes/-y option to dk init for non-interactive overwrite
+- 9dc5384: feat(cli): Improve `add-template` command with interactive flow. Add validation to the `add-template` command to check if a repository or local path exists before saving the template to the configuration.
+- e0862aa: feat(option): update 'dk list' filtering to '--where' with new advanced syntax
+- c5260ed: feat: refactoring configuration command logic into dedicated, reusable files and adding comprehensive unit tests for init, remove, and update commands, including new wildcard (\*) template resolution.
+- 962819a: feat: Add --include-defaults to list commands; enhance template config with {pm} token
+- ef9dea7: feat(cli): Add support for language aliases (js, ts, n) in all relevant commands
+- 8f1a5a4: feat: Add --mode option to `dk list` and strengthen logger table
+- 759300a: feat(list): enhance list command with filter option and improved output
+
+### Patch Changes
+
+- fc5d1d0: refactor: restructure json translation for better organization
+- f63786d: fix(scaffolding): Remove partially created project directory on failure
+- d0f0683: fix(config): Update config command alias from 'cf' to 'conf'
+- dedc1cf: refactor(utils): Complete utility reorganization and introduce core abstractions
+- 4e86dee: refactor(cli): implement dynamic help text generation
+- 0e259c3: feat: Add short aliases (pm, lang, cache) for configuration keys
+- b05f20a: refactor: Move `chalk` and `ora` to a single, centralized file for better code organization.
+
 ## 1.0.11
 
 ### Patch Changes
